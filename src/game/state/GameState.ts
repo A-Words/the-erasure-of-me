@@ -2,6 +2,7 @@ export type ChapterId = 'home' | 'rain' | 'life' | 'return' | 'ending';
 export type DegradationStage = 'D0' | 'D1' | 'D2' | 'D3' | 'D4';
 export type GameMode = 'standard' | 'low_stimulation';
 export type ModalId = 'inventory' | 'journal' | 'map' | 'pause' | 'photo_order' | null;
+export type MemoryIllustrationId = 'rain' | 'life.move';
 
 export interface AccessibilitySettings {
   fontSize: 'normal' | 'large';
@@ -48,6 +49,7 @@ export interface GameState {
   message: string | null;
   dialogue: string[];
   dialogueIndex: number;
+  activeMemoryId: MemoryIllustrationId | null;
   holdProgress: number;
   hintSeconds: number;
   hintLevel: 0 | 1 | 2 | 3;
@@ -71,7 +73,7 @@ export type GameCommand =
   | { type: 'CANCEL_HOLD' }
   | { type: 'RETURN_TITLE' }
   | { type: 'DEBUG_JUMP_CHAPTER'; chapterId: ChapterId }
-  | { type: 'DEBUG_SHOW_MEMORY'; memoryId: 'rain' }
+  | { type: 'DEBUG_SHOW_MEMORY'; memoryId: MemoryIllustrationId }
   | { type: 'CLEAR_MESSAGE' };
 
 export type WorldDirection = 'up' | 'down' | 'left' | 'right';

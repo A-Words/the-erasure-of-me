@@ -1,5 +1,11 @@
 import { chapterMaps } from '../content/maps';
-import type { ChapterId, GameCommand, GameState, WorldDirection } from './GameState';
+import type {
+  ChapterId,
+  GameCommand,
+  GameState,
+  MemoryIllustrationId,
+  WorldDirection,
+} from './GameState';
 import { createInitialState } from './initialState';
 
 type Listener = (state: Readonly<GameState>) => void;
@@ -141,6 +147,7 @@ export class GameStore {
         this.state.phase = 'title';
         this.state.modal = null;
         this.state.dialogue = [];
+        this.state.activeMemoryId = null;
         break;
       case 'DEBUG_JUMP_CHAPTER':
         this.state.phase = 'playing';
@@ -148,14 +155,22 @@ export class GameStore {
         break;
       case 'DEBUG_SHOW_MEMORY':
         this.state.phase = 'playing';
-        this.enterChapter('rain');
-        this.state.dialogue = [];
-        this.state.puzzles.stationSequence = [2, 4, 5];
-        this.state.puzzles.rainSigns = [
-          'entity.rain.umbrella_sign_a',
-          'entity.rain.umbrella_sign_b',
-        ];
-        this.interactRain('entity.rain.red_umbrella');
+        if (command.memoryId === 'rain') {
+          this.enterChapter('rain');
+          this.state.dialogue = [];
+          this.state.puzzles.stationSequence = [2, 4, 5];
+          this.state.puzzles.rainSigns = [
+            'entity.rain.umbrella_sign_a',
+            'entity.rain.umbrella_sign_b',
+          ];
+          this.interactRain('entity.rain.red_umbrella');
+        } else {
+          this.enterChapter('life');
+          this.state.dialogue = [];
+          addUnique(this.state.flags, 'puzzle.life.photo_order.completed');
+          addUnique(this.state.inventory, 'item.life.wood_comb');
+          this.interactLife('slot.life.dresser');
+        }
         break;
       case 'CLEAR_MESSAGE':
         this.state.message = null;
@@ -195,9 +210,10 @@ export class GameStore {
     this.state.player.moving = true;
   }
 
-  private setDialogue(lines: string[]): void {
+  private setDialogue(lines: string[], activeMemoryId: MemoryIllustrationId | null = null): void {
     this.state.dialogue = lines;
     this.state.dialogueIndex = 0;
+    this.state.activeMemoryId = activeMemoryId;
   }
 
   private advanceDialogue(): void {
@@ -207,6 +223,7 @@ export class GameStore {
     } else {
       this.state.dialogue = [];
       this.state.dialogueIndex = 0;
+      this.state.activeMemoryId = null;
       if (includes(this.state.flags, 'transition.to.guide')) {
         this.state.phase = 'guide';
         this.state.flags = this.state.flags.filter((flag) => flag !== 'transition.to.guide');
@@ -373,11 +390,14 @@ export class GameStore {
       }
       addUnique(this.state.memories, 'memory.rain.umbrella');
       this.state.checkpointId = 'checkpoint.rain.complete';
-      this.setDialogue([
-        '年轻的林秀兰：“你要去车站吗？”',
-        '“那一起走吧。伞往你那边一点，别淋着。”',
-        '我不记得车开去了哪里，只记得她的半边肩膀湿了。',
-      ]);
+      this.setDialogue(
+        [
+          '年轻的林秀兰：“你要去车站吗？”',
+          '“那一起走吧。伞往你那边一点，别淋着。”',
+          '我不记得车开去了哪里，只记得她的半边肩膀湿了。',
+        ],
+        'rain',
+      );
       addUnique(this.state.flags, 'transition.to.life');
     }
   }
@@ -426,7 +446,7 @@ export class GameStore {
             : item === 'item.life.enamel_cup'
               ? '桂花第一次开。她说，明年也一起闻。'
               : '停电的纪念日里，录音带的声音还在。';
-        this.setDialogue([memory]);
+        this.setDialogue([memory], item === 'item.life.wood_comb' ? 'life.move' : null);
         this.updateLifeObjective();
       }
       return;
@@ -555,6 +575,7 @@ export class GameStore {
     this.state.player = { ...map.spawn, facing: 'down', moving: false };
     this.state.modal = null;
     this.state.message = null;
+    this.state.activeMemoryId = null;
     this.state.hintSeconds = 0;
     this.state.hintLevel = 0;
     if (chapterId === 'rain') {

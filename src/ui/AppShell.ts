@@ -1,6 +1,11 @@
 import { chapterMaps, itemLabels } from '../game/content/maps';
 import { assetUrl } from '../game/assets/manifest';
-import type { AccessibilitySettings, GameState, ModalId } from '../game/state/GameState';
+import type {
+  AccessibilitySettings,
+  GameState,
+  MemoryIllustrationId,
+  ModalId,
+} from '../game/state/GameState';
 import type { GameStore } from '../game/state/GameStore';
 import type { SaveRepository } from '../save/SaveRepository';
 
@@ -121,7 +126,7 @@ export class AppShell {
 
   private debugPanel(state: Readonly<GameState>): string {
     const chapters: GameState['chapterId'][] = ['home', 'rain', 'life', 'return', 'ending'];
-    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button></div></aside>`;
+    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button><button data-debug-memory="life.move">memory-move</button></div></aside>`;
   }
 
   private renderPanel(state: Readonly<GameState>): void {
@@ -205,8 +210,8 @@ export class AppShell {
     }
     if (state.dialogue.length > 0) {
       const dialogue = `<button class="dialogue-box" data-dialogue aria-label="继续对白"><span>${state.dialogue[state.dialogueIndex]}</span><small>按 E / Enter / 空格继续</small></button>`;
-      this.system.innerHTML = state.flags.includes('transition.to.life')
-        ? `<section class="memory-cutscene" aria-label="雨中的初遇记忆"><img src="${assetUrl('memory.rain.umbrella.illustration')}" alt="年轻的秀兰在旧车站把修补过的红伞倾向淋雨的志远">${dialogue}</section>`
+      this.system.innerHTML = state.activeMemoryId
+        ? this.memoryCutscene(state.activeMemoryId, dialogue)
         : dialogue;
       return;
     }
@@ -219,6 +224,13 @@ export class AppShell {
       return;
     }
     this.system.innerHTML = '';
+  }
+
+  private memoryCutscene(memoryId: MemoryIllustrationId, dialogue: string): string {
+    if (memoryId === 'rain') {
+      return `<section class="memory-cutscene" aria-label="雨中的初遇记忆"><img src="${assetUrl('memory.rain.umbrella.illustration')}" alt="年轻的秀兰在旧车站把修补过的红伞倾向淋雨的志远">${dialogue}</section>`;
+    }
+    return `<section class="memory-cutscene" aria-label="搬进新家的记忆"><img src="${assetUrl('memory.life.move.illustration')}" alt="年轻的志远和秀兰坐在搬家纸箱上，未装好的床架和旧红伞留在一旁">${dialogue}</section>`;
   }
 
   private titleScreen(): string {
@@ -352,13 +364,14 @@ export class AppShell {
         }),
       ),
     );
-    document
-      .querySelectorAll<HTMLElement>('[data-debug-memory]')
-      .forEach((button) =>
-        button.addEventListener('click', () =>
-          this.store.dispatch({ type: 'DEBUG_SHOW_MEMORY', memoryId: 'rain' }),
-        ),
-      );
+    document.querySelectorAll<HTMLElement>('[data-debug-memory]').forEach((button) =>
+      button.addEventListener('click', () =>
+        this.store.dispatch({
+          type: 'DEBUG_SHOW_MEMORY',
+          memoryId: button.dataset.debugMemory as MemoryIllustrationId,
+        }),
+      ),
+    );
     const dialog = document.querySelector<HTMLElement>('[role="dialog"]');
     if (dialog && !dialog.contains(document.activeElement)) {
       const focusable = dialog.querySelector<HTMLElement>('button, select, input');

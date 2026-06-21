@@ -37,6 +37,7 @@ export function createInitialState(mode: GameMode = 'standard'): GameState {
     message: null,
     dialogue: [],
     dialogueIndex: 0,
+    activeMemoryId: null,
     holdProgress: 0,
     hintSeconds: 0,
     hintLevel: 0,

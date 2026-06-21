@@ -11,6 +11,7 @@
 | character.xiulan_old.idle.down | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_down_v01_chromakey.png | public/assets/characters/character_xiulan_old_idle_down_v01_64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；透明 PNG；尾声交互实体已接入 |
 | prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，所有雨站红伞实体共用 |
 | memory.rain.umbrella.illustration | 项目团队 | assets-source/art/memories/memory_rain_umbrella_v01.png | public/assets/memories/memory_rain_umbrella_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；雨站初遇对白期间显示；红伞为唯一高辨识暖色 |
+| memory.life.move.illustration | 项目团队 | assets-source/art/memories/memory_life_move_v01.png | public/assets/memories/memory_life_move_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；木梳归位后显示；纸箱、未装床架和背景红伞与脚本一致 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 浏览器验收 | 2026-06-22 | 灰盒对象层；正式 tile 仍待替换 |
 | map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
@@ -43,3 +44,11 @@
 - 生成限制：无可读文字、无现代物件、无额外前景人物、无亲吻或戏剧化姿态、无疾病或诊断隐喻。
 - 运行时处理：高分辨率 PNG 原稿归档于 `assets-source`，通过 `scripts/prepare_memory_illustration.py` 导出 1152×768 WebP。
 - 当前结论：内容、对白、裁切和叙事脚本一致，浏览器控制台无错误；待低扰动转场检查后决定是否升为 `approved`。
+
+### memory.life.move.illustration
+
+- 生成方式：内置 OpenAI ImageGen；使用已批准的雨站初遇插画维持同一对年轻人物、画法与纸张质感。
+- 生成目标：1979 年刚搬进第一间家，两人坐在结实纸箱上谈论尚未装好的床架；旧红伞靠墙，退居背景。
+- 生成限制：无可读文字、无现代家电、无额外人物、无浪漫海报姿势，不夸张贫困或疲惫。
+- 运行时处理：高分辨率 PNG 原稿归档于 `assets-source`，导出 1152×768 WebP。
+- 当前结论：内容与 `dialogue.life.memory_move` 一致；D2 实际构图、裁切和控制台检查通过。

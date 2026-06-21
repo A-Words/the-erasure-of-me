@@ -14,6 +14,7 @@ export class SaveRepository {
     snapshot.modal = null;
     snapshot.dialogue = [];
     snapshot.dialogueIndex = 0;
+    snapshot.activeMemoryId = null;
     snapshot.player.moving = false;
     localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
@@ -29,6 +30,7 @@ export class SaveRepository {
       parsed.modal = null;
       parsed.dialogue = [];
       parsed.dialogueIndex = 0;
+      parsed.activeMemoryId = null;
       parsed.hintSeconds ??= 0;
       parsed.hintLevel ??= 0;
       return parsed;

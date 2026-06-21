@@ -69,6 +69,13 @@ export const assetManifest = [
     chapter: 'rain',
     preload: true,
   },
+  {
+    key: 'memory.life.move.illustration',
+    type: 'image',
+    url: 'assets/memories/memory_life_move_v01.webp',
+    chapter: 'life',
+    preload: true,
+  },
 ] as const satisfies readonly AssetManifestEntry[];
 
 export function assetUrl(key: (typeof assetManifest)[number]['key']): string {

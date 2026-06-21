@@ -78,5 +78,14 @@ describe('GameStore', () => {
     expect(store.getState().memories).toContain('memory.rain.umbrella');
     expect(store.getState().flags).toContain('transition.to.life');
     expect(store.getState().dialogue.length).toBeGreaterThan(0);
+    expect(store.getState().activeMemoryId).toBe('rain');
+  });
+
+  it('can seed the moving-day memory through the real placement rules', () => {
+    const store = new GameStore();
+    store.dispatch({ type: 'DEBUG_SHOW_MEMORY', memoryId: 'life.move' });
+    expect(store.getState().chapterId).toBe('life');
+    expect(store.getState().puzzles.placedObjects).toContain('item.life.wood_comb');
+    expect(store.getState().activeMemoryId).toBe('life.move');
   });
 });
