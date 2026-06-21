@@ -5,3 +5,4 @@ test-results/
 .vite/
 *.log
 *.tsbuildinfo
+__pycache__/

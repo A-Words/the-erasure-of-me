@@ -1,0 +1,26 @@
+# 《记忆的缝隙》资产登记台账
+
+> 最近更新：2026-06-22
+> 规则来源：ART_BIBLE.md 第 8、9 节
+
+本表记录进入仓库的美术与音频资产。只有来源、许可证、锚点和审核状态完整的资产才能标记为 `shipped`。
+
+| assetKey | owner | sourceFile | exportFile | license/source | status | reviewer | approvedAt | notes |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| character.xu_old.idle.down | 项目团队 | assets-source/art/characters/character_xu_old_idle_down_v01_chromakey.png | public/assets/characters/character_xu_old_idle_down_v01_64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；透明 PNG；标准模式实际场景已检查 |
+| map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 浏览器验收 | 2026-06-22 | 灰盒对象层；正式 tile 仍待替换 |
+| map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
+| map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
+| map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
+| map.home_ending | 项目团队 | public/assets/data/map.home_ending.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
+
+## 生成与处理记录
+
+### character.xu_old.idle.down
+
+- 生成方式：内置 OpenAI ImageGen；`stylized-concept`。
+- 生成目标：72 岁中国老人许志远，退休钟表维修师，低饱和手绘 2D，蓝灰开衫、暖白衬衫、深色长裤，稳定且有尊严的站姿。
+- 生成限制：单人全身、无文字、无场景、无水印、纯 `#00ff00` 色键背景、不使用锚点红。
+- 色键处理：`remove_chroma_key.py`，边缘软遮罩与去色溢出。
+- 游戏帧处理：`scripts/normalize_character_seed.py`，透明内容统一缩放至 64×96，底部中心对齐。
+- 当前结论：轮廓、服装和色彩可进入动画种子评审；正式 `idle`/`walk` 动画条完成前保持 `review`。

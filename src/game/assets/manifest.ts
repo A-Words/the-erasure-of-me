@@ -2,9 +2,9 @@ import type { ChapterId } from '../state/GameState';
 
 export interface AssetManifestEntry {
   key: string;
-  type: 'tilemap';
+  type: 'tilemap' | 'image';
   url: string;
-  chapter: ChapterId;
+  chapter?: ChapterId;
   preload: boolean;
 }
 
@@ -42,6 +42,12 @@ export const assetManifest = [
     type: 'tilemap',
     url: 'assets/data/map.home_ending.json',
     chapter: 'ending',
+    preload: true,
+  },
+  {
+    key: 'character.xu_old.idle.down',
+    type: 'image',
+    url: 'assets/characters/character_xu_old_idle_down_v01_64x96.png',
     preload: true,
   },
 ] as const satisfies readonly AssetManifestEntry[];

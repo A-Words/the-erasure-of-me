@@ -21,6 +21,7 @@
 | [关卡设计](docs/LEVEL_DESIGN.md) | 房间布局、实体、触发器、谜题、检查点与提示升级 |
 | [叙事脚本](docs/NARRATIVE_SCRIPT.md) | 对白、日记、物件描述、系统文字和触发条件 |
 | [美术规范](docs/ART_BIBLE.md) | 色彩、字体、角色比例、精灵规格、UI 与资产命名 |
+| [资产登记台账](docs/ASSET_REGISTRY.md) | 美术与音频资产的来源、许可证、状态与审核记录 |
 | [制作路线图](docs/ROADMAP.md) | 八周里程碑、任务依赖、优先级和完成条件 |
 | [医学内容审核](docs/MEDICAL_REVIEW.md) | 权威来源、风险措辞、审核记录与发布检查 |
 

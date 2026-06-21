@@ -16,7 +16,6 @@ interface EntityView {
 export class GameScene extends Phaser.Scene {
   private readonly bridge: SceneBridge;
   private player!: Phaser.GameObjects.Container;
-  private playerBody!: Phaser.GameObjects.Arc;
   private entityViews: EntityView[] = [];
   private renderedChapter: GameState['chapterId'] | null = null;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
@@ -31,7 +30,8 @@ export class GameScene extends Phaser.Scene {
 
   preload(): void {
     for (const asset of assetManifest) {
-      this.load.tilemapTiledJSON(asset.key, asset.url);
+      if (asset.type === 'tilemap') this.load.tilemapTiledJSON(asset.key, asset.url);
+      else this.load.image(asset.key, asset.url);
     }
   }
 
@@ -183,10 +183,8 @@ export class GameScene extends Phaser.Scene {
     }
     this.player = this.add.container(state.player.x, state.player.y);
     const shadow = this.add.ellipse(0, 9, 38, 16, 0x2f2b28, 0.25);
-    this.playerBody = this.add.circle(0, -15, 18, 0xeee7d8).setStrokeStyle(4, 0x2f2b28);
-    const coat = this.add.rectangle(0, 6, 30, 36, 0x596a70).setStrokeStyle(3, 0x2f2b28);
-    const head = this.add.circle(0, -32, 11, 0xd8b9a0).setStrokeStyle(2, 0x2f2b28);
-    this.player.add([shadow, coat, this.playerBody, head]);
+    const actor = this.add.image(0, 16, 'character.xu_old.idle.down').setOrigin(0.5, 1);
+    this.player.add([shadow, actor]);
     this.player.setDepth(10);
   }
 

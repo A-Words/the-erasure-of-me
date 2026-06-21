@@ -222,6 +222,8 @@ fx.map_wash.mask
 
 ## 9. 资产状态表
 
+仓库内的实际登记见 [ASSET_REGISTRY.md](ASSET_REGISTRY.md)。
+
 每个资产在任务系统或表格中记录：
 
 | 字段 | 说明 |
