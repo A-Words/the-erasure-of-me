@@ -71,4 +71,12 @@ describe('GameStore', () => {
     expect(store.getState().degradationStage).toBe('D4');
     expect(store.getState().checkpointId).toBe('checkpoint.ending.start');
   });
+
+  it('can seed the rain memory cutscene without bypassing its domain flags', () => {
+    const store = new GameStore();
+    store.dispatch({ type: 'DEBUG_SHOW_MEMORY', memoryId: 'rain' });
+    expect(store.getState().memories).toContain('memory.rain.umbrella');
+    expect(store.getState().flags).toContain('transition.to.life');
+    expect(store.getState().dialogue.length).toBeGreaterThan(0);
+  });
 });

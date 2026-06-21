@@ -62,4 +62,17 @@ export const assetManifest = [
     url: 'assets/props/prop_red_umbrella_closed_v01.png',
     preload: true,
   },
+  {
+    key: 'memory.rain.umbrella.illustration',
+    type: 'image',
+    url: 'assets/memories/memory_rain_umbrella_v01.webp',
+    chapter: 'rain',
+    preload: true,
+  },
 ] as const satisfies readonly AssetManifestEntry[];
+
+export function assetUrl(key: (typeof assetManifest)[number]['key']): string {
+  const asset = assetManifest.find((entry) => entry.key === key);
+  if (!asset) throw new Error(`Unknown asset key: ${key}`);
+  return asset.url;
+}

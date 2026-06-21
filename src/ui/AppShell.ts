@@ -1,4 +1,5 @@
 import { chapterMaps, itemLabels } from '../game/content/maps';
+import { assetUrl } from '../game/assets/manifest';
 import type { AccessibilitySettings, GameState, ModalId } from '../game/state/GameState';
 import type { GameStore } from '../game/state/GameStore';
 import type { SaveRepository } from '../save/SaveRepository';
@@ -120,7 +121,7 @@ export class AppShell {
 
   private debugPanel(state: Readonly<GameState>): string {
     const chapters: GameState['chapterId'][] = ['home', 'rain', 'life', 'return', 'ending'];
-    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}</div></aside>`;
+    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button></div></aside>`;
   }
 
   private renderPanel(state: Readonly<GameState>): void {
@@ -203,7 +204,10 @@ export class AppShell {
       return;
     }
     if (state.dialogue.length > 0) {
-      this.system.innerHTML = `<button class="dialogue-box" data-dialogue aria-label="继续对白"><span>${state.dialogue[state.dialogueIndex]}</span><small>按 E / Enter / 空格继续</small></button>`;
+      const dialogue = `<button class="dialogue-box" data-dialogue aria-label="继续对白"><span>${state.dialogue[state.dialogueIndex]}</span><small>按 E / Enter / 空格继续</small></button>`;
+      this.system.innerHTML = state.flags.includes('transition.to.life')
+        ? `<section class="memory-cutscene" aria-label="雨中的初遇记忆"><img src="${assetUrl('memory.rain.umbrella.illustration')}" alt="年轻的秀兰在旧车站把修补过的红伞倾向淋雨的志远">${dialogue}</section>`
+        : dialogue;
       return;
     }
     if (state.chapterId === 'return' && !state.flags.includes('flag.return.mapping_learned')) {
@@ -348,6 +352,13 @@ export class AppShell {
         }),
       ),
     );
+    document
+      .querySelectorAll<HTMLElement>('[data-debug-memory]')
+      .forEach((button) =>
+        button.addEventListener('click', () =>
+          this.store.dispatch({ type: 'DEBUG_SHOW_MEMORY', memoryId: 'rain' }),
+        ),
+      );
     const dialog = document.querySelector<HTMLElement>('[role="dialog"]');
     if (dialog && !dialog.contains(document.activeElement)) {
       const focusable = dialog.querySelector<HTMLElement>('button, select, input');

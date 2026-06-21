@@ -71,6 +71,7 @@ export type GameCommand =
   | { type: 'CANCEL_HOLD' }
   | { type: 'RETURN_TITLE' }
   | { type: 'DEBUG_JUMP_CHAPTER'; chapterId: ChapterId }
+  | { type: 'DEBUG_SHOW_MEMORY'; memoryId: 'rain' }
   | { type: 'CLEAR_MESSAGE' };
 
 export type WorldDirection = 'up' | 'down' | 'left' | 'right';

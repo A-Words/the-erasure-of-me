@@ -146,6 +146,17 @@ export class GameStore {
         this.state.phase = 'playing';
         this.enterChapter(command.chapterId);
         break;
+      case 'DEBUG_SHOW_MEMORY':
+        this.state.phase = 'playing';
+        this.enterChapter('rain');
+        this.state.dialogue = [];
+        this.state.puzzles.stationSequence = [2, 4, 5];
+        this.state.puzzles.rainSigns = [
+          'entity.rain.umbrella_sign_a',
+          'entity.rain.umbrella_sign_b',
+        ];
+        this.interactRain('entity.rain.red_umbrella');
+        break;
       case 'CLEAR_MESSAGE':
         this.state.message = null;
         break;
