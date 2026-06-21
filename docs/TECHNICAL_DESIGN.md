@@ -1,9 +1,9 @@
 # 《记忆的缝隙》技术设计文档
 
-> 版本：v0.1  
-> 状态：开发基线  
-> 技术栈：Phaser 3 + TypeScript + Vite  
-> 包管理器：npm  
+> 版本：v0.1
+> 状态：开发基线
+> 技术栈：Phaser 3 + TypeScript + Vite
+> 包管理器：npm
 > 对应 GDD：v0.1
 
 ## 1. 目标与约束
