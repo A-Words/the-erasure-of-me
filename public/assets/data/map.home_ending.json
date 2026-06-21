@@ -1,0 +1,60 @@
+{
+  "compressionlevel": -1,
+  "height": 18,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "navigation",
+      "objects": [
+        {
+          "height": 656,
+          "id": 1,
+          "name": "spawn.ending.hall",
+          "type": "spawn",
+          "width": 1216,
+          "x": 32,
+          "y": 32
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 2,
+      "name": "interactables",
+      "objects": [
+        {
+          "height": 64,
+          "id": 2,
+          "name": "entity.ending.xiulan",
+          "type": "anchor",
+          "width": 64,
+          "x": 620,
+          "y": 360
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 3,
+  "nextobjectid": 3,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 32
+}

@@ -29,6 +29,8 @@
 
 ## 3. 开发前检查（第 0 周，2–3 天）
 
+> 2026-06-22 状态：M0.1 已完成；M0.2 的 GameStore、SceneBridge、InputMapper、DOM 暂停门控、输入测试、Tiled 对象层运行时加载和 localStorage 检查点均已完成。
+
 ### M0.1 工程初始化
 
 - 创建 Vite TypeScript 工程；

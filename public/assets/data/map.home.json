@@ -1,0 +1,96 @@
+{
+  "compressionlevel": -1,
+  "height": 18,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "navigation",
+      "objects": [
+        {
+          "height": 656,
+          "id": 1,
+          "name": "spawn.home.bed",
+          "type": "spawn",
+          "width": 1216,
+          "x": 32,
+          "y": 32
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 2,
+      "name": "interactables",
+      "objects": [
+        {
+          "height": 44,
+          "id": 2,
+          "name": "entity.home.bedside_photo",
+          "type": "inspect",
+          "width": 44,
+          "x": 280,
+          "y": 160
+        },
+        {
+          "height": 44,
+          "id": 3,
+          "name": "entity.home.journal",
+          "type": "pickup",
+          "width": 44,
+          "x": 610,
+          "y": 250
+        },
+        {
+          "height": 44,
+          "id": 4,
+          "name": "entity.home.glasses_case",
+          "type": "pickup",
+          "width": 44,
+          "x": 720,
+          "y": 470
+        },
+        {
+          "height": 44,
+          "id": 5,
+          "name": "entity.home.key_bowl",
+          "type": "pickup",
+          "width": 44,
+          "x": 1040,
+          "y": 500
+        },
+        {
+          "height": 60,
+          "id": 6,
+          "name": "entity.home.front_door",
+          "type": "exit",
+          "width": 60,
+          "x": 1160,
+          "y": 360
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 3,
+  "nextobjectid": 7,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 32
+}

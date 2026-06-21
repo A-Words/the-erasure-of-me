@@ -1,0 +1,150 @@
+{
+  "compressionlevel": -1,
+  "height": 18,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "navigation",
+      "objects": [
+        {
+          "height": 656,
+          "id": 1,
+          "name": "spawn.life.center",
+          "type": "spawn",
+          "width": 1216,
+          "x": 32,
+          "y": 32
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 2,
+      "name": "interactables",
+      "objects": [
+        {
+          "height": 44,
+          "id": 2,
+          "name": "item.photo.move_1979",
+          "type": "pickup",
+          "width": 44,
+          "x": 230,
+          "y": 520
+        },
+        {
+          "height": 44,
+          "id": 3,
+          "name": "item.photo.osmanthus_1992",
+          "type": "pickup",
+          "width": 44,
+          "x": 1060,
+          "y": 180
+        },
+        {
+          "height": 44,
+          "id": 4,
+          "name": "item.photo.anniversary_2001",
+          "type": "pickup",
+          "width": 44,
+          "x": 1030,
+          "y": 520
+        },
+        {
+          "height": 44,
+          "id": 5,
+          "name": "entity.life.album",
+          "type": "puzzle",
+          "width": 44,
+          "x": 640,
+          "y": 160
+        },
+        {
+          "height": 44,
+          "id": 6,
+          "name": "item.life.wood_comb",
+          "type": "pickup",
+          "width": 44,
+          "x": 310,
+          "y": 340
+        },
+        {
+          "height": 44,
+          "id": 7,
+          "name": "item.life.enamel_cup",
+          "type": "pickup",
+          "width": 44,
+          "x": 890,
+          "y": 330
+        },
+        {
+          "height": 44,
+          "id": 8,
+          "name": "item.life.cassette",
+          "type": "pickup",
+          "width": 44,
+          "x": 880,
+          "y": 570
+        },
+        {
+          "height": 44,
+          "id": 9,
+          "name": "slot.life.dresser",
+          "type": "slot",
+          "width": 44,
+          "x": 260,
+          "y": 150
+        },
+        {
+          "height": 44,
+          "id": 10,
+          "name": "slot.life.windowsill",
+          "type": "slot",
+          "width": 44,
+          "x": 1030,
+          "y": 150
+        },
+        {
+          "height": 44,
+          "id": 11,
+          "name": "slot.life.radio",
+          "type": "slot",
+          "width": 44,
+          "x": 1040,
+          "y": 590
+        },
+        {
+          "height": 60,
+          "id": 12,
+          "name": "entity.life.exit",
+          "type": "exit",
+          "width": 60,
+          "x": 640,
+          "y": 50
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 3,
+  "nextobjectid": 13,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 28
+}

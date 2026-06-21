@@ -1,0 +1,313 @@
+import Phaser from 'phaser';
+import { assetManifest } from '../../game/assets/manifest';
+import { chapterMaps, type WorldEntity } from '../../game/content/maps';
+import { mapMovement } from '../../game/input/InputMapper';
+import type { InputAction } from '../../game/input/actions';
+import type { GameState } from '../../game/state/GameState';
+import type { GameStore } from '../../game/state/GameStore';
+import { SceneBridge } from '../bridge/SceneBridge';
+
+interface EntityView {
+  definition: WorldEntity;
+  container: Phaser.GameObjects.Container;
+  marker: Phaser.GameObjects.Shape;
+}
+
+export class GameScene extends Phaser.Scene {
+  private readonly bridge: SceneBridge;
+  private player!: Phaser.GameObjects.Container;
+  private playerBody!: Phaser.GameObjects.Arc;
+  private entityViews: EntityView[] = [];
+  private renderedChapter: GameState['chapterId'] | null = null;
+  private keys!: Record<string, Phaser.Input.Keyboard.Key>;
+  private holdingConfirm = false;
+  private tickAccumulator = 0;
+  private unsubscribe: (() => void) | null = null;
+
+  constructor(store: GameStore) {
+    super('GameScene');
+    this.bridge = new SceneBridge(store);
+  }
+
+  preload(): void {
+    for (const asset of assetManifest) {
+      this.load.tilemapTiledJSON(asset.key, asset.url);
+    }
+  }
+
+  create(): void {
+    const keyboard = this.input.keyboard;
+    if (!keyboard) throw new Error('Keyboard input is unavailable');
+    this.keys = keyboard.addKeys({
+      up: Phaser.Input.Keyboard.KeyCodes.W,
+      upAlt: Phaser.Input.Keyboard.KeyCodes.UP,
+      down: Phaser.Input.Keyboard.KeyCodes.S,
+      downAlt: Phaser.Input.Keyboard.KeyCodes.DOWN,
+      left: Phaser.Input.Keyboard.KeyCodes.A,
+      leftAlt: Phaser.Input.Keyboard.KeyCodes.LEFT,
+      right: Phaser.Input.Keyboard.KeyCodes.D,
+      rightAlt: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+      interact: Phaser.Input.Keyboard.KeyCodes.E,
+      enter: Phaser.Input.Keyboard.KeyCodes.ENTER,
+      space: Phaser.Input.Keyboard.KeyCodes.SPACE,
+      observe: Phaser.Input.Keyboard.KeyCodes.SHIFT,
+      inventory: Phaser.Input.Keyboard.KeyCodes.I,
+      journal: Phaser.Input.Keyboard.KeyCodes.J,
+      map: Phaser.Input.Keyboard.KeyCodes.M,
+      pause: Phaser.Input.Keyboard.KeyCodes.ESC,
+      cancel: Phaser.Input.Keyboard.KeyCodes.Q,
+    }) as Record<string, Phaser.Input.Keyboard.Key>;
+
+    for (const keyName of ['interact', 'enter', 'space']) {
+      this.keys[keyName].on('down', () => this.confirmDown());
+      this.keys[keyName].on('up', () => this.confirmUp());
+    }
+    this.keys.inventory.on('down', () => this.toggleModal('inventory'));
+    this.keys.journal.on('down', () => this.toggleModal('journal'));
+    this.keys.map.on('down', () => this.toggleModal('map'));
+    this.keys.pause.on('down', () => this.toggleModal('pause'));
+    this.keys.cancel.on('down', () => this.bridge.send({ type: 'CLOSE_MODAL' }));
+    const movementKeys: Array<[string, InputAction]> = [
+      ['up', 'move_up'],
+      ['upAlt', 'move_up'],
+      ['down', 'move_down'],
+      ['downAlt', 'move_down'],
+      ['left', 'move_left'],
+      ['leftAlt', 'move_left'],
+      ['right', 'move_right'],
+      ['rightAlt', 'move_right'],
+    ];
+    for (const [keyName, action] of movementKeys) {
+      this.keys[keyName].on('down', () => {
+        const state = this.bridge.getSnapshot();
+        const direction = mapMovement(action, state.degradationStage, state.mode);
+        if (direction) this.bridge.send({ type: 'MOVE', direction, deltaSeconds: 0.1 });
+      });
+    }
+
+    this.unsubscribe = this.bridge.subscribe((state) => this.syncState(state));
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.unsubscribe?.());
+  }
+
+  update(_time: number, delta: number): void {
+    const state = this.bridge.getSnapshot();
+    if (state.phase !== 'playing') return;
+    this.tickAccumulator += delta / 1000;
+    if (this.tickAccumulator >= 1) {
+      this.bridge.send({ type: 'TICK', deltaSeconds: this.tickAccumulator });
+      this.tickAccumulator = 0;
+    }
+    const action = this.currentMovementAction();
+    if (action) {
+      const direction = mapMovement(action, state.degradationStage, state.mode);
+      if (direction) this.bridge.send({ type: 'MOVE', direction, deltaSeconds: delta / 1000 });
+    }
+    if (this.holdingConfirm && state.flags.includes('ending.ready_to_hold')) {
+      this.bridge.send({ type: 'HOLD', deltaSeconds: delta / 1000 });
+    }
+    this.highlightNearby(this.keys.observe.isDown);
+  }
+
+  private currentMovementAction(): InputAction | null {
+    if (this.keys.up.isDown || this.keys.upAlt.isDown) return 'move_up';
+    if (this.keys.down.isDown || this.keys.downAlt.isDown) return 'move_down';
+    if (this.keys.left.isDown || this.keys.leftAlt.isDown) return 'move_left';
+    if (this.keys.right.isDown || this.keys.rightAlt.isDown) return 'move_right';
+    return null;
+  }
+
+  private confirmDown(): void {
+    const state = this.bridge.getSnapshot();
+    if (state.phase !== 'playing') return;
+    if (state.dialogue.length > 0) {
+      this.bridge.send({ type: 'ADVANCE_DIALOGUE' });
+      return;
+    }
+    if (state.flags.includes('ending.ready_to_hold')) {
+      this.holdingConfirm = true;
+      if (state.settings.holdMode === 'single') this.bridge.send({ type: 'HOLD', deltaSeconds: 1 });
+      return;
+    }
+    if (state.modal) return;
+    const nearest = this.nearestEntity(125);
+    if (nearest) this.bridge.interact(nearest.definition.id);
+  }
+
+  private confirmUp(): void {
+    if (this.holdingConfirm && this.bridge.getSnapshot().holdProgress < 1) {
+      this.bridge.send({ type: 'CANCEL_HOLD' });
+    }
+    this.holdingConfirm = false;
+  }
+
+  private toggleModal(modal: 'inventory' | 'journal' | 'map' | 'pause'): void {
+    const state = this.bridge.getSnapshot();
+    if (state.phase !== 'playing' || state.dialogue.length > 0) return;
+    this.bridge.send(
+      state.modal === modal ? { type: 'CLOSE_MODAL' } : { type: 'OPEN_MODAL', modal },
+    );
+  }
+
+  private syncState(state: Readonly<GameState>): void {
+    if (this.renderedChapter !== state.chapterId) this.buildChapter(state);
+    if (!this.player) return;
+    this.player.setPosition(state.player.x, state.player.y);
+    this.player.setAlpha(state.phase === 'playing' ? 1 : 0.22);
+    this.updateEntityVisibility(state);
+  }
+
+  private buildChapter(state: Readonly<GameState>): void {
+    this.children.removeAll(true);
+    this.entityViews = [];
+    const map = chapterMaps[state.chapterId];
+    this.renderedChapter = state.chapterId;
+    this.cameras.main.setBackgroundColor(map.palette.wall);
+    this.cameras.main.setBounds(0, 0, map.width, map.height);
+
+    const graphics = this.add.graphics();
+    graphics.fillStyle(map.palette.floor, 1);
+    graphics.fillRoundedRect(32, 32, map.width - 64, map.height - 64, 18);
+    graphics.lineStyle(3, 0xeee7d8, 0.25);
+    for (let x = 96; x < map.width; x += 128) graphics.lineBetween(x, 48, x, map.height - 48);
+    for (let y = 96; y < map.height; y += 128) graphics.lineBetween(48, y, map.width - 48, y);
+    this.drawChapterDetails(state.chapterId, graphics, map.palette.accent);
+
+    const tiledMap = this.make.tilemap({ key: map.id });
+    const tiledObjects = tiledMap.getObjectLayer('interactables')?.objects ?? [];
+    for (const entity of map.entities) {
+      const authored = tiledObjects.find((object) => object.name === entity.id);
+      const runtimeEntity = authored
+        ? { ...entity, x: authored.x ?? entity.x, y: authored.y ?? entity.y }
+        : entity;
+      this.entityViews.push(this.createEntity(runtimeEntity));
+    }
+    this.player = this.add.container(state.player.x, state.player.y);
+    const shadow = this.add.ellipse(0, 9, 38, 16, 0x2f2b28, 0.25);
+    this.playerBody = this.add.circle(0, -15, 18, 0xeee7d8).setStrokeStyle(4, 0x2f2b28);
+    const coat = this.add.rectangle(0, 6, 30, 36, 0x596a70).setStrokeStyle(3, 0x2f2b28);
+    const head = this.add.circle(0, -32, 11, 0xd8b9a0).setStrokeStyle(2, 0x2f2b28);
+    this.player.add([shadow, coat, this.playerBody, head]);
+    this.player.setDepth(10);
+  }
+
+  private drawChapterDetails(
+    chapter: GameState['chapterId'],
+    graphics: Phaser.GameObjects.Graphics,
+    accent: number,
+  ): void {
+    graphics.lineStyle(8, accent, 0.28);
+    if (chapter === 'home' || chapter === 'ending') {
+      graphics.lineBetween(430, 45, 430, 675);
+      graphics.lineBetween(870, 45, 870, 675);
+      graphics.lineBetween(45, 430, 1235, 430);
+    } else if (chapter === 'rain') {
+      graphics.lineBetween(100, 610, 1160, 100);
+      graphics.fillStyle(0x9cc4d0, 0.16);
+      for (let i = 0; i < 18; i += 1) graphics.fillEllipse(80 + i * 67, 80 + (i % 5) * 120, 56, 18);
+    } else if (chapter === 'life') {
+      graphics.strokeRect(150, 100, 980, 520);
+      graphics.lineBetween(430, 100, 430, 620);
+      graphics.lineBetween(850, 100, 850, 620);
+    } else {
+      graphics.lineBetween(640, 100, 640, 620);
+      graphics.lineBetween(120, 360, 1160, 360);
+      graphics.fillStyle(0xb54949, 0.25);
+      graphics.fillTriangle(580, 230, 700, 230, 640, 150);
+    }
+  }
+
+  private createEntity(entity: WorldEntity): EntityView {
+    const color = entity.color ?? (entity.kind === 'exit' ? 0xeee7d8 : 0xd6c58e);
+    const container = this.add.container(entity.x, entity.y);
+    const marker = this.add
+      .circle(0, 0, entity.kind === 'exit' ? 30 : 22, color, 0.88)
+      .setStrokeStyle(3, 0x2f2b28, 0.7);
+    const glyph = this.add
+      .text(0, 0, this.entityGlyph(entity), {
+        color: '#2f2b28',
+        fontFamily: 'serif',
+        fontSize: entity.kind === 'exit' ? '24px' : '17px',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5);
+    const label = this.add
+      .text(0, 38, entity.label, {
+        color: '#f7f3e8',
+        backgroundColor: '#2f2b28cc',
+        fontFamily: 'sans-serif',
+        fontSize: '15px',
+        padding: { x: 8, y: 4 },
+      })
+      .setOrigin(0.5, 0)
+      .setAlpha(0.82);
+    container.add([marker, glyph, label]);
+    return { definition: entity, container, marker };
+  }
+
+  private entityGlyph(entity: WorldEntity): string {
+    if (entity.id.includes('umbrella')) return '☂';
+    if (entity.id.includes('stone')) return entity.id.slice(-1);
+    if (entity.id.startsWith('route.'))
+      return (
+        { 'route.up': '↑', 'route.right': '→', 'route.down': '↓', 'route.left': '←' }[entity.id] ??
+        '·'
+      );
+    if (entity.kind === 'exit') return '门';
+    if (entity.kind === 'slot') return '◇';
+    if (entity.kind === 'pickup') return '拾';
+    if (entity.kind === 'puzzle') return '解';
+    return '看';
+  }
+
+  private updateEntityVisibility(state: Readonly<GameState>): void {
+    for (const view of this.entityViews) {
+      const id = view.definition.id;
+      const collected =
+        (id === 'entity.home.journal' && state.inventory.includes('item.home.journal')) ||
+        (id === 'entity.home.key_bowl' && state.inventory.includes('item.home.key')) ||
+        (id === 'entity.home.glasses_case' && state.inventory.includes('item.home.glasses_case')) ||
+        (id === 'entity.rain.ticket' && state.inventory.includes('item.rain.ticket')) ||
+        (id === 'item.photo.move_1979' && state.inventory.includes('item.photo.1979')) ||
+        (id === 'item.photo.osmanthus_1992' && state.inventory.includes('item.photo.1992')) ||
+        (id === 'item.photo.anniversary_2001' && state.inventory.includes('item.photo.2001')) ||
+        (id.startsWith('item.life.') && state.inventory.includes(id));
+      const routeHidden =
+        state.chapterId === 'return' && state.puzzles.returnJunction >= 3 && id !== 'route.up';
+      view.container.setVisible(!collected && !routeHidden);
+    }
+  }
+
+  private nearestEntity(maxDistance: number): EntityView | null {
+    let nearest: EntityView | null = null;
+    let best = maxDistance;
+    for (const view of this.entityViews) {
+      if (!view.container.visible) continue;
+      const distance = Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        view.definition.x,
+        view.definition.y,
+      );
+      if (distance < best) {
+        nearest = view;
+        best = distance;
+      }
+    }
+    return nearest;
+  }
+
+  private highlightNearby(observe: boolean): void {
+    for (const view of this.entityViews) {
+      if (!view.container.visible) continue;
+      const distance = Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        view.definition.x,
+        view.definition.y,
+      );
+      const near = distance < (observe ? 210 : 125);
+      view.marker.setScale(near ? 1.16 : 1);
+      view.container.setAlpha(near ? 1 : 0.72);
+    }
+  }
+}

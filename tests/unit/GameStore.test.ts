@@ -1,0 +1,66 @@
+import { describe, expect, it } from 'vitest';
+import { GameStore } from '../../src/game/state/GameStore';
+import { createInitialState } from '../../src/game/state/initialState';
+
+function clearDialogue(store: GameStore): void {
+  while (store.getState().dialogue.length > 0) store.dispatch({ type: 'ADVANCE_DIALOGUE' });
+}
+
+describe('GameStore', () => {
+  it('blocks movement under a modal', () => {
+    const store = new GameStore(createInitialState());
+    store.dispatch({ type: 'NEW_GAME', mode: 'standard' });
+    clearDialogue(store);
+    const before = store.getState().player.x;
+    store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 1 });
+    expect(store.getState().player.x).toBe(before);
+  });
+
+  it('keeps the correct station prefix after a soft miss', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'rain';
+    state.degradationStage = 'D1';
+    const store = new GameStore(state);
+    store.dispatch({ type: 'INTERACT', entityId: 'entity.rain.stone_2' });
+    store.dispatch({ type: 'INTERACT', entityId: 'entity.rain.stone_5' });
+    expect(store.getState().puzzles.stationSequence).toEqual([2]);
+  });
+
+  it('accepts the documented photo order', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'life';
+    const store = new GameStore(state);
+    store.dispatch({ type: 'PHOTO_ORDER', order: ['photo.1979', 'photo.1992', 'photo.2001'] });
+    expect(store.getState().flags).toContain('puzzle.life.photo_order.completed');
+    expect(store.getState().checkpointId).toBe('checkpoint.life.photos');
+  });
+
+  it('preserves a correct route prefix after a wrong exit', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'return';
+    state.degradationStage = 'D3';
+    state.flags = ['flag.return.mapping_learned'];
+    const store = new GameStore(state);
+    store.dispatch({ type: 'INTERACT', entityId: 'route.right' });
+    store.dispatch({ type: 'INTERACT', entityId: 'route.down' });
+    expect(store.getState().puzzles.returnPrefix).toEqual(['right']);
+    expect(store.getState().puzzles.routeLoops).toBe(1);
+  });
+
+  it('pauses hint time under stable system UI and unlocks neutral hints', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    const store = new GameStore(state);
+    store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
+    store.dispatch({ type: 'TICK', deltaSeconds: 100 });
+    expect(store.getState().hintLevel).toBe(0);
+    store.dispatch({ type: 'CLOSE_MODAL' });
+    store.dispatch({ type: 'TICK', deltaSeconds: 90 });
+    expect(store.getState().hintLevel).toBe(1);
+    expect(store.getState().message).toContain('蓝色小碗');
+  });
+});

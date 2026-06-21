@@ -1,0 +1,87 @@
+{
+  "compressionlevel": -1,
+  "height": 20,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "navigation",
+      "objects": [
+        {
+          "height": 656,
+          "id": 1,
+          "name": "spawn.return.training",
+          "type": "spawn",
+          "width": 1216,
+          "x": 32,
+          "y": 32
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 2,
+      "name": "interactables",
+      "objects": [
+        {
+          "height": 60,
+          "id": 2,
+          "name": "route.up",
+          "type": "exit",
+          "width": 60,
+          "x": 640,
+          "y": 90
+        },
+        {
+          "height": 60,
+          "id": 3,
+          "name": "route.right",
+          "type": "exit",
+          "width": 60,
+          "x": 1160,
+          "y": 360
+        },
+        {
+          "height": 60,
+          "id": 4,
+          "name": "route.down",
+          "type": "exit",
+          "width": 60,
+          "x": 640,
+          "y": 630
+        },
+        {
+          "height": 60,
+          "id": 5,
+          "name": "route.left",
+          "type": "exit",
+          "width": 60,
+          "x": 120,
+          "y": 360
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 3,
+  "nextobjectid": 6,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 36
+}

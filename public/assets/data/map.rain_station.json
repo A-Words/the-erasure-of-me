@@ -1,0 +1,114 @@
+{
+  "compressionlevel": -1,
+  "height": 24,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "navigation",
+      "objects": [
+        {
+          "height": 656,
+          "id": 1,
+          "name": "spawn.rain.platform",
+          "type": "spawn",
+          "width": 1216,
+          "x": 32,
+          "y": 32
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 2,
+      "name": "interactables",
+      "objects": [
+        {
+          "height": 44,
+          "id": 2,
+          "name": "entity.rain.ticket",
+          "type": "pickup",
+          "width": 44,
+          "x": 180,
+          "y": 560
+        },
+        {
+          "height": 44,
+          "id": 3,
+          "name": "entity.rain.stone_2",
+          "type": "puzzle",
+          "width": 44,
+          "x": 330,
+          "y": 520
+        },
+        {
+          "height": 44,
+          "id": 4,
+          "name": "entity.rain.stone_4",
+          "type": "puzzle",
+          "width": 44,
+          "x": 510,
+          "y": 410
+        },
+        {
+          "height": 44,
+          "id": 5,
+          "name": "entity.rain.stone_5",
+          "type": "puzzle",
+          "width": 44,
+          "x": 680,
+          "y": 310
+        },
+        {
+          "height": 44,
+          "id": 6,
+          "name": "entity.rain.umbrella_sign_a",
+          "type": "anchor",
+          "width": 44,
+          "x": 820,
+          "y": 270
+        },
+        {
+          "height": 44,
+          "id": 7,
+          "name": "entity.rain.umbrella_sign_b",
+          "type": "anchor",
+          "width": 44,
+          "x": 980,
+          "y": 180
+        },
+        {
+          "height": 60,
+          "id": 8,
+          "name": "entity.rain.red_umbrella",
+          "type": "exit",
+          "width": 60,
+          "x": 1140,
+          "y": 120
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 3,
+  "nextobjectid": 9,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.11.2",
+  "tileheight": 64,
+  "tilesets": [],
+  "tilewidth": 64,
+  "type": "map",
+  "version": "1.10",
+  "width": 44
+}
