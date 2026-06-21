@@ -1,0 +1,617 @@
+# 《记忆的缝隙》技术设计文档
+
+> 版本：v0.1  
+> 状态：开发基线  
+> 技术栈：Phaser 3 + TypeScript + Vite  
+> 包管理器：npm  
+> 对应 GDD：v0.1
+
+## 1. 目标与约束
+
+### 1.1 技术目标
+
+1. 在普通 PC 浏览器中稳定运行 20–30 分钟的完整垂直切片。
+2. 让游戏状态、退化规则和谜题逻辑可独立测试，不依赖 Phaser 精灵生命周期。
+3. 让标准输入、D3 方向错位和低扰动模式共享同一套语义动作接口。
+4. 保证键盘、静音、色觉差异和减少动态效果条件下可通关。
+5. 支持按章加载资产、自动存档和静态站点部署。
+
+### 1.2 非目标
+
+- 不引入 React、Vue 或其他 UI 框架。
+- 不实现账号、云存档、服务端、多人、排行榜和支付。
+- 不实现物理引擎、战斗 ECS 或通用关卡编辑器。
+- 不把 Phaser Scene、Sprite、Tween、Camera 或 DOM 节点写入存档。
+- 不为原型开发自定义 WebGL 着色器；退化效果优先使用纹理、遮罩和轻量后处理。
+
+## 2. 核心技术决策
+
+| 决策 | 采用方案 | 原因 |
+| --- | --- | --- |
+| 渲染与场景 | Phaser 3 | 适合 2D 俯视探索、Tilemap、相机与音频 |
+| 语言 | TypeScript 严格模式 | 约束内容数据、存档和阶段配置 |
+| 构建 | Vite | 快速开发、静态构建、按需导入 |
+| UI | 原生 DOM + CSS | 字幕、设置和科普页需要可访问性与响应式 |
+| 地图 | Tiled JSON | 可视化编辑碰撞、触发器和对象属性 |
+| 状态 | 自研轻量 GameStore | 体量小，避免框架状态与 Phaser 生命周期耦合 |
+| 单元测试 | Vitest | 与 Vite/TypeScript 配合直接 |
+| 浏览器测试 | Playwright | 验证启动、键盘、暂停、存档和视觉状态 |
+| 存档 | localStorage | 单机静态部署足够，易于版本迁移 |
+| 部署 | 静态站点 | 无服务端依赖，可部署至常见静态托管 |
+
+依赖版本在工程初始化时选用当时稳定版本，并由 package-lock.json 锁定；文档不硬编码会快速过期的补丁版本。
+
+## 3. 架构边界
+
+### 3.1 目录结构
+
+~~~text
+src/
+  main.ts
+  game/
+    state/
+      GameState.ts
+      GameStore.ts
+      initialState.ts
+    systems/
+      ChapterSystem.ts
+      MovementSystem.ts
+      InteractionSystem.ts
+      InventorySystem.ts
+      PuzzleSystem.ts
+      DegradationSystem.ts
+      HintSystem.ts
+      NarrativeSystem.ts
+      SaveSystem.ts
+    rules/
+      movementRules.ts
+      puzzleRules.ts
+      progressionRules.ts
+    content/
+      chapters/
+      dialogues/
+      items/
+      puzzles/
+      maps/
+    input/
+      actions.ts
+      bindings.ts
+      InputMapper.ts
+    assets/
+      manifest.ts
+      assetTypes.ts
+  phaser/
+    config.ts
+    scenes/
+      BootScene.ts
+      MenuScene.ts
+      GameScene.ts
+      EndingScene.ts
+    bridge/
+      SceneBridge.ts
+    view/
+      actors/
+      interactables/
+      camera/
+      effects/
+      tilemaps/
+      audio/
+  ui/
+    AppShell.ts
+    hud/
+    panels/
+    subtitles/
+    settings/
+    guide/
+  accessibility/
+    AccessibilitySettings.ts
+    visualCues.ts
+  save/
+    SaveRepository.ts
+    migrations.ts
+  telemetry/
+    Telemetry.ts
+public/
+  assets/
+    characters/
+    environment/
+    props/
+    ui/
+    fx/
+    audio/
+    data/
+assets-source/
+  tiled/
+  art/
+  audio/
+tests/
+  unit/
+  integration/
+  e2e/
+~~~
+
+### 3.2 依赖方向
+
+~~~mermaid
+flowchart LR
+    Input["物理输入"] --> Mapper["InputMapper"]
+    Mapper --> App["Application / Systems"]
+    Content["Content Data"] --> App
+    App --> Store["GameStore"]
+    Store --> Bridge["SceneBridge"]
+    Store --> UI["DOM UI"]
+    Bridge --> Phaser["Phaser View"]
+    Store --> Save["SaveRepository"]
+~~~
+
+约束：
+
+- game/state、game/systems 和 game/rules 不得导入 Phaser。
+- phaser 层只能通过 SceneBridge 读取快照或发送 InputAction。
+- ui 层只能订阅 GameStore 并派发应用命令，不能直接访问 Phaser Sprite。
+- 内容数据只保存业务 ID，不保存具体文件路径。
+- SaveRepository 只接收纯数据快照。
+
+### 3.3 GameStore
+
+GameStore 是唯一运行时真值源，提供：
+
+- getState：返回只读快照；
+- dispatch：接收语义化命令；
+- subscribe：通知 Phaser 更新完整游戏快照；
+- subscribeSelector：只在选定字段变化时通知 DOM UI；
+- replaceFromSave：经迁移与校验后恢复状态。
+
+更新采用同步、确定性 reducer 或系统函数。动画完成只负责发送“表现结束”事件，不决定谜题真值。
+
+~~~ts
+interface GameState {
+  schemaVersion: 1;
+  mode: 'standard' | 'low_stimulation';
+  chapterId: ChapterId;
+  checkpointId: string;
+  degradationStage: 'D0' | 'D1' | 'D2' | 'D3' | 'D4';
+  player: PlayerState;
+  inventory: InventoryState;
+  journal: JournalState;
+  puzzles: Record<string, PuzzleState>;
+  hints: Record<string, HintState>;
+  narrative: NarrativeState;
+  settings: AccessibilitySettings;
+  playTimeSeconds: number;
+}
+~~~
+
+## 4. 启动与场景
+
+### 4.1 启动流程
+
+~~~mermaid
+stateDiagram-v2
+    [*] --> Boot
+    Boot --> Menu: 核心资源与设置加载完成
+    Menu --> Game: 新游戏或继续
+    Game --> Game: 章节与检查点切换
+    Game --> Ending: 第四章完成
+    Ending --> Guide: 牵手演出结束
+    Guide --> Menu: 重新开始或返回标题
+~~~
+
+### 4.2 Scene 职责
+
+#### BootScene
+
+- 加载最小启动资源、字体清单和资产 manifest；
+- 初始化 GameStore、SaveRepository、AudioManager；
+- 检查 WebGL/Canvas 能力并给出可理解的错误页面；
+- 不展示剧情。
+
+#### MenuScene
+
+- 只提供标题背景与轻量环境动画；
+- 主菜单本体由 DOM 呈现；
+- 新游戏、继续、设置和内容提示通过应用命令进入 GameStore。
+
+#### GameScene
+
+- 挂载当前 Tilemap、角色、相机、音频和表现层；
+- 将 Phaser 键盘输入送入 InputMapper；
+- 读取 GameStore 快照更新角色、物件、特效和声音；
+- 不直接判断谜题完成、提示等级或存档条件。
+
+#### EndingScene
+
+- 负责尾声固定构图、林秀兰入场、长按牵手表现；
+- 牵手命令仍由 GameStore 判断；
+- 演出完成后激活 DOM 科普页。
+
+### 4.3 SceneBridge
+
+SceneBridge 是 Phaser 和领域层之间的唯一桥：
+
+~~~ts
+interface SceneBridge {
+  getSnapshot(): Readonly<GameState>;
+  send(action: InputAction): void;
+  interact(targetId: string): void;
+  notifyViewReady(viewId: string): void;
+  subscribe(listener: (state: Readonly<GameState>) => void): () => void;
+}
+~~~
+
+## 5. 输入架构
+
+### 5.1 语义动作
+
+~~~ts
+type InputAction =
+  | 'move_up'
+  | 'move_down'
+  | 'move_left'
+  | 'move_right'
+  | 'observe'
+  | 'interact'
+  | 'cancel'
+  | 'open_inventory'
+  | 'open_journal'
+  | 'open_map'
+  | 'pause';
+~~~
+
+### 5.2 映射层
+
+输入依次经过：
+
+1. PhysicalBinding：WASD、方向键、E、Enter 等物理键；
+2. ModalGate：DOM 面板打开时阻断角色动作；
+3. AccessibilityOverride：低扰动模式覆盖 D3；
+4. DegradationTransform：标准模式 D3 旋转移动动作；
+5. ActionDispatcher：把 InputAction 送入系统。
+
+暂停、取消和 DOM 菜单导航永远绕过 DegradationTransform。
+
+### 5.3 移动
+
+- 采用八方向动画中的四方向逻辑，不允许斜向移动。
+- 角色速度为每秒 180 逻辑像素，低扰动模式不改变速度。
+- Content Loader 将 Tiled 的 collision 与 navigation 图层转换为纯数据 CollisionMap。
+- MovementSystem 根据 CollisionMap、角色脚部碰撞体和当前 InputAction 计算最终位置。
+- Phaser Sprite 只跟随最终位置，不参与碰撞判定；本项目不启用 Arcade Physics 作为玩法真值。
+- 每次位置更新写入领域层坐标；DOM UI 不订阅坐标字段。
+- 恢复存档时先校验坐标是否落在当前导航区域。
+
+### 5.4 长按交互
+
+尾声牵手需要连续按住任一确认键 1.5 秒：
+
+- keydown 开始计时；
+- keyup、浏览器失焦或暂停立即取消；
+- 进度属于领域状态，动画只读取进度；
+- 减少动态效果模式以静态暖色渐变替代粒子；
+- 长按阈值在无障碍设置中可改为 0.6 秒或单次确认。
+
+## 6. Tilemap 与关卡数据
+
+### 6.1 基本规格
+
+- 编辑器：Tiled；
+- 网格：64×64 逻辑像素；
+- 地图格式：JSON；
+- 相机设计分辨率：1280×720；
+- 角色基准帧：64×96；
+- 坐标原点：地图左上角；
+- 所有实体锚点：底部中心。
+
+### 6.2 图层规范
+
+每张地图固定包含：
+
+| 图层 | 类型 | 用途 |
+| --- | --- | --- |
+| ground | Tile Layer | 地面 |
+| floor_detail | Tile Layer | 地毯、水渍、裂纹 |
+| walls_low | Tile Layer | 角色可被遮挡前的低墙 |
+| objects_back | Tile/Object | 角色后方家具 |
+| collision | Object Layer | 碰撞矩形或多边形 |
+| navigation | Object Layer | 合法出生区与存档恢复区 |
+| interactables | Object Layer | 可观察、拾取或使用的物件 |
+| triggers | Object Layer | 退化、对白、检查点和过场触发 |
+| exits | Object Layer | 房间/章节出口 |
+| camera_zones | Object Layer | 房间式相机边界 |
+| audio_zones | Object Layer | 环境声与声源 |
+| objects_front | Tile/Object | 角色前景遮挡 |
+
+### 6.3 对象属性
+
+可交互物至少包含：
+
+~~~ts
+interface TiledInteractableProperties {
+  entityId: string;
+  interactionType: 'inspect' | 'pickup' | 'place' | 'door' | 'puzzle';
+  contentId: string;
+  requiredItemId?: string;
+  completedFlag?: string;
+  highlightStyle: 'outline' | 'motion' | 'reflection';
+}
+~~~
+
+触发器至少包含 triggerId、triggerType、once、conditionId、commandId。关卡逻辑只认这些稳定 ID。
+
+### 6.4 相机
+
+- 使用房间式柔性跟随，默认 deadzone 为视口宽高的 18%；
+- camera_zones 限制镜头不展示地图外空白；
+- 进入新房间时 300 毫秒缓动至新边界；
+- 减少动态效果模式改为 100 毫秒淡入，不使用位移缓动；
+- 所有退化镜头效果不得改变碰撞、角色坐标和输入采样。
+
+## 7. 谜题系统
+
+### 7.1 数据驱动
+
+~~~ts
+interface PuzzleDefinition {
+  id: string;
+  chapterId: ChapterId;
+  type: 'sequence' | 'ordering' | 'placement' | 'route';
+  checkpointId: string;
+  successCommandIds: string[];
+  resetPolicy: 'local' | 'checkpoint';
+  hintScheduleSeconds: [number, number, number];
+}
+~~~
+
+PuzzleSystem 处理输入和状态；Phaser View 根据 puzzle.type 选择表现适配器。不得在 Scene 中以硬编码坐标判断答案。
+
+### 7.2 提示计时
+
+- 只统计谜题处于 active 且玩家可控制角色的时间；
+- 打开菜单、日记、背包或浏览器失焦时暂停；
+- 有效进展后重置当前提示计时，但不降低已解锁的提示等级；
+- 提示显示可以关闭，关键冗余线索不能关闭。
+
+### 7.3 路线回环
+
+第四章错误出口不是地图传送失败：
+
+1. RouteSystem 判定出口与目标不符；
+2. 播放三秒熟悉房间片段；
+3. 在当前路口安全点恢复位置；
+4. 增加 routeLoopCount；
+5. HintSystem 按次数增强线索。
+
+## 8. 退化系统
+
+DegradationSystem 只改变信息表现和移动动作映射，不修改谜题答案或安全 UI。
+
+~~~ts
+interface DegradationConfig {
+  id: 'D0' | 'D1' | 'D2' | 'D3' | 'D4';
+  mapMode: 'full' | 'washed' | 'hidden';
+  itemLabelMode: 'full' | 'fragmented' | 'hidden';
+  promptMode: 'full' | 'unstable' | 'hidden';
+  movementTransform: 'identity' | 'rotate_clockwise_90';
+  effectPresetId: string;
+  fallbackCueIds: string[];
+}
+~~~
+
+约束：
+
+- 阶段切换只能由一次性 trigger 或章节入口命令触发；
+- 配置不使用随机数；
+- D3 映射变化前必须完成安全演示；
+- 低扰动模式强制 movementTransform 为 identity；
+- D4 隐藏游戏 HUD，但保留系统层、焦点与字幕能力。
+
+## 9. DOM UI
+
+### 9.1 层级
+
+~~~text
+#app
+  #game-canvas
+  #hud
+    objective-chip
+    minimap-shell
+    inventory-chip
+    journal-chip
+    interaction-prompt
+    subtitle-box
+  #panel-layer
+    inventory-panel
+    journal-panel
+    map-panel
+  #system-layer
+    pause-menu
+    settings-dialog
+    content-warning
+    guide-page
+~~~
+
+### 9.2 状态规则
+
+- 任一 panel-layer 或 system-layer 模态面板打开时，ModalGate 阻断移动。
+- 字幕不抢占焦点。
+- objective-chip 默认四秒后收起。
+- HUD 总覆盖面积不超过 20%。
+- D1/D2 的文字变化由 UI 读取退化配置生成，不直接修改原始内容数据。
+- 科普页使用语义化 HTML，来源链接可复制且可通过键盘访问。
+
+### 9.3 CSS 变量
+
+颜色和排版只通过语义变量引用：
+
+~~~css
+:root {
+  --color-ink: #2f2b28;
+  --color-paper: #eee7d8;
+  --color-anchor: #b54949;
+  --color-focus: #276a78;
+  --font-ui: "Noto Sans SC", sans-serif;
+  --font-diary: "Noto Serif SC", serif;
+  --text-base: 20px;
+}
+~~~
+
+完整视觉规范见 ART_BIBLE.md。
+
+## 10. 资产加载
+
+### 10.1 Manifest
+
+~~~ts
+interface AssetManifestEntry {
+  key: string;
+  type: 'image' | 'spritesheet' | 'tilemap' | 'audio' | 'json' | 'font';
+  url: string;
+  chapter?: ChapterId;
+  preload: boolean;
+}
+~~~
+
+玩法代码引用 key，例如 character.xu_old.walk_down，不引用文件路径。
+
+### 10.2 分组
+
+- boot：标题、基础 UI、字体、占位图；
+- shared：主角、通用脚步、交互音；
+- home、rain、life、return、ending：按章资源；
+- guide：科普页面不依赖 Phaser 资源。
+
+离开章节后可释放大型背景和音频，但 shared 资源保留。切章前必须完成下一章最小资源加载。
+
+## 11. 音频
+
+- 使用 AudioManager 管理 music、ambience、voice、sfx 四个总线；
+- AudioManager 对 Phaser Sound 封装，领域层只发送语义音频命令；
+- 浏览器首次用户交互后才解锁音频；
+- 声音导航事件同时发送 visualCueId；
+- 单声道模式将声像提示转换为中央播放并强制启用视觉波纹；
+- 浏览器失焦时暂停，恢复后不补播已过期的对白。
+
+## 12. 存档
+
+### 12.1 键
+
+- erasure.save.v1：自动存档；
+- erasure.settings.v1：无障碍与音频设置；
+- erasure.consent.v1：测试遥测同意状态。
+
+### 12.2 写入时机
+
+- 章节入口；
+- 主谜题完成；
+- 第四章每个路口通过；
+- 尾声开始；
+- 设置改变后防抖写入。
+
+### 12.3 校验与迁移
+
+- 使用显式 schemaVersion；
+- 解析后检查 chapterId、checkpointId 和 puzzle IDs；
+- 未知字段忽略，缺失必需字段触发迁移或回退；
+- 坐标无效时恢复到 checkpoint 的安全出生点；
+- 损坏存档不覆盖原字符串，开发模式可导出诊断副本。
+
+## 13. 测试策略
+
+### 13.1 单元测试
+
+- InputMapper 的标准、D3 与低扰动映射；
+- PuzzleSystem 的排序、序列、放置和路线判定；
+- HintSystem 的计时暂停与升级；
+- DegradationSystem 的阶段切换和安全层不变量；
+- SaveData 的序列化、迁移和损坏回退；
+- NarrativeSystem 的条件触发与一次性对白。
+
+### 13.2 集成测试
+
+- GameStore → SceneBridge → View 状态同步；
+- DOM 模态层打开时角色输入被阻断；
+- 章节加载、检查点保存和刷新恢复；
+- 声音线索与视觉替代同时触发；
+- 低扰动模式中 D3 不旋转实际移动。
+
+### 13.3 浏览器端到端测试
+
+Playwright 覆盖：
+
+1. 启动与首次设置；
+2. 纯键盘完成第一章；
+3. D1 地图视觉状态；
+4. D2 背包标签状态；
+5. D3 标准与低扰动两条路线；
+6. 暂停、失焦与恢复；
+7. 自动存档刷新恢复；
+8. 尾声长按与科普页；
+9. 1024×576、1366×768、1920×1080 截图。
+
+Canvas 状态不能只做 DOM 断言，代表性阶段必须保存截图并人工复核。
+
+## 14. 调试与性能
+
+开发模式通过查询参数 ?debug=1 打开可折叠调试层：
+
+- 当前章节、检查点和退化阶段；
+- 角色领域坐标与 Phaser 坐标；
+- 碰撞、触发器和相机区域；
+- 当前输入的物理键、语义动作和退化后动作；
+- 谜题状态、提示计时和一次性 flags；
+- FPS、纹理数量和音频状态。
+
+发布构建隐藏调试入口。性能预算：
+
+- 推荐设备目标 60 FPS，最低 30 FPS；
+- 首次可玩资源不超过 15 MB；
+- 总资源不超过 40 MB；
+- 切章阻塞不超过 3 秒；
+- 单次 DOM 状态更新避免重建整个 HUD；
+- 不在 Phaser update 中创建临时数组、纹理或 DOM 节点。
+
+## 15. 构建与部署
+
+### 15.1 npm scripts
+
+~~~json
+{
+  "dev": "vite",
+  "build": "tsc -b && vite build",
+  "preview": "vite preview",
+  "test": "vitest run",
+  "test:watch": "vitest",
+  "test:e2e": "playwright test",
+  "lint": "eslint .",
+  "format:check": "prettier --check ."
+}
+~~~
+
+### 15.2 构建要求
+
+- Vite base 使用相对部署兼容配置或由环境变量注入；
+- 所有资源文件名包含内容哈希；
+- source map 是否公开由部署环境决定，测试构建保留；
+- 构建失败条件包括 TypeScript、lint、单元测试或资源 manifest 校验失败；
+- 发布包只包含 public/assets 中已登记资产，不包含 assets-source。
+
+## 16. 隐私与安全
+
+- 公开版默认关闭遥测；
+- 不收集姓名、健康信息、自由文本、精确位置或按键序列；
+- 外部链接使用安全的新窗口策略并清楚显示目标机构；
+- 用户生成内容不存在，因此不需要上传接口；
+- 科普页不得根据游玩表现生成健康判断；
+- localStorage 清除入口放在设置页并要求二次确认。
+
+## 17. 开发前退出条件
+
+开始第一章正式编码前必须满足：
+
+1. Vite + TypeScript + Phaser 空场景可启动；
+2. GameStore、SceneBridge 和 InputMapper 有最小单元测试；
+3. DOM 暂停菜单能阻断场景输入；
+4. Tiled 图层和对象属性按本文约定导出成功；
+5. 占位角色在 64 像素网格地图中完成碰撞与相机跟随；
+6. 存档可以写入并恢复测试检查点；
+7. 第一章灰盒所需内容 ID 与 LEVEL_DESIGN.md 一致。
