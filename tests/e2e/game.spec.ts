@@ -1,9 +1,20 @@
 import { expect, test } from '@playwright/test';
 
+let browserErrors: string[];
+
 test.beforeEach(async ({ page }) => {
+  browserErrors = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error') browserErrors.push(message.text());
+  });
+  page.on('pageerror', (error) => browserErrors.push(error.message));
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+});
+
+test.afterEach(() => {
+  expect(browserErrors).toEqual([]);
 });
 
 test('boots, starts, moves by keyboard, pauses and keeps accessibility stable', async ({
@@ -36,4 +47,12 @@ test('offers a safe checkpoint continuation after refresh', async ({ page }) => 
   await expect(page.getByRole('button', { name: '从最近的安全位置继续' })).toBeVisible();
   await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'home');
+});
+
+test('does not expose the development debug layer in a production build', async ({ page }) => {
+  await page.goto('/?debug=1');
+  await page.getByRole('button', { name: /标准模式/ }).click();
+  await page.getByRole('button', { name: '继续对白' }).click();
+  await page.getByRole('button', { name: '继续对白' }).click();
+  await expect(page.getByLabel('开发调试层')).toHaveCount(0);
 });

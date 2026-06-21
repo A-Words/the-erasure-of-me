@@ -70,6 +70,7 @@ export type GameCommand =
   | { type: 'TICK'; deltaSeconds: number }
   | { type: 'CANCEL_HOLD' }
   | { type: 'RETURN_TITLE' }
+  | { type: 'DEBUG_JUMP_CHAPTER'; chapterId: ChapterId }
   | { type: 'CLEAR_MESSAGE' };
 
 export type WorldDirection = 'up' | 'down' | 'left' | 'right';

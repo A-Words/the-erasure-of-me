@@ -63,4 +63,12 @@ describe('GameStore', () => {
     expect(store.getState().hintLevel).toBe(1);
     expect(store.getState().message).toContain('蓝色小碗');
   });
+
+  it('can seed a documented chapter state for development visual review', () => {
+    const store = new GameStore();
+    store.dispatch({ type: 'DEBUG_JUMP_CHAPTER', chapterId: 'ending' });
+    expect(store.getState().chapterId).toBe('ending');
+    expect(store.getState().degradationStage).toBe('D4');
+    expect(store.getState().checkpointId).toBe('checkpoint.ending.start');
+  });
 });

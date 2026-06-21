@@ -142,6 +142,10 @@ export class GameStore {
         this.state.modal = null;
         this.state.dialogue = [];
         break;
+      case 'DEBUG_JUMP_CHAPTER':
+        this.state.phase = 'playing';
+        this.enterChapter(command.chapterId);
+        break;
       case 'CLEAR_MESSAGE':
         this.state.message = null;
         break;

@@ -34,6 +34,8 @@ export class AppShell {
   private readonly system = document.querySelector<HTMLDivElement>('#system-layer')!;
   private signature = '';
   private photoOrder: string[] = [];
+  private readonly debugEnabled =
+    import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === '1';
 
   constructor(
     private readonly store: GameStore,
@@ -112,7 +114,13 @@ export class AppShell {
       </nav>
       ${state.message ? `<button class="toast" data-clear-message aria-label="关闭提示">${state.message}</button>` : ''}
       ${state.holdProgress > 0 ? `<div class="hold-meter" role="progressbar" aria-label="牵手进度" aria-valuenow="${Math.round(state.holdProgress * 100)}"><i style="width:${state.holdProgress * 100}%"></i></div>` : ''}
+      ${this.debugEnabled ? this.debugPanel(state) : ''}
     `;
+  }
+
+  private debugPanel(state: Readonly<GameState>): string {
+    const chapters: GameState['chapterId'][] = ['home', 'rain', 'life', 'return', 'ending'];
+    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}</div></aside>`;
   }
 
   private renderPanel(state: Readonly<GameState>): void {
@@ -332,6 +340,14 @@ export class AppShell {
           this.store.dispatch({ type: 'PHOTO_ORDER', order: this.photoOrder }),
         ),
       );
+    document.querySelectorAll<HTMLElement>('[data-debug-chapter]').forEach((button) =>
+      button.addEventListener('click', () =>
+        this.store.dispatch({
+          type: 'DEBUG_JUMP_CHAPTER',
+          chapterId: button.dataset.debugChapter as GameState['chapterId'],
+        }),
+      ),
+    );
     const dialog = document.querySelector<HTMLElement>('[role="dialog"]');
     if (dialog && !dialog.contains(document.activeElement)) {
       const focusable = dialog.querySelector<HTMLElement>('button, select, input');
