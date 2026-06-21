@@ -216,10 +216,18 @@ export class GameScene extends Phaser.Scene {
 
   private createEntity(entity: WorldEntity): EntityView {
     const color = entity.color ?? (entity.kind === 'exit' ? 0xeee7d8 : 0xd6c58e);
+    const isXiulan = entity.id === 'entity.ending.xiulan';
+    const isUmbrella = entity.id.includes('umbrella');
     const container = this.add.container(entity.x, entity.y);
     const marker = this.add
       .circle(0, 0, entity.kind === 'exit' ? 30 : 22, color, 0.88)
-      .setStrokeStyle(3, 0x2f2b28, 0.7);
+      .setStrokeStyle(3, 0x2f2b28, 0.7)
+      .setVisible(!isXiulan && !isUmbrella);
+    const actor = isXiulan
+      ? this.add.image(0, 16, 'character.xiulan_old.idle.down').setOrigin(0.5, 1)
+      : isUmbrella
+        ? this.add.image(0, 0, 'prop.red_umbrella.closed').setDisplaySize(58, 58)
+        : null;
     const glyph = this.add
       .text(0, 0, this.entityGlyph(entity), {
         color: '#2f2b28',
@@ -227,9 +235,10 @@ export class GameScene extends Phaser.Scene {
         fontSize: entity.kind === 'exit' ? '24px' : '17px',
         fontStyle: 'bold',
       })
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setVisible(!isXiulan && !isUmbrella);
     const label = this.add
-      .text(0, 38, entity.label, {
+      .text(0, isXiulan ? 24 : isUmbrella ? 32 : 38, entity.label, {
         color: '#f7f3e8',
         backgroundColor: '#2f2b28cc',
         fontFamily: 'sans-serif',
@@ -238,7 +247,7 @@ export class GameScene extends Phaser.Scene {
       })
       .setOrigin(0.5, 0)
       .setAlpha(0.82);
-    container.add([marker, glyph, label]);
+    container.add(actor ? [marker, actor, glyph, label] : [marker, glyph, label]);
     return { definition: entity, container, marker };
   }
 

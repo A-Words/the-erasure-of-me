@@ -50,4 +50,16 @@ export const assetManifest = [
     url: 'assets/characters/character_xu_old_idle_down_v01_64x96.png',
     preload: true,
   },
+  {
+    key: 'character.xiulan_old.idle.down',
+    type: 'image',
+    url: 'assets/characters/character_xiulan_old_idle_down_v01_64x96.png',
+    preload: true,
+  },
+  {
+    key: 'prop.red_umbrella.closed',
+    type: 'image',
+    url: 'assets/props/prop_red_umbrella_closed_v01.png',
+    preload: true,
+  },
 ] as const satisfies readonly AssetManifestEntry[];

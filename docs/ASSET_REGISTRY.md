@@ -8,6 +8,8 @@
 | assetKey | owner | sourceFile | exportFile | license/source | status | reviewer | approvedAt | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | character.xu_old.idle.down | 项目团队 | assets-source/art/characters/character_xu_old_idle_down_v01_chromakey.png | public/assets/characters/character_xu_old_idle_down_v01_64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；透明 PNG；标准模式实际场景已检查 |
+| character.xiulan_old.idle.down | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_down_v01_chromakey.png | public/assets/characters/character_xiulan_old_idle_down_v01_64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；透明 PNG；尾声交互实体已接入 |
+| prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，所有雨站红伞实体共用 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 浏览器验收 | 2026-06-22 | 灰盒对象层；正式 tile 仍待替换 |
 | map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
@@ -24,3 +26,11 @@
 - 色键处理：`remove_chroma_key.py`，边缘软遮罩与去色溢出。
 - 游戏帧处理：`scripts/normalize_character_seed.py`，透明内容统一缩放至 64×96，底部中心对齐。
 - 当前结论：轮廓、服装和色彩可进入动画种子评审；正式 `idle`/`walk` 动画条完成前保持 `review`。
+
+### character.xiulan_old.idle.down
+
+- 生成方式：内置 OpenAI ImageGen；使用许志远种子帧作为画法与比例参考，不复制身份。
+- 生成目标：70 岁中国老人林秀兰，退休语文教师，短卷银发、旧绿色开衫、纸色衬衫，稳定且愿意停下等待的站姿。
+- 生成限制：单人全身、与许志远明显不同、无文字、无场景、无水印、纯 `#00ff00` 色键背景、不使用锚点红。
+- 色键与游戏帧处理：与许志远相同；透明内容归一化至 64×96 并底部中心对齐。
+- 当前结论：轮廓、服装和色彩可进入尾声实际构图评审；伸手和牵手动画完成前保持 `review`。
