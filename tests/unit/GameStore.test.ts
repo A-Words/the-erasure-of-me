@@ -102,4 +102,13 @@ describe('GameStore', () => {
     expect(store.getState().puzzles.placedObjects).toContain('item.life.cassette');
     expect(store.getState().activeMemoryId).toBe('life.cassette');
   });
+
+  it('can seed the held-hand ending through the real consent and hold rules', () => {
+    const store = new GameStore();
+    store.dispatch({ type: 'DEBUG_SHOW_MEMORY', memoryId: 'ending.hand' });
+    expect(store.getState().chapterId).toBe('ending');
+    expect(store.getState().flags).toContain('ending.ready_to_hold');
+    expect(store.getState().flags).toContain('ending.completed');
+    expect(store.getState().activeMemoryId).toBe('ending.hand');
+  });
 });

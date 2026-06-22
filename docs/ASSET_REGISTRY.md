@@ -14,6 +14,7 @@
 | memory.life.move.illustration | 项目团队 | assets-source/art/memories/memory_life_move_v01.png | public/assets/memories/memory_life_move_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；木梳归位后显示；纸箱、未装床架和背景红伞与脚本一致 |
 | memory.life.osmanthus.illustration | 项目团队 | assets-source/art/memories/memory_life_osmanthus_v01.png | public/assets/memories/memory_life_osmanthus_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；搪瓷杯归位后显示；桂花、泥土与杯子构成冗余线索 |
 | memory.life.cassette.illustration | 项目团队 | assets-source/art/memories/memory_life_cassette_v01.png | public/assets/memories/memory_life_cassette_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；录音带归位后显示；录音机双线圈、停电光源与纪念日蛋糕构成冗余线索 |
+| memory.ending.hand.illustration | 项目团队 | assets-source/art/memories/memory_ending_hand_v01.png | public/assets/memories/memory_ending_hand_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1024×512 WebP；完成牵手长按后显示；蓝灰袖主动覆上旧绿袖等待掌心 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 浏览器验收 | 2026-06-22 | 灰盒对象层；正式 tile 仍待替换 |
 | map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
@@ -70,3 +71,11 @@
 - 生成限制：无可读文字、无现代电子设备、无额外人物、无戏剧化浪漫姿势，不暗示爱情或音乐能够治疗疾病。
 - 运行时处理：高分辨率 PNG 原稿归档于 `assets-source`，导出 1152×768 WebP。
 - 当前结论：内容与录音带归位对白一致；D2 实际构图、裁切、退出清理和控制台检查通过。
+
+### memory.ending.hand.illustration
+
+- 生成方式：内置 OpenAI ImageGen；老年许志远与林秀兰角色种子用于身份、袖色、年龄、画法与低饱和纸张质感参考。
+- 生成目标：秀兰先停下等待，志远从左侧主动把手覆在她开放的掌心上；远景只保留温热的面和褪色红伞。
+- 生成限制：无可读文字、无医疗物件、无魔法光效、无拉拽或约束姿态、无奇迹治愈暗示，避免握手式和祈祷式构图。
+- 运行时处理：高分辨率 2:1 PNG 原稿归档于 `assets-source`，导出 1024×512 WebP，与 `ART_BIBLE.md` 手部尾声特写规格一致。
+- 当前结论：内容与 `dialogue.ending.handheld` 一致；D4 实际构图、裁切、标准/低扰动路径、退出科普页和控制台检查通过。

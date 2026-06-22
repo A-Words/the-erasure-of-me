@@ -540,6 +540,9 @@ kbd {
   object-fit: cover;
   filter: saturate(0.88) contrast(0.97);
 }
+.memory-cutscene.ending-hand > img {
+  object-position: center 45%;
+}
 .memory-cutscene .dialogue-box {
   z-index: 1;
 }

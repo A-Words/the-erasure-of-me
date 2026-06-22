@@ -126,7 +126,7 @@ export class AppShell {
 
   private debugPanel(state: Readonly<GameState>): string {
     const chapters: GameState['chapterId'][] = ['home', 'rain', 'life', 'return', 'ending'];
-    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button><button data-debug-memory="life.move">memory-move</button><button data-debug-memory="life.osmanthus">memory-osmanthus</button><button data-debug-memory="life.cassette">memory-cassette</button></div></aside>`;
+    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button><button data-debug-memory="life.move">memory-move</button><button data-debug-memory="life.osmanthus">memory-osmanthus</button><button data-debug-memory="life.cassette">memory-cassette</button><button data-debug-memory="ending.hand">memory-hand</button></div></aside>`;
   }
 
   private renderPanel(state: Readonly<GameState>): void {
@@ -236,7 +236,10 @@ export class AppShell {
     if (memoryId === 'life.osmanthus') {
       return `<section class="memory-cutscene" aria-label="桂花第一次开放的记忆"><img src="${assetUrl('memory.life.osmanthus.illustration')}" alt="中年的秀兰擦拭桂花窗台，志远拿着带桂花纹样的搪瓷杯站在一旁">${dialogue}</section>`;
     }
-    return `<section class="memory-cutscene" aria-label="停电纪念日的记忆"><img src="${assetUrl('memory.life.cassette.illustration')}" alt="停电的纪念日里，中年的秀兰在录音机旁轻轻哼唱，志远在灯火下安静倾听">${dialogue}</section>`;
+    if (memoryId === 'life.cassette') {
+      return `<section class="memory-cutscene" aria-label="停电纪念日的记忆"><img src="${assetUrl('memory.life.cassette.illustration')}" alt="停电的纪念日里，中年的秀兰在录音机旁轻轻哼唱，志远在灯火下安静倾听">${dialogue}</section>`;
+    }
+    return `<section class="memory-cutscene ending-hand" aria-label="志远主动握住秀兰的手"><img src="${assetUrl('memory.ending.hand.illustration')}" alt="志远从左侧主动把手覆在秀兰停下等待的掌心上，背景里放着仍然温热的面">${dialogue}</section>`;
   }
 
   private titleScreen(): string {

@@ -90,6 +90,13 @@ export const assetManifest = [
     chapter: 'life',
     preload: true,
   },
+  {
+    key: 'memory.ending.hand.illustration',
+    type: 'image',
+    url: 'assets/memories/memory_ending_hand_v01.webp',
+    chapter: 'ending',
+    preload: true,
+  },
 ] as const satisfies readonly AssetManifestEntry[];
 
 export function assetUrl(key: (typeof assetManifest)[number]['key']): string {

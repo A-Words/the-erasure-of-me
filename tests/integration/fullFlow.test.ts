@@ -53,6 +53,7 @@ describe('complete vertical slice', () => {
     interact(store, 'entity.ending.xiulan');
     expect(store.getState().flags).toContain('ending.ready_to_hold');
     store.dispatch({ type: 'HOLD', deltaSeconds: 2 });
+    expect(store.getState().activeMemoryId).toBe('ending.hand');
     finishDialogue(store);
     expect(store.getState().phase).toBe('guide');
     expect(store.getState().checkpointId).toBe('checkpoint.ending.complete');

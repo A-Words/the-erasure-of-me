@@ -176,12 +176,18 @@ export class GameStore {
           addUnique(this.state.flags, 'puzzle.life.photo_order.completed');
           addUnique(this.state.inventory, 'item.life.enamel_cup');
           this.interactLife('slot.life.windowsill');
-        } else {
+        } else if (command.memoryId === 'life.cassette') {
           this.enterChapter('life');
           this.state.dialogue = [];
           addUnique(this.state.flags, 'puzzle.life.photo_order.completed');
           addUnique(this.state.inventory, 'item.life.cassette');
           this.interactLife('slot.life.radio');
+        } else {
+          this.enterChapter('ending');
+          this.state.dialogue = [];
+          this.interactEnding('entity.ending.xiulan');
+          while (this.state.dialogue.length > 0) this.advanceDialogue();
+          this.updateHold(1.5);
         }
         break;
       case 'CLEAR_MESSAGE':
@@ -575,11 +581,14 @@ export class GameStore {
     if (this.state.holdProgress >= 1) {
       addUnique(this.state.flags, 'ending.completed');
       addUnique(this.state.flags, 'transition.to.guide');
-      this.setDialogue([
-        '许志远主动握住她的手：“手是暖的。”',
-        '林秀兰：“面也还是热的。”',
-        '有些名字会远去，爱曾经来过的地方还留着温度。',
-      ]);
+      this.setDialogue(
+        [
+          '许志远主动握住她的手：“手是暖的。”',
+          '林秀兰：“面也还是热的。”',
+          '有些名字会远去，爱曾经来过的地方还留着温度。',
+        ],
+        'ending.hand',
+      );
       this.state.checkpointId = 'checkpoint.ending.complete';
     }
   }
