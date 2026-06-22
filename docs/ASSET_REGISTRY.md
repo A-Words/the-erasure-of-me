@@ -18,6 +18,7 @@
 | character.xu_old.observe.right | 项目团队 | assets-source/art/characters/character_xu_old_observe_right_v01_chromakey.png | public/assets/characters/character_xu_old_observe_right_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；左向镜像；减少动态固定为开放手掌注意姿态 |
 | character.xu_old.pickup.down | 项目团队 | assets-source/art/characters/character_xu_old_pickup_down_v01_chromakey.png | public/assets/characters/character_xu_old_pickup_down_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-23 | 6×64×96；底部中心锚点；8 FPS 单次播放；上下朝向共用；不绘制特定道具 |
 | character.xu_old.pickup.right | 项目团队 | assets-source/art/characters/character_xu_old_pickup_right_v01_chromakey.png | public/assets/characters/character_xu_old_pickup_right_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-23 | 6×64×96；底部中心锚点；8 FPS 单次播放；左向镜像；减少动态使用静态第三帧 |
+| character.xu_old.hold_hand.side | 项目团队 | assets-source/art/characters/character_xu_old_hold_hand_side_v01_grid.png | public/assets/characters/character_xu_old_hold_hand_side_v01_4x512x256.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-23 | 4×512×256；等待、靠近、初触、轻握；由 holdProgress 选帧；减少动态固定初触帧 |
 | character.xiulan_old.idle.down | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_down_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_down_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；作为角色身份源，不单独进入发布构建 |
 | character.xiulan_old.idle.right | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_right_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_right_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览 | 2026-06-22 | 64×96；底部中心锚点；短发、旧绿开衫与侧向身份锚点；作为 reach_hand 第一帧来源 |
 | character.xiulan_old.reach_hand.right | 项目团队 | assets-source/art/characters/character_xiulan_old_reach_hand_right_v01_chromakey.png | public/assets/characters/character_xiulan_old_reach_hand_right_v01_8x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 8×64×96；8 FPS 单次播放；前 3 帧停下等待，末帧开放掌心；减少动态直接显示末帧 |
@@ -54,7 +55,15 @@
 - 色键处理：`remove_chroma_key.py`，边缘软遮罩与去色溢出。
 - 游戏帧处理：`scripts/normalize_character_seed.py`，透明内容统一缩放至 64×96，底部中心对齐。
 - 动画处理：向下、向上、向右各生成完整 4 帧呼吸待机、6 帧行走和 4 帧观察横向条带；另制作向下与右侧两条 6 帧拾取条带。左向由右向镜像；`scripts/normalize_character_strip.py` 统一共享缩放和底部中心锚点，第一帧锁回对应方向种子。严格侧向帧把透明间隙分割的最小有效宽度校正为槽位的 8%。
-- 当前结论：四方向呼吸待机、行走、松键停止、观察与拾取已完成资产预览和 1280×720 场景检查。观察动作在标准模式 240 毫秒采样中有 2105 个角色区域像素变化；减少动态模式按住观察同区间为 0。成功拾取的向下与侧向角色区域在动作中分别有 2587 与 2064 个像素变化，并正确回到待机；减少动态路径完成单次静态姿态切换后保持 0 像素变化。尾声牵手动作仍待补，因此保持 `review`。
+- 当前结论：四方向呼吸待机、行走、松键停止、观察与拾取已完成资产预览和 1280×720 场景检查。观察动作在标准模式 240 毫秒采样中有 2105 个角色区域像素变化；减少动态模式按住观察同区间为 0。成功拾取的向下与侧向角色区域在动作中分别有 2587 与 2064 个像素变化，并正确回到待机；减少动态路径完成单次静态姿态切换后保持 0 像素变化。外部美术审核前保持 `review`。
+
+### character.xu_old.hold_hand.side
+
+- 生成方式：内置 OpenAI ImageGen；`illustration-story`；以 `memory_ending_hand_v01.png` 作为手部身份、袖色、背景和完成姿势参考。
+- 生成目标：同一镜位下呈现“秀兰开放掌心等待—志远主动靠近—初触—轻握”四阶段，不使用拉扯、紧握或催促姿态。
+- 生成限制：每格只出现两只手；蓝灰袖属于志远，旧绿袖属于秀兰；无文字、无医疗设备、无额外手指或物件。
+- 运行时处理：原始 2×2 生成网格由 `scripts/prepare_hold_hand_strip.py` 统一中心裁切，导出四张 512×256 帧和 2048×256 横向条带。
+- 当前结论：标准模式部分长按时画面按进度换帧，38% 处取消后画面哈希精确恢复且进度归零；完整长按切入正式尾声特写。减少动态模式在 36% 进度期间画面哈希不变，取消后恢复。控制台无错误；外部美术与敏感性审核前保持 `review`。
 
 ### character.xiulan_old.idle / reach_hand
 

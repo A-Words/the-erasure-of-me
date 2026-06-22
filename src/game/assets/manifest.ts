@@ -166,6 +166,14 @@ export const assetManifest = [
     preload: true,
   },
   {
+    key: 'character.xu_old.hold_hand.side',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xu_old_hold_hand_side_v01_4x512x256.png',
+    frameConfig: { frameWidth: 512, frameHeight: 256 },
+    chapter: 'ending',
+    preload: true,
+  },
+  {
     key: 'prop.red_umbrella.closed',
     type: 'image',
     url: 'assets/props/prop_red_umbrella_closed_v01.png',

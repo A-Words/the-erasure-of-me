@@ -19,6 +19,7 @@ export class GameScene extends Phaser.Scene {
   private playerActor: Phaser.GameObjects.Sprite | null = null;
   private xiulanActor: Phaser.GameObjects.Sprite | null = null;
   private holdWarmth: Phaser.GameObjects.Arc | null = null;
+  private holdHandActor: Phaser.GameObjects.Sprite | null = null;
   private xiulanReachStarted = false;
   private playerAction: 'pickup' | null = null;
   private playerActionVersion = 0;
@@ -101,6 +102,7 @@ export class GameScene extends Phaser.Scene {
       this.playerActor = null;
       this.xiulanActor = null;
       this.holdWarmth = null;
+      this.holdHandActor = null;
       this.playerActionTimer?.remove(false);
       this.playerActionTimer = null;
     });
@@ -186,6 +188,7 @@ export class GameScene extends Phaser.Scene {
     this.updatePlayerPose(state);
     this.updateXiulanPose(state);
     this.updateHoldWarmth(state);
+    this.updateHoldHand(state);
     this.updateEntityVisibility(state);
   }
 
@@ -195,6 +198,7 @@ export class GameScene extends Phaser.Scene {
     this.playerActor = null;
     this.xiulanActor = null;
     this.holdWarmth = null;
+    this.holdHandActor = null;
     this.xiulanReachStarted = false;
     this.playerAction = null;
     this.playerActionVersion += 1;
@@ -225,6 +229,10 @@ export class GameScene extends Phaser.Scene {
           .circle(xiulan.definition.x + 22, xiulan.definition.y - 43, 24, 0xd3a380, 0.7)
           .setStrokeStyle(2, 0xf3d6b8, 0.75)
           .setDepth(12)
+          .setVisible(false);
+        this.holdHandActor = this.add
+          .sprite(map.width / 2, map.height - 150, 'character.xu_old.hold_hand.side', 0)
+          .setDepth(20)
           .setVisible(false);
       }
     }
@@ -408,6 +416,25 @@ export class GameScene extends Phaser.Scene {
       .setVisible(true)
       .setScale(scale)
       .setAlpha(0.18 + progress * 0.72);
+  }
+
+  private updateHoldHand(state: Readonly<GameState>): void {
+    if (!this.holdHandActor) return;
+    const progress = state.holdProgress;
+    const shouldShow =
+      progress > 0 &&
+      progress < 1 &&
+      state.dialogue.length === 0 &&
+      state.flags.includes('ending.ready_to_hold');
+    if (!shouldShow) {
+      this.holdHandActor.setVisible(false).setFrame(0);
+      return;
+    }
+    const frame = state.settings.reducedMotion ? 2 : Math.min(3, Math.floor(progress * 4));
+    this.holdHandActor
+      .setVisible(true)
+      .setFrame(frame)
+      .setAlpha(state.settings.reducedMotion ? 0.96 : 0.78 + progress * 0.22);
   }
 
   private createEntity(entity: WorldEntity): EntityView {
