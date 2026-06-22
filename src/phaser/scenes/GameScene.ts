@@ -18,6 +18,7 @@ export class GameScene extends Phaser.Scene {
   private player!: Phaser.GameObjects.Container;
   private playerActor: Phaser.GameObjects.Sprite | null = null;
   private xiulanActor: Phaser.GameObjects.Sprite | null = null;
+  private holdWarmth: Phaser.GameObjects.Arc | null = null;
   private xiulanReachStarted = false;
   private entityViews: EntityView[] = [];
   private renderedChapter: GameState['chapterId'] | null = null;
@@ -96,6 +97,7 @@ export class GameScene extends Phaser.Scene {
       this.unsubscribe?.();
       this.playerActor = null;
       this.xiulanActor = null;
+      this.holdWarmth = null;
     });
   }
 
@@ -166,6 +168,7 @@ export class GameScene extends Phaser.Scene {
     this.player.setAlpha(state.phase === 'playing' ? 1 : 0.22);
     this.updatePlayerPose(state);
     this.updateXiulanPose(state);
+    this.updateHoldWarmth(state);
     this.updateEntityVisibility(state);
   }
 
@@ -174,6 +177,7 @@ export class GameScene extends Phaser.Scene {
     this.entityViews = [];
     this.playerActor = null;
     this.xiulanActor = null;
+    this.holdWarmth = null;
     this.xiulanReachStarted = false;
     const map = chapterMaps[state.chapterId];
     this.renderedChapter = state.chapterId;
@@ -192,6 +196,16 @@ export class GameScene extends Phaser.Scene {
         ? { ...entity, x: authored.x ?? entity.x, y: authored.y ?? entity.y }
         : entity;
       this.entityViews.push(this.createEntity(runtimeEntity));
+    }
+    if (state.chapterId === 'ending') {
+      const xiulan = this.entityViews.find((view) => view.definition.id === 'entity.ending.xiulan');
+      if (xiulan) {
+        this.holdWarmth = this.add
+          .circle(xiulan.definition.x + 22, xiulan.definition.y - 43, 24, 0xd3a380, 0.7)
+          .setStrokeStyle(2, 0xf3d6b8, 0.75)
+          .setDepth(12)
+          .setVisible(false);
+      }
     }
     this.player = this.add.container(state.player.x, state.player.y);
     const shadow = this.add.ellipse(0, 9, 38, 16, 0x2f2b28, 0.25);
@@ -258,6 +272,20 @@ export class GameScene extends Phaser.Scene {
     if (this.xiulanReachStarted) return;
     this.xiulanReachStarted = true;
     this.xiulanActor.play('character.xiulan_old.reach_hand.right.animation');
+  }
+
+  private updateHoldWarmth(state: Readonly<GameState>): void {
+    if (!this.holdWarmth) return;
+    const progress = state.holdProgress;
+    if (progress <= 0 || !state.flags.includes('ending.ready_to_hold')) {
+      this.holdWarmth.setVisible(false);
+      return;
+    }
+    const scale = state.settings.reducedMotion ? 1 : 0.82 + progress * 0.18;
+    this.holdWarmth
+      .setVisible(true)
+      .setScale(scale)
+      .setAlpha(0.18 + progress * 0.72);
   }
 
   private createEntity(entity: WorldEntity): EntityView {

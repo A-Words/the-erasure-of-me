@@ -132,4 +132,22 @@ describe('GameStore', () => {
     expect(store.getState().flags).toContain('ending.completed');
     expect(store.getState().activeMemoryId).toBe('ending.hand');
   });
+
+  it('cancels an incomplete hand hold and only completes after the configured duration', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'ending';
+    state.flags = ['ending.ready_to_hold'];
+    const store = new GameStore(state);
+
+    store.dispatch({ type: 'HOLD', deltaSeconds: 0.75 });
+    expect(store.getState().holdProgress).toBe(0.5);
+    expect(store.getState().flags).not.toContain('ending.completed');
+    store.dispatch({ type: 'CANCEL_HOLD' });
+    expect(store.getState().holdProgress).toBe(0);
+
+    store.dispatch({ type: 'HOLD', deltaSeconds: 1.5 });
+    expect(store.getState().holdProgress).toBe(1);
+    expect(store.getState().flags).toContain('ending.completed');
+  });
 });

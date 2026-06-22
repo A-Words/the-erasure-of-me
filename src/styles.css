@@ -186,22 +186,13 @@ kbd {
   cursor: pointer;
   font-size: 0.83em;
 }
-.hold-meter {
+.hold-progress-a11y {
   position: absolute;
-  left: 50%;
-  bottom: 6rem;
-  width: min(24rem, 60vw);
-  height: 0.7rem;
-  transform: translateX(-50%);
+  width: 1px;
+  height: 1px;
   overflow: hidden;
-  border: 2px solid var(--warm-white);
-  border-radius: 999px;
-  background: rgba(47, 43, 40, 0.6);
-}
-.hold-meter i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(90deg, #d3a380, var(--anchor));
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .debug-panel {

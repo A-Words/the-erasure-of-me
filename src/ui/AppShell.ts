@@ -66,6 +66,7 @@ export class AppShell {
       app.dataset.checkpoint = state.checkpointId;
       app.dataset.playerX = String(Math.round(state.player.x));
       app.dataset.playerY = String(Math.round(state.player.y));
+      app.dataset.holdProgress = String(Math.round(state.holdProgress * 100));
     }
     document.documentElement.dataset.font = state.settings.fontSize;
     document.documentElement.dataset.contrast = String(state.settings.highContrast);
@@ -118,8 +119,8 @@ export class AppShell {
         <button data-open="journal">日记 <kbd>J</kbd></button>
         <button data-open="map" class="${washed ? 'washed' : ''}">地图 <kbd>M</kbd></button>
       </nav>
-      ${state.message ? `<button class="toast" data-clear-message aria-label="关闭提示">${state.message}</button>` : ''}
-      ${state.holdProgress > 0 ? `<div class="hold-meter" role="progressbar" aria-label="牵手进度" aria-valuenow="${Math.round(state.holdProgress * 100)}"><i style="width:${state.holdProgress * 100}%"></i></div>` : ''}
+      ${state.message && state.holdProgress === 0 ? `<button class="toast" data-clear-message aria-label="关闭提示">${state.message}</button>` : ''}
+      ${state.holdProgress > 0 ? `<div class="hold-progress-a11y" role="progressbar" aria-label="掌心逐渐变暖" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(state.holdProgress * 100)}"></div>` : ''}
       ${this.debugEnabled ? this.debugPanel(state) : ''}
     `;
   }
