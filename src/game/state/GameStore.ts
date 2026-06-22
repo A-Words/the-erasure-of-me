@@ -170,12 +170,18 @@ export class GameStore {
           addUnique(this.state.flags, 'puzzle.life.photo_order.completed');
           addUnique(this.state.inventory, 'item.life.wood_comb');
           this.interactLife('slot.life.dresser');
-        } else {
+        } else if (command.memoryId === 'life.osmanthus') {
           this.enterChapter('life');
           this.state.dialogue = [];
           addUnique(this.state.flags, 'puzzle.life.photo_order.completed');
           addUnique(this.state.inventory, 'item.life.enamel_cup');
           this.interactLife('slot.life.windowsill');
+        } else {
+          this.enterChapter('life');
+          this.state.dialogue = [];
+          addUnique(this.state.flags, 'puzzle.life.photo_order.completed');
+          addUnique(this.state.inventory, 'item.life.cassette');
+          this.interactLife('slot.life.radio');
         }
         break;
       case 'CLEAR_MESSAGE':
@@ -458,7 +464,7 @@ export class GameStore {
             ? 'life.move'
             : item === 'item.life.enamel_cup'
               ? 'life.osmanthus'
-              : null,
+              : 'life.cassette',
         );
         this.updateLifeObjective();
       }

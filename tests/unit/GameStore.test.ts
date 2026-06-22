@@ -95,4 +95,11 @@ describe('GameStore', () => {
     expect(store.getState().puzzles.placedObjects).toContain('item.life.enamel_cup');
     expect(store.getState().activeMemoryId).toBe('life.osmanthus');
   });
+
+  it('can seed the cassette memory through the real placement rules', () => {
+    const store = new GameStore();
+    store.dispatch({ type: 'DEBUG_SHOW_MEMORY', memoryId: 'life.cassette' });
+    expect(store.getState().puzzles.placedObjects).toContain('item.life.cassette');
+    expect(store.getState().activeMemoryId).toBe('life.cassette');
+  });
 });

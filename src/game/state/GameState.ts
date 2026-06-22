@@ -2,7 +2,7 @@ export type ChapterId = 'home' | 'rain' | 'life' | 'return' | 'ending';
 export type DegradationStage = 'D0' | 'D1' | 'D2' | 'D3' | 'D4';
 export type GameMode = 'standard' | 'low_stimulation';
 export type ModalId = 'inventory' | 'journal' | 'map' | 'pause' | 'photo_order' | null;
-export type MemoryIllustrationId = 'rain' | 'life.move' | 'life.osmanthus';
+export type MemoryIllustrationId = 'rain' | 'life.move' | 'life.osmanthus' | 'life.cassette';
 
 export interface AccessibilitySettings {
   fontSize: 'normal' | 'large';
