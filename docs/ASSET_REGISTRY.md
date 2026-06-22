@@ -1,6 +1,6 @@
 # 《记忆的缝隙》资产登记台账
 
-> 最近更新：2026-06-22
+> 最近更新：2026-06-23
 > 规则来源：ART_BIBLE.md 第 8、9 节
 
 本表记录进入仓库的美术与音频资产。只有来源、许可证、锚点和审核状态完整的资产才能标记为 `shipped`。
@@ -16,6 +16,8 @@
 | character.xu_old.observe.down | 项目团队 | assets-source/art/characters/character_xu_old_observe_down_v01_chromakey.png | public/assets/characters/character_xu_old_observe_down_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；按住 Shift 时由收拢姿态进入安静观察 |
 | character.xu_old.observe.up | 项目团队 | assets-source/art/characters/character_xu_old_observe_up_v01_chromakey.png | public/assets/characters/character_xu_old_observe_up_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；严格后背视角，不通过面部表达认知状态 |
 | character.xu_old.observe.right | 项目团队 | assets-source/art/characters/character_xu_old_observe_right_v01_chromakey.png | public/assets/characters/character_xu_old_observe_right_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；左向镜像；减少动态固定为开放手掌注意姿态 |
+| character.xu_old.pickup.down | 项目团队 | assets-source/art/characters/character_xu_old_pickup_down_v01_chromakey.png | public/assets/characters/character_xu_old_pickup_down_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-23 | 6×64×96；底部中心锚点；8 FPS 单次播放；上下朝向共用；不绘制特定道具 |
+| character.xu_old.pickup.right | 项目团队 | assets-source/art/characters/character_xu_old_pickup_right_v01_chromakey.png | public/assets/characters/character_xu_old_pickup_right_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-23 | 6×64×96；底部中心锚点；8 FPS 单次播放；左向镜像；减少动态使用静态第三帧 |
 | character.xiulan_old.idle.down | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_down_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_down_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；作为角色身份源，不单独进入发布构建 |
 | character.xiulan_old.idle.right | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_right_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_right_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览 | 2026-06-22 | 64×96；底部中心锚点；短发、旧绿开衫与侧向身份锚点；作为 reach_hand 第一帧来源 |
 | character.xiulan_old.reach_hand.right | 项目团队 | assets-source/art/characters/character_xiulan_old_reach_hand_right_v01_chromakey.png | public/assets/characters/character_xiulan_old_reach_hand_right_v01_8x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 8×64×96；8 FPS 单次播放；前 3 帧停下等待，末帧开放掌心；减少动态直接显示末帧 |
@@ -44,15 +46,15 @@
 
 ## 生成与处理记录
 
-### character.xu_old.idle / walk / observe
+### character.xu_old.idle / walk / observe / pickup
 
 - 生成方式：内置 OpenAI ImageGen；`stylized-concept`。
 - 生成目标：72 岁中国老人许志远，退休钟表维修师，低饱和手绘 2D，蓝灰开衫、暖白衬衫、深色长裤，稳定且有尊严的站姿。
 - 生成限制：单人全身、无文字、无场景、无水印、纯 `#00ff00` 色键背景、不使用锚点红。
 - 色键处理：`remove_chroma_key.py`，边缘软遮罩与去色溢出。
 - 游戏帧处理：`scripts/normalize_character_seed.py`，透明内容统一缩放至 64×96，底部中心对齐。
-- 动画处理：向下、向上、向右各生成完整 4 帧呼吸待机、6 帧行走和 4 帧观察横向条带；左向由右向镜像；`scripts/normalize_character_strip.py` 统一共享缩放和底部中心锚点，第一帧锁回对应方向种子。严格侧向帧把透明间隙分割的最小有效宽度校正为槽位的 8%。
-- 当前结论：四方向呼吸待机、行走、松键停止与观察已完成资产预览和 1280×720 场景检查。观察动作在标准模式 240 毫秒采样中有 2105 个角色区域像素变化；减少动态模式按住观察同区间为 0，松开后切回静态待机帧。拾取仍待补，因此保持 `review`。
+- 动画处理：向下、向上、向右各生成完整 4 帧呼吸待机、6 帧行走和 4 帧观察横向条带；另制作向下与右侧两条 6 帧拾取条带。左向由右向镜像；`scripts/normalize_character_strip.py` 统一共享缩放和底部中心锚点，第一帧锁回对应方向种子。严格侧向帧把透明间隙分割的最小有效宽度校正为槽位的 8%。
+- 当前结论：四方向呼吸待机、行走、松键停止、观察与拾取已完成资产预览和 1280×720 场景检查。观察动作在标准模式 240 毫秒采样中有 2105 个角色区域像素变化；减少动态模式按住观察同区间为 0。成功拾取的向下与侧向角色区域在动作中分别有 2587 与 2064 个像素变化，并正确回到待机；减少动态路径完成单次静态姿态切换后保持 0 像素变化。尾声牵手动作仍待补，因此保持 `review`。
 
 ### character.xiulan_old.idle / reach_hand
 

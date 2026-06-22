@@ -20,6 +20,9 @@ export class GameScene extends Phaser.Scene {
   private xiulanActor: Phaser.GameObjects.Sprite | null = null;
   private holdWarmth: Phaser.GameObjects.Arc | null = null;
   private xiulanReachStarted = false;
+  private playerAction: 'pickup' | null = null;
+  private playerActionVersion = 0;
+  private playerActionTimer: Phaser.Time.TimerEvent | null = null;
   private entityViews: EntityView[] = [];
   private renderedChapter: GameState['chapterId'] | null = null;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
@@ -98,6 +101,8 @@ export class GameScene extends Phaser.Scene {
       this.playerActor = null;
       this.xiulanActor = null;
       this.holdWarmth = null;
+      this.playerActionTimer?.remove(false);
+      this.playerActionTimer = null;
     });
   }
 
@@ -147,7 +152,14 @@ export class GameScene extends Phaser.Scene {
     }
     if (state.modal) return;
     const nearest = this.nearestEntity(125);
-    if (nearest) this.bridge.interact(nearest.definition.id);
+    if (nearest) {
+      const inventoryCount = state.inventory.length;
+      this.bridge.interact(nearest.definition.id);
+      const nextState = this.bridge.getSnapshot();
+      if (nearest.definition.kind === 'pickup' && nextState.inventory.length > inventoryCount) {
+        this.playPickup(nextState);
+      }
+    }
   }
 
   private confirmUp(): void {
@@ -184,6 +196,10 @@ export class GameScene extends Phaser.Scene {
     this.xiulanActor = null;
     this.holdWarmth = null;
     this.xiulanReachStarted = false;
+    this.playerAction = null;
+    this.playerActionVersion += 1;
+    this.playerActionTimer?.remove(false);
+    this.playerActionTimer = null;
     const map = chapterMaps[state.chapterId];
     this.renderedChapter = state.chapterId;
     this.cameras.main.setBackgroundColor(map.palette.wall);
@@ -251,6 +267,17 @@ export class GameScene extends Phaser.Scene {
         });
       }
     }
+    for (const direction of ['down', 'right'] as const) {
+      const pickupKey = `character.xu_old.pickup.${direction}`;
+      if (!this.anims.exists(`${pickupKey}.animation`)) {
+        this.anims.create({
+          key: `${pickupKey}.animation`,
+          frames: this.anims.generateFrameNumbers(pickupKey, { start: 0, end: 5 }),
+          frameRate: 8,
+          repeat: 0,
+        });
+      }
+    }
     if (!this.anims.exists('character.xiulan_old.reach_hand.right.animation')) {
       this.anims.create({
         key: 'character.xiulan_old.reach_hand.right.animation',
@@ -266,6 +293,10 @@ export class GameScene extends Phaser.Scene {
 
   private updatePlayerPose(state: Readonly<GameState>): void {
     if (!this.playerActor) return;
+    if (this.playerAction === 'pickup') {
+      if (!state.player.moving) return;
+      this.finishPlayerAction(this.playerActionVersion);
+    }
     const direction = state.player.facing === 'left' ? 'right' : state.player.facing;
     this.playerActor.setFlipX(state.player.facing === 'left');
     if (state.player.moving) {
@@ -308,6 +339,41 @@ export class GameScene extends Phaser.Scene {
     }
     this.playerActor.stop();
     this.playerActor.setTexture(textureKey, 0);
+  }
+
+  private playPickup(state: Readonly<GameState>): void {
+    if (!this.playerActor) return;
+    const sideFacing = state.player.facing === 'left' || state.player.facing === 'right';
+    const direction = sideFacing ? 'right' : 'down';
+    const pickupKey = `character.xu_old.pickup.${direction}`;
+    this.playerActionTimer?.remove(false);
+    this.playerAction = 'pickup';
+    const actionVersion = ++this.playerActionVersion;
+    this.playerActor.setFlipX(state.player.facing === 'left');
+    this.playerActor.stop();
+    if (state.settings.reducedMotion) {
+      this.playerActor.setTexture(pickupKey, 2);
+      this.playerActionTimer = this.time.delayedCall(180, () =>
+        this.finishPlayerAction(actionVersion),
+      );
+      return;
+    }
+    if (!this.anims.exists(`${pickupKey}.animation`)) {
+      this.finishPlayerAction(actionVersion);
+      return;
+    }
+    this.playerActor.once(Phaser.Animations.Events.ANIMATION_COMPLETE, () =>
+      this.finishPlayerAction(actionVersion),
+    );
+    this.playerActor.play(`${pickupKey}.animation`);
+  }
+
+  private finishPlayerAction(actionVersion: number): void {
+    if (actionVersion !== this.playerActionVersion) return;
+    this.playerActionTimer?.remove(false);
+    this.playerActionTimer = null;
+    this.playerAction = null;
+    this.updatePlayerPose(this.bridge.getSnapshot());
   }
 
   private updateXiulanPose(state: Readonly<GameState>): void {

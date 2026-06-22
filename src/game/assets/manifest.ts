@@ -144,6 +144,20 @@ export const assetManifest = [
     preload: true,
   },
   {
+    key: 'character.xu_old.pickup.down',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xu_old_pickup_down_v01_6x64x96.png',
+    frameConfig: { frameWidth: 64, frameHeight: 96 },
+    preload: true,
+  },
+  {
+    key: 'character.xu_old.pickup.right',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xu_old_pickup_right_v01_6x64x96.png',
+    frameConfig: { frameWidth: 64, frameHeight: 96 },
+    preload: true,
+  },
+  {
     key: 'character.xiulan_old.reach_hand.right',
     type: 'spritesheet',
     url: 'assets/characters/character_xiulan_old_reach_hand_right_v01_8x64x96.png',
