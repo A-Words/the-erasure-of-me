@@ -12,5 +12,22 @@ export default defineConfig({
     port: 4173,
     reuseExistingServer: true,
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'edge',
+      testIgnore: /release-visual\.spec\.ts/,
+      use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    },
+    {
+      name: 'firefox',
+      testIgnore: /release-visual\.spec\.ts/,
+      use: { ...devices['Desktop Firefox'] },
+    },
+    {
+      name: 'webkit',
+      testIgnore: /release-visual\.spec\.ts/,
+      use: { ...devices['Desktop Safari'] },
+    },
+  ],
 });

@@ -24,6 +24,7 @@
 | [资产登记台账](docs/ASSET_REGISTRY.md) | 美术与音频资产的来源、许可证、状态与审核记录 |
 | [制作路线图](docs/ROADMAP.md) | 八周里程碑、任务依赖、优先级和完成条件 |
 | [医学内容审核](docs/MEDICAL_REVIEW.md) | 权威来源、风险措辞、审核记录与发布检查 |
+| [发布就绪台账](docs/RELEASE_READINESS.md) | 自动化、三视口、性能预算与外部发布门槛 |
 
 文档冲突时采用以下优先级：
 
