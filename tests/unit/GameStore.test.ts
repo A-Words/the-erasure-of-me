@@ -88,4 +88,11 @@ describe('GameStore', () => {
     expect(store.getState().puzzles.placedObjects).toContain('item.life.wood_comb');
     expect(store.getState().activeMemoryId).toBe('life.move');
   });
+
+  it('can seed the osmanthus memory through the real placement rules', () => {
+    const store = new GameStore();
+    store.dispatch({ type: 'DEBUG_SHOW_MEMORY', memoryId: 'life.osmanthus' });
+    expect(store.getState().puzzles.placedObjects).toContain('item.life.enamel_cup');
+    expect(store.getState().activeMemoryId).toBe('life.osmanthus');
+  });
 });

@@ -126,7 +126,7 @@ export class AppShell {
 
   private debugPanel(state: Readonly<GameState>): string {
     const chapters: GameState['chapterId'][] = ['home', 'rain', 'life', 'return', 'ending'];
-    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button><button data-debug-memory="life.move">memory-move</button></div></aside>`;
+    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button><button data-debug-memory="life.move">memory-move</button><button data-debug-memory="life.osmanthus">memory-osmanthus</button></div></aside>`;
   }
 
   private renderPanel(state: Readonly<GameState>): void {
@@ -230,7 +230,10 @@ export class AppShell {
     if (memoryId === 'rain') {
       return `<section class="memory-cutscene" aria-label="雨中的初遇记忆"><img src="${assetUrl('memory.rain.umbrella.illustration')}" alt="年轻的秀兰在旧车站把修补过的红伞倾向淋雨的志远">${dialogue}</section>`;
     }
-    return `<section class="memory-cutscene" aria-label="搬进新家的记忆"><img src="${assetUrl('memory.life.move.illustration')}" alt="年轻的志远和秀兰坐在搬家纸箱上，未装好的床架和旧红伞留在一旁">${dialogue}</section>`;
+    if (memoryId === 'life.move') {
+      return `<section class="memory-cutscene" aria-label="搬进新家的记忆"><img src="${assetUrl('memory.life.move.illustration')}" alt="年轻的志远和秀兰坐在搬家纸箱上，未装好的床架和旧红伞留在一旁">${dialogue}</section>`;
+    }
+    return `<section class="memory-cutscene" aria-label="桂花第一次开放的记忆"><img src="${assetUrl('memory.life.osmanthus.illustration')}" alt="中年的秀兰擦拭桂花窗台，志远拿着带桂花纹样的搪瓷杯站在一旁">${dialogue}</section>`;
   }
 
   private titleScreen(): string {

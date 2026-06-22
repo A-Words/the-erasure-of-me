@@ -164,12 +164,18 @@ export class GameStore {
             'entity.rain.umbrella_sign_b',
           ];
           this.interactRain('entity.rain.red_umbrella');
-        } else {
+        } else if (command.memoryId === 'life.move') {
           this.enterChapter('life');
           this.state.dialogue = [];
           addUnique(this.state.flags, 'puzzle.life.photo_order.completed');
           addUnique(this.state.inventory, 'item.life.wood_comb');
           this.interactLife('slot.life.dresser');
+        } else {
+          this.enterChapter('life');
+          this.state.dialogue = [];
+          addUnique(this.state.flags, 'puzzle.life.photo_order.completed');
+          addUnique(this.state.inventory, 'item.life.enamel_cup');
+          this.interactLife('slot.life.windowsill');
         }
         break;
       case 'CLEAR_MESSAGE':
@@ -446,7 +452,14 @@ export class GameStore {
             : item === 'item.life.enamel_cup'
               ? '桂花第一次开。她说，明年也一起闻。'
               : '停电的纪念日里，录音带的声音还在。';
-        this.setDialogue([memory], item === 'item.life.wood_comb' ? 'life.move' : null);
+        this.setDialogue(
+          [memory],
+          item === 'item.life.wood_comb'
+            ? 'life.move'
+            : item === 'item.life.enamel_cup'
+              ? 'life.osmanthus'
+              : null,
+        );
         this.updateLifeObjective();
       }
       return;

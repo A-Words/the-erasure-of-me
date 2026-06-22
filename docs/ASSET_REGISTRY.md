@@ -12,6 +12,7 @@
 | prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，所有雨站红伞实体共用 |
 | memory.rain.umbrella.illustration | 项目团队 | assets-source/art/memories/memory_rain_umbrella_v01.png | public/assets/memories/memory_rain_umbrella_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；雨站初遇对白期间显示；红伞为唯一高辨识暖色 |
 | memory.life.move.illustration | 项目团队 | assets-source/art/memories/memory_life_move_v01.png | public/assets/memories/memory_life_move_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；木梳归位后显示；纸箱、未装床架和背景红伞与脚本一致 |
+| memory.life.osmanthus.illustration | 项目团队 | assets-source/art/memories/memory_life_osmanthus_v01.png | public/assets/memories/memory_life_osmanthus_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；搪瓷杯归位后显示；桂花、泥土与杯子构成冗余线索 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 浏览器验收 | 2026-06-22 | 灰盒对象层；正式 tile 仍待替换 |
 | map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | placeholder | Codex 自动化测试 | 2026-06-22 | 灰盒对象层；稳定 ID 已接入 |
@@ -52,3 +53,11 @@
 - 生成限制：无可读文字、无现代家电、无额外人物、无浪漫海报姿势，不夸张贫困或疲惫。
 - 运行时处理：高分辨率 PNG 原稿归档于 `assets-source`，导出 1152×768 WebP。
 - 当前结论：内容与 `dialogue.life.memory_move` 一致；D2 实际构图、裁切和控制台检查通过。
+
+### memory.life.osmanthus.illustration
+
+- 生成方式：内置 OpenAI ImageGen；使用搬家记忆维持人物身份与画法，并将两人自然推进到中年。
+- 生成目标：1992 年桂花第一次开放；秀兰擦拭窗台泥土，志远拿着带桂花纹样的搪瓷杯。
+- 生成限制：无可读年份和文字、无现代电子设备、无额外前景人物、无红色强焦点、无疾病隐喻。
+- 运行时处理：高分辨率 PNG 原稿归档于 `assets-source`，导出 1152×768 WebP。
+- 当前结论：内容与 `dialogue.life.memory_osmanthus` 一致；D2 实际构图、裁切和控制台检查通过。
