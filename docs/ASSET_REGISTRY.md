@@ -7,7 +7,9 @@
 
 | assetKey | owner | sourceFile | exportFile | license/source | status | reviewer | approvedAt | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| character.xu_old.idle.down | 项目团队 | assets-source/art/characters/character_xu_old_idle_down_v01_chromakey.png | assets-source/art/characters/frames/character_xu_old_idle_down_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；作为 walk.down 第一帧来源，不单独进入发布构建 |
+| character.xu_old.idle.down | 项目团队 | assets-source/art/characters/character_xu_old_idle_down_strip_v01_chromakey.png | public/assets/characters/character_xu_old_idle_down_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；4 FPS 呼吸循环；第一帧锁定原始向下种子 |
+| character.xu_old.idle.up | 项目团队 | assets-source/art/characters/character_xu_old_idle_up_strip_v01_chromakey.png | public/assets/characters/character_xu_old_idle_up_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；4 FPS 呼吸循环；严格后背视角 |
+| character.xu_old.idle.right | 项目团队 | assets-source/art/characters/character_xu_old_idle_right_strip_v01_chromakey.png | public/assets/characters/character_xu_old_idle_right_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；4 FPS 呼吸循环；左向由同条带镜像 |
 | character.xu_old.walk.down | 项目团队 | assets-source/art/characters/character_xu_old_walk_down_v01_chromakey.png | public/assets/characters/character_xu_old_walk_down_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向下待机种子 |
 | character.xu_old.walk.up | 项目团队 | assets-source/art/characters/character_xu_old_walk_up_v01_chromakey.png | public/assets/characters/character_xu_old_walk_up_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向上待机种子 |
 | character.xu_old.walk.right | 项目团队 | assets-source/art/characters/character_xu_old_walk_right_v01_chromakey.png | public/assets/characters/character_xu_old_walk_right_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；左向由同一条带镜像，松键恢复领域朝向锚点 |
@@ -46,8 +48,8 @@
 - 生成限制：单人全身、无文字、无场景、无水印、纯 `#00ff00` 色键背景、不使用锚点红。
 - 色键处理：`remove_chroma_key.py`，边缘软遮罩与去色溢出。
 - 游戏帧处理：`scripts/normalize_character_seed.py`，透明内容统一缩放至 64×96，底部中心对齐。
-- 动画处理：向下、向上、向右各生成完整 6 帧横向条带；左向由右向镜像；`scripts/normalize_character_strip.py` 统一共享缩放和底部中心锚点，第一帧锁回对应待机种子。
-- 当前结论：四方向行走与松键停止已在 1280×720 实际场景检查；四向呼吸待机、观察与拾取仍待补，因此保持 `review`。
+- 动画处理：向下、向上、向右各生成完整 4 帧呼吸待机与 6 帧行走横向条带；左向由右向镜像；`scripts/normalize_character_strip.py` 统一共享缩放和底部中心锚点，第一帧锁回对应方向种子。严格侧向帧把透明间隙分割的最小有效宽度校正为槽位的 8%。
+- 当前结论：四方向呼吸待机、行走与松键停止已完成资产预览和 1280×720 场景检查；标准模式 300 毫秒采样的角色局部有 1361 个像素变化，减少动态同区间为 0。观察与拾取仍待补，因此保持 `review`。
 
 ### character.xiulan_old.idle / reach_hand
 

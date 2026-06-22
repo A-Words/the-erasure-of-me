@@ -209,7 +209,7 @@ export class GameScene extends Phaser.Scene {
     }
     this.player = this.add.container(state.player.x, state.player.y);
     const shadow = this.add.ellipse(0, 9, 38, 16, 0x2f2b28, 0.25);
-    this.playerActor = this.add.sprite(0, 16, 'character.xu_old.walk.down', 0).setOrigin(0.5, 1);
+    this.playerActor = this.add.sprite(0, 16, 'character.xu_old.idle.down', 0).setOrigin(0.5, 1);
     this.player.add([shadow, this.playerActor]);
     this.player.setDepth(10);
     this.updatePlayerPose(state);
@@ -218,15 +218,24 @@ export class GameScene extends Phaser.Scene {
   private createPlayerAnimations(): void {
     const directions = ['down', 'up', 'right'] as const;
     for (const direction of directions) {
-      const animationKey = `character.xu_old.walk.${direction}.animation`;
-      if (this.anims.exists(animationKey)) continue;
-      const textureKey = `character.xu_old.walk.${direction}`;
-      this.anims.create({
-        key: animationKey,
-        frames: this.anims.generateFrameNumbers(textureKey, { start: 0, end: 5 }),
-        frameRate: 8,
-        repeat: -1,
-      });
+      const walkKey = `character.xu_old.walk.${direction}`;
+      if (!this.anims.exists(`${walkKey}.animation`)) {
+        this.anims.create({
+          key: `${walkKey}.animation`,
+          frames: this.anims.generateFrameNumbers(walkKey, { start: 0, end: 5 }),
+          frameRate: 8,
+          repeat: -1,
+        });
+      }
+      const idleKey = `character.xu_old.idle.${direction}`;
+      if (!this.anims.exists(`${idleKey}.animation`)) {
+        this.anims.create({
+          key: `${idleKey}.animation`,
+          frames: this.anims.generateFrameNumbers(idleKey, { start: 0, end: 3 }),
+          frameRate: 4,
+          repeat: -1,
+        });
+      }
     }
     if (!this.anims.exists('character.xiulan_old.reach_hand.right.animation')) {
       this.anims.create({
@@ -244,13 +253,23 @@ export class GameScene extends Phaser.Scene {
   private updatePlayerPose(state: Readonly<GameState>): void {
     if (!this.playerActor) return;
     const direction = state.player.facing === 'left' ? 'right' : state.player.facing;
-    const textureKey = `character.xu_old.walk.${direction}`;
     this.playerActor.setFlipX(state.player.facing === 'left');
     if (state.player.moving) {
-      this.playerActor.play(`${textureKey}.animation`, true);
+      const walkKey = `character.xu_old.walk.${direction}`;
+      if (state.settings.reducedMotion) {
+        this.playerActor.stop();
+        this.playerActor.setTexture(walkKey, 0);
+      } else {
+        this.playerActor.play(`${walkKey}.animation`, true);
+      }
     } else {
-      this.playerActor.stop();
-      this.playerActor.setTexture(textureKey, 0);
+      const idleKey = `character.xu_old.idle.${direction}`;
+      if (state.settings.reducedMotion) {
+        this.playerActor.stop();
+        this.playerActor.setTexture(idleKey, 0);
+      } else {
+        this.playerActor.play(`${idleKey}.animation`, true);
+      }
     }
   }
 

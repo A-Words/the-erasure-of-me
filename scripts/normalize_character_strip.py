@@ -73,7 +73,7 @@ def split_strip_by_gaps(
             runs.append((start, x))
             start = None
 
-    minimum_width = max(4, round(strip.width / frames * 0.2))
+    minimum_width = max(4, round(strip.width / frames * 0.08))
     runs = [(left, right) for left, right in runs if right - left >= minimum_width]
     if len(runs) != frames:
         raise ValueError(

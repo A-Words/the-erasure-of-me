@@ -81,6 +81,27 @@ export const assetManifest = [
     preload: true,
   },
   {
+    key: 'character.xu_old.idle.down',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xu_old_idle_down_v01_4x64x96.png',
+    frameConfig: { frameWidth: 64, frameHeight: 96 },
+    preload: true,
+  },
+  {
+    key: 'character.xu_old.idle.up',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xu_old_idle_up_v01_4x64x96.png',
+    frameConfig: { frameWidth: 64, frameHeight: 96 },
+    preload: true,
+  },
+  {
+    key: 'character.xu_old.idle.right',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xu_old_idle_right_v01_4x64x96.png',
+    frameConfig: { frameWidth: 64, frameHeight: 96 },
+    preload: true,
+  },
+  {
     key: 'character.xu_old.walk.down',
     type: 'spritesheet',
     url: 'assets/characters/character_xu_old_walk_down_v01_6x64x96.png',
