@@ -1,5 +1,6 @@
 import { chapterMaps, itemLabels } from '../game/content/maps';
 import { assetUrl } from '../game/assets/manifest';
+import { normalizeSettings } from '../game/state/initialState';
 import type {
   AccessibilitySettings,
   GameState,
@@ -40,6 +41,7 @@ export class AppShell {
   private readonly system = document.querySelector<HTMLDivElement>('#system-layer')!;
   private signature = '';
   private photoOrder: string[] = [];
+  private confirmingClearData = false;
   private readonly debugEnabled =
     import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === '1';
 
@@ -244,6 +246,13 @@ export class AppShell {
   }
 
   private titleScreen(): string {
+    const saveStatus = this.saves.getSaveStatus();
+    const saveControl =
+      saveStatus === 'valid'
+        ? '<button class="continue" data-continue>从最近的安全位置继续</button>'
+        : saveStatus === 'invalid'
+          ? `<aside class="content-note" role="status"><strong>存档无法读取</strong><span>设置已保留。你可以清除损坏存档后重新开始。</span>${this.clearDataControl()}</aside>`
+          : '';
     return `<section class="title-screen" aria-labelledby="game-title">
       <div class="title-art" aria-hidden="true"><span>☂</span></div>
       <p class="eyebrow">一段关于记忆、尊严与陪伴的故事</p>
@@ -254,7 +263,7 @@ export class AppShell {
         <button class="mode-card primary" data-new="standard"><strong>标准模式</strong><span>固定、可学习的方向错位与完整退化表现</span></button>
         <button class="mode-card" data-new="low_stimulation"><strong>低扰动模式</strong><span>保留标准方向，降低模糊、漂移和动态</span></button>
       </div>
-      ${this.saves.hasSave() ? '<button class="continue" data-continue>从最近的安全位置继续</button>' : ''}
+      ${saveControl}
       <p class="controls">纯键盘可完成 · WASD / 方向键移动 · E 交互 · Esc 暂停</p>
     </section>`;
   }
@@ -266,7 +275,13 @@ export class AppShell {
 
   private pauseScreen(state: Readonly<GameState>): string {
     const settings = state.settings;
-    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2><button class="primary" data-close>继续</button><fieldset><legend>设置与无障碍</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label></fieldset><button class="secondary" data-title>返回标题</button></section></div>`;
+    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2><button class="primary" data-close>继续</button><fieldset><legend>设置与无障碍</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label></fieldset><section class="clear-data"><h3>本地数据</h3><p class="muted">清除后将删除本机上的进度和设置，且无法恢复。</p>${this.clearDataControl()}</section><button class="secondary" data-title>返回标题</button></section></div>`;
+  }
+
+  private clearDataControl(): string {
+    return this.confirmingClearData
+      ? '<div class="confirm-row" role="group" aria-label="确认清除本地数据"><button class="secondary" data-confirm-clear>确认清除本地数据</button><button data-cancel-clear>取消</button></div>'
+      : '<button class="secondary" data-request-clear>清除本地数据</button>';
   }
 
   private audioMixer(settings: AccessibilitySettings): string {
@@ -289,7 +304,7 @@ export class AppShell {
   }
 
   private guideScreen(): string {
-    return `<article class="guide-page"><header><p class="eyebrow">故事结束后，留下一点可以带走的东西</p><h1>早期表现与就医陪伴指南</h1><p class="disclaimer">本页用于一般健康科普，不能替代专业筛查、诊断或治疗。如果你发现自己或家人的认知、情绪或日常能力持续发生变化并影响生活，请记录具体情况，并向正规医疗机构的相关专业人员咨询。</p></header><section><h2>值得留意的持续变化</h2><ul><li>比过去更频繁地忘记近期事件，或反复询问同一件事</li><li>经常放错物品，并且难以沿原路寻找</li><li>在熟悉地点迷路，或混淆时间、地点</li><li>完成熟悉任务、解决问题或作出决定变得困难</li><li>跟随对话、理解表达或寻找词语变得困难</li><li>视觉空间判断、情绪、行为或社交状态持续改变</li></ul><p>这些表现可能有多种原因，不能凭单一表现自行判断疾病。</p></section><section><h2>可以怎样行动</h2><ol><li>记录变化出现的时间、频率、场景和对生活的影响。</li><li>与本人平静沟通，避免测试、指责或争辩。</li><li>预约正规医疗机构评估，携带病史、用药信息和观察记录。</li><li>用稳定日程、清晰标记、充足照明改善日常安全。</li><li>鼓励本人继续参与力所能及的熟悉活动与社会交往。</li><li>照护者也需要休息，并可以向家人、社区和专业人员求助。</li></ol></section><aside class="game-notice"><h2>关于游戏中的谜题</h2><p>照片排序、数字连接、颜色和形状辨识只用于叙事体验，不是医学筛查，也不能产生任何认知健康结论。</p></aside><section><h2>资料来源</h2><ul><li><a href="https://www.who.int/news-room/fact-sheets/detail/dementia" target="_blank" rel="noopener noreferrer">世界卫生组织：Dementia</a></li><li><a href="https://www.gov.cn/zhengce/zhengceku/202501/content_6996231.htm" target="_blank" rel="noopener noreferrer">应对老年期痴呆国家行动计划（2024—2030年）</a></li><li><a href="https://www.gov.cn/zhengce/202501/content_6996237.htm" target="_blank" rel="noopener noreferrer">国家行动计划政策解读</a></li></ul><p class="muted">来源最近核验：2026-06-22。正式发布前仍需专业审核。</p></section><footer><button class="primary" data-title>回到标题</button><button class="secondary" data-new="standard">重新开始</button></footer></article>`;
+    return `<article class="guide-page"><header><p class="eyebrow">故事结束后，留下一点可以带走的东西</p><h1>早期表现与就医陪伴指南</h1><p class="disclaimer">本页用于一般健康科普，不能替代专业筛查、诊断或治疗。如果你发现自己或家人的认知、情绪或日常能力持续发生变化并影响生活，请记录具体情况，并向正规医疗机构的相关专业人员咨询。</p></header><section><h2>值得留意的持续变化</h2><ul><li>比过去更频繁地忘记近期事件，或反复询问同一件事</li><li>经常放错物品，并且难以沿原路寻找</li><li>在熟悉地点迷路，或混淆时间、地点</li><li>完成熟悉任务、解决问题或作出决定变得困难</li><li>跟随对话、理解表达或寻找词语变得困难</li><li>视觉空间判断、情绪、行为或社交状态持续改变</li></ul><p>这些表现可能有多种原因，不能凭单一表现自行判断疾病。</p></section><section><h2>可以怎样行动</h2><ol><li>记录变化出现的时间、频率、场景和对生活的影响。</li><li>与本人平静沟通，避免测试、指责或争辩。</li><li>预约正规医疗机构评估，携带病史、用药信息和观察记录。</li><li>用稳定日程、清晰标记、充足照明改善日常安全。</li><li>鼓励本人继续参与力所能及的熟悉活动与社会交往。</li><li>照护者也需要休息，并可以向家人、社区和专业人员求助。</li></ol></section><aside class="game-notice"><h2>关于游戏中的谜题</h2><p>照片排序、数字连接、颜色和形状辨识只用于叙事体验，不是医学筛查，也不能产生任何认知健康结论。</p></aside><section><h2>资料来源</h2><ul><li><a href="https://www.who.int/news-room/fact-sheets/detail/dementia" target="_blank" rel="noopener noreferrer">世界卫生组织：Dementia</a></li><li><a href="https://www.gov.cn/zhengce/zhengceku/202501/content_6996231.htm" target="_blank" rel="noopener noreferrer">应对老年期痴呆国家行动计划（2024—2030年）</a></li><li><a href="https://www.gov.cn/zhengce/202501/content_6996237.htm" target="_blank" rel="noopener noreferrer">国家行动计划政策解读</a></li></ul><p class="muted">来源最近核验：2026-06-23。正式发布前仍需专业审核。</p></section><section><h2>制作与致谢</h2><p>本作由项目团队原创制作，使用 Phaser、TypeScript、Vite 与 Tiled。生成式图像的来源和处理记录见仓库资产台账。</p><p class="muted">感谢公开权威资料的维护者；上列机构未参与本作制作，也不代表对本作背书。医学与敏感性专业审核完成后，仅在取得同意时补充公开致谢。</p></section><footer><button class="primary" data-title>回到标题</button><button class="secondary" data-new="standard">重新开始</button></footer></article>`;
   }
 
   private bindEvents(state: Readonly<GameState>): void {
@@ -316,16 +331,40 @@ export class AppShell {
         }),
       ),
     );
-    document
-      .querySelectorAll<HTMLElement>('[data-close]')
-      .forEach((button) =>
-        button.addEventListener('click', () => this.store.dispatch({ type: 'CLOSE_MODAL' })),
-      );
-    document
-      .querySelectorAll<HTMLElement>('[data-title]')
-      .forEach((button) =>
-        button.addEventListener('click', () => this.store.dispatch({ type: 'RETURN_TITLE' })),
-      );
+    document.querySelectorAll<HTMLElement>('[data-close]').forEach((button) =>
+      button.addEventListener('click', () => {
+        this.confirmingClearData = false;
+        this.store.dispatch({ type: 'CLOSE_MODAL' });
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('[data-title]').forEach((button) =>
+      button.addEventListener('click', () => {
+        this.confirmingClearData = false;
+        this.store.dispatch({ type: 'RETURN_TITLE' });
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('[data-request-clear]').forEach((button) =>
+      button.addEventListener('click', () => {
+        this.confirmingClearData = true;
+        this.signature = '';
+        this.render(state);
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('[data-cancel-clear]').forEach((button) =>
+      button.addEventListener('click', () => {
+        this.confirmingClearData = false;
+        this.signature = '';
+        this.render(state);
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('[data-confirm-clear]').forEach((button) =>
+      button.addEventListener('click', () => {
+        this.confirmingClearData = false;
+        this.saves.clearAll();
+        this.store.dispatch({ type: 'RETURN_TITLE' });
+        this.store.dispatch({ type: 'SETTINGS', patch: normalizeSettings() });
+      }),
+    );
     document
       .querySelectorAll<HTMLElement>('[data-dialogue]')
       .forEach((button) =>

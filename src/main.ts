@@ -8,6 +8,8 @@ import { AudioManager } from './phaser/audio/AudioManager';
 const store = new GameStore();
 const saves = new SaveRepository();
 const audio = new AudioManager();
+const savedSettings = saves.loadSettings();
+if (savedSettings) store.dispatch({ type: 'SETTINGS', patch: savedSettings });
 const game = createGame(store);
 game.canvas.tabIndex = 0;
 game.canvas.setAttribute('aria-label', '可操作游戏画面');
