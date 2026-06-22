@@ -4,7 +4,7 @@ import { GameScene } from './scenes/GameScene';
 
 export function createGame(store: GameStore): Phaser.Game {
   return new Phaser.Game({
-    type: Phaser.AUTO,
+    type: Phaser.CANVAS,
     parent: 'game-canvas',
     width: 1280,
     height: 720,

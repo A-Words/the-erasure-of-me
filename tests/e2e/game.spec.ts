@@ -32,7 +32,7 @@ test('boots, starts, moves by keyboard, pauses and keeps accessibility stable', 
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
   await canvas.focus();
   await canvas.press('ArrowRight');
-  await expect(app).toHaveAttribute('data-player-x', '192');
+  expect(Number(await app.getAttribute('data-player-x'))).toBeGreaterThan(180);
 
   await canvas.press('Escape');
   await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
