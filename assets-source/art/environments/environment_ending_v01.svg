@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <pattern id="wood" width="112" height="56" patternUnits="userSpaceOnUse"><rect width="112" height="56" fill="#c8b89e"/><path d="M0 55h112M56 0v56" stroke="#8b7665" stroke-opacity=".13"/><path d="M10 18c24-8 44 9 78-3" fill="none" stroke="#f7f3e8" stroke-opacity=".25"/></pattern>
+    <radialGradient id="light"><stop stop-color="#fff8e7" stop-opacity=".82"/><stop offset="1" stop-color="#fff8e7" stop-opacity="0"/></radialGradient>
+    <filter id="paper"><feTurbulence baseFrequency=".72" numOctaves="2" seed="31"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .055 0"/></filter>
+  </defs>
+  <rect width="1280" height="720" fill="#877362"/>
+  <rect x="32" y="32" width="1216" height="656" rx="18" fill="url(#wood)"/>
+  <path d="M430 32v656M870 32v656M32 430h1216" stroke="#806d5e" stroke-width="10" opacity=".48"/>
+  <g stroke="#6d5d50" stroke-width="6" fill="#9b8871" opacity=".8">
+    <rect x="83" y="82" width="274" height="172" rx="12"/><rect x="101" y="99" width="238" height="72" rx="16" fill="#ded2bd"/>
+    <rect x="498" y="112" width="286" height="128" rx="54"/><rect x="928" y="78" width="255" height="130" rx="10"/>
+    <rect x="104" y="490" width="240" height="130" rx="10"/>
+    <ellipse cx="640" cy="430" rx="188" ry="67" fill="#a98f70"/>
+    <path d="M500 430h280M546 482v84M734 482v84"/>
+    <rect x="939" y="480" width="196" height="112" rx="10"/>
+    <rect x="1118" y="267" width="91" height="184" rx="5" fill="#6e5e52"/>
+  </g>
+  <g fill="#eee4cf" stroke="#877666" stroke-width="3"><ellipse cx="584" cy="419" rx="48" ry="24"/><ellipse cx="696" cy="419" rx="48" ry="24"/></g>
+  <g fill="none" stroke="#b8a378" stroke-width="5" opacity=".7"><path d="M558 419c14-18 39-18 53 0M670 419c14-18 39-18 53 0"/></g>
+  <path d="M1080 323q34-47 68 0h-9q-24-27-48 0z" fill="#8f4848" opacity=".62"/>
+  <ellipse cx="640" cy="350" rx="510" ry="360" fill="url(#light)"/>
+  <rect width="1280" height="720" filter="url(#paper)" opacity=".7"/>
+  <path d="M32 32h1216v656H32z" fill="none" stroke="#fffaf0" stroke-opacity=".4" stroke-width="3"/>
+</svg>

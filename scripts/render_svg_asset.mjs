@@ -8,8 +8,13 @@ if (!inputArg || !outputArg) {
   throw new Error('Usage: node scripts/render_svg_asset.mjs <input.svg> <output.png> [size]');
 }
 
-const size = Number(sizeArg);
-if (!Number.isInteger(size) || size <= 0) throw new Error(`Invalid size: ${sizeArg}`);
+const dimensions = sizeArg.match(/^(\d+)(?:x(\d+))?$/i);
+if (!dimensions) throw new Error(`Invalid size: ${sizeArg}`);
+const width = Number(dimensions[1]);
+const height = Number(dimensions[2] ?? dimensions[1]);
+if (![width, height].every((value) => Number.isInteger(value) && value > 0)) {
+  throw new Error(`Invalid size: ${sizeArg}`);
+}
 
 const input = resolve(inputArg);
 const output = resolve(outputArg);
@@ -17,7 +22,7 @@ await mkdir(dirname(output), { recursive: true });
 
 const browser = await chromium.launch({ headless: true });
 try {
-  const page = await browser.newPage({ viewport: { width: size, height: size } });
+  const page = await browser.newPage({ viewport: { width, height } });
   await page.goto(pathToFileURL(input).href, { waitUntil: 'load' });
   await page.evaluate(
     ({ width, height }) => {
@@ -28,11 +33,11 @@ try {
       svg.style.height = `${height}px`;
       svg.style.display = 'block';
     },
-    { width: size, height: size },
+    { width, height },
   );
   await page.screenshot({ path: output, omitBackground: true });
 } finally {
   await browser.close();
 }
 
-console.log(`Rendered ${input} -> ${output} (${size}x${size})`);
+console.log(`Rendered ${input} -> ${output} (${width}x${height})`);

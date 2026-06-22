@@ -95,6 +95,8 @@
 
 不得为了“记忆错乱”改变可行走区域而不更新导航和视觉边界。
 
+当前环境候选以 1280×720 原创 SVG 保存于 `assets-source/art/environments/`，通过 `npm run assets:render:environments` 导出运行时 PNG。背景只承担表现，出生点、交互对象和稳定 ID 仍由 Tiled JSON 对象层提供。
+
 ## 5. 角色规格
 
 ### 5.1 尺寸与锚点

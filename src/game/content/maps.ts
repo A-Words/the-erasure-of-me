@@ -11,6 +11,7 @@ export interface WorldEntity {
 
 export interface ChapterMap {
   id: string;
+  backgroundKey: string;
   title: string;
   subtitle: string;
   width: number;
@@ -23,6 +24,7 @@ export interface ChapterMap {
 export const chapterMaps: Record<ChapterId, ChapterMap> = {
   home: {
     id: 'map.home',
+    backgroundKey: 'environment.home.background',
     title: '第一章 · 清晨的家',
     subtitle: '熟悉的东西，都在它们原来的位置。',
     width: 1280,
@@ -53,6 +55,7 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
   },
   rain: {
     id: 'map.rain_station',
+    backgroundKey: 'environment.rain.background',
     title: '第二章 · 雨中的初遇',
     subtitle: '有些路名看不清了。钟声还在。',
     width: 1280,
@@ -92,6 +95,7 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
   },
   life: {
     id: 'map.shared_life',
+    backgroundKey: 'environment.life.background',
     title: '第三章 · 共同生活',
     subtitle: '名字有些远。样子和触感还在。',
     width: 1280,
@@ -114,6 +118,7 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
   },
   return: {
     id: 'map.return_corridor',
+    backgroundKey: 'environment.return.background',
     title: '第四章 · 回家的路',
     subtitle: '方向变了。地上的箭头还在。',
     width: 1280,
@@ -129,6 +134,7 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
   },
   ending: {
     id: 'map.home_ending',
+    backgroundKey: 'environment.ending.background',
     title: '尾声 · 面还是热的',
     subtitle: '',
     width: 1280,

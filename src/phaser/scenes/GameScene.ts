@@ -163,14 +163,10 @@ export class GameScene extends Phaser.Scene {
     this.renderedChapter = state.chapterId;
     this.cameras.main.setBackgroundColor(map.palette.wall);
     this.cameras.main.setBounds(0, 0, map.width, map.height);
-
-    const graphics = this.add.graphics();
-    graphics.fillStyle(map.palette.floor, 1);
-    graphics.fillRoundedRect(32, 32, map.width - 64, map.height - 64, 18);
-    graphics.lineStyle(3, 0xeee7d8, 0.25);
-    for (let x = 96; x < map.width; x += 128) graphics.lineBetween(x, 48, x, map.height - 48);
-    for (let y = 96; y < map.height; y += 128) graphics.lineBetween(48, y, map.width - 48, y);
-    this.drawChapterDetails(state.chapterId, graphics, map.palette.accent);
+    this.add
+      .image(map.width / 2, map.height / 2, map.backgroundKey)
+      .setDisplaySize(map.width, map.height)
+      .setDepth(0);
 
     const tiledMap = this.make.tilemap({ key: map.id });
     const tiledObjects = tiledMap.getObjectLayer('interactables')?.objects ?? [];
@@ -186,32 +182,6 @@ export class GameScene extends Phaser.Scene {
     const actor = this.add.image(0, 16, 'character.xu_old.idle.down').setOrigin(0.5, 1);
     this.player.add([shadow, actor]);
     this.player.setDepth(10);
-  }
-
-  private drawChapterDetails(
-    chapter: GameState['chapterId'],
-    graphics: Phaser.GameObjects.Graphics,
-    accent: number,
-  ): void {
-    graphics.lineStyle(8, accent, 0.28);
-    if (chapter === 'home' || chapter === 'ending') {
-      graphics.lineBetween(430, 45, 430, 675);
-      graphics.lineBetween(870, 45, 870, 675);
-      graphics.lineBetween(45, 430, 1235, 430);
-    } else if (chapter === 'rain') {
-      graphics.lineBetween(100, 610, 1160, 100);
-      graphics.fillStyle(0x9cc4d0, 0.16);
-      for (let i = 0; i < 18; i += 1) graphics.fillEllipse(80 + i * 67, 80 + (i % 5) * 120, 56, 18);
-    } else if (chapter === 'life') {
-      graphics.strokeRect(150, 100, 980, 520);
-      graphics.lineBetween(430, 100, 430, 620);
-      graphics.lineBetween(850, 100, 850, 620);
-    } else {
-      graphics.lineBetween(640, 100, 640, 620);
-      graphics.lineBetween(120, 360, 1160, 360);
-      graphics.fillStyle(0xb54949, 0.25);
-      graphics.fillTriangle(580, 230, 700, 230, 640, 150);
-    }
   }
 
   private createEntity(entity: WorldEntity): EntityView {

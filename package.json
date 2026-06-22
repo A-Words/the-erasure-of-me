@@ -12,7 +12,8 @@
     "test:e2e": "npm run build && playwright test",
     "lint": "eslint .",
     "format:check": "prettier --check \"src/**/*.{ts,css}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"public/assets/data/*.json\" \"*.{json,js,ts,html}\"",
-    "assets:render": "node scripts/render_svg_asset.mjs assets-source/art/props/prop_red_umbrella_closed_v01.svg public/assets/props/prop_red_umbrella_closed_v01.png 96"
+    "assets:render": "node scripts/render_svg_asset.mjs assets-source/art/props/prop_red_umbrella_closed_v01.svg public/assets/props/prop_red_umbrella_closed_v01.png 96",
+    "assets:render:environments": "node scripts/render_svg_asset.mjs assets-source/art/environments/environment_home_v01.svg public/assets/environments/environment_home_v01.png 1280x720 && node scripts/render_svg_asset.mjs assets-source/art/environments/environment_rain_v01.svg public/assets/environments/environment_rain_v01.png 1280x720 && node scripts/render_svg_asset.mjs assets-source/art/environments/environment_life_v01.svg public/assets/environments/environment_life_v01.png 1280x720 && node scripts/render_svg_asset.mjs assets-source/art/environments/environment_return_v01.svg public/assets/environments/environment_return_v01.png 1280x720 && node scripts/render_svg_asset.mjs assets-source/art/environments/environment_ending_v01.svg public/assets/environments/environment_ending_v01.png 1280x720"
   },
   "dependencies": {
     "phaser": "^3.90.0"

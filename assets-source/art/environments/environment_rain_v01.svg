@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="wet" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#263a43"/><stop offset=".55" stop-color="#526b75"/><stop offset="1" stop-color="#88979b"/></linearGradient>
+    <pattern id="rain" width="48" height="64" patternUnits="userSpaceOnUse"><path d="M8 0L0 25M28 19L18 52M46 3L37 32" stroke="#c5d4d5" stroke-width="2" opacity=".18"/></pattern>
+    <filter id="paper"><feTurbulence baseFrequency=".7" numOctaves="2" seed="7"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .08 0"/></filter>
+  </defs>
+  <rect width="1280" height="720" fill="#243640"/>
+  <rect x="32" y="32" width="1216" height="656" rx="18" fill="url(#wet)"/>
+  <path d="M38 650L1190 52h58v286L210 688H38z" fill="#9a8d73" opacity=".62"/>
+  <path d="M40 621L1125 58" stroke="#ddd0aa" stroke-width="4" stroke-dasharray="24 18" opacity=".52"/>
+  <path d="M70 681L1240 303" stroke="#273a43" stroke-width="28" opacity=".36"/>
+  <g fill="#aec5c9" opacity=".2" stroke="#d9e1df" stroke-opacity=".22">
+    <ellipse cx="174" cy="566" rx="100" ry="24"/><ellipse cx="378" cy="488" rx="84" ry="20"/>
+    <ellipse cx="592" cy="358" rx="105" ry="28"/><ellipse cx="822" cy="266" rx="76" ry="18"/>
+    <ellipse cx="1035" cy="153" rx="96" ry="22"/>
+  </g>
+  <g fill="#1d2c33" stroke="#77868a" stroke-width="5">
+    <path d="M786 44h422v138H786z"/><path d="M758 44h478l-44 58H800z" fill="#394d54"/>
+    <path d="M850 100v82M970 100v82M1090 100v82" opacity=".7"/>
+    <rect x="1060" y="52" width="118" height="94" rx="8" fill="#263840"/>
+    <circle cx="1119" cy="93" r="32" fill="#cbbd94" stroke="#514b41"/>
+    <path d="M1119 93V71M1119 93l17 9" stroke="#514b41" stroke-width="4"/>
+  </g>
+  <g fill="#9d9278" stroke="#3c4647" stroke-width="5">
+    <circle cx="330" cy="520" r="31"/><circle cx="510" cy="410" r="31"/><circle cx="680" cy="310" r="31"/>
+    <circle cx="319" cy="512" r="4" fill="#4d4b43"/><circle cx="341" cy="528" r="4" fill="#4d4b43"/>
+    <g fill="#4d4b43" stroke="none"><circle cx="500" cy="400" r="4"/><circle cx="520" cy="400" r="4"/><circle cx="500" cy="420" r="4"/><circle cx="520" cy="420" r="4"/></g>
+    <g fill="#4d4b43" stroke="none"><circle cx="668" cy="297" r="4"/><circle cx="692" cy="297" r="4"/><circle cx="680" cy="310" r="4"/><circle cx="668" cy="323" r="4"/><circle cx="692" cy="323" r="4"/></g>
+  </g>
+  <path d="M32 32h1216v656H32z" fill="url(#rain)"/>
+  <rect width="1280" height="720" filter="url(#paper)" opacity=".7"/>
+  <path d="M32 32h1216v656H32z" fill="none" stroke="#c8d7d8" stroke-opacity=".2" stroke-width="3"/>
+</svg>

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <pattern id="wood" width="96" height="48" patternUnits="userSpaceOnUse">
+      <rect width="96" height="48" fill="#b7a58d"/>
+      <path d="M0 47.5H96M48 0v48" stroke="#79695b" stroke-opacity=".18"/>
+      <path d="M9 13c17-7 31 6 49-1s27-2 38 2" fill="none" stroke="#e7ddca" stroke-opacity=".18"/>
+    </pattern>
+    <filter id="paper"><feTurbulence baseFrequency=".75" numOctaves="2" seed="12"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .07 0"/></filter>
+    <linearGradient id="morning" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#f5edd7" stop-opacity=".72"/><stop offset="1" stop-color="#9fb2b1" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1280" height="720" fill="#65564a"/>
+  <rect x="32" y="32" width="1216" height="656" rx="18" fill="url(#wood)"/>
+  <path d="M430 32v656M870 32v656M32 430h1216" stroke="#69594d" stroke-width="14" opacity=".72"/>
+  <path d="M437 39v642M877 39v642M39 437h1202" stroke="#eadfc8" stroke-width="2" opacity=".45"/>
+  <g stroke="#4f463f" stroke-width="7" fill="#897765">
+    <rect x="74" y="76" width="286" height="180" rx="13"/>
+    <rect x="92" y="92" width="246" height="78" rx="18" fill="#d8cdb7"/>
+    <path d="M74 213h286M102 256v42M332 256v42"/>
+    <rect x="450" y="74" width="176" height="90" rx="8" fill="#776757"/>
+    <rect x="474" y="91" width="128" height="55" rx="4" fill="#a5947c"/>
+    <rect x="514" y="198" width="260" height="126" rx="54" fill="#958775"/>
+    <path d="M558 324v40M730 324v40"/>
+    <rect x="906" y="72" width="292" height="138" rx="10" fill="#7b6b5b"/>
+    <path d="M932 101h240M932 137h240M1010 72v138" opacity=".55"/>
+    <rect x="88" y="488" width="262" height="138" rx="10" fill="#8c795f"/>
+    <path d="M112 522h214M112 566h214" opacity=".55"/>
+    <rect x="508" y="482" width="242" height="124" rx="12" fill="#745f4b"/>
+    <ellipse cx="629" cy="477" rx="148" ry="42" fill="#9b856a"/>
+    <rect x="912" y="468" width="224" height="122" rx="10" fill="#84725e"/>
+    <path d="M936 511h176M936 550h176" opacity=".5"/>
+    <rect x="1120" y="268" width="90" height="184" rx="5" fill="#5b4c42"/>
+    <path d="M1141 292h48v136h-48z" fill="#817064" stroke-width="3"/>
+    <circle cx="1177" cy="365" r="5" fill="#d6c58e" stroke="none"/>
+  </g>
+  <g fill="#5f5045" opacity=".72">
+    <rect x="204" y="95" width="58" height="47" rx="5"/><circle cx="224" cy="113" r="7" fill="#d9c8aa"/><circle cx="244" cy="113" r="7" fill="#d9c8aa"/><path d="M211 136q13-20 26 0m-5 0q13-20 25 0" fill="none" stroke="#d9c8aa" stroke-width="4"/>
+    <rect x="582" y="225" width="62" height="44" rx="5"/><path d="M598 234v26" stroke="#a63737" stroke-width="4"/>
+    <ellipse cx="1040" cy="500" rx="33" ry="15" fill="#3e7681"/>
+  </g>
+  <path d="M1248 32H884L650 430h598z" fill="url(#morning)"/>
+  <rect width="1280" height="720" filter="url(#paper)" opacity=".75"/>
+  <path d="M32 32h1216v656H32z" fill="none" stroke="#eee7d8" stroke-opacity=".28" stroke-width="3"/>
+</svg>

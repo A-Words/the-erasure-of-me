@@ -215,6 +215,7 @@ stateDiagram-v2
 #### GameScene
 
 - 挂载当前 Tilemap、角色、相机、音频和表现层；
+- 以章节背景资产表现正式环境候选，Tiled 对象层继续作为出生点、交互物和稳定 ID 的权威来源；
 - 将 Phaser 键盘输入送入 InputMapper；
 - 读取 GameStore 快照更新角色、物件、特效和声音；
 - 不直接判断谜题完成、提示等级或存档条件。
