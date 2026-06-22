@@ -279,6 +279,7 @@ type InputAction =
 - MovementSystem 根据 CollisionMap、角色脚部碰撞体和当前 InputAction 计算最终位置。
 - Phaser Sprite 只跟随最终位置，不参与碰撞判定；本项目不启用 Arcade Physics 作为玩法真值。
 - 每次位置更新写入领域层坐标；DOM UI 不订阅坐标字段。
+- 按键释放或当前帧没有移动动作时，SceneBridge 发送 `STOP_MOVING`；领域层保留最后朝向并清除 `player.moving`，精灵只据此切回对应方向锚点帧。
 - 恢复存档时先校验坐标是否落在当前导航区域。
 
 ### 5.4 长按交互
@@ -467,12 +468,13 @@ interface AssetManifestEntry {
   key: string;
   type: 'image' | 'spritesheet' | 'tilemap' | 'audio' | 'json' | 'font';
   url: string;
+  frameConfig?: { frameWidth: number; frameHeight: number };
   chapter?: ChapterId;
   preload: boolean;
 }
 ~~~
 
-玩法代码引用 key，例如 character.xu_old.walk_down，不引用文件路径。
+玩法代码引用 key，例如 character.xu_old.walk.down，不引用文件路径。精灵条带的帧尺寸由 manifest 的 `frameConfig` 提供，Scene 不散落文件名或裁切参数。
 
 ### 10.2 分组
 

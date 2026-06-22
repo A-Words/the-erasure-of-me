@@ -17,6 +17,19 @@ describe('GameStore', () => {
     expect(store.getState().player.x).toBe(before);
   });
 
+  it('stops movement without changing the last position or facing', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    const store = new GameStore(state);
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+    const afterMove = { ...store.getState().player };
+
+    store.dispatch({ type: 'STOP_MOVING' });
+
+    expect(store.getState().player).toEqual({ ...afterMove, moving: false });
+    expect(store.getState().player.facing).toBe('right');
+  });
+
   it('keeps the correct station prefix after a soft miss', () => {
     const state = createInitialState();
     state.phase = 'playing';

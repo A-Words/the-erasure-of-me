@@ -16,6 +16,9 @@ interface EntityView {
 export class GameScene extends Phaser.Scene {
   private readonly bridge: SceneBridge;
   private player!: Phaser.GameObjects.Container;
+  private playerActor: Phaser.GameObjects.Sprite | null = null;
+  private xiulanActor: Phaser.GameObjects.Sprite | null = null;
+  private xiulanReachStarted = false;
   private entityViews: EntityView[] = [];
   private renderedChapter: GameState['chapterId'] | null = null;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
@@ -31,7 +34,9 @@ export class GameScene extends Phaser.Scene {
   preload(): void {
     for (const asset of assetManifest) {
       if (asset.type === 'tilemap') this.load.tilemapTiledJSON(asset.key, asset.url);
-      else this.load.image(asset.key, asset.url);
+      else if (asset.type === 'spritesheet') {
+        this.load.spritesheet(asset.key, asset.url, asset.frameConfig);
+      } else this.load.image(asset.key, asset.url);
     }
   }
 
@@ -67,6 +72,7 @@ export class GameScene extends Phaser.Scene {
     this.keys.map.on('down', () => this.toggleModal('map'));
     this.keys.pause.on('down', () => this.toggleModal('pause'));
     this.keys.cancel.on('down', () => this.bridge.send({ type: 'CLOSE_MODAL' }));
+    this.createPlayerAnimations();
     const movementKeys: Array<[string, InputAction]> = [
       ['up', 'move_up'],
       ['upAlt', 'move_up'],
@@ -86,18 +92,23 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.unsubscribe = this.bridge.subscribe((state) => this.syncState(state));
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.unsubscribe?.());
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.unsubscribe?.();
+      this.playerActor = null;
+      this.xiulanActor = null;
+    });
   }
 
   update(_time: number, delta: number): void {
     const state = this.bridge.getSnapshot();
+    const action = state.phase === 'playing' ? this.currentMovementAction() : null;
+    if (!action && state.player.moving) this.bridge.send({ type: 'STOP_MOVING' });
     if (state.phase !== 'playing') return;
     this.tickAccumulator += delta / 1000;
     if (this.tickAccumulator >= 1) {
       this.bridge.send({ type: 'TICK', deltaSeconds: this.tickAccumulator });
       this.tickAccumulator = 0;
     }
-    const action = this.currentMovementAction();
     if (action) {
       const direction = mapMovement(action, state.degradationStage, state.mode);
       if (direction) this.bridge.send({ type: 'MOVE', direction, deltaSeconds: delta / 1000 });
@@ -150,15 +161,20 @@ export class GameScene extends Phaser.Scene {
 
   private syncState(state: Readonly<GameState>): void {
     if (this.renderedChapter !== state.chapterId) this.buildChapter(state);
-    if (!this.player) return;
+    if (!this.player || !this.playerActor) return;
     this.player.setPosition(state.player.x, state.player.y);
     this.player.setAlpha(state.phase === 'playing' ? 1 : 0.22);
+    this.updatePlayerPose(state);
+    this.updateXiulanPose(state);
     this.updateEntityVisibility(state);
   }
 
   private buildChapter(state: Readonly<GameState>): void {
     this.children.removeAll(true);
     this.entityViews = [];
+    this.playerActor = null;
+    this.xiulanActor = null;
+    this.xiulanReachStarted = false;
     const map = chapterMaps[state.chapterId];
     this.renderedChapter = state.chapterId;
     this.cameras.main.setBackgroundColor(map.palette.wall);
@@ -179,9 +195,69 @@ export class GameScene extends Phaser.Scene {
     }
     this.player = this.add.container(state.player.x, state.player.y);
     const shadow = this.add.ellipse(0, 9, 38, 16, 0x2f2b28, 0.25);
-    const actor = this.add.image(0, 16, 'character.xu_old.idle.down').setOrigin(0.5, 1);
-    this.player.add([shadow, actor]);
+    this.playerActor = this.add.sprite(0, 16, 'character.xu_old.walk.down', 0).setOrigin(0.5, 1);
+    this.player.add([shadow, this.playerActor]);
     this.player.setDepth(10);
+    this.updatePlayerPose(state);
+  }
+
+  private createPlayerAnimations(): void {
+    const directions = ['down', 'up', 'right'] as const;
+    for (const direction of directions) {
+      const animationKey = `character.xu_old.walk.${direction}.animation`;
+      if (this.anims.exists(animationKey)) continue;
+      const textureKey = `character.xu_old.walk.${direction}`;
+      this.anims.create({
+        key: animationKey,
+        frames: this.anims.generateFrameNumbers(textureKey, { start: 0, end: 5 }),
+        frameRate: 8,
+        repeat: -1,
+      });
+    }
+    if (!this.anims.exists('character.xiulan_old.reach_hand.right.animation')) {
+      this.anims.create({
+        key: 'character.xiulan_old.reach_hand.right.animation',
+        frames: this.anims.generateFrameNumbers('character.xiulan_old.reach_hand.right', {
+          start: 0,
+          end: 7,
+        }),
+        frameRate: 8,
+        repeat: 0,
+      });
+    }
+  }
+
+  private updatePlayerPose(state: Readonly<GameState>): void {
+    if (!this.playerActor) return;
+    const direction = state.player.facing === 'left' ? 'right' : state.player.facing;
+    const textureKey = `character.xu_old.walk.${direction}`;
+    this.playerActor.setFlipX(state.player.facing === 'left');
+    if (state.player.moving) {
+      this.playerActor.play(`${textureKey}.animation`, true);
+    } else {
+      this.playerActor.stop();
+      this.playerActor.setTexture(textureKey, 0);
+    }
+  }
+
+  private updateXiulanPose(state: Readonly<GameState>): void {
+    if (!this.xiulanActor) return;
+    const shouldReach = state.flags.includes('ending.dialogue_started');
+    if (!shouldReach) {
+      this.xiulanReachStarted = false;
+      this.xiulanActor.stop();
+      this.xiulanActor.setTexture('character.xiulan_old.reach_hand.right', 0);
+      return;
+    }
+    if (state.settings.reducedMotion) {
+      this.xiulanReachStarted = true;
+      this.xiulanActor.stop();
+      this.xiulanActor.setTexture('character.xiulan_old.reach_hand.right', 7);
+      return;
+    }
+    if (this.xiulanReachStarted) return;
+    this.xiulanReachStarted = true;
+    this.xiulanActor.play('character.xiulan_old.reach_hand.right.animation');
   }
 
   private createEntity(entity: WorldEntity): EntityView {
@@ -194,7 +270,7 @@ export class GameScene extends Phaser.Scene {
       .setStrokeStyle(3, 0x2f2b28, 0.7)
       .setVisible(!isXiulan && !isUmbrella);
     const actor = isXiulan
-      ? this.add.image(0, 16, 'character.xiulan_old.idle.down').setOrigin(0.5, 1)
+      ? this.add.sprite(0, 16, 'character.xiulan_old.reach_hand.right', 0).setOrigin(0.5, 1)
       : isUmbrella
         ? this.add.image(0, 0, 'prop.red_umbrella.closed').setDisplaySize(58, 58)
         : null;
@@ -218,6 +294,7 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(0.5, 0)
       .setAlpha(0.82);
     container.add(actor ? [marker, actor, glyph, label] : [marker, glyph, label]);
+    if (isXiulan) this.xiulanActor = actor as Phaser.GameObjects.Sprite;
     return { definition: entity, container, marker };
   }
 

@@ -2,8 +2,9 @@ import type { ChapterId } from '../state/GameState';
 
 export interface AssetManifestEntry {
   key: string;
-  type: 'tilemap' | 'image';
+  type: 'tilemap' | 'image' | 'spritesheet';
   url: string;
+  frameConfig?: { frameWidth: number; frameHeight: number };
   chapter?: ChapterId;
   preload: boolean;
 }
@@ -80,15 +81,32 @@ export const assetManifest = [
     preload: true,
   },
   {
-    key: 'character.xu_old.idle.down',
-    type: 'image',
-    url: 'assets/characters/character_xu_old_idle_down_v01_64x96.png',
+    key: 'character.xu_old.walk.down',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xu_old_walk_down_v01_6x64x96.png',
+    frameConfig: { frameWidth: 64, frameHeight: 96 },
     preload: true,
   },
   {
-    key: 'character.xiulan_old.idle.down',
-    type: 'image',
-    url: 'assets/characters/character_xiulan_old_idle_down_v01_64x96.png',
+    key: 'character.xu_old.walk.up',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xu_old_walk_up_v01_6x64x96.png',
+    frameConfig: { frameWidth: 64, frameHeight: 96 },
+    preload: true,
+  },
+  {
+    key: 'character.xu_old.walk.right',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xu_old_walk_right_v01_6x64x96.png',
+    frameConfig: { frameWidth: 64, frameHeight: 96 },
+    preload: true,
+  },
+  {
+    key: 'character.xiulan_old.reach_hand.right',
+    type: 'spritesheet',
+    url: 'assets/characters/character_xiulan_old_reach_hand_right_v01_8x64x96.png',
+    frameConfig: { frameWidth: 64, frameHeight: 96 },
+    chapter: 'ending',
     preload: true,
   },
   {

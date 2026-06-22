@@ -7,8 +7,13 @@
 
 | assetKey | owner | sourceFile | exportFile | license/source | status | reviewer | approvedAt | notes |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| character.xu_old.idle.down | 项目团队 | assets-source/art/characters/character_xu_old_idle_down_v01_chromakey.png | public/assets/characters/character_xu_old_idle_down_v01_64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；透明 PNG；标准模式实际场景已检查 |
-| character.xiulan_old.idle.down | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_down_v01_chromakey.png | public/assets/characters/character_xiulan_old_idle_down_v01_64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；透明 PNG；尾声交互实体已接入 |
+| character.xu_old.idle.down | 项目团队 | assets-source/art/characters/character_xu_old_idle_down_v01_chromakey.png | assets-source/art/characters/frames/character_xu_old_idle_down_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；作为 walk.down 第一帧来源，不单独进入发布构建 |
+| character.xu_old.walk.down | 项目团队 | assets-source/art/characters/character_xu_old_walk_down_v01_chromakey.png | public/assets/characters/character_xu_old_walk_down_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向下待机种子 |
+| character.xu_old.walk.up | 项目团队 | assets-source/art/characters/character_xu_old_walk_up_v01_chromakey.png | public/assets/characters/character_xu_old_walk_up_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向上待机种子 |
+| character.xu_old.walk.right | 项目团队 | assets-source/art/characters/character_xu_old_walk_right_v01_chromakey.png | public/assets/characters/character_xu_old_walk_right_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；左向由同一条带镜像，松键恢复领域朝向锚点 |
+| character.xiulan_old.idle.down | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_down_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_down_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；作为角色身份源，不单独进入发布构建 |
+| character.xiulan_old.idle.right | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_right_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_right_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览 | 2026-06-22 | 64×96；底部中心锚点；短发、旧绿开衫与侧向身份锚点；作为 reach_hand 第一帧来源 |
+| character.xiulan_old.reach_hand.right | 项目团队 | assets-source/art/characters/character_xiulan_old_reach_hand_right_v01_chromakey.png | public/assets/characters/character_xiulan_old_reach_hand_right_v01_8x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 8×64×96；8 FPS 单次播放；前 3 帧停下等待，末帧开放掌心；减少动态直接显示末帧 |
 | prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，所有雨站红伞实体共用 |
 | memory.rain.umbrella.illustration | 项目团队 | assets-source/art/memories/memory_rain_umbrella_v01.png | public/assets/memories/memory_rain_umbrella_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；雨站初遇对白期间显示；红伞为唯一高辨识暖色 |
 | memory.life.move.illustration | 项目团队 | assets-source/art/memories/memory_life_move_v01.png | public/assets/memories/memory_life_move_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；木梳归位后显示；纸箱、未装床架和背景红伞与脚本一致 |
@@ -34,22 +39,24 @@
 
 ## 生成与处理记录
 
-### character.xu_old.idle.down
+### character.xu_old.idle / walk
 
 - 生成方式：内置 OpenAI ImageGen；`stylized-concept`。
 - 生成目标：72 岁中国老人许志远，退休钟表维修师，低饱和手绘 2D，蓝灰开衫、暖白衬衫、深色长裤，稳定且有尊严的站姿。
 - 生成限制：单人全身、无文字、无场景、无水印、纯 `#00ff00` 色键背景、不使用锚点红。
 - 色键处理：`remove_chroma_key.py`，边缘软遮罩与去色溢出。
 - 游戏帧处理：`scripts/normalize_character_seed.py`，透明内容统一缩放至 64×96，底部中心对齐。
-- 当前结论：轮廓、服装和色彩可进入动画种子评审；正式 `idle`/`walk` 动画条完成前保持 `review`。
+- 动画处理：向下、向上、向右各生成完整 6 帧横向条带；左向由右向镜像；`scripts/normalize_character_strip.py` 统一共享缩放和底部中心锚点，第一帧锁回对应待机种子。
+- 当前结论：四方向行走与松键停止已在 1280×720 实际场景检查；四向呼吸待机、观察与拾取仍待补，因此保持 `review`。
 
-### character.xiulan_old.idle.down
+### character.xiulan_old.idle / reach_hand
 
 - 生成方式：内置 OpenAI ImageGen；使用许志远种子帧作为画法与比例参考，不复制身份。
 - 生成目标：70 岁中国老人林秀兰，退休语文教师，短卷银发、旧绿色开衫、纸色衬衫，稳定且愿意停下等待的站姿。
 - 生成限制：单人全身、与许志远明显不同、无文字、无场景、无水印、纯 `#00ff00` 色键背景、不使用锚点红。
 - 色键与游戏帧处理：与许志远相同；透明内容归一化至 64×96 并底部中心对齐。
-- 当前结论：轮廓、服装和色彩可进入尾声实际构图评审；伸手和牵手动画完成前保持 `review`。
+- 动画处理：先从正面种子派生短发右侧身份锚点，再一次生成 8 帧 `reach_hand` 横向条带；针对首轮发髻漂移重新生成，仅保留短发版本。标准化脚本按透明列间隙识别非等距生成帧，统一共享缩放并把第一帧锁回侧向锚点。
+- 当前结论：等待到开放掌心的动作节奏、底部中心锚点和透明边缘通过预览；尾声标准路径在 1.1 秒后停于末帧，减少动态路径在触发后 100 毫秒直接显示末帧，两次 1280×720 Playwright 截图和 Browser 日志检查通过。外部美术审核前保持 `review`。
 
 ### memory.rain.umbrella.illustration
 

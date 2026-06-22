@@ -95,6 +95,9 @@ export class GameStore {
       case 'MOVE':
         this.move(command.direction, command.deltaSeconds);
         break;
+      case 'STOP_MOVING':
+        this.state.player.moving = false;
+        break;
       case 'INTERACT':
         this.interact(command.entityId);
         break;

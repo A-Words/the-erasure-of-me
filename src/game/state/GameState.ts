@@ -71,6 +71,7 @@ export type GameCommand =
   | { type: 'NEW_GAME'; mode: GameMode }
   | { type: 'CONTINUE_GAME' }
   | { type: 'MOVE'; direction: WorldDirection; deltaSeconds: number }
+  | { type: 'STOP_MOVING' }
   | { type: 'INTERACT'; entityId: string }
   | { type: 'ADVANCE_DIALOGUE' }
   | { type: 'OPEN_MODAL'; modal: Exclude<ModalId, null> }
