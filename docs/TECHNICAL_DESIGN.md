@@ -218,6 +218,7 @@ stateDiagram-v2
 - 以章节背景资产表现正式环境候选，Tiled 对象层继续作为出生点、交互物和稳定 ID 的权威来源；
 - 将 Phaser 键盘输入送入 InputMapper；
 - 读取 GameStore 快照更新角色、物件、特效和声音；
+- Scene 或 Game 进入销毁阶段后忽略迟到的状态通知；动画注册表尚不可用时显示同方向静态首帧，避免刷新恢复与页面卸载竞态；
 - 不直接判断谜题完成、提示等级或存档条件。
 
 #### EndingScene
@@ -476,6 +477,8 @@ interface AssetManifestEntry {
 ~~~
 
 玩法代码引用 key，例如 character.xu_old.walk.down，不引用文件路径。精灵条带的帧尺寸由 manifest 的 `frameConfig` 提供，Scene 不散落文件名或裁切参数。
+
+观察动作由已映射的 `observe` 输入选择表现层动画和附近物件高亮范围，不写入领域状态，也不参与谜题答案判断。角色移动时行走优先；对话或 DOM 模态层打开时不播放观察动画。减少动态效果下使用静态注意姿态替代 6 FPS 循环。
 
 ### 10.2 分组
 

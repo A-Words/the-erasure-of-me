@@ -118,7 +118,11 @@ export class GameScene extends Phaser.Scene {
     if (this.holdingConfirm && state.flags.includes('ending.ready_to_hold')) {
       this.bridge.send({ type: 'HOLD', deltaSeconds: delta / 1000 });
     }
-    this.highlightNearby(this.keys.observe.isDown);
+    const latestState = this.bridge.getSnapshot();
+    const observing =
+      this.keys.observe.isDown && !latestState.modal && latestState.dialogue.length === 0;
+    this.updatePlayerPose(latestState);
+    this.highlightNearby(observing);
   }
 
   private currentMovementAction(): InputAction | null {
@@ -162,6 +166,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private syncState(state: Readonly<GameState>): void {
+    if (!this.sys.isActive() || !this.game.isRunning) return;
     if (this.renderedChapter !== state.chapterId) this.buildChapter(state);
     if (!this.player || !this.playerActor) return;
     this.player.setPosition(state.player.x, state.player.y);
@@ -236,6 +241,15 @@ export class GameScene extends Phaser.Scene {
           repeat: -1,
         });
       }
+      const observeKey = `character.xu_old.observe.${direction}`;
+      if (!this.anims.exists(`${observeKey}.animation`)) {
+        this.anims.create({
+          key: `${observeKey}.animation`,
+          frames: this.anims.generateFrameNumbers(observeKey, { start: 0, end: 3 }),
+          frameRate: 6,
+          repeat: -1,
+        });
+      }
     }
     if (!this.anims.exists('character.xiulan_old.reach_hand.right.animation')) {
       this.anims.create({
@@ -260,7 +274,20 @@ export class GameScene extends Phaser.Scene {
         this.playerActor.stop();
         this.playerActor.setTexture(walkKey, 0);
       } else {
-        this.playerActor.play(`${walkKey}.animation`, true);
+        this.playPlayerAnimation(walkKey, `${walkKey}.animation`);
+      }
+    } else if (
+      state.phase === 'playing' &&
+      !state.modal &&
+      state.dialogue.length === 0 &&
+      this.keys.observe.isDown
+    ) {
+      const observeKey = `character.xu_old.observe.${direction}`;
+      if (state.settings.reducedMotion) {
+        this.playerActor.stop();
+        this.playerActor.setTexture(observeKey, 2);
+      } else {
+        this.playPlayerAnimation(observeKey, `${observeKey}.animation`);
       }
     } else {
       const idleKey = `character.xu_old.idle.${direction}`;
@@ -268,9 +295,19 @@ export class GameScene extends Phaser.Scene {
         this.playerActor.stop();
         this.playerActor.setTexture(idleKey, 0);
       } else {
-        this.playerActor.play(`${idleKey}.animation`, true);
+        this.playPlayerAnimation(idleKey, `${idleKey}.animation`);
       }
     }
+  }
+
+  private playPlayerAnimation(textureKey: string, animationKey: string): void {
+    if (!this.playerActor) return;
+    if (this.anims.exists(animationKey)) {
+      this.playerActor.play(animationKey, true);
+      return;
+    }
+    this.playerActor.stop();
+    this.playerActor.setTexture(textureKey, 0);
   }
 
   private updateXiulanPose(state: Readonly<GameState>): void {

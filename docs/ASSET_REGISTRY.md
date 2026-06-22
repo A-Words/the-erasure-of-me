@@ -13,6 +13,9 @@
 | character.xu_old.walk.down | 项目团队 | assets-source/art/characters/character_xu_old_walk_down_v01_chromakey.png | public/assets/characters/character_xu_old_walk_down_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向下待机种子 |
 | character.xu_old.walk.up | 项目团队 | assets-source/art/characters/character_xu_old_walk_up_v01_chromakey.png | public/assets/characters/character_xu_old_walk_up_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向上待机种子 |
 | character.xu_old.walk.right | 项目团队 | assets-source/art/characters/character_xu_old_walk_right_v01_chromakey.png | public/assets/characters/character_xu_old_walk_right_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；左向由同一条带镜像，松键恢复领域朝向锚点 |
+| character.xu_old.observe.down | 项目团队 | assets-source/art/characters/character_xu_old_observe_down_v01_chromakey.png | public/assets/characters/character_xu_old_observe_down_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；按住 Shift 时由收拢姿态进入安静观察 |
+| character.xu_old.observe.up | 项目团队 | assets-source/art/characters/character_xu_old_observe_up_v01_chromakey.png | public/assets/characters/character_xu_old_observe_up_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；严格后背视角，不通过面部表达认知状态 |
+| character.xu_old.observe.right | 项目团队 | assets-source/art/characters/character_xu_old_observe_right_v01_chromakey.png | public/assets/characters/character_xu_old_observe_right_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；左向镜像；减少动态固定为开放手掌注意姿态 |
 | character.xiulan_old.idle.down | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_down_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_down_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；作为角色身份源，不单独进入发布构建 |
 | character.xiulan_old.idle.right | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_right_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_right_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览 | 2026-06-22 | 64×96；底部中心锚点；短发、旧绿开衫与侧向身份锚点；作为 reach_hand 第一帧来源 |
 | character.xiulan_old.reach_hand.right | 项目团队 | assets-source/art/characters/character_xiulan_old_reach_hand_right_v01_chromakey.png | public/assets/characters/character_xiulan_old_reach_hand_right_v01_8x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 8×64×96；8 FPS 单次播放；前 3 帧停下等待，末帧开放掌心；减少动态直接显示末帧 |
@@ -41,15 +44,15 @@
 
 ## 生成与处理记录
 
-### character.xu_old.idle / walk
+### character.xu_old.idle / walk / observe
 
 - 生成方式：内置 OpenAI ImageGen；`stylized-concept`。
 - 生成目标：72 岁中国老人许志远，退休钟表维修师，低饱和手绘 2D，蓝灰开衫、暖白衬衫、深色长裤，稳定且有尊严的站姿。
 - 生成限制：单人全身、无文字、无场景、无水印、纯 `#00ff00` 色键背景、不使用锚点红。
 - 色键处理：`remove_chroma_key.py`，边缘软遮罩与去色溢出。
 - 游戏帧处理：`scripts/normalize_character_seed.py`，透明内容统一缩放至 64×96，底部中心对齐。
-- 动画处理：向下、向上、向右各生成完整 4 帧呼吸待机与 6 帧行走横向条带；左向由右向镜像；`scripts/normalize_character_strip.py` 统一共享缩放和底部中心锚点，第一帧锁回对应方向种子。严格侧向帧把透明间隙分割的最小有效宽度校正为槽位的 8%。
-- 当前结论：四方向呼吸待机、行走与松键停止已完成资产预览和 1280×720 场景检查；标准模式 300 毫秒采样的角色局部有 1361 个像素变化，减少动态同区间为 0。观察与拾取仍待补，因此保持 `review`。
+- 动画处理：向下、向上、向右各生成完整 4 帧呼吸待机、6 帧行走和 4 帧观察横向条带；左向由右向镜像；`scripts/normalize_character_strip.py` 统一共享缩放和底部中心锚点，第一帧锁回对应方向种子。严格侧向帧把透明间隙分割的最小有效宽度校正为槽位的 8%。
+- 当前结论：四方向呼吸待机、行走、松键停止与观察已完成资产预览和 1280×720 场景检查。观察动作在标准模式 240 毫秒采样中有 2105 个角色区域像素变化；减少动态模式按住观察同区间为 0，松开后切回静态待机帧。拾取仍待补，因此保持 `review`。
 
 ### character.xiulan_old.idle / reach_hand
 
