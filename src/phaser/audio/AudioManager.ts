@@ -1,3 +1,10 @@
+import type {
+  AccessibilitySettings,
+  AudioBus,
+  ChapterId,
+  DegradationStage,
+} from '../../game/state/GameState';
+
 export type SemanticAudioCue =
   | 'home_clock'
   | 'rain_bell'
@@ -6,71 +13,309 @@ export type SemanticAudioCue =
   | 'ending_warmth'
   | 'soft_feedback';
 
+export interface ChapterAudioProfile {
+  stage: DegradationStage;
+  melody: boolean;
+  harmony: boolean;
+  drone: boolean;
+  rhythm: boolean;
+  ambienceFilterHz: number;
+  ambienceLevel: number;
+}
+
+export const chapterAudioProfiles: Record<ChapterId, ChapterAudioProfile> = {
+  home: {
+    stage: 'D0',
+    melody: true,
+    harmony: true,
+    drone: true,
+    rhythm: true,
+    ambienceFilterHz: 2400,
+    ambienceLevel: 0.055,
+  },
+  rain: {
+    stage: 'D1',
+    melody: true,
+    harmony: true,
+    drone: true,
+    rhythm: true,
+    ambienceFilterHz: 1500,
+    ambienceLevel: 0.105,
+  },
+  life: {
+    stage: 'D2',
+    melody: false,
+    harmony: true,
+    drone: true,
+    rhythm: true,
+    ambienceFilterHz: 1100,
+    ambienceLevel: 0.06,
+  },
+  return: {
+    stage: 'D3',
+    melody: false,
+    harmony: true,
+    drone: true,
+    rhythm: false,
+    ambienceFilterHz: 720,
+    ambienceLevel: 0.07,
+  },
+  ending: {
+    stage: 'D4',
+    melody: false,
+    harmony: false,
+    drone: true,
+    rhythm: false,
+    ambienceFilterHz: 900,
+    ambienceLevel: 0.035,
+  },
+};
+
+export function resolveChapterAudioProfile(chapter: ChapterId): ChapterAudioProfile {
+  return { ...chapterAudioProfiles[chapter] };
+}
+
 export class AudioManager {
   private context: AudioContext | null = null;
   private master: GainNode | null = null;
-  private muted = false;
+  private buses: Partial<Record<AudioBus, GainNode>> = {};
+  private settings: AccessibilitySettings | null = null;
+  private desiredChapter: ChapterId | null = null;
+  private playingChapter: ChapterId | null = null;
+  private soundscapeSources: AudioScheduledSourceNode[] = [];
+  private themeTimer: number | null = null;
+  private noiseBuffer: AudioBuffer | null = null;
 
   async unlock(): Promise<void> {
-    if (!this.context) {
-      this.context = new AudioContext();
-      this.master = this.context.createGain();
-      this.master.gain.value = this.muted ? 0 : 0.55;
-      this.master.connect(this.context.destination);
-    }
+    if (!this.context) this.createGraph();
+    if (!this.context) return;
     if (this.context.state === 'suspended') await this.context.resume();
+    if (this.desiredChapter && this.playingChapter !== this.desiredChapter) {
+      this.startSoundscape(this.desiredChapter);
+    }
   }
 
-  setMuted(muted: boolean): void {
-    this.muted = muted;
-    if (this.context && this.master) {
-      this.master.gain.setTargetAtTime(muted ? 0 : 0.55, this.context.currentTime, 0.04);
+  async suspend(): Promise<void> {
+    if (this.context?.state === 'running') await this.context.suspend();
+  }
+
+  setSettings(settings: Readonly<AccessibilitySettings>): void {
+    this.settings = {
+      ...settings,
+      audioVolumes: { ...settings.audioVolumes },
+    };
+    this.applyMix();
+  }
+
+  setChapter(chapter: ChapterId | null): void {
+    this.desiredChapter = chapter;
+    if (!chapter) {
+      this.stopSoundscape();
+      return;
+    }
+    if (this.context && this.context.state === 'running' && this.playingChapter !== chapter) {
+      this.startSoundscape(chapter);
     }
   }
 
   play(cue: SemanticAudioCue): void {
-    if (!this.context || !this.master || this.muted) return;
-    const patterns: Record<SemanticAudioCue, Array<[number, number, number, OscillatorType]>> = {
-      home_clock: [[440, 0.05, 0, 'sine']],
-      rain_bell: [
-        [659, 0.45, 0, 'sine'],
-        [659, 0.45, 0.55, 'sine'],
-        [784, 0.7, 1.1, 'sine'],
-      ],
-      life_memory: [
-        [261, 0.8, 0, 'triangle'],
-        [329, 0.8, 0.08, 'triangle'],
-        [392, 0.8, 0.16, 'triangle'],
-      ],
-      return_hum: [
-        [196, 1.2, 0, 'sine'],
-        [220, 1.2, 0.25, 'sine'],
-      ],
-      ending_warmth: [
-        [261, 1.4, 0, 'sine'],
-        [329, 1.4, 0.12, 'sine'],
-        [440, 1.6, 0.24, 'sine'],
-      ],
-      soft_feedback: [[523, 0.12, 0, 'triangle']],
+    if (!this.context || !this.master || this.settings?.muted) return;
+    const patterns: Record<
+      SemanticAudioCue,
+      { bus: AudioBus; notes: Array<[number, number, number, OscillatorType]> }
+    > = {
+      home_clock: { bus: 'ambience', notes: [[440, 0.05, 0, 'sine']] },
+      rain_bell: {
+        bus: 'sfx',
+        notes: [
+          [659, 0.45, 0, 'sine'],
+          [659, 0.45, 0.55, 'sine'],
+          [784, 0.7, 1.1, 'sine'],
+        ],
+      },
+      life_memory: {
+        bus: 'music',
+        notes: [
+          [261.63, 0.8, 0, 'triangle'],
+          [329.63, 0.8, 0.08, 'triangle'],
+          [392, 0.8, 0.16, 'triangle'],
+        ],
+      },
+      return_hum: {
+        bus: 'voice',
+        notes: [
+          [196, 1.2, 0, 'sine'],
+          [220, 1.2, 0.25, 'sine'],
+        ],
+      },
+      ending_warmth: {
+        bus: 'voice',
+        notes: [
+          [220, 1.4, 0, 'sine'],
+          [246.94, 1.4, 0.22, 'sine'],
+        ],
+      },
+      soft_feedback: { bus: 'sfx', notes: [[523.25, 0.12, 0, 'triangle']] },
     };
-    for (const [frequency, duration, delay, type] of patterns[cue]) {
-      this.tone(frequency, duration, delay, type);
+    const pattern = patterns[cue];
+    for (const [frequency, duration, delay, type] of pattern.notes) {
+      this.tone(pattern.bus, frequency, duration, delay, type, 0.07);
     }
   }
 
-  private tone(frequency: number, duration: number, delay: number, type: OscillatorType): void {
-    if (!this.context || !this.master) return;
+  private createGraph(): void {
+    this.context = new AudioContext();
+    this.master = this.context.createGain();
+    this.master.connect(this.context.destination);
+    for (const bus of ['music', 'ambience', 'voice', 'sfx'] as const) {
+      const gain = this.context.createGain();
+      gain.connect(this.master);
+      this.buses[bus] = gain;
+    }
+    this.applyMix();
+  }
+
+  private applyMix(): void {
+    if (!this.context || !this.master || !this.settings) return;
+    const now = this.context.currentTime;
+    this.master.gain.setTargetAtTime(this.settings.muted ? 0 : 0.7, now, 0.04);
+    for (const bus of ['music', 'ambience', 'voice', 'sfx'] as const) {
+      const level = Math.max(0, Math.min(1, this.settings.audioVolumes[bus]));
+      this.buses[bus]?.gain.setTargetAtTime(level * level, now, 0.04);
+    }
+  }
+
+  private startSoundscape(chapter: ChapterId): void {
+    if (!this.context || this.context.state !== 'running') return;
+    this.stopSoundscape();
+    this.playingChapter = chapter;
+    this.startAmbience(chapter);
+    this.scheduleThemeCycle(chapter);
+    this.themeTimer = window.setInterval(() => this.scheduleThemeCycle(chapter), 8000);
+    const entryCue: Record<ChapterId, SemanticAudioCue> = {
+      home: 'home_clock',
+      rain: 'rain_bell',
+      life: 'life_memory',
+      return: 'return_hum',
+      ending: 'ending_warmth',
+    };
+    this.play(entryCue[chapter]);
+  }
+
+  private stopSoundscape(): void {
+    if (this.themeTimer !== null) {
+      window.clearInterval(this.themeTimer);
+      this.themeTimer = null;
+    }
+    for (const source of this.soundscapeSources) {
+      try {
+        source.stop();
+      } catch {
+        // A scheduled source may already have ended; stopping it is best-effort cleanup.
+      }
+    }
+    this.soundscapeSources = [];
+    this.playingChapter = null;
+  }
+
+  private startAmbience(chapter: ChapterId): void {
+    if (!this.context || !this.buses.ambience) return;
+    const profile = resolveChapterAudioProfile(chapter);
+    const source = this.context.createBufferSource();
+    source.buffer = this.getNoiseBuffer();
+    source.loop = true;
+    const filter = this.context.createBiquadFilter();
+    filter.type = chapter === 'rain' ? 'bandpass' : 'lowpass';
+    filter.frequency.value = profile.ambienceFilterHz;
+    filter.Q.value = chapter === 'rain' ? 0.7 : 0.35;
+    const gain = this.context.createGain();
+    gain.gain.value = profile.ambienceLevel;
+    source.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.buses.ambience);
+    source.start();
+    this.soundscapeSources.push(source);
+
+    const roomTone = this.context.createOscillator();
+    const roomGain = this.context.createGain();
+    roomTone.type = 'sine';
+    roomTone.frequency.value = chapter === 'return' ? 98 : chapter === 'ending' ? 130.81 : 110;
+    roomGain.gain.value = chapter === 'rain' ? 0.008 : 0.014;
+    roomTone.connect(roomGain);
+    roomGain.connect(this.buses.ambience);
+    roomTone.start();
+    this.soundscapeSources.push(roomTone);
+  }
+
+  private scheduleThemeCycle(chapter: ChapterId): void {
+    if (!this.context || this.context.state !== 'running') return;
+    const profile = resolveChapterAudioProfile(chapter);
+    if (chapter === 'ending') {
+      this.tone('voice', 220, 1.3, 0.2, 'sine', 0.025, true);
+      this.tone('voice', 246.94, 1.5, 1.8, 'sine', 0.022, true);
+      this.tone('voice', 220, 1.8, 3.7, 'sine', 0.02, true);
+      return;
+    }
+    if (profile.melody) {
+      [392, 440, 523.25, 440].forEach((note, index) =>
+        this.tone('music', note, 0.75, index * 1.35, 'triangle', 0.035, true),
+      );
+    }
+    if (profile.harmony) {
+      this.tone('music', 196, 5.8, 0, 'triangle', 0.024, true);
+      this.tone('music', 246.94, 5.8, 0.08, 'triangle', 0.02, true);
+    }
+    if (profile.drone) this.tone('music', 130.81, 6.4, 0, 'sine', 0.018, true);
+    if (profile.rhythm) {
+      for (let beat = 0; beat < 6; beat += 1) {
+        this.tone('music', beat % 2 === 0 ? 880 : 660, 0.045, beat * 0.92, 'sine', 0.018, true);
+      }
+    }
+  }
+
+  private getNoiseBuffer(): AudioBuffer {
+    if (this.noiseBuffer) return this.noiseBuffer;
+    if (!this.context) throw new Error('Audio context is unavailable');
+    const frames = this.context.sampleRate * 4;
+    const buffer = this.context.createBuffer(1, frames, this.context.sampleRate);
+    const channel = buffer.getChannelData(0);
+    let previous = 0;
+    for (let index = 0; index < frames; index += 1) {
+      const white = Math.random() * 2 - 1;
+      previous = previous * 0.985 + white * 0.015;
+      channel[index] = previous;
+    }
+    this.noiseBuffer = buffer;
+    return buffer;
+  }
+
+  private tone(
+    bus: AudioBus,
+    frequency: number,
+    duration: number,
+    delay: number,
+    type: OscillatorType,
+    level: number,
+    trackSoundscape = false,
+  ): void {
+    if (!this.context || !this.buses[bus]) return;
     const start = this.context.currentTime + delay;
     const oscillator = this.context.createOscillator();
     const envelope = this.context.createGain();
     oscillator.type = type;
     oscillator.frequency.value = frequency;
     envelope.gain.setValueAtTime(0.0001, start);
-    envelope.gain.exponentialRampToValueAtTime(0.08, start + 0.025);
+    envelope.gain.exponentialRampToValueAtTime(level, start + 0.035);
     envelope.gain.exponentialRampToValueAtTime(0.0001, start + duration);
     oscillator.connect(envelope);
-    envelope.connect(this.master);
+    envelope.connect(this.buses[bus]);
     oscillator.start(start);
-    oscillator.stop(start + duration + 0.03);
+    oscillator.stop(start + duration + 0.04);
+    if (trackSoundscape) {
+      this.soundscapeSources.push(oscillator);
+      oscillator.addEventListener('ended', () => {
+        this.soundscapeSources = this.soundscapeSources.filter((source) => source !== oscillator);
+      });
+    }
   }
 }

@@ -36,6 +36,9 @@ test('boots, starts, moves by keyboard, pauses and keeps accessibility stable', 
 
   await canvas.press('Escape');
   await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+  await expect(page.getByRole('group', { name: '音量混音' })).toBeVisible();
+  await page.getByLabel('音乐').fill('0.25');
+  await expect(page.getByLabel('音乐')).toHaveValue('0.25');
   await page.getByLabel('减少动态效果').check();
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
 });
@@ -47,6 +50,17 @@ test('offers a safe checkpoint continuation after refresh', async ({ page }) => 
   await expect(page.getByRole('button', { name: '从最近的安全位置继续' })).toBeVisible();
   await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'home');
+});
+
+test('places a stable pause layer over active dialogue when the window loses focus', async ({
+  page,
+}) => {
+  await page.getByRole('button', { name: /标准模式/ }).click();
+  await expect(page.getByRole('button', { name: '继续对白' })).toBeVisible();
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+  await page.getByRole('button', { name: '继续' }).click();
+  await expect(page.getByRole('button', { name: '继续对白' })).toBeVisible();
 });
 
 test('does not expose the development debug layer in a production build', async ({ page }) => {

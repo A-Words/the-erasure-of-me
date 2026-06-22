@@ -583,7 +583,30 @@ kbd {
   padding: 1rem;
   border: 1px solid rgba(47, 43, 40, 0.35);
 }
-.pause-panel label:not(.toggle) {
+.audio-mixer {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem 1rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(47, 43, 40, 0.22);
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.24);
+}
+.audio-mixer label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.25rem 0.65rem;
+  align-items: center;
+}
+.audio-mixer input {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+.audio-mixer output {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-ink);
+}
+.pause-panel > fieldset > label:not(.toggle) {
   display: flex;
   justify-content: space-between;
   gap: 1rem;

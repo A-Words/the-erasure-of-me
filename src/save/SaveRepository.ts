@@ -1,4 +1,5 @@
 import type { GameState } from '../game/state/GameState';
+import { normalizeSettings } from '../game/state/initialState';
 
 const SAVE_KEY = 'erasure.save.v1';
 const SETTINGS_KEY = 'erasure.settings.v1';
@@ -31,6 +32,7 @@ export class SaveRepository {
       parsed.dialogue = [];
       parsed.dialogueIndex = 0;
       parsed.activeMemoryId = null;
+      parsed.settings = normalizeSettings(parsed.settings ?? {});
       parsed.hintSeconds ??= 0;
       parsed.hintLevel ??= 0;
       return parsed;

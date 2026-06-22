@@ -6,7 +6,7 @@ import type {
   MemoryIllustrationId,
   WorldDirection,
 } from './GameState';
-import { createInitialState } from './initialState';
+import { createInitialState, normalizeSettings } from './initialState';
 
 type Listener = (state: Readonly<GameState>) => void;
 
@@ -109,7 +109,14 @@ export class GameStore {
         this.state.holdProgress = 0;
         break;
       case 'SETTINGS':
-        this.state.settings = { ...this.state.settings, ...command.patch };
+        this.state.settings = normalizeSettings({
+          ...this.state.settings,
+          ...command.patch,
+          audioVolumes: {
+            ...this.state.settings.audioVolumes,
+            ...command.patch.audioVolumes,
+          },
+        });
         break;
       case 'SET_MODE':
         this.state.mode = command.mode;

@@ -64,6 +64,14 @@ describe('GameStore', () => {
     expect(store.getState().message).toContain('蓝色小碗');
   });
 
+  it('updates one audio bus without resetting the other mix values', () => {
+    const store = new GameStore();
+    const ambienceBefore = store.getState().settings.audioVolumes.ambience;
+    store.dispatch({ type: 'SETTINGS', patch: { audioVolumes: { music: 0.2 } } });
+    expect(store.getState().settings.audioVolumes.music).toBe(0.2);
+    expect(store.getState().settings.audioVolumes.ambience).toBe(ambienceBefore);
+  });
+
   it('can seed a documented chapter state for development visual review', () => {
     const store = new GameStore();
     store.dispatch({ type: 'DEBUG_JUMP_CHAPTER', chapterId: 'ending' });

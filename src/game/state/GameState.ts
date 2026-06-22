@@ -2,6 +2,7 @@ export type ChapterId = 'home' | 'rain' | 'life' | 'return' | 'ending';
 export type DegradationStage = 'D0' | 'D1' | 'D2' | 'D3' | 'D4';
 export type GameMode = 'standard' | 'low_stimulation';
 export type ModalId = 'inventory' | 'journal' | 'map' | 'pause' | 'photo_order' | null;
+export type AudioBus = 'music' | 'ambience' | 'voice' | 'sfx';
 export type MemoryIllustrationId =
   | 'rain'
   | 'life.move'
@@ -16,7 +17,12 @@ export interface AccessibilitySettings {
   highContrast: boolean;
   muted: boolean;
   holdMode: 'hold' | 'short' | 'single';
+  audioVolumes: Record<AudioBus, number>;
 }
+
+export type SettingsPatch = Omit<Partial<AccessibilitySettings>, 'audioVolumes'> & {
+  audioVolumes?: Partial<AccessibilitySettings['audioVolumes']>;
+};
 
 export interface PlayerState {
   x: number;
@@ -69,7 +75,7 @@ export type GameCommand =
   | { type: 'ADVANCE_DIALOGUE' }
   | { type: 'OPEN_MODAL'; modal: Exclude<ModalId, null> }
   | { type: 'CLOSE_MODAL' }
-  | { type: 'SETTINGS'; patch: Partial<AccessibilitySettings> }
+  | { type: 'SETTINGS'; patch: SettingsPatch }
   | { type: 'SET_MODE'; mode: GameMode }
   | { type: 'PHOTO_ORDER'; order: string[] }
   | { type: 'ACKNOWLEDGE_D3' }

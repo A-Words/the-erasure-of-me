@@ -1,4 +1,4 @@
-import type { AccessibilitySettings, GameMode, GameState } from './GameState';
+import type { AccessibilitySettings, GameMode, GameState, SettingsPatch } from './GameState';
 
 export const defaultSettings: AccessibilitySettings = {
   fontSize: 'normal',
@@ -7,7 +7,24 @@ export const defaultSettings: AccessibilitySettings = {
   highContrast: false,
   muted: false,
   holdMode: 'hold',
+  audioVolumes: {
+    music: 0.55,
+    ambience: 0.65,
+    voice: 0.75,
+    sfx: 0.65,
+  },
 };
+
+export function normalizeSettings(settings: SettingsPatch = {}): AccessibilitySettings {
+  return {
+    ...defaultSettings,
+    ...settings,
+    audioVolumes: {
+      ...defaultSettings.audioVolumes,
+      ...settings.audioVolumes,
+    },
+  };
+}
 
 export function createInitialState(mode: GameMode = 'standard'): GameState {
   return {
@@ -31,7 +48,7 @@ export function createInitialState(mode: GameMode = 'standard'): GameState {
       returnPrefix: [],
       routeLoops: 0,
     },
-    settings: { ...defaultSettings },
+    settings: normalizeSettings(),
     modal: null,
     objective: '找到钥匙和秀兰留下的日记',
     message: null,

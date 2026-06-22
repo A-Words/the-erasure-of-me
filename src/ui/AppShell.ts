@@ -208,6 +208,10 @@ export class AppShell {
       this.system.innerHTML = this.guideScreen();
       return;
     }
+    if (state.modal === 'pause') {
+      this.system.innerHTML = this.pauseScreen(state);
+      return;
+    }
     if (state.dialogue.length > 0) {
       const dialogue = `<button class="dialogue-box" data-dialogue aria-label="继续对白"><span>${state.dialogue[state.dialogueIndex]}</span><small>按 E / Enter / 空格继续</small></button>`;
       this.system.innerHTML = state.activeMemoryId
@@ -217,10 +221,6 @@ export class AppShell {
     }
     if (state.chapterId === 'return' && !state.flags.includes('flag.return.mapping_learned')) {
       this.system.innerHTML = this.d3Training(state);
-      return;
-    }
-    if (state.modal === 'pause') {
-      this.system.innerHTML = this.pauseScreen(state);
       return;
     }
     this.system.innerHTML = '';
@@ -265,7 +265,22 @@ export class AppShell {
 
   private pauseScreen(state: Readonly<GameState>): string {
     const settings = state.settings;
-    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2><button class="primary" data-close>继续</button><fieldset><legend>设置与无障碍</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label></fieldset><button class="secondary" data-title>返回标题</button></section></div>`;
+    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2><button class="primary" data-close>继续</button><fieldset><legend>设置与无障碍</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label></fieldset><button class="secondary" data-title>返回标题</button></section></div>`;
+  }
+
+  private audioMixer(settings: AccessibilitySettings): string {
+    const labels: Record<keyof AccessibilitySettings['audioVolumes'], string> = {
+      music: '音乐',
+      ambience: '环境声',
+      voice: '对白与哼唱',
+      sfx: '界面与提示音',
+    };
+    return `<div class="audio-mixer" role="group" aria-label="音量混音">${Object.entries(labels)
+      .map(([bus, label]) => {
+        const value = settings.audioVolumes[bus as keyof typeof settings.audioVolumes];
+        return `<label>${label}<input type="range" min="0" max="1" step="0.05" value="${value}" data-audio-bus="${bus}"><output>${Math.round(value * 100)}%</output></label>`;
+      })
+      .join('')}</div>`;
   }
 
   private toggle(key: keyof AccessibilitySettings, label: string, checked: boolean): string {
@@ -344,6 +359,15 @@ export class AppShell {
           this.store.dispatch({ type: 'SET_MODE', mode: control.value as GameState['mode'] }),
         ),
       );
+    document.querySelectorAll<HTMLInputElement>('[data-audio-bus]').forEach((control) =>
+      control.addEventListener('change', () => {
+        const bus = control.dataset.audioBus as keyof AccessibilitySettings['audioVolumes'];
+        this.store.dispatch({
+          type: 'SETTINGS',
+          patch: { audioVolumes: { [bus]: Number(control.value) } },
+        });
+      }),
+    );
     document
       .querySelectorAll<HTMLElement>('[data-photo-up]')
       .forEach((button) =>

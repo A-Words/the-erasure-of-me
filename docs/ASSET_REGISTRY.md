@@ -25,6 +25,12 @@
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供照片、物件和三槽位；正式背景已接入 |
 | map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供四向出口；背景箭头与世界方向一致 |
 | map.home_ending | 项目团队 | public/assets/data/map.home_ending.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供秀兰锚点；正式尾声背景和 D4 构图已接入 |
+| audio.theme.red_umbrella | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创音序与合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 钢琴感旋律、和声、持续音与钟雨节奏四层；随 D0–D4 逐层收束 |
+| audio.ambience.home | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 室内低噪、钟表提示；视觉目标与提示不依赖声音 |
+| audio.ambience.rain | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 带通雨噪与三声钟；石板、积水波纹和伞标提供视觉替代 |
+| audio.ambience.life | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 低通室内底噪、生活记忆和弦；物件纹理提供视觉替代 |
+| audio.ambience.return | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 低频长廊声场与哼唱提示；箭头、伞柄和脚印提供视觉替代 |
+| audio.ambience.ending | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 不完整三音哼唱与暖色持续音；字幕和掌心动画完整替代 |
 
 ## 生成与处理记录
 
@@ -91,3 +97,11 @@
 - 运行时结构：背景只承担世界表现；出生点、交互对象和稳定 ID 继续来自对应 Tiled JSON 对象层，碰撞与玩法状态未写入图片。
 - 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站数字石板、生活物品纹理和长廊方向均保留非颜色冗余。
 - 当前结论：五章候选背景已导出并接入 manifest；1280×720 逐章检查通过，关键物件、角色脚底、HUD 与 Tiled 坐标无阻塞遮挡，控制台无错误。
+
+### audio.theme.* / audio.ambience.*
+
+- 制作方式：运行时 Web Audio 合成，不包含外部录音或第三方采样；音序、滤波、包络与混音参数保存在 `AudioManager.ts`。
+- 主题退化：D0 保留四层，D1 保留旋律但降低环境高频，D2 移除主旋律，D3 仅保留和声与持续音，D4 改为 voice 总线上的不完整三音哼唱。
+- 环境与提示：五章使用独立滤波与声场强度；所有导航声、状态声和对白信息均有视觉或字幕替代。
+- 混音与安全：music、ambience、voice、sfx 四路独立音量；全局静音即时生效；页面失焦挂起 AudioContext，恢复后由用户操作继续。
+- 当前结论：四路混音布局、独立调节、旧设置迁移、章节 profile、静音视觉替代和失焦暂停均通过自动化与浏览器功能检查；真人关键语音仍属于 AUDIO-03 外部录制工作。

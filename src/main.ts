@@ -3,7 +3,7 @@ import { createGame } from './phaser/config';
 import { GameStore } from './game/state/GameStore';
 import { SaveRepository } from './save/SaveRepository';
 import { AppShell } from './ui/AppShell';
-import { AudioManager, type SemanticAudioCue } from './phaser/audio/AudioManager';
+import { AudioManager } from './phaser/audio/AudioManager';
 
 const store = new GameStore();
 const saves = new SaveRepository();
@@ -14,25 +14,14 @@ game.canvas.setAttribute('aria-label', '可操作游戏画面');
 game.canvas.addEventListener('pointerdown', () => game.canvas.focus());
 new AppShell(store, saves);
 const unlockAudio = () => void audio.unlock();
-window.addEventListener('pointerdown', unlockAudio, { once: true });
-window.addEventListener('keydown', unlockAudio, { once: true });
+window.addEventListener('pointerdown', unlockAudio);
+window.addEventListener('keydown', unlockAudio);
 
 let lastSaveSignature = '';
-let lastAudioChapter = '';
 let lastAudioMessage = '';
 store.subscribe((state) => {
-  audio.setMuted(state.settings.muted);
-  if (state.phase === 'playing' && state.chapterId !== lastAudioChapter) {
-    lastAudioChapter = state.chapterId;
-    const chapterCues: Record<string, SemanticAudioCue> = {
-      home: 'home_clock',
-      rain: 'rain_bell',
-      life: 'life_memory',
-      return: 'return_hum',
-      ending: 'ending_warmth',
-    };
-    audio.play(chapterCues[state.chapterId]);
-  }
+  audio.setSettings(state.settings);
+  audio.setChapter(state.phase === 'playing' ? state.chapterId : null);
   if (state.message && state.message !== lastAudioMessage) {
     lastAudioMessage = state.message;
     audio.play('soft_feedback');
@@ -52,6 +41,16 @@ store.subscribe((state) => {
   if (signature !== lastSaveSignature) {
     lastSaveSignature = signature;
     saves.save(state);
+  }
+});
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    void audio.suspend();
+    const state = store.getState();
+    if (state.phase === 'playing' && state.modal !== 'pause') {
+      store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
+    }
   }
 });
 
