@@ -498,6 +498,7 @@ interface AssetManifestEntry {
 - 使用 AudioManager 管理 music、ambience、voice、sfx 四个总线；
 - AudioManager 对 Web Audio 合成与四路总线封装，领域层只发送语义音频命令；
 - 浏览器首次用户交互后才解锁音频；
+- 浏览器不提供 AudioContext/webkitAudioContext 时无声降级，所有关键声音线索仍由 DOM 或 Phaser 视觉提示表达；
 - 当前垂直切片以项目原创 Web Audio 参数合成五章环境声和四层红伞主题，不加载第三方采样；
 - D0–D4 的主题层级由纯数据 profile 决定，可独立测试；
 - 声音导航事件同时发送 visualCueId；

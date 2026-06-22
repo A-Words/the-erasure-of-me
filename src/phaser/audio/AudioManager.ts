@@ -164,7 +164,12 @@ export class AudioManager {
   }
 
   private createGraph(): void {
-    this.context = new AudioContext();
+    const audioGlobal = globalThis as typeof globalThis & {
+      webkitAudioContext?: typeof AudioContext;
+    };
+    const AudioContextConstructor = audioGlobal.AudioContext ?? audioGlobal.webkitAudioContext;
+    if (!AudioContextConstructor) return;
+    this.context = new AudioContextConstructor();
     this.master = this.context.createGain();
     this.master.connect(this.context.destination);
     for (const bus of ['music', 'ambience', 'voice', 'sfx'] as const) {

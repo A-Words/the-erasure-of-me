@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveChapterAudioProfile } from '../../src/phaser/audio/AudioManager';
+import { AudioManager, resolveChapterAudioProfile } from '../../src/phaser/audio/AudioManager';
 import { normalizeSettings } from '../../src/game/state/initialState';
 
 describe('chapter audio profiles', () => {
@@ -28,5 +28,11 @@ describe('chapter audio profiles', () => {
       voice: 0.75,
       sfx: 0.65,
     });
+  });
+
+  it('falls back to silence when Web Audio is unavailable', async () => {
+    const manager = new AudioManager();
+
+    await expect(manager.unlock()).resolves.toBeUndefined();
   });
 });
