@@ -10,7 +10,7 @@
 - 当前语言：简体中文
 - 目标体验：20–30 分钟垂直切片
 
-npm run dev、build、test、test:e2e、lint、format:check 和 release:evidence 已配置；声称验证通过前仍需实际执行对应命令。release:evidence 只汇总真实外部记录，禁止用测试夹具或虚构参与者关闭发布门槛。
+npm run dev、build、test、test:e2e、lint、format:check、release:evidence 和 release:package(:internal) 已配置；声称验证通过前仍需实际执行对应命令。release:evidence 只汇总真实外部记录，禁止用测试夹具或虚构参与者关闭发布门槛；公开打包不得绕过许可证、资产权利或外部证据检查。
 
 ## 事实来源
 
@@ -74,6 +74,7 @@ npm run dev、build、test、test:e2e、lint、format:check 和 release:evidence
 - npm run build；
 - 涉及浏览器流程时运行 npm run test:e2e；
 - 汇总外部测试与审核记录时运行 npm run release:evidence -- <证据目录>；
+- 内部候选包使用 npm run release:package:internal；公开包必须使用 npm run release:package -- --evidence <PASS 报告>；
 - Canvas、HUD、退化效果或响应式变化必须检查代表性截图；
 - 无障碍相关改动至少验证纯键盘、静音和低扰动路径。
 

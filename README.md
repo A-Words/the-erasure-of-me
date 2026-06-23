@@ -47,6 +47,8 @@ npm run test
 npm run test:e2e
 npm run lint
 npm run release:evidence -- <证据目录> --output <汇总报告路径>
+npm run release:package:internal
+npm run release:package -- --evidence <PASS 汇总报告路径>
 npm run assets:render:environments
 ~~~
 
@@ -84,5 +86,7 @@ tests/
 ## 版权与内容声明
 
 项目尚未确定开源许可证。第三方字体、音效、图片和工具必须记录来源与许可证，未确认授权的素材不得进入发布构建。
+
+`npm run release:package` 在缺少项目级 LICENSE、PASS 外部证据或存在 `review` 资产时会拒绝生成公开包；内部候选包不会绕过这些发布门槛。浏览器包所含第三方运行时代码的许可文本见 `public/THIRD_PARTY_NOTICES.txt`。
 
 本作涉及认知衰退和家庭照护，但不提供医学诊断或治疗建议。正式发布前，科普内容必须完成专业审核。

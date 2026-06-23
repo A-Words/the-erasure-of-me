@@ -11,6 +11,8 @@
     "test:watch": "vitest",
     "test:e2e": "npm run build && playwright test",
     "release:evidence": "node scripts/summarize_release_evidence.mjs",
+    "release:package:internal": "npm run build && node scripts/package_release.mjs --channel internal",
+    "release:package": "npm run build && node scripts/package_release.mjs --channel public",
     "lint": "eslint .",
     "format:check": "prettier --check \"src/**/*.{ts,css}\" \"tests/**/*.ts\" \"scripts/**/*.mjs\" \"public/assets/data/*.json\" \"*.{json,js,ts,html}\"",
     "assets:render": "node scripts/render_svg_asset.mjs assets-source/art/props/prop_red_umbrella_closed_v01.svg public/assets/props/prop_red_umbrella_closed_v01.png 96",

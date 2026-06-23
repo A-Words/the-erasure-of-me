@@ -15,6 +15,7 @@
 | 性能 | 三视口测试内 90 帧 `requestAnimationFrame` 采样 | 本机无头 Chromium 为 59.997–60.001 FPS；自动断言平均帧率不低于 30 FPS，每次运行附加 `performance-budget.json` |
 | 资源预算 | 自动化断言与构建统计 | `public/assets` 7,334,405 字节；当前 `dist` 19,223,786 字节；首次加载测得 7,336,505–7,338,905 字节，均低于预算 |
 | 权威链接 | 发布日 HEAD/GET 检查 | WHO 与两条中国政府来源于 2026-06-23 均返回 HTTP 200 |
+| 内部候选打包 | `npm run release:package:internal` | 生成无 source map 的静态目录、版本说明、第三方许可与逐文件 SHA-256 清单；公开打包保持硬门槛 |
 
 截图是测试产物，不进入 Git。失败时 Playwright 会保留截图、上下文和追踪；成功运行也会保留固定命名的候选截图，供人工视觉复核。
 
