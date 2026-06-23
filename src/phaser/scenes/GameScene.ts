@@ -16,12 +16,32 @@ interface EntityView {
   hover: boolean;
 }
 
-const homePropVisuals: Record<string, { key: string; size: number; labelOffset: number }> = {
+const homePropVisuals: Record<
+  string,
+  { key: string; size: number; labelOffset: number; frame?: number }
+> = {
   'entity.home.bedside_photo': { key: 'prop.home.bedside_photo', size: 72, labelOffset: 42 },
   'entity.home.journal': { key: 'prop.home.red_thread_journal', size: 70, labelOffset: 44 },
   'entity.home.key_bowl': { key: 'prop.home.blue_key_bowl', size: 82, labelOffset: 42 },
   'entity.home.glasses_case': { key: 'prop.home.glasses_case', size: 78, labelOffset: 38 },
+  'entity.home.front_door': {
+    key: 'furniture.home.atlas',
+    frame: 7,
+    size: 180,
+    labelOffset: 78,
+  },
 };
+
+const homeFurnitureVisuals = [
+  { frame: 0, x: 170, y: 180, size: 260 },
+  { frame: 1, x: 300, y: 160, size: 92 },
+  { frame: 2, x: 620, y: 128, size: 270 },
+  { frame: 1, x: 610, y: 270, size: 96 },
+  { frame: 3, x: 700, y: 520, size: 270 },
+  { frame: 4, x: 1060, y: 150, size: 310 },
+  { frame: 5, x: 220, y: 560, size: 250 },
+  { frame: 6, x: 1040, y: 510, size: 230 },
+] as const;
 
 export class GameScene extends Phaser.Scene {
   private readonly bridge: SceneBridge;
@@ -222,6 +242,14 @@ export class GameScene extends Phaser.Scene {
       .image(map.width / 2, map.height / 2, map.backgroundKey)
       .setDisplaySize(map.width, map.height)
       .setDepth(0);
+    if (state.chapterId === 'home') {
+      for (const furniture of homeFurnitureVisuals) {
+        this.add
+          .image(furniture.x, furniture.y, 'furniture.home.atlas', furniture.frame)
+          .setDisplaySize(furniture.size, furniture.size)
+          .setDepth(1);
+      }
+    }
 
     const tiledMap = this.make.tilemap({ key: map.id });
     const tiledObjects = tiledMap.getObjectLayer('interactables')?.objects ?? [];
@@ -453,6 +481,7 @@ export class GameScene extends Phaser.Scene {
     const isUmbrella = entity.id.includes('umbrella');
     const propVisual = homePropVisuals[entity.id];
     const container = this.add.container(entity.x, entity.y);
+    container.setDepth(4);
 
     // Tiny resting dot that only becomes visible on hover; replaces the old big circle button.
     const marker = this.add.circle(0, 0, 6, color, 1).setAlpha(0).setDepth(0);
@@ -466,7 +495,7 @@ export class GameScene extends Phaser.Scene {
         ? this.add.image(0, 0, 'prop.red_umbrella.closed').setDisplaySize(58, 58).setDepth(0)
         : propVisual
           ? this.add
-              .image(0, 0, propVisual.key)
+              .image(0, 0, propVisual.key, propVisual.frame)
               .setDisplaySize(propVisual.size, propVisual.size)
               .setDepth(0)
           : null;

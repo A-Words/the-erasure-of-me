@@ -104,9 +104,11 @@
 
 不得为了“记忆错乱”改变可行走区域而不更新导航和视觉边界。
 
-当前环境候选以 1280×720 原创 SVG 保存于 `assets-source/art/environments/`，通过 `npm run assets:render:environments` 导出运行时 PNG。背景只承担表现，出生点、交互对象和稳定 ID 仍由 Tiled JSON 对象层提供。
+当前环境候选以 1280×720 原创 SVG 保存于 `assets-source/art/environments/`，通过 `npm run assets:render:environments` 导出运行时 PNG。背景只承担地板、墙体、门窗洞口和固定光照表现，出生点、交互对象和稳定 ID 仍由 Tiled JSON 对象层提供。
 
 清晨住宅中的床边合影、红线日记、蓝色钥匙碗和眼镜盒使用独立透明 PNG，不烘焙进环境背景；运行时由 Tiled 稳定 ID 定位，拾取后随实体视图一起隐藏。
+
+清晨住宅 v02 使用严格正交俯视：床、边桌、沙发、木桌、厨房台柜、储物柜、玄关桌和入户门均为独立透明家具素材，由 Phaser 按场景坐标组合；环境背景不得再次绘制这些家具。
 
 ## 5. 角色规格
 
