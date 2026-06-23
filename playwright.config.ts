@@ -16,17 +16,17 @@ export default defineConfig({
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
     {
       name: 'edge',
-      testIgnore: /release-visual\.spec\.ts/,
+      testIgnore: /(?:release-visual|accessibility)\.spec\.ts/,
       use: { ...devices['Desktop Edge'], channel: 'msedge' },
     },
     {
       name: 'firefox',
-      testIgnore: /release-visual\.spec\.ts/,
+      testIgnore: /(?:release-visual|accessibility)\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
-      testIgnore: /release-visual\.spec\.ts/,
+      testIgnore: /(?:release-visual|accessibility)\.spec\.ts/,
       use: { ...devices['Desktop Safari'] },
     },
   ],

@@ -51,6 +51,10 @@ export class AppShell {
   ) {
     if (!this.hud || !this.panel || !this.system)
       throw new Error('App shell containers are missing');
+    for (const layer of [this.hud, this.panel, this.system]) {
+      layer.addEventListener('keydown', this.protectDomKeyboardInput);
+      layer.addEventListener('keyup', this.protectDomKeyboardInput);
+    }
     store.subscribe((state) => this.render(state));
     window.addEventListener('blur', () => {
       const state = this.store.getState();
@@ -59,6 +63,18 @@ export class AppShell {
       }
     });
   }
+
+  private readonly protectDomKeyboardInput = (event: KeyboardEvent): void => {
+    const target = event.target;
+    if (
+      target instanceof HTMLButtonElement ||
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLSelectElement ||
+      target instanceof HTMLAnchorElement
+    ) {
+      event.stopPropagation();
+    }
+  };
 
   private render(state: Readonly<GameState>): void {
     const app = document.querySelector<HTMLElement>('#app');
