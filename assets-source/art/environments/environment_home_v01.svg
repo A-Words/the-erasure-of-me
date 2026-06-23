@@ -33,9 +33,6 @@
     <circle cx="1177" cy="365" r="5" fill="#d6c58e" stroke="none"/>
   </g>
   <g fill="#5f5045" opacity=".72">
-    <rect x="204" y="95" width="58" height="47" rx="5"/><circle cx="224" cy="113" r="7" fill="#d9c8aa"/><circle cx="244" cy="113" r="7" fill="#d9c8aa"/><path d="M211 136q13-20 26 0m-5 0q13-20 25 0" fill="none" stroke="#d9c8aa" stroke-width="4"/>
-    <rect x="582" y="225" width="62" height="44" rx="5"/><path d="M598 234v26" stroke="#a63737" stroke-width="4"/>
-    <ellipse cx="1040" cy="500" rx="33" ry="15" fill="#3e7681"/>
   </g>
   <path d="M1248 32H884L650 430h598z" fill="url(#morning)"/>
   <rect width="1280" height="720" filter="url(#paper)" opacity=".75"/>

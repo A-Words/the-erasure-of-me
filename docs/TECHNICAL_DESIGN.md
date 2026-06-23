@@ -480,7 +480,7 @@ interface AssetManifestEntry {
 }
 ~~~
 
-玩法代码引用 key，例如 character.xu_old.walk.down，不引用文件路径。精灵条带的帧尺寸由 manifest 的 `frameConfig` 提供，Scene 不散落文件名或裁切参数。
+玩法代码引用 key，例如 character.xu_old.walk.down，不引用文件路径。精灵条带的帧尺寸由 manifest 的 `frameConfig` 提供，Scene 不散落文件名或裁切参数。`preload: false` 的 DOM 插图不进入 Phaser 启动加载队列，由对应面板首次显示时按需加载，避免重复请求和延长首屏等待。
 
 观察动作由已映射的 `observe` 输入选择表现层动画，不写入领域状态，也不参与谜题答案判断。交互物不随观察键统一发光或缩放，而以场景轮廓、材质及按需悬停标签区分。角色移动时行走优先；对话或 DOM 模态层打开时不播放观察动画。减少动态效果下使用静态注意姿态替代 6 FPS 循环，并取消交互小点的缩放动画。
 

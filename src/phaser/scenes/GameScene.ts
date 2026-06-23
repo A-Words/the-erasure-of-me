@@ -16,6 +16,13 @@ interface EntityView {
   hover: boolean;
 }
 
+const homePropVisuals: Record<string, { key: string; size: number; labelOffset: number }> = {
+  'entity.home.bedside_photo': { key: 'prop.home.bedside_photo', size: 72, labelOffset: 42 },
+  'entity.home.journal': { key: 'prop.home.red_thread_journal', size: 70, labelOffset: 44 },
+  'entity.home.key_bowl': { key: 'prop.home.blue_key_bowl', size: 82, labelOffset: 42 },
+  'entity.home.glasses_case': { key: 'prop.home.glasses_case', size: 78, labelOffset: 38 },
+};
+
 export class GameScene extends Phaser.Scene {
   private readonly bridge: SceneBridge;
   private player!: Phaser.GameObjects.Container;
@@ -42,6 +49,7 @@ export class GameScene extends Phaser.Scene {
 
   preload(): void {
     for (const asset of assetManifest) {
+      if (!asset.preload) continue;
       if (asset.type === 'tilemap') this.load.tilemapTiledJSON(asset.key, asset.url);
       else if (asset.type === 'spritesheet') {
         this.load.spritesheet(asset.key, asset.url, asset.frameConfig);
@@ -443,6 +451,7 @@ export class GameScene extends Phaser.Scene {
     const color = entity.color ?? (entity.kind === 'exit' ? 0xeee7d8 : 0xd6c58e);
     const isXiulan = entity.id === 'entity.ending.xiulan';
     const isUmbrella = entity.id.includes('umbrella');
+    const propVisual = homePropVisuals[entity.id];
     const container = this.add.container(entity.x, entity.y);
 
     // Tiny resting dot that only becomes visible on hover; replaces the old big circle button.
@@ -455,16 +464,26 @@ export class GameScene extends Phaser.Scene {
           .setDepth(0)
       : isUmbrella
         ? this.add.image(0, 0, 'prop.red_umbrella.closed').setDisplaySize(58, 58).setDepth(0)
-        : null;
+        : propVisual
+          ? this.add
+              .image(0, 0, propVisual.key)
+              .setDisplaySize(propVisual.size, propVisual.size)
+              .setDepth(0)
+          : null;
 
     const label = this.add
-      .text(entity.x, entity.y + (isXiulan ? 24 : isUmbrella ? 32 : 38), entity.label, {
-        color: '#f7f3e8',
-        backgroundColor: '#2f2b28cc',
-        fontFamily: '"Noto Sans SC", "Microsoft YaHei", sans-serif',
-        fontSize: '15px',
-        padding: { x: 8, y: 4 },
-      })
+      .text(
+        entity.x,
+        entity.y + (propVisual?.labelOffset ?? (isXiulan ? 24 : isUmbrella ? 32 : 38)),
+        entity.label,
+        {
+          color: '#f7f3e8',
+          backgroundColor: '#2f2b28cc',
+          fontFamily: '"Noto Sans SC", "Microsoft YaHei", sans-serif',
+          fontSize: '15px',
+          padding: { x: 8, y: 4 },
+        },
+      )
       .setOrigin(0.5, 0)
       .setAlpha(0)
       .setDepth(20);

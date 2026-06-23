@@ -23,6 +23,10 @@
 | character.xiulan_old.idle.right | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_right_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_right_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览 | 2026-06-22 | 64×96；底部中心锚点；短发、旧绿开衫与侧向身份锚点；作为 reach_hand 第一帧来源 |
 | character.xiulan_old.reach_hand.right | 项目团队 | assets-source/art/characters/character_xiulan_old_reach_hand_right_v01_chromakey.png | public/assets/characters/character_xiulan_old_reach_hand_right_v01_8x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 8×64×96；8 FPS 单次播放；前 3 帧停下等待，末帧开放掌心；减少动态直接显示末帧 |
 | prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，所有雨站红伞实体共用 |
+| prop.home.bedside_photo | 项目团队 | assets-source/art/props/prop_home_bedside_photo_v01_chromakey.png | public/assets/props/prop_home_bedside_photo_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与浏览器验收 | 2026-06-23 | 128×128；旧木框、老年夫妻与红伞边缘；独立实体素材 |
+| prop.home.red_thread_journal | 项目团队 | assets-source/art/props/prop_home_red_thread_journal_v01_chromakey.png | public/assets/props/prop_home_red_thread_journal_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与浏览器验收 | 2026-06-23 | 128×128；米色布封面、线装边与红线书签；独立拾取素材 |
+| prop.home.blue_key_bowl | 项目团队 | assets-source/art/props/prop_home_blue_key_bowl_v01_chromakey.png | public/assets/props/prop_home_blue_key_bowl_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与浏览器验收 | 2026-06-23 | 128×128；低饱和蓝碗、两道金色修补线与两把旧钥匙；独立拾取素材 |
+| prop.home.glasses_case | 项目团队 | assets-source/art/props/prop_home_glasses_case_v01_chromakey.png | public/assets/props/prop_home_glasses_case_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与浏览器验收 | 2026-06-23 | 128×128；旧棕布硬盒与红胶布角标；不显示眼镜；独立拾取素材 |
 | memory.rain.umbrella.illustration | 项目团队 | assets-source/art/memories/memory_rain_umbrella_v01.png | public/assets/memories/memory_rain_umbrella_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；雨站初遇对白期间显示；红伞为唯一高辨识暖色 |
 | memory.life.move.illustration | 项目团队 | assets-source/art/memories/memory_life_move_v01.png | public/assets/memories/memory_life_move_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；木梳归位后显示；纸箱、未装床架和背景红伞与脚本一致 |
 | memory.life.osmanthus.illustration | 项目团队 | assets-source/art/memories/memory_life_osmanthus_v01.png | public/assets/memories/memory_life_osmanthus_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；搪瓷杯归位后显示；桂花、泥土与杯子构成冗余线索 |
@@ -81,6 +85,15 @@
 - 生成限制：无可读文字、无现代物件、无额外前景人物、无亲吻或戏剧化姿态、无疾病或诊断隐喻。
 - 运行时处理：高分辨率 PNG 原稿归档于 `assets-source`，通过 `scripts/prepare_memory_illustration.py` 导出 1152×768 WebP。
 - 当前结论：内容、对白、裁切和叙事脚本一致，浏览器控制台无错误；待低扰动转场检查后决定是否升为 `approved`。
+
+### prop.home.*
+
+- 生成方式：内置 OpenAI ImageGen；`stylized-concept`；以 `environment_home_v01.png` 作为低饱和色板、粗轮廓和纸张质感参考。
+- 生成目标：把床边合影、红线日记、蓝色钥匙碗和眼镜盒从环境背景拆为四个独立、可拾取或可检查的场景物件。
+- 稳定特征：合影保留老年夫妻与红伞边缘；日记保留米色布封面与红线；蓝碗保留圆形、两道金色修补线和旧钥匙；眼镜盒保留胶囊轮廓与红胶布角标。
+- 生成限制：单一完整物件、无文字、无场景、无投影、无水印、纯 `#00ff00` 色键背景，不使用发光或 UI 按钮构图。
+- 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 裁切并归一化到 128×128 透明画布。Phaser 通过 manifest key 与 Tiled 实体 ID 绑定，拾取后随实体隐藏。
+- 当前结论：透明边缘、实际场景比例、HUD/角色遮挡和减少动态效果悬停截图通过 Codex 与 Playwright 检查；外部美术审核前保持 `review`。
 
 ### memory.life.move.illustration
 

@@ -106,6 +106,8 @@
 
 当前环境候选以 1280×720 原创 SVG 保存于 `assets-source/art/environments/`，通过 `npm run assets:render:environments` 导出运行时 PNG。背景只承担表现，出生点、交互对象和稳定 ID 仍由 Tiled JSON 对象层提供。
 
+清晨住宅中的床边合影、红线日记、蓝色钥匙碗和眼镜盒使用独立透明 PNG，不烘焙进环境背景；运行时由 Tiled 稳定 ID 定位，拾取后随实体视图一起隐藏。
+
 ## 5. 角色规格
 
 ### 5.1 尺寸与锚点
