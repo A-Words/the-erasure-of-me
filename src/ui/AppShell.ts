@@ -1,4 +1,5 @@
 import { chapterMaps, itemLabels } from '../game/content/maps';
+import { nearestAvailableEntity } from '../game/content/entitySelectors';
 import { assetUrl } from '../game/assets/manifest';
 import { normalizeSettings } from '../game/state/initialState';
 import type {
@@ -89,6 +90,7 @@ export class AppShell {
     document.documentElement.dataset.font = state.settings.fontSize;
     document.documentElement.dataset.contrast = String(state.settings.highContrast);
     document.documentElement.dataset.motion = state.settings.reducedMotion ? 'reduced' : 'full';
+    const nearbyEntity = this.nearbyEntity(state);
     const signature = JSON.stringify({
       phase: state.phase,
       chapter: state.chapterId,
@@ -107,6 +109,7 @@ export class AppShell {
       dialogue: state.dialogue,
       dialogueIndex: state.dialogueIndex,
       hold: Math.round(state.holdProgress * 20),
+      nearbyEntity: nearbyEntity?.id ?? null,
     });
     if (signature === this.signature) return;
     this.signature = signature;
@@ -123,6 +126,7 @@ export class AppShell {
     }
     const d4 = state.degradationStage === 'D4';
     const washed = state.degradationStage === 'D1';
+    const nearbyEntity = this.nearbyEntity(state);
     this.hud.innerHTML = `
       <section class="objective-chip ${d4 ? 'hud-faded' : ''}" aria-label="当前目标">
         <small>${chapterMaps[state.chapterId].title}</small>
@@ -137,10 +141,23 @@ export class AppShell {
         <button data-open="journal">日记 <kbd>J</kbd></button>
         <button data-open="map" class="${washed ? 'washed' : ''}">地图 <kbd>M</kbd></button>
       </nav>
+      ${nearbyEntity ? `<button class="interaction-prompt" data-interact="${nearbyEntity.id}" aria-label="与${nearbyEntity.label}交互"><kbd>E</kbd><span>${nearbyEntity.label}</span><span class="touch-action">交互</span></button>` : ''}
       ${state.message && state.holdProgress === 0 ? `<button class="toast" data-clear-message aria-label="关闭提示">${state.message}</button>` : ''}
       ${state.holdProgress > 0 ? `<div class="hold-progress-a11y" role="progressbar" aria-label="掌心逐渐变暖" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(state.holdProgress * 100)}"></div>` : ''}
       ${this.debugEnabled ? this.debugPanel(state) : ''}
     `;
+  }
+
+  private nearbyEntity(state: Readonly<GameState>) {
+    if (
+      state.phase !== 'playing' ||
+      state.modal ||
+      state.dialogue.length > 0 ||
+      state.holdProgress > 0
+    ) {
+      return null;
+    }
+    return nearestAvailableEntity(state, 125);
   }
 
   private debugPanel(state: Readonly<GameState>): string {
@@ -347,6 +364,13 @@ export class AppShell {
         }),
       ),
     );
+    document
+      .querySelectorAll<HTMLElement>('[data-interact]')
+      .forEach((button) =>
+        button.addEventListener('click', () =>
+          this.store.dispatch({ type: 'INTERACT', entityId: button.dataset.interact! }),
+        ),
+      );
     document.querySelectorAll<HTMLElement>('[data-close]').forEach((button) =>
       button.addEventListener('click', () => {
         this.confirmingClearData = false;

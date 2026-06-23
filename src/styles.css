@@ -97,6 +97,7 @@ a:focus-visible {
 .objective-chip,
 .stage-chip,
 .hud-actions,
+.interaction-prompt,
 .toast {
   position: absolute;
   color: var(--warm-white);
@@ -104,6 +105,31 @@ a:focus-visible {
   border: 1px solid rgba(247, 243, 232, 0.28);
   box-shadow: 0 8px 28px rgba(20, 15, 10, 0.22);
   backdrop-filter: blur(7px);
+}
+.interaction-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 4.6rem;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  max-width: min(28rem, 82vw);
+  padding: 0.5rem 0.72rem;
+  color: var(--warm-white);
+  background: rgba(47, 43, 40, 0.8);
+  border: 1px solid rgba(247, 243, 232, 0.24);
+  border-radius: 0.65rem;
+  box-shadow: 0 5px 18px rgba(20, 15, 10, 0.18);
+  cursor: pointer;
+}
+.interaction-prompt:hover,
+.interaction-prompt:focus-visible {
+  background: rgba(47, 43, 40, 0.92);
+}
+.interaction-prompt .touch-action {
+  color: #d7c8b5;
+  font-size: 0.72em;
 }
 .objective-chip {
   top: 1.3rem;
@@ -178,7 +204,7 @@ kbd {
 }
 .toast {
   left: 50%;
-  bottom: 5rem;
+  bottom: 8rem;
   transform: translateX(-50%);
   max-width: min(40rem, 82vw);
   padding: 0.7rem 1rem;
@@ -682,6 +708,9 @@ html[data-motion='reduced'] *::after {
   }
   .hud-actions.hud-faded {
     transform: translateY(30px);
+  }
+  .interaction-prompt {
+    bottom: 4.4rem;
   }
   .mode-grid {
     grid-template-columns: 1fr;

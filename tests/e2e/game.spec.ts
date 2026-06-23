@@ -79,6 +79,48 @@ test('animates observation while held and uses a static reduced-motion pose', as
   expect(changed(reducedSecond, reducedIdle)).toBe(true);
 });
 
+test('shows a restrained nearby interaction prompt and keeps reduced-motion hover static', async ({
+  page,
+}, testInfo) => {
+  await page.getByRole('button', { name: /标准模式/ }).click();
+  await page.getByRole('button', { name: '继续对白' }).click();
+  await page.getByRole('button', { name: '继续对白' }).click();
+
+  const app = page.locator('#app');
+  const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
+  await canvas.focus();
+  await canvas.press('Escape');
+  await page.getByLabel('减少动态效果').check();
+  await page.getByRole('button', { name: '继续' }).click();
+  await canvas.focus();
+
+  for (let step = 0; step < 8; step += 1) await canvas.press('ArrowUp');
+  for (let step = 0; step < 6; step += 1) await canvas.press('ArrowRight');
+  expect(Number(await app.getAttribute('data-player-y'))).toBeLessThan(250);
+  expect(Number(await app.getAttribute('data-player-x'))).toBeGreaterThan(220);
+
+  const prompt = page.getByRole('button', { name: '与床边合影交互' });
+  await expect(prompt).toBeVisible();
+
+  const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
+  const resting = await canvas.screenshot();
+  await page.mouse.move(
+    bounds!.x + (280 / 1280) * bounds!.width,
+    bounds!.y + (160 / 720) * bounds!.height,
+  );
+  await page.waitForTimeout(40);
+  const hovered = await canvas.screenshot({ path: testInfo.outputPath('interaction-hover.png') });
+  await page.waitForTimeout(240);
+  const hoveredLater = await canvas.screenshot();
+  expect(hovered.equals(resting)).toBe(false);
+  expect(hoveredLater.equals(hovered)).toBe(true);
+
+  await prompt.click();
+  await expect(page.getByText('照片里，我们站在一把红伞下面。')).toBeVisible();
+  await expect(prompt).toHaveCount(0);
+});
+
 test('offers a safe checkpoint continuation after refresh', async ({ page }) => {
   await page.getByRole('button', { name: /低扰动模式/ }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-checkpoint', 'checkpoint.home.start');

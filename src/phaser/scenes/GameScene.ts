@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { assetManifest } from '../../game/assets/manifest';
+import { isEntityAvailable } from '../../game/content/entitySelectors';
 import { chapterMaps, type WorldEntity } from '../../game/content/maps';
 import { mapMovement } from '../../game/input/InputMapper';
 import type { InputAction } from '../../game/input/actions';
@@ -11,6 +12,8 @@ interface EntityView {
   definition: WorldEntity;
   container: Phaser.GameObjects.Container;
   marker: Phaser.GameObjects.Shape;
+  label: Phaser.GameObjects.Text;
+  hover: boolean;
 }
 
 export class GameScene extends Phaser.Scene {
@@ -30,6 +33,7 @@ export class GameScene extends Phaser.Scene {
   private holdingConfirm = false;
   private tickAccumulator = 0;
   private unsubscribe: (() => void) | null = null;
+  private reducedMotion = false;
 
   constructor(store: GameStore) {
     super('GameScene');
@@ -105,6 +109,7 @@ export class GameScene extends Phaser.Scene {
       this.holdHandActor = null;
       this.playerActionTimer?.remove(false);
       this.playerActionTimer = null;
+      this.input.setDefaultCursor('default');
     });
   }
 
@@ -126,10 +131,7 @@ export class GameScene extends Phaser.Scene {
       this.bridge.send({ type: 'HOLD', deltaSeconds: delta / 1000 });
     }
     const latestState = this.bridge.getSnapshot();
-    const observing =
-      this.keys.observe.isDown && !latestState.modal && latestState.dialogue.length === 0;
     this.updatePlayerPose(latestState);
-    this.highlightNearby(observing);
   }
 
   private currentMovementAction(): InputAction | null {
@@ -154,14 +156,7 @@ export class GameScene extends Phaser.Scene {
     }
     if (state.modal) return;
     const nearest = this.nearestEntity(125);
-    if (nearest) {
-      const inventoryCount = state.inventory.length;
-      this.bridge.interact(nearest.definition.id);
-      const nextState = this.bridge.getSnapshot();
-      if (nearest.definition.kind === 'pickup' && nextState.inventory.length > inventoryCount) {
-        this.playPickup(nextState);
-      }
-    }
+    if (nearest) this.interactWith(nearest);
   }
 
   private confirmUp(): void {
@@ -181,6 +176,8 @@ export class GameScene extends Phaser.Scene {
 
   private syncState(state: Readonly<GameState>): void {
     if (!this.sys.isActive() || !this.game.isRunning) return;
+    const motionPreferenceChanged = this.reducedMotion !== state.settings.reducedMotion;
+    this.reducedMotion = state.settings.reducedMotion;
     if (this.renderedChapter !== state.chapterId) this.buildChapter(state);
     if (!this.player || !this.playerActor) return;
     this.player.setPosition(state.player.x, state.player.y);
@@ -190,6 +187,11 @@ export class GameScene extends Phaser.Scene {
     this.updateHoldWarmth(state);
     this.updateHoldHand(state);
     this.updateEntityVisibility(state);
+    if (motionPreferenceChanged) {
+      for (const view of this.entityViews) {
+        if (view.hover) this.setEntityHover(view, true);
+      }
+    }
   }
 
   private buildChapter(state: Readonly<GameState>): void {
@@ -442,69 +444,119 @@ export class GameScene extends Phaser.Scene {
     const isXiulan = entity.id === 'entity.ending.xiulan';
     const isUmbrella = entity.id.includes('umbrella');
     const container = this.add.container(entity.x, entity.y);
-    const marker = this.add
-      .circle(0, 0, entity.kind === 'exit' ? 30 : 22, color, 0.88)
-      .setStrokeStyle(3, 0x2f2b28, 0.7)
-      .setVisible(!isXiulan && !isUmbrella);
+
+    // Tiny resting dot that only becomes visible on hover; replaces the old big circle button.
+    const marker = this.add.circle(0, 0, 6, color, 1).setAlpha(0).setDepth(0);
+
     const actor = isXiulan
-      ? this.add.sprite(0, 16, 'character.xiulan_old.reach_hand.right', 0).setOrigin(0.5, 1)
+      ? this.add
+          .sprite(0, 16, 'character.xiulan_old.reach_hand.right', 0)
+          .setOrigin(0.5, 1)
+          .setDepth(0)
       : isUmbrella
-        ? this.add.image(0, 0, 'prop.red_umbrella.closed').setDisplaySize(58, 58)
+        ? this.add.image(0, 0, 'prop.red_umbrella.closed').setDisplaySize(58, 58).setDepth(0)
         : null;
-    const glyph = this.add
-      .text(0, 0, this.entityGlyph(entity), {
-        color: '#2f2b28',
-        fontFamily: 'serif',
-        fontSize: entity.kind === 'exit' ? '24px' : '17px',
-        fontStyle: 'bold',
-      })
-      .setOrigin(0.5)
-      .setVisible(!isXiulan && !isUmbrella);
+
     const label = this.add
-      .text(0, isXiulan ? 24 : isUmbrella ? 32 : 38, entity.label, {
+      .text(entity.x, entity.y + (isXiulan ? 24 : isUmbrella ? 32 : 38), entity.label, {
         color: '#f7f3e8',
         backgroundColor: '#2f2b28cc',
-        fontFamily: 'sans-serif',
+        fontFamily: '"Noto Sans SC", "Microsoft YaHei", sans-serif',
         fontSize: '15px',
         padding: { x: 8, y: 4 },
       })
       .setOrigin(0.5, 0)
-      .setAlpha(0.82);
-    container.add(actor ? [marker, actor, glyph, label] : [marker, glyph, label]);
+      .setAlpha(0)
+      .setDepth(20);
+
+    const children: Phaser.GameObjects.GameObject[] = [marker];
+    if (actor) children.push(actor);
+    container.add(children);
+
+    // Generous circular hit area so the label appears before the cursor is exactly on the sprite.
+    container.setInteractive(new Phaser.Geom.Circle(0, 0, 30), Phaser.Geom.Circle.Contains);
+
+    const view: EntityView = { definition: entity, container, marker, label, hover: false };
+
+    container.on('pointerover', () => {
+      view.hover = true;
+      this.setEntityHover(view, true);
+    });
+    container.on('pointerout', () => {
+      view.hover = false;
+      this.setEntityHover(view, false);
+    });
+    container.on('pointerdown', () => this.interactWith(view));
+
     if (isXiulan) this.xiulanActor = actor as Phaser.GameObjects.Sprite;
-    return { definition: entity, container, marker };
+    return view;
   }
 
-  private entityGlyph(entity: WorldEntity): string {
-    if (entity.id.includes('umbrella')) return '☂';
-    if (entity.id.includes('stone')) return entity.id.slice(-1);
-    if (entity.id.startsWith('route.'))
-      return (
-        { 'route.up': '↑', 'route.right': '→', 'route.down': '↓', 'route.left': '←' }[entity.id] ??
-        '·'
-      );
-    if (entity.kind === 'exit') return '门';
-    if (entity.kind === 'slot') return '◇';
-    if (entity.kind === 'pickup') return '拾';
-    if (entity.kind === 'puzzle') return '解';
-    return '看';
+  private setEntityHover(view: EntityView, active: boolean): void {
+    const reduced = this.bridge.getSnapshot().settings.reducedMotion;
+    const labelAlpha = active ? 0.95 : 0;
+    const markerAlpha = active ? 0.55 : 0;
+    const markerScale = active ? 1.6 : 1;
+
+    this.input.setDefaultCursor(active ? 'pointer' : 'default');
+    this.tweens.killTweensOf(view.label);
+    this.tweens.killTweensOf(view.marker);
+
+    if (reduced) {
+      view.label.setAlpha(labelAlpha);
+      view.marker.setAlpha(markerAlpha).setScale(1);
+      return;
+    }
+
+    this.tweens.add({
+      targets: view.label,
+      alpha: labelAlpha,
+      duration: 120,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.tweens.add({
+      targets: view.marker,
+      alpha: markerAlpha,
+      scale: markerScale,
+      duration: 120,
+      ease: 'Sine.easeInOut',
+    });
   }
 
   private updateEntityVisibility(state: Readonly<GameState>): void {
     for (const view of this.entityViews) {
-      const id = view.definition.id;
-      const collected =
-        (id === 'entity.home.journal' && state.inventory.includes('item.home.journal')) ||
-        (id === 'entity.home.key_bowl' && state.inventory.includes('item.home.key')) ||
-        (id === 'entity.home.glasses_case' && state.inventory.includes('item.home.glasses_case')) ||
-        (id === 'entity.rain.ticket' && state.inventory.includes('item.rain.ticket')) ||
-        (id === 'item.photo.move_1979' && state.inventory.includes('item.photo.1979')) ||
-        (id === 'item.photo.osmanthus_1992' && state.inventory.includes('item.photo.1992')) ||
-        (id === 'item.photo.anniversary_2001' && state.inventory.includes('item.photo.2001')) ||
-        (id.startsWith('item.life.') && state.inventory.includes(id));
-      const routeHidden =
-        state.chapterId === 'return' && state.puzzles.returnJunction >= 3 && id !== 'route.up';
-      view.container.setVisible(!collected && !routeHidden);
+      const visible = isEntityAvailable(state, view.definition.id);
+      view.container.setVisible(visible);
+      view.label.setVisible(visible);
+      if (!visible && view.hover) {
+        view.hover = false;
+        this.setEntityHover(view, false);
+      }
+    }
+  }
+
+  private interactWith(view: EntityView): void {
+    const state = this.bridge.getSnapshot();
+    if (
+      state.phase !== 'playing' ||
+      state.modal ||
+      state.dialogue.length > 0 ||
+      Phaser.Math.Distance.Between(
+        this.player.x,
+        this.player.y,
+        view.definition.x,
+        view.definition.y,
+      ) >= 125
+    ) {
+      return;
+    }
+
+    const inventoryCount = state.inventory.length;
+    this.bridge.interact(view.definition.id);
+    const nextState = this.bridge.getSnapshot();
+    if (view.definition.kind === 'pickup' && nextState.inventory.length > inventoryCount) {
+      this.playPickup(nextState);
     }
   }
 
@@ -525,20 +577,5 @@ export class GameScene extends Phaser.Scene {
       }
     }
     return nearest;
-  }
-
-  private highlightNearby(observe: boolean): void {
-    for (const view of this.entityViews) {
-      if (!view.container.visible) continue;
-      const distance = Phaser.Math.Distance.Between(
-        this.player.x,
-        this.player.y,
-        view.definition.x,
-        view.definition.y,
-      );
-      const near = distance < (observe ? 210 : 125);
-      view.marker.setScale(near ? 1.16 : 1);
-      view.container.setAlpha(near ? 1 : 0.72);
-    }
   }
 }
