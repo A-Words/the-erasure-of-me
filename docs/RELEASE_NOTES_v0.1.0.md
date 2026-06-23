@@ -25,7 +25,7 @@
 ## 构建与部署
 
 - `npm run release:package:internal` 生成可部署的内部候选目录与 SHA-256 清单；
-- `npm run release:package -- --evidence <PASS 汇总报告>` 仅用于正式公开包，并会检查项目许可证、资产权利状态与外部证据；
+- `npm run release:package -- <PASS 汇总报告>` 仅用于正式公开包，并会检查项目许可证、资产权利状态与外部证据；
 - 发布包使用相对资源路径，可部署到任意静态目录；
 - 测试构建保留 source map，发布打包目录主动排除 `.map` 文件；
 - `release-manifest.json` 记录版本、Git 提交、渠道、文件大小和每个文件的 SHA-256。

@@ -48,7 +48,7 @@ npm run test:e2e
 npm run lint
 npm run release:evidence -- <证据目录> --output <汇总报告路径>
 npm run release:package:internal
-npm run release:package -- --evidence <PASS 汇总报告路径>
+npm run release:package -- <PASS 汇总报告路径>
 npm run assets:render:environments
 ~~~
 

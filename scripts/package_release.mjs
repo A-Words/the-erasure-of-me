@@ -19,7 +19,13 @@ function parseArguments(arguments_) {
     return index >= 0 ? arguments_[index + 1] : null;
   };
   const channel = value('--channel');
-  const evidence = value('--evidence');
+  const positional = arguments_.filter(
+    (argument, index) =>
+      !argument.startsWith('--') &&
+      arguments_[index - 1] !== '--channel' &&
+      arguments_[index - 1] !== '--evidence',
+  );
+  const evidence = value('--evidence') ?? positional[0] ?? null;
   if (!['internal', 'public'].includes(channel))
     throw new Error('Use --channel internal or --channel public');
   return { channel, evidence };
@@ -36,7 +42,7 @@ function assertCleanWorktree(root) {
 function assertPublicGates(root, evidencePath) {
   if (!existsSync(join(root, 'LICENSE')))
     throw new Error('Public packaging requires a project-level LICENSE file');
-  if (!evidencePath) throw new Error('Public packaging requires --evidence <PASS report>');
+  if (!evidencePath) throw new Error('Public packaging requires a PASS evidence report path');
   const evidence = readFileSync(resolve(root, evidencePath), 'utf8');
   if (!evidence.includes('> 结论：PASS') || evidence.includes('| FAIL |'))
     throw new Error('Public packaging requires a PASS external evidence report');
