@@ -2,7 +2,7 @@
 
 ## 项目现状
 
-本仓库用于开发 2D 叙事解谜游戏《记忆的缝隙》。当前已有可运行的 Phaser 垂直切片工程，程序化灰盒已覆盖从标题到科普页的完整流程，正式 Tiled 地图、精灵和音频仍在制作。
+本仓库用于开发 2D 叙事解谜游戏《记忆的缝隙》。当前已有可运行的 Phaser 内部候选垂直切片，正式 Tiled 地图、角色动画、环境、记忆插图、Web Audio、存档、尾声和科普页均已接入；15 人试玩、医学与敏感性审核、macOS Safari 实机、发布许可证和语音范围决定仍是外部门槛。
 
 - 技术基线：Phaser 3 + TypeScript + Vite
 - 目标平台：PC 网页端
@@ -10,7 +10,7 @@
 - 当前语言：简体中文
 - 目标体验：20–30 分钟垂直切片
 
-npm run dev、build、test、test:e2e、lint 和 format:check 已配置；声称验证通过前仍需实际执行对应命令。
+npm run dev、build、test、test:e2e、lint、format:check 和 release:evidence 已配置；声称验证通过前仍需实际执行对应命令。release:evidence 只汇总真实外部记录，禁止用测试夹具或虚构参与者关闭发布门槛。
 
 ## 事实来源
 
@@ -73,6 +73,7 @@ npm run dev、build、test、test:e2e、lint 和 format:check 已配置；声称
 - npm run test；
 - npm run build；
 - 涉及浏览器流程时运行 npm run test:e2e；
+- 汇总外部测试与审核记录时运行 npm run release:evidence -- <证据目录>；
 - Canvas、HUD、退化效果或响应式变化必须检查代表性截图；
 - 无障碍相关改动至少验证纯键盘、静音和低扰动路径。
 

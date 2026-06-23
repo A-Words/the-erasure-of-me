@@ -10,9 +10,10 @@
 | 格式、类型与静态检查 | `npm run format:check`、`npm run lint`、`npm run build` | 通过；仅保留 Phaser 主包超过 Vite 500 kB 建议阈值的非阻塞提示 |
 | 领域与集成测试 | `npm run test` | 标准、低扰动两条完整领域流程，以及输入、存档、音频和资源预算均通过 |
 | 浏览器流程 | `npm run test:e2e` | Chromium、Edge、Firefox、WebKit 覆盖基础流程；Chromium 另覆盖三视口候选状态 |
+| 自动无障碍基线 | `tests/e2e/accessibility.spec.ts` | DOM 控件键盘激活、移动/对白/背包 resize、200% CSS 缩放菜单、语义结构和强制颜色冗余通过；不能替代真人独立通关与屏幕阅读器实测 |
 | 三视口截图 | `tests/e2e/release-visual.spec.ts` | 每次运行在 `test-results` 生成 1024×576、1366×768、1920×1080 的 D0–D4、暂停、低扰动和科普页截图 |
 | 性能 | 三视口测试内 90 帧 `requestAnimationFrame` 采样 | 本机无头 Chromium 为 59.997–60.001 FPS；自动断言平均帧率不低于 30 FPS，每次运行附加 `performance-budget.json` |
-| 资源预算 | 自动化断言与构建统计 | `public/assets` 7,334,405 字节；当前 `dist` 19,222,579 字节；首次加载测得 7,335,905–7,340,405 字节，均低于预算 |
+| 资源预算 | 自动化断言与构建统计 | `public/assets` 7,334,405 字节；当前 `dist` 19,223,786 字节；首次加载测得 7,336,505–7,338,905 字节，均低于预算 |
 | 权威链接 | 发布日 HEAD/GET 检查 | WHO 与两条中国政府来源于 2026-06-23 均返回 HTTP 200 |
 
 截图是测试产物，不进入 Git。失败时 Playwright 会保留截图、上下文和追踪；成功运行也会保留固定命名的候选截图，供人工视觉复核。
@@ -39,5 +40,7 @@
 3. 在 Safari 桌面实机完成兼容登记；WebKit 自动化不能替代真实 macOS Safari。
 4. 完成关键真人语音录制，或由项目负责人书面接受 v0.1 仅使用字幕与合成音景。
 5. 确定项目许可证，并把 `ASSET_REGISTRY.md` 中仍为 `review` 的权利状态全部关闭。
+
+外部执行模板、主持规则与自动门槛判定见 `docs/release-evidence/README.md`；运行 `npm run release:evidence -- <证据目录> --output <汇总报告路径>`。空模板、重复参与者、证据不足或任一硬门槛失败时，命令都会以非零状态退出。
 
 以上事项完成前，版本可以称为“内部候选构建”，不能称为“正式完成版”或“发布版”。

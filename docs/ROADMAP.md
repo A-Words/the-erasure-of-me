@@ -141,7 +141,7 @@
 
 ### 第 7 周：测试与审核
 
-> 2026-06-23 状态：QA-03 的 Chromium 三视口固定截图与 PERF-01 的资源/帧率自动断言已完成；QA-01、外部无障碍通关、REVIEW-01/02 和 macOS Safari 实机兼容仍是发布阻塞项。详见 RELEASE_READINESS.md。
+> 2026-06-23 状态：QA-02 的 DOM 键盘、resize、200% CSS 缩放、语义结构和强制颜色自动基线，QA-03 的 Chromium 三视口固定截图，以及 PERF-01 的资源/帧率断言均已完成；QA-01、真人无障碍通关、REVIEW-01/02 和 macOS Safari 实机兼容仍是发布阻塞项。详见 RELEASE_READINESS.md。
 
 | ID | 任务 | 优先级 | 依赖 | 验收 |
 | --- | --- | --- | --- | --- |

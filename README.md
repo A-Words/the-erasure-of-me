@@ -25,6 +25,7 @@
 | [制作路线图](docs/ROADMAP.md) | 八周里程碑、任务依赖、优先级和完成条件 |
 | [医学内容审核](docs/MEDICAL_REVIEW.md) | 权威来源、风险措辞、审核记录与发布检查 |
 | [发布就绪台账](docs/RELEASE_READINESS.md) | 自动化、三视口、性能预算与外部发布门槛 |
+| [外部测试证据包](docs/release-evidence/README.md) | 15 人试玩、无障碍、浏览器、专业审核和发布决定模板 |
 
 文档冲突时采用以下优先级：
 
@@ -45,13 +46,14 @@ npm run preview
 npm run test
 npm run test:e2e
 npm run lint
+npm run release:evidence -- <证据目录> --output <汇总报告路径>
 npm run assets:render:environments
 ~~~
 
-首次运行浏览器端到端测试前，需要安装 Playwright Chromium：
+首次运行浏览器端到端测试前，需要安装 Playwright 浏览器；Edge 项目还需要系统已安装 Microsoft Edge：
 
 ~~~bash
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 ~~~
 
 ## 开发原则
