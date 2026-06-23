@@ -16,7 +16,7 @@ const chapterState: Record<
     stage: 'D0',
     checkpoint: 'checkpoint.home.start',
     objective: '找到钥匙和秀兰留下的日记',
-    player: { x: 180, y: 300, facing: 'down' },
+    player: { x: 310, y: 302, facing: 'down' },
   },
   rain: {
     stage: 'D1',

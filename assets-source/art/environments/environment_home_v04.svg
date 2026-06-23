@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <pattern id="bedroom-floor" width="112" height="36" patternUnits="userSpaceOnUse">
+      <rect width="112" height="36" fill="#b4a087"/>
+      <path d="M0 35.5h112M56 0v36" stroke="#66574c" stroke-opacity=".24"/>
+      <path d="M9 12c25-7 49 5 77-2 10-2 18-2 26 0" fill="none" stroke="#e7dac3" stroke-opacity=".17"/>
+    </pattern>
+    <pattern id="living-floor" width="144" height="38" patternUnits="userSpaceOnUse">
+      <rect width="144" height="38" fill="#a99378"/>
+      <path d="M0 37.5h144M72 0v38" stroke="#665448" stroke-opacity=".28"/>
+      <path d="M15 14c27-8 53 5 82-2 18-5 32-3 47 1" fill="none" stroke="#eadfc8" stroke-opacity=".14"/>
+    </pattern>
+    <pattern id="kitchen-floor" width="58" height="46" patternUnits="userSpaceOnUse">
+      <rect width="58" height="46" fill="#9fa69d"/>
+      <path d="M58 0H0v46" fill="none" stroke="#606b65" stroke-opacity=".38" stroke-width="2"/>
+      <path d="M4 4h50v38H4z" fill="none" stroke="#e9e5d9" stroke-opacity=".16"/>
+    </pattern>
+    <linearGradient id="rear-wall" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#b7aa9e"/><stop offset="1" stop-color="#786b62"/></linearGradient>
+    <linearGradient id="wall-top" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#85766d"/><stop offset="1" stop-color="#665951"/></linearGradient>
+    <linearGradient id="wall-face" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#5b4f49"/><stop offset="1" stop-color="#3f3733"/></linearGradient>
+    <linearGradient id="morning" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#fff7db" stop-opacity=".45"/><stop offset="1" stop-color="#d6c58e" stop-opacity="0"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-40%" width="140%" height="200%"><feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#2f2b28" flood-opacity=".35"/></filter>
+    <filter id="paper"><feTurbulence baseFrequency=".63" numOctaves="2" seed="31"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .045 0"/></filter>
+  </defs>
+
+  <rect width="1280" height="720" fill="#443b37"/>
+  <rect x="20" y="20" width="1240" height="680" rx="10" fill="#62564f"/>
+
+  <!-- A visible rear wall face and baseboard establish the 30–35 degree elevated view. -->
+  <path d="M44 44h1192v42H44z" fill="url(#rear-wall)"/>
+  <path d="M44 78h1192v10H44z" fill="#4b403b"/>
+  <path d="M58 50h1164" stroke="#eee7d8" stroke-opacity=".22" stroke-width="2"/>
+
+  <!-- Foreshortened floor planes, free of furniture and interactive props. -->
+  <path d="M44 88h344v320H44z" fill="url(#bedroom-floor)"/>
+  <path d="M412 88h456v320H412z" fill="url(#living-floor)"/>
+  <path d="M892 88h344v320H892z" fill="url(#kitchen-floor)"/>
+  <path d="M44 446h344v220H44z" fill="#8e806e"/>
+  <path d="M412 446h824v220H412z" fill="url(#living-floor)"/>
+
+  <!-- Subtle skirting and thresholds make the rooms read as inhabitable architecture. -->
+  <g fill="#6b5d54" opacity=".72">
+    <rect x="46" y="88" width="340" height="8"/>
+    <rect x="414" y="88" width="452" height="8"/>
+    <rect x="894" y="88" width="340" height="8"/>
+    <rect x="412" y="332" width="12" height="76" rx="3"/>
+    <rect x="856" y="334" width="12" height="74" rx="3"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <path d="M20 20h1240v24H20z" fill="url(#wall-top)"/>
+    <path d="M20 408h578v24H20zM718 408h542v24H718z" fill="url(#wall-top)"/>
+    <path d="M20 432h578v14H20zM718 432h542v14H718z" fill="url(#wall-face)"/>
+    <path d="M20 666h1240v22H20z" fill="url(#wall-top)"/>
+    <path d="M20 688h1240v12H20z" fill="url(#wall-face)"/>
+  </g>
+
+  <g fill="url(#wall-top)">
+    <rect x="20" y="20" width="24" height="680" rx="4"/>
+    <rect x="1236" y="20" width="24" height="278" rx="4"/>
+    <rect x="1236" y="422" width="24" height="278" rx="4"/>
+    <rect x="388" y="20" width="24" height="242" rx="4"/>
+    <rect x="388" y="338" width="24" height="164" rx="4"/>
+    <rect x="388" y="588" width="24" height="112" rx="4"/>
+    <rect x="868" y="20" width="24" height="244" rx="4"/>
+    <rect x="868" y="340" width="24" height="106" rx="4"/>
+  </g>
+
+  <!-- Recess for the independent door sprite on the right wall. -->
+  <path d="M1220 298h40v124h-40z" fill="#2f2926"/>
+  <path d="M1217 298h7v124h-7z" fill="#817168"/>
+  <path d="M1217 298h43" stroke="#c8b7a4" stroke-opacity=".35" stroke-width="3"/>
+
+  <g fill="none" stroke="#eee7d8" stroke-opacity=".2" stroke-width="2">
+    <path d="M32 28h1216M32 674h1216M32 28v660"/>
+    <path d="M400 28v234m0 76v164m0 86v100M880 28v236m0 76v106"/>
+    <path d="M32 416h566m120 0h530"/>
+  </g>
+
+  <g aria-label="architectural window" fill="#607b86" stroke="#2f2b28" stroke-width="4">
+    <rect x="960" y="28" width="220" height="28" rx="5"/>
+    <path d="M1070 30v24" stroke="#eee7d8" stroke-opacity=".62"/>
+  </g>
+  <path d="M1236 88H938L754 408h482z" fill="url(#morning)"/>
+  <rect width="1280" height="720" filter="url(#paper)" opacity=".72"/>
+  <path d="M32 28h1216v660H32z" fill="none" stroke="#eee7d8" stroke-opacity=".28" stroke-width="3"/>
+</svg>

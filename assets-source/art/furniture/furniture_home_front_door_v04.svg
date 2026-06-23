@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="frame" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#352b26"/><stop offset=".35" stop-color="#70503a"/><stop offset="1" stop-color="#3d302a"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#4b3327"/><stop offset=".52" stop-color="#81583c"/><stop offset="1" stop-color="#4a342a"/>
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-20%" width="200%" height="160%"><feDropShadow dx="-3" dy="5" stdDeviation="3" flood-color="#2f2b28" flood-opacity=".38"/></filter>
+  </defs>
+  <g filter="url(#shadow)" stroke="#2f2b28" stroke-linejoin="round">
+    <path d="M88 18 174 34v186l-86 18z" fill="url(#frame)" stroke-width="5"/>
+    <path d="M101 35 160 46v160l-59 13z" fill="url(#panel)" stroke-width="4"/>
+    <path d="M111 53 150 60v126l-39 9z" fill="none" stroke="#a27650" stroke-opacity=".55" stroke-width="3"/>
+    <path d="M88 18 101 35v184l-13 19z" fill="#392c27" stroke-width="3"/>
+    <path d="M160 46 174 34v186l-14-14z" fill="#2f2926" stroke-width="3"/>
+    <ellipse cx="130" cy="94" rx="4" ry="5" fill="#d2b66e" stroke-width="2"/>
+    <path d="M118 150h18" stroke="#d2b66e" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="139" cy="150" r="5" fill="#aa8246" stroke-width="2"/>
+    <path d="M91 226 172 209" stroke="#d2b66e" stroke-opacity=".5" stroke-width="4"/>
+  </g>
+</svg>

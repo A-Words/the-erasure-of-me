@@ -34,19 +34,19 @@
 | furniture.home.kitchen_counter | 项目团队 | assets-source/art/furniture/furniture_home_kitchen_counter_v02_chromakey.png | public/assets/furniture/furniture_home_kitchen_counter_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；水槽与双灶台；仅垂直方向俯视 |
 | furniture.home.storage_cabinet | 项目团队 | assets-source/art/furniture/furniture_home_storage_cabinet_v02_chromakey.png | public/assets/furniture/furniture_home_storage_cabinet_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；低矮储物柜；仅垂直方向俯视 |
 | furniture.home.entry_console | 项目团队 | assets-source/art/furniture/furniture_home_entry_console_v02_chromakey.png | public/assets/furniture/furniture_home_entry_console_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；窄玄关桌；仅垂直方向俯视 |
-| furniture.home.front_door | 项目团队 | assets-source/art/furniture/furniture_home_front_door_v03_chromakey.png | public/assets/furniture/furniture_home_front_door_v03.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；正面居中入户门、猫眼与黄铜门把；独立交互家具素材 |
-| furniture.home.atlas | 项目团队 | public/assets/furniture/furniture_home_* | public/assets/furniture/furniture_home_atlas_v02_8x256x256.png | 上述八件定制家具的机械打包；无新增第三方素材 | review | Codex 图集目视检查 | 2026-06-24 | 8×256×256 横向图集；减少 Phaser 启动请求；每件家具仍以独立 frame 使用 |
+| furniture.home.front_door | 项目团队 | assets-source/art/furniture/furniture_home_front_door_v04.svg | public/assets/furniture/furniture_home_front_door_v04.png | 项目原创 SVG；无第三方素材 | review | Chromium 场景截图与交互验收 | 2026-06-24 | 256×256；窄侧向门板、猫眼与黄铜门把；嵌入右墙门洞的独立交互素材 |
+| furniture.home.atlas | 项目团队 | public/assets/furniture/furniture_home_* | public/assets/furniture/furniture_home_atlas_v03_8x256x256.png | 七件定制家具与原创门件的机械打包；无新增第三方素材 | review | Chromium 场景截图与遮挡验收 | 2026-06-24 | 8×256×256 横向图集；减少 Phaser 启动请求；每件家具仍以独立 frame 使用 |
 | memory.rain.umbrella.illustration | 项目团队 | assets-source/art/memories/memory_rain_umbrella_v01.png | public/assets/memories/memory_rain_umbrella_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；雨站初遇对白期间显示；红伞为唯一高辨识暖色 |
 | memory.life.move.illustration | 项目团队 | assets-source/art/memories/memory_life_move_v01.png | public/assets/memories/memory_life_move_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；木梳归位后显示；纸箱、未装床架和背景红伞与脚本一致 |
 | memory.life.osmanthus.illustration | 项目团队 | assets-source/art/memories/memory_life_osmanthus_v01.png | public/assets/memories/memory_life_osmanthus_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；搪瓷杯归位后显示；桂花、泥土与杯子构成冗余线索 |
 | memory.life.cassette.illustration | 项目团队 | assets-source/art/memories/memory_life_cassette_v01.png | public/assets/memories/memory_life_cassette_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；录音带归位后显示；录音机双线圈、停电光源与纪念日蛋糕构成冗余线索 |
 | memory.ending.hand.illustration | 项目团队 | assets-source/art/memories/memory_ending_hand_v01.png | public/assets/memories/memory_ending_hand_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1024×512 WebP；完成牵手长按后显示；蓝灰袖主动覆上旧绿袖等待掌心 |
-| environment.home.background | 项目团队 | assets-source/art/environments/environment_home_v03.svg | public/assets/environments/environment_home_v03.png | 项目原创 SVG；无第三方素材 | review | Codex 画面目视检查 | 2026-06-24 | 1280×720；无水平偏航、垂直约 35° 俯角的住宅壳层，仅含地板、墙体、开口、窗洞与晨光，不含家具 |
+| environment.home.background | 项目团队 | assets-source/art/environments/environment_home_v04.svg | public/assets/environments/environment_home_v04.png | 项目原创 SVG；无第三方素材 | review | Chromium 场景截图验收 | 2026-06-24 | 1280×720；30°～35° 轻斜俯视住宅壳层，增加后墙立面、压缩地板纹理、门洞和踢脚线；不含家具与交互道具 |
 | environment.rain.background | 项目团队 | assets-source/art/environments/environment_rain_v01.svg | public/assets/environments/environment_rain_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；斜向站台、积水、石板与钟表铺雨棚 |
 | environment.life.background | 项目团队 | assets-source/art/environments/environment_life_v01.svg | public/assets/environments/environment_life_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；三段生活空间叠影、纸箱、桂花窗与录音机 |
 | environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v01.svg | public/assets/environments/environment_return_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；重复十字长廊、四向地砖箭头与暗红伞痕 |
 | environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v01.svg | public/assets/environments/environment_ending_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；回到现实清晨、暖白留白、桌上两碗热面 |
-| map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供出生点和稳定 ID；正式背景已接入且坐标对齐 |
+| map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | Vitest 与 Chromium 浏览器验收 | 2026-06-24 | Tiled 对象层提供出生区、稳定 ID 与 15 个家具/墙体碰撞矩形；与 `homeLayout.ts` 坐标对齐 |
 | map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供 2→4→5、伞标与出口；正式背景已接入 |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供照片、物件和三槽位；正式背景已接入 |
 | map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供四向出口；背景箭头与世界方向一致 |
@@ -104,14 +104,14 @@
 - 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 裁切并归一化到 128×128 透明画布。Phaser 通过 manifest key 与 Tiled 实体 ID 绑定，拾取后随实体隐藏。
 - 当前结论：透明边缘、实际场景比例、HUD/角色遮挡和减少动态效果悬停截图通过 Codex 与 Playwright 检查；外部美术审核前保持 `review`。
 
-### furniture.home.* v02 / environment.home.background v03
+### furniture.home.* v02/v04 / environment.home.background v04
 
-- 生成方式：家具使用内置 OpenAI ImageGen `stylized-concept`，以已接入的小道具和首张床作为色板、线宽与材质参考；建筑壳层使用原创 SVG 精确绘制。
-- 视角约束：建筑壳层水平方向正对画面，仅在垂直方向使用约 35° 俯角；家具可依据摆放关系采用少量水平转角，以落地面一致、空间关系合理为准。入户门使用正面视角并固定在画面右侧边，保留猫眼、矩形门板和右侧黄铜门把作为稳定识别特征。
+- 生成方式：七件家具使用内置 OpenAI ImageGen `stylized-concept`，以已接入的小道具和首张床作为色板、线宽与材质参考；建筑壳层和右墙门件使用原创 SVG 精确绘制。
+- 视角约束：建筑壳层使用 30°～35° 轻斜俯视；家具可依据摆放关系采用少量水平转角，以落地面一致、空间关系合理为准。入户门使用窄侧向透视并嵌入画面右墙门洞，保留猫眼、门板和黄铜门把作为稳定识别特征。
 - 分层约束：背景只保留地板、墙体、门窗洞口与晨光；床、边桌、沙发、木桌、厨房台柜、储物柜、玄关桌和门均为透明 PNG，由 Phaser 按坐标组合。
 - 运行时请求：八件独立运行时 PNG 机械打包为 `furniture.home.atlas` 横向图集，Scene 以 frame 选择家具；源文件、透明成品和稳定家具身份不合并。
 - 色键处理：普通木质家具使用纯 `#00ff00`，含旧绿色柜边的厨房台柜使用纯 `#ff00ff`；统一经 `remove_chroma_key.py` 软遮罩和去色溢出，再由 `prepare_prop_asset.py` 归一化到 256×256。
-- 当前结论：透明角、物件覆盖率与单件比例已完成目视检查；本轮按用户要求未运行自动化测试，场景合成、交互遮挡和多分辨率截图通过后再考虑提升状态。
+- 当前结论：透明边缘、家具比例、右墙门洞、人物与床碰撞、茶几前后遮挡及门口交互已通过 Vitest、构建和 Chromium 场景截图检查；外部美术审核前保持 `review`。
 
 ### memory.life.move.illustration
 

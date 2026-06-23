@@ -1,4 +1,6 @@
 import { chapterMaps } from '../content/maps';
+import { homeCollisionObstacles, homeWalkBounds } from '../content/homeLayout';
+import { moveWithCollisions } from '../simulation/collision';
 import type {
   ChapterId,
   GameCommand,
@@ -232,8 +234,16 @@ export class GameStore {
     };
     const [dx, dy] = delta[direction];
     const map = chapterMaps[this.state.chapterId];
-    this.state.player.x = Math.max(55, Math.min(map.width - 55, this.state.player.x + dx));
-    this.state.player.y = Math.max(75, Math.min(map.height - 45, this.state.player.y + dy));
+    const next = moveWithCollisions(
+      this.state.player,
+      { x: dx, y: dy },
+      this.state.chapterId === 'home'
+        ? homeWalkBounds
+        : { minX: 55, maxX: map.width - 55, minY: 75, maxY: map.height - 45 },
+      this.state.chapterId === 'home' ? homeCollisionObstacles : [],
+    );
+    this.state.player.x = next.x;
+    this.state.player.y = next.y;
     this.state.player.facing = direction;
     this.state.player.moving = true;
   }

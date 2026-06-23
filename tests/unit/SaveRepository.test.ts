@@ -76,7 +76,7 @@ describe('SaveRepository', () => {
     state.player.y = -10;
     repository.save(state);
 
-    expect(repository.load()?.player).toEqual({ x: 180, y: 300, facing: 'down', moving: false });
+    expect(repository.load()?.player).toEqual({ x: 310, y: 302, facing: 'down', moving: false });
   });
 
   it('clears progress and settings only after the all-data operation', () => {

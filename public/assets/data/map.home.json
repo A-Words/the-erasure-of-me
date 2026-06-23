@@ -35,8 +35,8 @@
           "name": "entity.home.bedside_photo",
           "type": "inspect",
           "width": 44,
-          "x": 280,
-          "y": 160
+          "x": 300,
+          "y": 168
         },
         {
           "height": 44,
@@ -45,7 +45,7 @@
           "type": "pickup",
           "width": 44,
           "x": 610,
-          "y": 250
+          "y": 282
         },
         {
           "height": 44,
@@ -53,8 +53,8 @@
           "name": "entity.home.glasses_case",
           "type": "pickup",
           "width": 44,
-          "x": 720,
-          "y": 470
+          "x": 700,
+          "y": 510
         },
         {
           "height": 44,
@@ -71,8 +71,155 @@
           "name": "entity.home.front_door",
           "type": "exit",
           "width": 60,
-          "x": 1160,
+          "x": 1190,
           "y": 360
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 3,
+      "name": "collision",
+      "objects": [
+        {
+          "height": 64,
+          "id": 7,
+          "name": "collision.home.bed",
+          "type": "furniture",
+          "width": 176,
+          "x": 82,
+          "y": 218
+        },
+        {
+          "height": 28,
+          "id": 8,
+          "name": "collision.home.bedside_table",
+          "type": "furniture",
+          "width": 60,
+          "x": 270,
+          "y": 176
+        },
+        {
+          "height": 46,
+          "id": 9,
+          "name": "collision.home.sofa",
+          "type": "furniture",
+          "width": 200,
+          "x": 520,
+          "y": 180
+        },
+        {
+          "height": 29,
+          "id": 10,
+          "name": "collision.home.living_side_table",
+          "type": "furniture",
+          "width": 58,
+          "x": 581,
+          "y": 290
+        },
+        {
+          "height": 52,
+          "id": 11,
+          "name": "collision.home.coffee_table",
+          "type": "furniture",
+          "width": 186,
+          "x": 607,
+          "y": 530
+        },
+        {
+          "height": 52,
+          "id": 12,
+          "name": "collision.home.kitchen_counter",
+          "type": "furniture",
+          "width": 224,
+          "x": 948,
+          "y": 186
+        },
+        {
+          "height": 60,
+          "id": 13,
+          "name": "collision.home.storage_cabinet",
+          "type": "furniture",
+          "width": 166,
+          "x": 137,
+          "y": 558
+        },
+        {
+          "height": 58,
+          "id": 14,
+          "name": "collision.home.entry_console",
+          "type": "furniture",
+          "width": 164,
+          "x": 958,
+          "y": 530
+        },
+        {
+          "height": 242,
+          "id": 15,
+          "name": "collision.home.wall_left_top",
+          "type": "wall",
+          "width": 24,
+          "x": 388,
+          "y": 20
+        },
+        {
+          "height": 164,
+          "id": 16,
+          "name": "collision.home.wall_left_middle",
+          "type": "wall",
+          "width": 24,
+          "x": 388,
+          "y": 338
+        },
+        {
+          "height": 112,
+          "id": 17,
+          "name": "collision.home.wall_left_bottom",
+          "type": "wall",
+          "width": 24,
+          "x": 388,
+          "y": 588
+        },
+        {
+          "height": 244,
+          "id": 18,
+          "name": "collision.home.wall_right_top",
+          "type": "wall",
+          "width": 24,
+          "x": 868,
+          "y": 20
+        },
+        {
+          "height": 106,
+          "id": 19,
+          "name": "collision.home.wall_right_middle",
+          "type": "wall",
+          "width": 24,
+          "x": 868,
+          "y": 340
+        },
+        {
+          "height": 38,
+          "id": 20,
+          "name": "collision.home.wall_cross_left",
+          "type": "wall",
+          "width": 578,
+          "x": 20,
+          "y": 408
+        },
+        {
+          "height": 38,
+          "id": 21,
+          "name": "collision.home.wall_cross_right",
+          "type": "wall",
+          "width": 542,
+          "x": 718,
+          "y": 408
         }
       ],
       "opacity": 1,
@@ -82,8 +229,8 @@
       "y": 0
     }
   ],
-  "nextlayerid": 3,
-  "nextobjectid": 7,
+  "nextlayerid": 4,
+  "nextobjectid": 22,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

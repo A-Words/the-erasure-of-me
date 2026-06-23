@@ -34,7 +34,7 @@ export function createInitialState(mode: GameMode = 'standard'): GameState {
     chapterId: 'home',
     checkpointId: 'checkpoint.home.start',
     degradationStage: 'D0',
-    player: { x: 180, y: 300, facing: 'down', moving: false },
+    player: { x: 310, y: 302, facing: 'down', moving: false },
     inventory: [],
     journalPages: [],
     memories: [],

@@ -30,6 +30,18 @@ describe('GameStore', () => {
     expect(store.getState().player.facing).toBe('right');
   });
 
+  it('keeps the player outside home furniture footprints', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.player = { x: 66, y: 240, facing: 'right', moving: false };
+    const store = new GameStore(state);
+
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+
+    expect(store.getState().player.x).toBe(66);
+    expect(store.getState().player.facing).toBe('right');
+  });
+
   it('keeps the correct station prefix after a soft miss', () => {
     const state = createInitialState();
     state.phase = 'playing';

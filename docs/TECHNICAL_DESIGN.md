@@ -280,9 +280,10 @@ type InputAction =
 
 - 采用八方向动画中的四方向逻辑，不允许斜向移动。
 - 角色速度为每秒 180 逻辑像素，低扰动模式不改变速度。
-- Content Loader 将 Tiled 的 collision 与 navigation 图层转换为纯数据 CollisionMap。
-- MovementSystem 根据 CollisionMap、角色脚部碰撞体和当前 InputAction 计算最终位置。
+- `src/game/content/homeLayout.ts` 保存住宅家具脚印、墙体障碍、步行边界和排序线；Tiled `collision` 对象层保持同一份作者数据，后续 Content Loader 可由其生成纯数据 CollisionMap。
+- MovementSystem 使用与 Phaser 无关的 `moveWithCollisions`，根据 CollisionMap、角色脚部碰撞体和当前 InputAction 分轴计算最终位置；阻挡大步长穿透，同时允许沿家具边缘滑动。
 - Phaser Sprite 只跟随最终位置，不参与碰撞判定；本项目不启用 Arcade Physics 作为玩法真值。
+- 住宅表现按脚底/家具底座 Y 值动态排序；交互小物继承承载家具的排序线，横向墙前脸拆为独立遮挡段。背景、家具、遮挡段、人物与交互物仍是可分别销毁的视图对象，不进入存档状态。
 - 每次位置更新写入领域层坐标；DOM UI 通过纯选择器把坐标映射为“当前最近可用实体 ID”，仅在该 ID 变化时重绘情境交互提示。
 - 按键释放或当前帧没有移动动作时，SceneBridge 发送 `STOP_MOVING`；领域层保留最后朝向并清除 `player.moving`，精灵只据此切回对应方向锚点帧。
 - 恢复存档时先校验坐标是否落在当前导航区域。

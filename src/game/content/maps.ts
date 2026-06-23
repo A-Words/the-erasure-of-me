@@ -29,19 +29,19 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
     subtitle: '熟悉的东西，都在它们原来的位置。',
     width: 1280,
     height: 720,
-    spawn: { x: 180, y: 300 },
+    spawn: { x: 310, y: 302 },
     palette: { floor: 0xc7b9a3, wall: 0x756253, accent: 0x8da2a6 },
     entities: [
-      { id: 'entity.home.bedside_photo', label: '床边合影', x: 280, y: 160, kind: 'inspect' },
+      { id: 'entity.home.bedside_photo', label: '床边合影', x: 300, y: 168, kind: 'inspect' },
       {
         id: 'entity.home.journal',
         label: '红线日记',
         x: 610,
-        y: 250,
+        y: 282,
         kind: 'pickup',
         color: 0xb54949,
       },
-      { id: 'entity.home.glasses_case', label: '眼镜盒', x: 720, y: 470, kind: 'pickup' },
+      { id: 'entity.home.glasses_case', label: '眼镜盒', x: 700, y: 510, kind: 'pickup' },
       {
         id: 'entity.home.key_bowl',
         label: '蓝色小碗',
@@ -50,7 +50,7 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
         kind: 'pickup',
         color: 0x276a78,
       },
-      { id: 'entity.home.front_door', label: '玄关门', x: 1160, y: 360, kind: 'exit' },
+      { id: 'entity.home.front_door', label: '玄关门', x: 1190, y: 360, kind: 'exit' },
     ],
   },
   rain: {
