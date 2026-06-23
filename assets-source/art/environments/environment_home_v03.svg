@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <pattern id="bedroom-floor" width="96" height="42" patternUnits="userSpaceOnUse">
+      <rect width="96" height="42" fill="#b9a88f"/>
+      <path d="M0 41.5h96M48 0v42" stroke="#78695d" stroke-opacity=".2"/>
+      <path d="M8 13c18-6 36 4 57-2 12-4 22-2 31 2" fill="none" stroke="#eadfc8" stroke-opacity=".2"/>
+    </pattern>
+    <pattern id="living-floor" width="128" height="42" patternUnits="userSpaceOnUse">
+      <rect width="128" height="42" fill="#ad9a80"/>
+      <path d="M0 41.5h128M64 0v42" stroke="#756253" stroke-opacity=".22"/>
+      <path d="M11 15c21-8 42 5 66-2 17-5 34-2 51 2" fill="none" stroke="#eee7d8" stroke-opacity=".16"/>
+    </pattern>
+    <pattern id="kitchen-floor" width="64" height="54" patternUnits="userSpaceOnUse">
+      <rect width="64" height="54" fill="#a7aca2"/>
+      <path d="M64 0H0v54" fill="none" stroke="#68716b" stroke-opacity=".35" stroke-width="2"/>
+      <path d="M4 4h56v46H4z" fill="none" stroke="#eee7d8" stroke-opacity=".18"/>
+    </pattern>
+    <pattern id="hall-floor" width="80" height="68" patternUnits="userSpaceOnUse">
+      <rect width="80" height="68" fill="#9d8b73"/>
+      <path d="M0 34h80M40 0v68" stroke="#6f6256" stroke-opacity=".2"/>
+    </pattern>
+    <filter id="paper"><feTurbulence baseFrequency=".7" numOctaves="2" seed="23"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .05 0"/></filter>
+    <filter id="wall-shadow" x="-20%" y="-40%" width="140%" height="200%"><feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#2f2b28" flood-opacity=".38"/></filter>
+    <linearGradient id="wall-top" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#827268"/><stop offset="1" stop-color="#62564f"/></linearGradient>
+    <linearGradient id="wall-face" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#5a4e48"/><stop offset="1" stop-color="#403834"/></linearGradient>
+    <linearGradient id="morning" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#f7f3e8" stop-opacity=".52"/><stop offset="1" stop-color="#d6c58e" stop-opacity="0"/></linearGradient>
+  </defs>
+
+  <rect width="1280" height="720" fill="#4d433e"/>
+
+  <!-- Floor planes: front-facing orthographic camera with vertical-only pitch. -->
+  <path d="M44 58h344v350H44z" fill="url(#bedroom-floor)"/>
+  <path d="M412 58h456v350H412z" fill="url(#living-floor)"/>
+  <path d="M892 58h344v350H892z" fill="url(#kitchen-floor)"/>
+  <path d="M44 446h344v220H44z" fill="#8c806e"/>
+  <path d="M412 446h824v220H412z" fill="url(#hall-floor)"/>
+
+  <!-- Horizontal walls expose a narrow, symmetric front face at the 35-degree pitch. -->
+  <g filter="url(#wall-shadow)">
+    <path d="M20 20h1240v24H20z" fill="url(#wall-top)"/>
+    <path d="M20 44h1240v14H20z" fill="url(#wall-face)"/>
+
+    <path d="M20 408h578v24H20zM718 408h542v24H718z" fill="url(#wall-top)"/>
+    <path d="M20 432h578v14H20zM718 432h542v14H718z" fill="url(#wall-face)"/>
+
+    <path d="M20 666h1240v22H20z" fill="url(#wall-top)"/>
+    <path d="M20 688h1240v12H20z" fill="url(#wall-face)"/>
+  </g>
+
+  <!-- Vertical wall runs remain parallel: there is no horizontal camera yaw. -->
+  <g fill="url(#wall-top)">
+    <rect x="20" y="20" width="24" height="680" rx="4"/>
+    <rect x="1236" y="20" width="24" height="282" rx="4"/>
+    <rect x="1236" y="420" width="24" height="280" rx="4"/>
+    <rect x="388" y="20" width="24" height="242" rx="4"/>
+    <rect x="388" y="338" width="24" height="164" rx="4"/>
+    <rect x="388" y="588" width="24" height="112" rx="4"/>
+    <rect x="868" y="20" width="24" height="244" rx="4"/>
+    <rect x="868" y="340" width="24" height="106" rx="4"/>
+  </g>
+
+  <g fill="none" stroke="#eee7d8" stroke-opacity=".23" stroke-width="2">
+    <path d="M32 28h1216M32 674h1216M32 28v660"/>
+    <path d="M400 28v234m0 76v164m0 86v100M880 28v236m0 76v94"/>
+    <path d="M32 416h566m120 0h530"/>
+  </g>
+
+  <g aria-label="architectural window" fill="#637c87" stroke="#2f2b28" stroke-width="4">
+    <rect x="960" y="25" width="220" height="25" rx="4"/>
+    <path d="M1070 27v21" stroke="#eee7d8" stroke-opacity=".6"/>
+  </g>
+
+  <path d="M1236 58H930L735 408h501z" fill="url(#morning)"/>
+  <rect width="1280" height="720" filter="url(#paper)" opacity=".72"/>
+  <path d="M32 28h1216v660H32z" fill="none" stroke="#eee7d8" stroke-opacity=".28" stroke-width="3"/>
+</svg>
