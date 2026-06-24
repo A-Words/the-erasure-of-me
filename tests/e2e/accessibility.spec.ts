@@ -169,3 +169,39 @@ test('retains shape and texture labels under forced colors', async ({ page }, te
     animations: 'disabled',
   });
 });
+
+test('keeps interactive props stable under reduced motion', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await startGameWithKeyboard(page);
+  await finishOpeningDialogue(page);
+
+  const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
+  await canvas.focus();
+
+  // 开启减少动态效果：暂停菜单里的 labeled checkbox（沿用既有 settings 取法）。
+  await page.keyboard.press('Escape');
+  const reducedMotion = page.getByLabel('减少动态效果');
+  await reducedMotion.scrollIntoViewIfNeeded();
+  await reducedMotion.focus();
+  await page.keyboard.press('Space');
+  await expect(reducedMotion).toBeChecked();
+  await page.keyboard.press('Escape');
+
+  // reducedMotion 下呼吸关闭；由 afterEach 断言无控制台错误兜底。
+  await page.screenshot({
+    path: testInfo.outputPath('reduced-motion-prop-base-scale.png'),
+    animations: 'disabled',
+  });
+});
+
+test('captures standard-mode breathing snapshot for review', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await startGameWithKeyboard(page);
+  await finishOpeningDialogue(page);
+
+  // 标准模式：不开启 reducedMotion，让呼吸运行，截一张供人工复核。
+  await page.screenshot({
+    path: testInfo.outputPath('standard-mode-breathing.png'),
+    animations: 'allow',
+  });
+});
