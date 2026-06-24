@@ -210,7 +210,7 @@ export const assetManifest = [
   {
     key: 'furniture.home.atlas',
     type: 'spritesheet',
-    url: 'assets/furniture/furniture_home_atlas_v03_8x256x256.png',
+    url: 'assets/furniture/furniture_home_atlas_v05_8x256x256.png',
     frameConfig: { frameWidth: 256, frameHeight: 256 },
     chapter: 'home',
     preload: true,

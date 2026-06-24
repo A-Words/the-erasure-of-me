@@ -63,7 +63,7 @@
           "type": "pickup",
           "width": 44,
           "x": 1040,
-          "y": 500
+          "y": 482
         },
         {
           "height": 60,
@@ -150,12 +150,12 @@
           "y": 558
         },
         {
-          "height": 40,
+          "height": 28,
           "id": 14,
           "name": "collision.home.entry_console",
           "type": "furniture",
-          "width": 128,
-          "x": 976,
+          "width": 96,
+          "x": 992,
           "y": 540
         },
         {

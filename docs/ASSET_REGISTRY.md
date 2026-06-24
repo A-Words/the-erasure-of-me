@@ -25,7 +25,7 @@
 | prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，所有雨站红伞实体共用 |
 | prop.home.bedside_photo | 项目团队 | assets-source/art/props/prop_home_bedside_photo_v01_chromakey.png | public/assets/props/prop_home_bedside_photo_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与浏览器验收 | 2026-06-23 | 128×128；旧木框、老年夫妻与红伞边缘；独立实体素材 |
 | prop.home.red_thread_journal | 项目团队 | assets-source/art/props/prop_home_red_thread_journal_v01_chromakey.png | public/assets/props/prop_home_red_thread_journal_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与浏览器验收 | 2026-06-23 | 128×128；米色布封面、线装边与红线书签；独立拾取素材 |
-| prop.home.blue_key_bowl | 项目团队 | assets-source/art/props/prop_home_blue_key_bowl_v01_chromakey.png | public/assets/props/prop_home_blue_key_bowl_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与浏览器验收 | 2026-06-23 | 128×128；低饱和蓝碗、两道金色修补线与两把旧钥匙；独立拾取素材 |
+| prop.home.blue_key_bowl | 项目团队 | assets-source/art/props/prop_home_blue_key_bowl_v01_chromakey.png | public/assets/props/prop_home_blue_key_bowl_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与浏览器验收 | 2026-06-24 | 128×128；运行时显示 44×44，置于玄关桌面；低饱和蓝碗、两道金色修补线与两把旧钥匙；独立拾取素材 |
 | prop.home.glasses_case | 项目团队 | assets-source/art/props/prop_home_glasses_case_v01_chromakey.png | public/assets/props/prop_home_glasses_case_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与浏览器验收 | 2026-06-23 | 128×128；旧棕布硬盒与红胶布角标；不显示眼镜；独立拾取素材 |
 | furniture.home.double_bed | 项目团队 | assets-source/art/furniture/furniture_home_double_bed_v02_chromakey.png | public/assets/furniture/furniture_home_double_bed_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；正面居中、垂直约 35° 俯角的双人木床；独立家具素材 |
 | furniture.home.side_table | 项目团队 | assets-source/art/furniture/furniture_home_side_table_v02_chromakey.png | public/assets/furniture/furniture_home_side_table_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；正面居中木边桌；卧室与客厅复用 |
@@ -33,9 +33,9 @@
 | furniture.home.oval_table | 项目团队 | assets-source/art/furniture/furniture_home_oval_table_v02_chromakey.png | public/assets/furniture/furniture_home_oval_table_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；正面居中的椭圆旧木桌；修补痕不依赖颜色识别 |
 | furniture.home.kitchen_counter | 项目团队 | assets-source/art/furniture/furniture_home_kitchen_counter_v02_chromakey.png | public/assets/furniture/furniture_home_kitchen_counter_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；水槽与双灶台；仅垂直方向俯视 |
 | furniture.home.storage_cabinet | 项目团队 | assets-source/art/furniture/furniture_home_storage_cabinet_v02_chromakey.png | public/assets/furniture/furniture_home_storage_cabinet_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；低矮储物柜；仅垂直方向俯视 |
-| furniture.home.entry_console | 项目团队 | assets-source/art/furniture/furniture_home_entry_console_v02_chromakey.png | public/assets/furniture/furniture_home_entry_console_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；窄玄关桌；仅垂直方向俯视 |
-| furniture.home.front_door | 项目团队 | assets-source/art/furniture/furniture_home_front_door_v04.svg | public/assets/furniture/furniture_home_front_door_v04.png | 项目原创 SVG；无第三方素材 | review | Chromium 场景截图与交互验收 | 2026-06-24 | 256×256；窄侧向门板、猫眼与黄铜门把；嵌入右墙门洞的独立交互素材 |
-| furniture.home.atlas | 项目团队 | public/assets/furniture/furniture_home_* | public/assets/furniture/furniture_home_atlas_v03_8x256x256.png | 七件定制家具与原创门件的机械打包；无新增第三方素材 | review | Chromium 场景截图与遮挡验收 | 2026-06-24 | 8×256×256 横向图集；减少 Phaser 启动请求；每件家具仍以独立 frame 使用 |
+| furniture.home.entry_console | 项目团队 | assets-source/art/furniture/furniture_home_entry_console_v02_chromakey.png | public/assets/furniture/furniture_home_entry_console_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘目视检查 | 2026-06-24 | 256×256；运行时显示 110×110，桌面约到老年角色腰部；窄玄关桌；仅垂直方向俯视 |
+| furniture.home.front_door | 项目团队 | assets-source/art/furniture/furniture_home_front_door_v06.svg | public/assets/furniture/furniture_home_front_door_v06.png | 项目原创 SVG；无第三方素材 | review | Codex 素材目视检查 | 2026-06-24 | 256×256；关闭、贴合右墙且主要显示门板侧边厚度，保留三处铰链与略微伸出的黄铜门把；独立交互素材 |
+| furniture.home.atlas | 项目团队 | public/assets/furniture/furniture_home_* | public/assets/furniture/furniture_home_atlas_v05_8x256x256.png | 七件定制家具与原创门件的机械打包；无新增第三方素材 | review | Codex 图集目视检查 | 2026-06-24 | 8×256×256 横向图集；第 7 帧为关闭的右墙侧视门；每件家具仍以独立 frame 使用 |
 | memory.rain.umbrella.illustration | 项目团队 | assets-source/art/memories/memory_rain_umbrella_v01.png | public/assets/memories/memory_rain_umbrella_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；雨站初遇对白期间显示；红伞为唯一高辨识暖色 |
 | memory.life.move.illustration | 项目团队 | assets-source/art/memories/memory_life_move_v01.png | public/assets/memories/memory_life_move_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；木梳归位后显示；纸箱、未装床架和背景红伞与脚本一致 |
 | memory.life.osmanthus.illustration | 项目团队 | assets-source/art/memories/memory_life_osmanthus_v01.png | public/assets/memories/memory_life_osmanthus_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；搪瓷杯归位后显示；桂花、泥土与杯子构成冗余线索 |
@@ -104,10 +104,10 @@
 - 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 裁切并归一化到 128×128 透明画布。Phaser 通过 manifest key 与 Tiled 实体 ID 绑定，拾取后随实体隐藏。
 - 当前结论：透明边缘、实际场景比例、HUD/角色遮挡和减少动态效果悬停截图通过 Codex 与 Playwright 检查；外部美术审核前保持 `review`。
 
-### furniture.home.* v02/v04 / environment.home.background v04
+### furniture.home.* v02/v06 / environment.home.background v04
 
 - 生成方式：七件家具使用内置 OpenAI ImageGen `stylized-concept`，以已接入的小道具和首张床作为色板、线宽与材质参考；建筑壳层和右墙门件使用原创 SVG 精确绘制。
-- 视角约束：建筑壳层使用 30°～35° 轻斜俯视；家具可依据摆放关系采用少量水平转角，以落地面一致、空间关系合理为准。入户门使用窄侧向透视并嵌入画面右墙门洞，保留猫眼、门板和黄铜门把作为稳定识别特征。
+- 视角约束：建筑壳层使用 30°～35° 轻斜俯视；家具可依据摆放关系采用少量水平转角，以落地面一致、空间关系合理为准。入户门初始关闭并贴合右墙门洞，主要显示门板侧边厚度、铰链和略微伸出的门把；取得钥匙并交互后才进入开门对白与章节过渡。
 - 分层约束：背景只保留地板、墙体、门窗洞口与晨光；床、边桌、沙发、木桌、厨房台柜、储物柜、玄关桌和门均为透明 PNG，由 Phaser 按坐标组合。
 - 运行时请求：八件独立运行时 PNG 机械打包为 `furniture.home.atlas` 横向图集，Scene 以 frame 选择家具；源文件、透明成品和稳定家具身份不合并。
 - 色键处理：普通木质家具使用纯 `#00ff00`，含旧绿色柜边的厨房台柜使用纯 `#ff00ff`；统一经 `remove_chroma_key.py` 软遮罩和去色溢出，再由 `prepare_prop_asset.py` 归一化到 256×256。

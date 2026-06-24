@@ -34,14 +34,14 @@ const homePropVisuals: Record<
 > = {
   'entity.home.bedside_photo': { key: 'prop.home.bedside_photo', size: 72, labelOffset: 42 },
   'entity.home.journal': { key: 'prop.home.red_thread_journal', size: 70, labelOffset: 44 },
-  'entity.home.key_bowl': { key: 'prop.home.blue_key_bowl', size: 58, labelOffset: 32 },
+  'entity.home.key_bowl': { key: 'prop.home.blue_key_bowl', size: 44, labelOffset: 24 },
   'entity.home.glasses_case': { key: 'prop.home.glasses_case', size: 78, labelOffset: 38 },
   'entity.home.front_door': {
     key: 'furniture.home.atlas',
     frame: 7,
     size: 160,
     labelOffset: 66,
-    offsetX: 24,
+    offsetX: 44,
   },
 };
 

@@ -87,9 +87,9 @@ export const homeFurnitureLayout: readonly HomeFurniturePlacement[] = [
     frame: 6,
     x: 1040,
     y: 520,
-    size: 148,
-    sortY: 580,
-    collision: { x: 976, y: 540, width: 128, height: 40 },
+    size: 110,
+    sortY: 568,
+    collision: { x: 992, y: 540, width: 96, height: 28 },
   },
 ] as const;
 
@@ -125,6 +125,6 @@ export const homeEntitySortY: Readonly<Record<string, number>> = {
   'entity.home.bedside_photo': 205,
   'entity.home.journal': 320,
   'entity.home.glasses_case': 583,
-  'entity.home.key_bowl': 581,
+  'entity.home.key_bowl': 569,
   'entity.home.front_door': 420,
 };

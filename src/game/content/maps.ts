@@ -46,7 +46,7 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
         id: 'entity.home.key_bowl',
         label: '蓝色小碗',
         x: 1040,
-        y: 500,
+        y: 482,
         kind: 'pickup',
         color: 0x276a78,
       },

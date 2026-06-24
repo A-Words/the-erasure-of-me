@@ -93,7 +93,7 @@
 | 床边照片 | (300, 168) | entity.home.bedside_photo |
 | 日记 | (610, 282) | entity.home.journal |
 | 眼镜盒 | (700, 510) | entity.home.glasses_case |
-| 蓝色钥匙碗 | (1040, 500) | entity.home.key_bowl |
+| 蓝色钥匙碗 | (1040, 482)，玄关桌面 | entity.home.key_bowl |
 | 玄关门 | (1190, 360)，右墙 | entity.home.front_door |
 | 卧室相机区 | x1–10, y1–8 | camera.home.bedroom |
 | 客厅相机区 | x11–22, y1–10 | camera.home.living |
