@@ -7,4 +7,6 @@ test-results/
 *.log
 *.tsbuildinfo
 __pycache__/
+.agents/
+.claude/
 .codebuddy/
