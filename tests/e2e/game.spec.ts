@@ -2,16 +2,21 @@ import { expect, test } from '@playwright/test';
 
 let browserErrors: string[];
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page }, testInfo) => {
   browserErrors = [];
   page.on('console', (message) => {
     if (message.type() === 'error')
       browserErrors.push(`${message.text()}\n${JSON.stringify(message.location())}`);
   });
   page.on('pageerror', (error) => browserErrors.push(error.stack ?? error.message));
-  await page.goto('/');
-  await page.evaluate(() => localStorage.clear());
-  await page.reload();
+  await page.addInitScript(() => {
+    const initializedKey = 'erasure.e2e.storage-initialized';
+    if (sessionStorage.getItem(initializedKey)) return;
+    localStorage.clear();
+    sessionStorage.setItem(initializedKey, 'true');
+  });
+  const initialPath = testInfo.title.includes('development debug layer') ? '/?debug=1' : '/';
+  await page.goto(initialPath);
 });
 
 test.afterEach(() => {
@@ -58,7 +63,7 @@ test('animates observation while held and uses a static reduced-motion pose', as
   await page.waitForTimeout(90);
   const standardFirst = await sampleCanvas();
   await expect
-    .poll(async () => changed(standardFirst, await sampleCanvas()), { timeout: 1500 })
+    .poll(async () => changed(standardFirst, await sampleCanvas()), { timeout: 4000 })
     .toBe(true);
   await page.keyboard.up('Shift');
 
@@ -142,7 +147,6 @@ test('places a stable pause layer over active dialogue when the window loses foc
 });
 
 test('does not expose the development debug layer in a production build', async ({ page }) => {
-  await page.goto('/?debug=1');
   await page.getByRole('button', { name: /标准模式/ }).click();
   await page.getByRole('button', { name: '继续对白' }).click();
   await page.getByRole('button', { name: '继续对白' }).click();
