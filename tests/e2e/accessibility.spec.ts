@@ -211,26 +211,42 @@ test('captures standard-mode breathing snapshot for review', async ({ page }, te
   });
 });
 
-test('shows hover marker for spriteless interactables in standard mode', async ({ page }, testInfo) => {
+test('shows hover marker for spriteless interactables under reduced motion', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await startGameWithKeyboard(page);
   await finishOpeningDialogue(page);
 
+  const app = page.locator('#app');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
   await canvas.focus();
+
+  // 在 reducedMotion 下测试：呼吸静止，悬停 marker 是唯一像素变化来源。
+  await page.keyboard.press('Escape');
+  const reducedMotion = page.getByLabel('减少动态效果');
+  await reducedMotion.scrollIntoViewIfNeeded();
+  await reducedMotion.focus();
+  await page.keyboard.press('Space');
+  await expect(reducedMotion).toBeChecked();
+  await page.getByRole('button', { name: '继续' }).click();
+  await expect(app).toHaveAttribute('data-breathing-active', 'false');
 
   const bounds = await canvas.boundingBox();
   expect(bounds).not.toBeNull();
 
   // entity.home.front_door is at logical (1225, 560) with a radius-30 hit area.
-  const resting = await canvas.screenshot();
+  const resting = await canvas.screenshot({ animations: 'disabled' });
   await page.mouse.move(
     bounds!.x + (1225 / 1280) * bounds!.width,
     bounds!.y + (560 / 720) * bounds!.height,
   );
   await page.waitForTimeout(160);
-  const hovered = await canvas.screenshot({ path: testInfo.outputPath('dot-hover-marker.png') });
+  const hovered = await canvas.screenshot({
+    path: testInfo.outputPath('dot-hover-marker.png'),
+    animations: 'disabled',
+  });
+  await page.waitForTimeout(240);
+  const hoveredLater = await canvas.screenshot({ animations: 'disabled' });
 
-  // 悬停必须让 marker 显形；不比较两张悬停截图，因为标准模式下其它可交互物的呼吸仍在进行。
   expect(hovered.equals(resting)).toBe(false);
+  expect(hoveredLater.equals(hovered)).toBe(true);
 });
