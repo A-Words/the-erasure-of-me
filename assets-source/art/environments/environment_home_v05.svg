@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <pattern id="wood-warm" width="128" height="34" patternUnits="userSpaceOnUse">
+      <rect width="128" height="34" fill="#b29e84"/>
+      <path d="M0 33.5h128M64 0v34" stroke="#68594d" stroke-opacity=".22"/>
+      <path d="M8 12c22-7 43 4 69-2 20-5 35-2 51 1" fill="none" stroke="#eadfc8" stroke-opacity=".16"/>
+    </pattern>
+    <pattern id="wood-living" width="144" height="36" patternUnits="userSpaceOnUse">
+      <rect width="144" height="36" fill="#a68f74"/>
+      <path d="M0 35.5h144M72 0v36" stroke="#625247" stroke-opacity=".25"/>
+      <path d="M14 14c25-8 50 5 78-2 20-5 36-3 52 1" fill="none" stroke="#e9ddc6" stroke-opacity=".13"/>
+    </pattern>
+    <pattern id="tile-kitchen" width="54" height="42" patternUnits="userSpaceOnUse">
+      <rect width="54" height="42" fill="#9ca39a"/>
+      <path d="M54 0H0v42" fill="none" stroke="#5e6963" stroke-opacity=".36" stroke-width="2"/>
+      <path d="M4 4h46v34H4z" fill="none" stroke="#ede9dc" stroke-opacity=".14"/>
+    </pattern>
+    <linearGradient id="plaster" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#c0b4a8"/><stop offset=".7" stop-color="#8b7c72"/><stop offset="1" stop-color="#70635b"/></linearGradient>
+    <linearGradient id="wall-top" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#88786f"/><stop offset="1" stop-color="#655850"/></linearGradient>
+    <linearGradient id="wall-face" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#5c504a"/><stop offset="1" stop-color="#3d3531"/></linearGradient>
+    <linearGradient id="door-recess" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#292522"/><stop offset=".7" stop-color="#4d413a"/><stop offset="1" stop-color="#77665c"/></linearGradient>
+    <linearGradient id="morning" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#fff5d8" stop-opacity=".46"/><stop offset="1" stop-color="#d6c58e" stop-opacity="0"/></linearGradient>
+    <filter id="wall-shadow" x="-30%" y="-40%" width="160%" height="220%"><feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#2f2b28" flood-opacity=".36"/></filter>
+    <filter id="paper"><feTurbulence baseFrequency=".58" numOctaves="2" seed="41"/><feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .05 0"/></filter>
+  </defs>
+
+  <rect width="1280" height="720" fill="#433a36"/>
+  <path d="M20 20h1240v680H20z" fill="#5f534d"/>
+
+  <!-- Rear wall faces are visible above the floor plane, establishing the elevated camera. -->
+  <path d="M44 44h1192v68H44z" fill="url(#plaster)"/>
+  <path d="M44 100h1192v14H44z" fill="#4e433e"/>
+  <path d="M58 54h1164" stroke="#eee7d8" stroke-opacity=".2" stroke-width="2"/>
+  <path d="M78 72c48-10 92 6 136-2m206 9c52-13 95 8 144-3m650-10c-35 7-61 4-93-2" fill="none" stroke="#685950" stroke-opacity=".16" stroke-width="3"/>
+
+  <!-- Slightly trapezoidal floor planes replace the blueprint-like rectangular rooms. -->
+  <path d="M58 114h324l6 294H44z" fill="url(#wood-warm)"/>
+  <path d="M426 114h428l14 294H412z" fill="url(#wood-living)"/>
+  <path d="M906 114h312l18 294H892z" fill="url(#tile-kitchen)"/>
+  <path d="M44 454h344v212H44z" fill="#8c7d69"/>
+  <path d="M412 454h824v212H412z" fill="url(#wood-living)"/>
+
+  <!-- Perspective partitions: their floor edges converge slightly toward the rear wall. -->
+  <g fill="url(#wall-top)" filter="url(#wall-shadow)">
+    <path d="M394 20h24l-10 242h-24z"/>
+    <path d="M404 338h24l-16 164h-24z"/>
+    <path d="M392 588h24l-4 112h-24z"/>
+    <path d="M858 20h24l10 244h-24z"/>
+    <path d="M868 340h24l0 106h-24z"/>
+  </g>
+
+  <!-- The cross wall has a visible top and front face, with a broad central passage. -->
+  <g filter="url(#wall-shadow)">
+    <path d="M20 408h578v24H20zM718 408h542v24H718z" fill="url(#wall-top)"/>
+    <path d="M20 432h578v14H20zM718 432h542v14H718z" fill="url(#wall-face)"/>
+  </g>
+  <path d="M598 408h120v38H598z" fill="#7d6b5e" opacity=".45"/>
+  <path d="M606 418h104" stroke="#e8d9bf" stroke-opacity=".28" stroke-width="3"/>
+
+  <!-- Cutaway outer wall: rear and side walls remain high; the near wall is low. -->
+  <g fill="url(#wall-top)">
+    <rect x="20" y="20" width="24" height="680" rx="5"/>
+    <rect x="1236" y="20" width="24" height="260" rx="5"/>
+    <rect x="1236" y="444" width="24" height="256" rx="5"/>
+  </g>
+  <g filter="url(#wall-shadow)">
+    <path d="M20 20h1240v24H20z" fill="url(#wall-top)"/>
+    <path d="M20 666h1240v22H20z" fill="url(#wall-top)"/>
+    <path d="M20 688h1240v12H20z" fill="url(#wall-face)"/>
+  </g>
+
+  <!-- Deep right-wall doorway: inner reveal, lintel, jamb and threshold hold the side-view door. -->
+  <path d="M1182 276h78v168h-78z" fill="url(#door-recess)"/>
+  <path d="M1182 276h78v16h-78z" fill="#7d6c62"/>
+  <path d="M1182 292h12v152h-12z" fill="#6d5d55"/>
+  <path d="M1194 428h66v16h-66z" fill="#8a7667"/>
+  <path d="M1197 430h60" stroke="#d2b66e" stroke-opacity=".32" stroke-width="3"/>
+  <path d="M1182 276h78v168h-78" fill="none" stroke="#2f2b28" stroke-width="5"/>
+
+  <!-- Fixed architectural wear, not gameplay clues. -->
+  <g fill="none" stroke="#5f5048" stroke-opacity=".15" stroke-linecap="round">
+    <path d="M108 180c26-8 45 6 70-2m-84 33c30-5 55 5 82 0" stroke-width="4"/>
+    <path d="M466 198c32-9 58 7 87-1m210 78c25-6 46 4 69-1" stroke-width="3"/>
+    <path d="M925 368c54-9 105 8 157-2" stroke-width="3"/>
+  </g>
+  <path d="M72 470h284v178H72z" fill="#8e806e" opacity=".22"/>
+
+  <g fill="none" stroke="#eee7d8" stroke-opacity=".18" stroke-width="2">
+    <path d="M32 28h1216M32 674h1216M32 28v660"/>
+    <path d="M406 28l-12 234m20 76-14 164m0 86v100M870 28l10 236m0 76v106"/>
+    <path d="M32 416h566m120 0h518"/>
+  </g>
+
+  <g aria-label="architectural window" fill="#607b86" stroke="#2f2b28" stroke-width="4">
+    <rect x="960" y="30" width="220" height="29" rx="5"/>
+    <path d="M1070 32v25" stroke="#eee7d8" stroke-opacity=".62"/>
+  </g>
+  <path d="M1220 114H950L770 408h452z" fill="url(#morning)"/>
+  <rect width="1280" height="720" filter="url(#paper)" opacity=".72"/>
+  <path d="M32 28h1216v660H32z" fill="none" stroke="#eee7d8" stroke-opacity=".28" stroke-width="3"/>
+</svg>

@@ -41,8 +41,8 @@ test('renders the layered home and blocks the player at the bed footprint', asyn
   await expect(canvas).toBeVisible();
   await canvas.screenshot({ path: testInfo.outputPath('home-layered-scene.png') });
 
+  await setSavedPlayer(page, 170, 310);
   await canvas.focus();
-  for (let step = 0; step < 8; step += 1) await canvas.press('ArrowLeft');
   for (let step = 0; step < 8; step += 1) await canvas.press('ArrowUp');
   const stoppedY = Number(await app.getAttribute('data-player-y'));
   for (let step = 0; step < 4; step += 1) await canvas.press('ArrowUp');

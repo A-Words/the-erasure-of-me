@@ -18,6 +18,14 @@ export interface HomeWallOccluder {
   sortY: number;
 }
 
+export interface HomeDecorPlacement {
+  frame: number;
+  x: number;
+  y: number;
+  size: number;
+  sortY: number;
+}
+
 export const homeFurnitureLayout: readonly HomeFurniturePlacement[] = [
   {
     id: 'bed',
@@ -91,6 +99,12 @@ export const homeFurnitureLayout: readonly HomeFurniturePlacement[] = [
     sortY: 568,
     collision: { x: 992, y: 540, width: 96, height: 28 },
   },
+] as const;
+
+export const homeDecorLayout: readonly HomeDecorPlacement[] = [
+  { frame: 0, x: 170, y: 282, size: 176, sortY: 32 },
+  { frame: 1, x: 286, y: 310, size: 64, sortY: 34 },
+  { frame: 2, x: 1142, y: 118, size: 82, sortY: 239 },
 ] as const;
 
 export const homeWalkBounds: MovementBounds = {

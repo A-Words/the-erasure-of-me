@@ -48,7 +48,7 @@ export const assetManifest = [
   {
     key: 'environment.home.background',
     type: 'image',
-    url: 'assets/environments/environment_home_v04.png',
+    url: 'assets/environments/environment_home_v05.png',
     chapter: 'home',
     preload: true,
   },
@@ -204,6 +204,14 @@ export const assetManifest = [
     key: 'prop.home.glasses_case',
     type: 'image',
     url: 'assets/props/prop_home_glasses_case_v01.png',
+    chapter: 'home',
+    preload: true,
+  },
+  {
+    key: 'decor.home.atlas',
+    type: 'spritesheet',
+    url: 'assets/decor/decor_home_atlas_v01_3x256x256.png',
+    frameConfig: { frameWidth: 256, frameHeight: 256 },
     chapter: 'home',
     preload: true,
   },

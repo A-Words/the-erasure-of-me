@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { assetManifest } from '../../game/assets/manifest';
 import { isEntityAvailable } from '../../game/content/entitySelectors';
 import {
+  homeDecorLayout,
   homeEntitySortY,
   homeFurnitureLayout,
   homeWallOccluders,
@@ -41,7 +42,7 @@ const homePropVisuals: Record<
     frame: 7,
     size: 160,
     labelOffset: 66,
-    offsetX: 44,
+    offsetX: 15,
   },
 };
 
@@ -249,6 +250,12 @@ export class GameScene extends Phaser.Scene {
       .setDisplaySize(map.width, map.height)
       .setDepth(0);
     if (state.chapterId === 'home') {
+      for (const decor of homeDecorLayout) {
+        this.add
+          .image(decor.x, decor.y, 'decor.home.atlas', decor.frame)
+          .setDisplaySize(decor.size, decor.size)
+          .setDepth(worldDepth(decor.sortY));
+      }
       for (const furniture of homeFurnitureLayout) {
         this.add
           .image(furniture.x, furniture.y, 'furniture.home.atlas', furniture.frame)
@@ -285,6 +292,7 @@ export class GameScene extends Phaser.Scene {
     const shadow = this.add.ellipse(0, 9, 38, 16, 0x2f2b28, 0.25);
     this.playerActor = this.add.sprite(0, 16, 'character.xu_old.idle.down', 0).setOrigin(0.5, 1);
     this.player.add([shadow, this.playerActor]);
+    this.player.setScale(state.chapterId === 'home' ? 1.2 : 1);
     this.player.setDepth(worldDepth(state.player.y));
     this.updatePlayerPose(state);
   }
