@@ -150,13 +150,13 @@
           "y": 558
         },
         {
-          "height": 58,
+          "height": 40,
           "id": 14,
           "name": "collision.home.entry_console",
           "type": "furniture",
-          "width": 164,
-          "x": 958,
-          "y": 530
+          "width": 128,
+          "x": 976,
+          "y": 540
         },
         {
           "height": 242,
