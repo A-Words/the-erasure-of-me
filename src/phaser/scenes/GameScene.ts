@@ -18,6 +18,9 @@ import {
   computeBreathSine,
   computeBreathScale,
   isBreathingActive,
+  DOT_SCALE_AMPLITUDE,
+  DOT_ALPHA_MIN,
+  DOT_ALPHA_MAX,
 } from '../../game/presentation/breathing';
 
 interface EntityView {
@@ -166,11 +169,11 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  update(_time: number, delta: number): void {
+  update(time: number, delta: number): void {
     const state = this.bridge.getSnapshot();
     const action = state.phase === 'playing' ? this.currentMovementAction() : null;
     if (!action && state.player.moving) this.bridge.send({ type: 'STOP_MOVING' });
-    this.updateEntityBreathing(state, _time);
+    this.updateEntityBreathing(state, time);
     if (state.phase !== 'playing') return;
     this.tickAccumulator += delta / 1000;
     if (this.tickAccumulator >= 1) {
@@ -681,9 +684,12 @@ export class GameScene extends Phaser.Scene {
       }
 
       // breathKind === 'dot'
-      if (active && !view.hover) {
+      if (view.hover) continue; // let setEntityHover own the marker
+      if (active) {
         const s = computeBreathSine(timeSeconds, view.breathPhase);
-        view.marker.setScale(1 + s * 0.12).setAlpha(0.12 + (s + 1) * 0.065);
+        view.marker
+          .setScale(1 + s * DOT_SCALE_AMPLITUDE)
+          .setAlpha(DOT_ALPHA_MIN + ((s + 1) * (DOT_ALPHA_MAX - DOT_ALPHA_MIN)) / 2);
       } else {
         view.marker.setScale(1).setAlpha(0);
       }

@@ -68,6 +68,11 @@ describe('computeBreathSine', () => {
   it('applies the phase offset', () => {
     expect(computeBreathSine(0, 0.6, 2.4)).toBeCloseTo(1, 5);
   });
+
+  it('supports a non-default period', () => {
+    expect(computeBreathSine(0.25, 0, 1.0)).toBeCloseTo(1, 5);
+    expect(computeBreathSine(0.75, 0, 1.0)).toBeCloseTo(-1, 5);
+  });
 });
 
 describe('computeBreathScale', () => {

@@ -175,6 +175,7 @@ test('keeps interactive props stable under reduced motion', async ({ page }, tes
   await startGameWithKeyboard(page);
   await finishOpeningDialogue(page);
 
+  const app = page.locator('#app');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
   await canvas.focus();
 
@@ -187,7 +188,8 @@ test('keeps interactive props stable under reduced motion', async ({ page }, tes
   await expect(reducedMotion).toBeChecked();
   await page.keyboard.press('Escape');
 
-  // reducedMotion 下呼吸关闭；由 afterEach 断言无控制台错误兜底。
+  // reducedMotion 下呼吸必须完全关闭。
+  await expect(app).toHaveAttribute('data-breathing-active', 'false');
   await page.screenshot({
     path: testInfo.outputPath('reduced-motion-prop-base-scale.png'),
     animations: 'disabled',
@@ -199,9 +201,36 @@ test('captures standard-mode breathing snapshot for review', async ({ page }, te
   await startGameWithKeyboard(page);
   await finishOpeningDialogue(page);
 
+  const app = page.locator('#app');
+  await expect(app).toHaveAttribute('data-breathing-active', 'true');
+
   // 标准模式：不开启 reducedMotion，让呼吸运行，截一张供人工复核。
   await page.screenshot({
     path: testInfo.outputPath('standard-mode-breathing.png'),
     animations: 'allow',
   });
+});
+
+test('shows hover marker for spriteless interactables in standard mode', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await startGameWithKeyboard(page);
+  await finishOpeningDialogue(page);
+
+  const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
+  await canvas.focus();
+
+  const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
+
+  // entity.home.front_door is at logical (1225, 560) with a radius-30 hit area.
+  const resting = await canvas.screenshot();
+  await page.mouse.move(
+    bounds!.x + (1225 / 1280) * bounds!.width,
+    bounds!.y + (560 / 720) * bounds!.height,
+  );
+  await page.waitForTimeout(160);
+  const hovered = await canvas.screenshot({ path: testInfo.outputPath('dot-hover-marker.png') });
+
+  // 悬停必须让 marker 显形；不比较两张悬停截图，因为标准模式下其它可交互物的呼吸仍在进行。
+  expect(hovered.equals(resting)).toBe(false);
 });

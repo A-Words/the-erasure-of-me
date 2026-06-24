@@ -1,5 +1,12 @@
 import type { GameState } from '../state/GameState';
 
+/** 无精灵交互点（出口/门）的 marker 呼吸缩放幅度：0.88..1.12。 */
+export const DOT_SCALE_AMPLITUDE = 0.12;
+
+/** 无精灵交互点 marker 呼吸 alpha 范围。 */
+export const DOT_ALPHA_MIN = 0.12;
+export const DOT_ALPHA_MAX = 0.25;
+
 /**
  * 呼吸微动门控：仅在标准模式的纯游玩态下启用。
  * modal / 对白 / 牵手长按 / reducedMotion / 非游玩态 全部关闭。
