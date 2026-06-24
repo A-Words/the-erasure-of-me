@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { homeFurnitureLayout } from '../../src/game/content/homeLayout';
 import { GameStore } from '../../src/game/state/GameStore';
 import { createInitialState } from '../../src/game/state/initialState';
 
@@ -31,14 +32,18 @@ describe('GameStore', () => {
   });
 
   it('keeps the player outside home furniture footprints', () => {
+    const bed = homeFurnitureLayout.find((furniture) => furniture.id === 'bed');
+    if (!bed) throw new Error('Expected the home bed layout');
+    const playerHalfWidth = 16;
+    const stopX = bed.collision.x - playerHalfWidth;
     const state = createInitialState();
     state.phase = 'playing';
-    state.player = { x: 66, y: 240, facing: 'right', moving: false };
+    state.player = { x: stopX - 4, y: 240, facing: 'right', moving: false };
     const store = new GameStore(state);
 
     store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
 
-    expect(store.getState().player.x).toBe(66);
+    expect(store.getState().player.x).toBe(stopX);
     expect(store.getState().player.facing).toBe('right');
   });
 

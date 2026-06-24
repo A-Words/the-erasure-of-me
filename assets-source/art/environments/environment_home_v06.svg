@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <pattern id="bedroom-floor" width="112" height="36" patternUnits="userSpaceOnUse">
+      <rect width="112" height="36" fill="#b4a087"/>
+      <path d="M0 35.5h112M56 0v36" stroke="#66574c" stroke-opacity=".24"/>
+      <path d="M9 12c25-7 49 5 77-2 10-2 18-2 26 0" fill="none" stroke="#e7dac3" stroke-opacity=".17"/>
+    </pattern>
+    <pattern id="living-floor" width="144" height="38" patternUnits="userSpaceOnUse">
+      <rect width="144" height="38" fill="#a99378"/>
+      <path d="M0 37.5h144M72 0v38" stroke="#665448" stroke-opacity=".28"/>
+      <path d="M15 14c27-8 53 5 82-2 18-5 32-3 47 1" fill="none" stroke="#eadfc8" stroke-opacity=".14"/>
+    </pattern>
+    <pattern id="kitchen-floor" width="58" height="46" patternUnits="userSpaceOnUse">
+      <rect width="58" height="46" fill="#9fa69d"/>
+      <path d="M58 0H0v46" fill="none" stroke="#606b65" stroke-opacity=".38" stroke-width="2"/>
+      <path d="M4 4h50v38H4z" fill="none" stroke="#e9e5d9" stroke-opacity=".16"/>
+    </pattern>
+    <linearGradient id="rear-wall" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#c0b4a8"/><stop offset=".72" stop-color="#94867b"/><stop offset="1" stop-color="#786b62"/>
+    </linearGradient>
+    <linearGradient id="wall-top" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#85766d"/><stop offset="1" stop-color="#665951"/>
+    </linearGradient>
+    <linearGradient id="wall-face" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#5b4f49"/><stop offset="1" stop-color="#3f3733"/>
+    </linearGradient>
+    <linearGradient id="window-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#91a9ae"/><stop offset=".55" stop-color="#6f8b93"/><stop offset="1" stop-color="#536e77"/>
+    </linearGradient>
+    <linearGradient id="door-recess" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#2d2825"/><stop offset=".65" stop-color="#493d37"/><stop offset="1" stop-color="#75665e"/>
+    </linearGradient>
+    <linearGradient id="morning" x1="1" y1="0" x2="0" y2="1">
+      <stop stop-color="#fff7db" stop-opacity=".42"/><stop offset="1" stop-color="#d6c58e" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-40%" width="140%" height="200%">
+      <feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#2f2b28" flood-opacity=".34"/>
+    </filter>
+    <filter id="paper">
+      <feTurbulence baseFrequency=".63" numOctaves="2" seed="53"/>
+      <feColorMatrix values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .045 0"/>
+    </filter>
+  </defs>
+
+  <rect width="1280" height="720" fill="#443b37"/>
+  <rect x="20" y="20" width="1240" height="680" rx="10" fill="#62564f"/>
+
+  <!-- v04-derived shell: clear rectangular rooms with only restrained convergence. -->
+  <path d="M44 44h1192v52H44z" fill="url(#rear-wall)"/>
+  <path d="M44 88h1192v8H44z" fill="#4b403b"/>
+  <path d="M58 52h1164" stroke="#eee7d8" stroke-opacity=".22" stroke-width="2"/>
+  <path d="M82 72c46-9 88 5 130-2m206 8c50-12 91 7 138-3" fill="none" stroke="#685950" stroke-opacity=".13" stroke-width="3"/>
+
+  <!-- Floor edges converge by no more than eight logical pixels. -->
+  <path d="M52 96h332l4 312H44z" fill="url(#bedroom-floor)"/>
+  <path d="M416 96h448l4 312H412z" fill="url(#living-floor)"/>
+  <path d="M896 96h332l8 312H892z" fill="url(#kitchen-floor)"/>
+  <path d="M44 446h344v220H44z" fill="#8e806e"/>
+  <path d="M412 446h824v220H412z" fill="url(#living-floor)"/>
+
+  <g fill="#6b5d54" opacity=".7">
+    <path d="M52 96h332l.2 8H51.8z"/>
+    <path d="M416 96h448l.2 8H415.8z"/>
+    <path d="M896 96h332l.2 8H895.8z"/>
+    <path d="M406 332h12l-6 76h-12z"/>
+    <path d="M862 334h12l-6 74h-12z"/>
+  </g>
+
+  <g filter="url(#shadow)">
+    <path d="M20 20h1240v24H20z" fill="url(#wall-top)"/>
+    <path d="M20 408h578v24H20zM718 408h542v24H718z" fill="url(#wall-top)"/>
+    <path d="M20 432h578v14H20zM718 432h542v14H718z" fill="url(#wall-face)"/>
+    <path d="M20 666h1240v22H20z" fill="url(#wall-top)"/>
+    <path d="M20 688h1240v12H20z" fill="url(#wall-face)"/>
+  </g>
+
+  <!-- Partition lean is capped at six logical pixels over its full height. -->
+  <g fill="url(#wall-top)">
+    <rect x="20" y="20" width="24" height="680" rx="4"/>
+    <rect x="1236" y="20" width="24" height="264" rx="4"/>
+    <rect x="1236" y="436" width="24" height="264" rx="4"/>
+    <path d="M388 20h24l-6 242h-24z"/>
+    <path d="M394 338h24l-6 164h-24z"/>
+    <path d="M388 588h24v112h-24z"/>
+    <path d="M868 20h24l6 244h-24z"/>
+    <path d="M874 340h24v106h-24z"/>
+  </g>
+
+  <!-- Shallow right-wall recess sized to the independent closed side-view door. -->
+  <path d="M1210 284h50v152h-50z" fill="url(#door-recess)"/>
+  <path d="M1210 284h50v10h-50z" fill="#75655d"/>
+  <path d="M1210 284h8v152h-8z" fill="#6d5d55"/>
+  <path d="M1210 426h50v10h-50z" fill="#847064"/>
+  <path d="M1210 284h50v152h-50" fill="none" stroke="#2f2b28" stroke-width="4"/>
+
+  <!-- A four-pane architectural window, deliberately unlike a rounded UI meter. -->
+  <g aria-label="architectural window">
+    <rect x="1002" y="42" width="158" height="58" rx="2" fill="#4f423b" stroke="#302a27" stroke-width="4"/>
+    <rect x="1010" y="49" width="142" height="42" fill="url(#window-glass)" stroke="#ad9b87" stroke-width="3"/>
+    <path d="M1081 50v40M1011 70h140" stroke="#d8cbb8" stroke-opacity=".72" stroke-width="4"/>
+    <path d="M1017 54l39 13m37-12 34 12" stroke="#edf1e8" stroke-opacity=".18" stroke-width="3"/>
+    <path d="M996 99h170v7H996z" fill="#6d5b50" stroke="#302a27" stroke-width="2"/>
+  </g>
+  <path d="M1152 96H1030L790 408h446z" fill="url(#morning)"/>
+
+  <g fill="none" stroke="#eee7d8" stroke-opacity=".19" stroke-width="2">
+    <path d="M32 28h1216M32 674h1216M32 28v660"/>
+    <path d="M400 28l-6 234m12 76-6 164m0 86v100M880 28l6 236m0 76v106"/>
+    <path d="M32 416h566m120 0h492"/>
+  </g>
+  <path d="M925 370c52-8 100 7 150-2" fill="none" stroke="#5f5048" stroke-opacity=".13" stroke-linecap="round" stroke-width="3"/>
+  <rect width="1280" height="720" filter="url(#paper)" opacity=".72"/>
+  <path d="M32 28h1216v660H32z" fill="none" stroke="#eee7d8" stroke-opacity=".28" stroke-width="3"/>
+</svg>

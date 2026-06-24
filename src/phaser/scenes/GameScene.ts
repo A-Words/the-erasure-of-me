@@ -2,10 +2,11 @@ import Phaser from 'phaser';
 import { assetManifest } from '../../game/assets/manifest';
 import { isEntityAvailable } from '../../game/content/entitySelectors';
 import {
+  homeArchitectureOverlays,
   homeDecorLayout,
   homeEntitySortY,
   homeFurnitureLayout,
-  homeWallOccluders,
+  homeVisualSizes,
 } from '../../game/content/homeLayout';
 import { chapterMaps, type WorldEntity } from '../../game/content/maps';
 import { mapMovement } from '../../game/input/InputMapper';
@@ -33,16 +34,25 @@ const homePropVisuals: Record<
     offsetY?: number;
   }
 > = {
-  'entity.home.bedside_photo': { key: 'prop.home.bedside_photo', size: 72, labelOffset: 42 },
-  'entity.home.journal': { key: 'prop.home.red_thread_journal', size: 70, labelOffset: 44 },
-  'entity.home.key_bowl': { key: 'prop.home.blue_key_bowl', size: 44, labelOffset: 24 },
-  'entity.home.glasses_case': { key: 'prop.home.glasses_case', size: 78, labelOffset: 38 },
-  'entity.home.front_door': {
-    key: 'furniture.home.atlas',
-    frame: 7,
-    size: 160,
-    labelOffset: 66,
-    offsetX: 15,
+  'entity.home.bedside_photo': {
+    key: 'prop.home.bedside_photo',
+    size: homeVisualSizes.props.bedsidePhoto,
+    labelOffset: 26,
+  },
+  'entity.home.journal': {
+    key: 'prop.home.red_thread_journal',
+    size: homeVisualSizes.props.journal,
+    labelOffset: 30,
+  },
+  'entity.home.key_bowl': {
+    key: 'prop.home.blue_key_bowl',
+    size: homeVisualSizes.props.keyBowl,
+    labelOffset: 18,
+  },
+  'entity.home.glasses_case': {
+    key: 'prop.home.glasses_case',
+    size: homeVisualSizes.props.glassesCase,
+    labelOffset: 22,
   },
 };
 
@@ -250,6 +260,10 @@ export class GameScene extends Phaser.Scene {
       .setDisplaySize(map.width, map.height)
       .setDepth(0);
     if (state.chapterId === 'home') {
+      this.add
+        .image(map.width / 2, map.height / 2, 'environment.home.sunlight_overlay')
+        .setDisplaySize(map.width, map.height)
+        .setDepth(20);
       for (const decor of homeDecorLayout) {
         this.add
           .image(decor.x, decor.y, 'decor.home.atlas', decor.frame)
@@ -262,7 +276,7 @@ export class GameScene extends Phaser.Scene {
           .setDisplaySize(furniture.size, furniture.size)
           .setDepth(worldDepth(furniture.sortY));
       }
-      this.createHomeWallOccluders();
+      this.createHomeArchitectureOverlays(map.width, map.height);
     }
 
     const tiledMap = this.make.tilemap({ key: map.id });
@@ -289,25 +303,24 @@ export class GameScene extends Phaser.Scene {
       }
     }
     this.player = this.add.container(state.player.x, state.player.y);
-    const shadow = this.add.ellipse(0, 9, 38, 16, 0x2f2b28, 0.25);
-    this.playerActor = this.add.sprite(0, 16, 'character.xu_old.idle.down', 0).setOrigin(0.5, 1);
+    const homeActorOffsetY = state.chapterId === 'home' ? 12 : 16;
+    const homeShadowOffsetY = state.chapterId === 'home' ? 8 : 9;
+    const shadow = this.add.ellipse(0, homeShadowOffsetY, 38, 16, 0x2f2b28, 0.25);
+    this.playerActor = this.add
+      .sprite(0, homeActorOffsetY, 'character.xu_old.idle.down', 0)
+      .setOrigin(0.5, 1);
     this.player.add([shadow, this.playerActor]);
-    this.player.setScale(state.chapterId === 'home' ? 1.2 : 1);
+    this.player.setScale(state.chapterId === 'home' ? homeVisualSizes.characterScale : 1);
     this.player.setDepth(worldDepth(state.player.y));
     this.updatePlayerPose(state);
   }
 
-  private createHomeWallOccluders(): void {
-    for (const wall of homeWallOccluders) {
-      const faceHeight = Math.min(14, wall.height);
-      const graphics = this.add.graphics().setDepth(worldDepth(wall.sortY));
-      graphics.fillStyle(0x6e6057, 1).fillRect(wall.x, wall.y, wall.width, wall.height);
-      graphics
-        .fillStyle(0x423a36, 1)
-        .fillRect(wall.x, wall.y + wall.height - faceHeight, wall.width, faceHeight);
-      graphics
-        .lineStyle(2, 0xeee7d8, 0.2)
-        .lineBetween(wall.x, wall.y + 2, wall.x + wall.width, wall.y + 2);
+  private createHomeArchitectureOverlays(width: number, height: number): void {
+    for (const overlay of homeArchitectureOverlays) {
+      this.add
+        .image(width / 2, height / 2, overlay.key)
+        .setDisplaySize(width, height)
+        .setDepth(worldDepth(overlay.sortY));
     }
   }
 

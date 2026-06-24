@@ -62,8 +62,8 @@
           "name": "entity.home.key_bowl",
           "type": "pickup",
           "width": 44,
-          "x": 1040,
-          "y": 482
+          "x": 1080,
+          "y": 502
         },
         {
           "height": 60,
@@ -71,8 +71,8 @@
           "name": "entity.home.front_door",
           "type": "exit",
           "width": 60,
-          "x": 1190,
-          "y": 360
+          "x": 1225,
+          "y": 560
         }
       ],
       "opacity": 1,
@@ -87,139 +87,148 @@
       "name": "collision",
       "objects": [
         {
-          "height": 64,
+          "height": 61,
           "id": 7,
           "name": "collision.home.bed",
           "type": "furniture",
-          "width": 176,
-          "x": 82,
-          "y": 218
+          "width": 168,
+          "x": 86,
+          "y": 221
         },
         {
-          "height": 28,
+          "height": 23,
           "id": 8,
           "name": "collision.home.bedside_table",
           "type": "furniture",
-          "width": 60,
-          "x": 270,
-          "y": 176
+          "width": 50,
+          "x": 275,
+          "y": 181
         },
         {
-          "height": 46,
+          "height": 35,
           "id": 9,
           "name": "collision.home.sofa",
           "type": "furniture",
-          "width": 200,
-          "x": 520,
-          "y": 180
+          "width": 188,
+          "x": 526,
+          "y": 194
         },
         {
-          "height": 29,
+          "height": 21,
           "id": 10,
           "name": "collision.home.living_side_table",
           "type": "furniture",
-          "width": 58,
-          "x": 581,
-          "y": 290
+          "width": 44,
+          "x": 588,
+          "y": 297
         },
         {
-          "height": 52,
+          "height": 41,
           "id": 11,
           "name": "collision.home.coffee_table",
           "type": "furniture",
-          "width": 186,
-          "x": 607,
-          "y": 530
+          "width": 146,
+          "x": 627,
+          "y": 527
         },
         {
-          "height": 52,
+          "height": 46,
           "id": 12,
           "name": "collision.home.kitchen_counter",
           "type": "furniture",
-          "width": 224,
-          "x": 948,
-          "y": 186
+          "width": 196,
+          "x": 962,
+          "y": 183
         },
         {
-          "height": 60,
+          "height": 51,
           "id": 13,
           "name": "collision.home.storage_cabinet",
           "type": "furniture",
-          "width": 166,
-          "x": 137,
-          "y": 558
+          "width": 140,
+          "x": 150,
+          "y": 557
         },
         {
-          "height": 28,
+          "height": 25,
           "id": 14,
           "name": "collision.home.entry_console",
           "type": "furniture",
-          "width": 96,
-          "x": 992,
-          "y": 540
+          "width": 86,
+          "x": 1037,
+          "y": 551
         },
         {
-          "height": 242,
+          "height": 263,
           "id": 15,
           "name": "collision.home.wall_left_top",
           "type": "wall",
-          "width": 24,
-          "x": 388,
+          "width": 31,
+          "x": 379,
           "y": 20
         },
         {
-          "height": 164,
+          "height": 160,
           "id": 16,
           "name": "collision.home.wall_left_middle",
           "type": "wall",
-          "width": 24,
-          "x": 388,
-          "y": 338
+          "width": 34,
+          "x": 370,
+          "y": 342
         },
         {
-          "height": 112,
+          "height": 140,
           "id": 17,
           "name": "collision.home.wall_left_bottom",
           "type": "wall",
-          "width": 24,
-          "x": 388,
-          "y": 588
+          "width": 34,
+          "x": 370,
+          "y": 502
         },
         {
-          "height": 244,
+          "height": 263,
           "id": 18,
           "name": "collision.home.wall_right_top",
           "type": "wall",
-          "width": 24,
-          "x": 868,
+          "width": 30,
+          "x": 812,
           "y": 20
         },
         {
-          "height": 106,
-          "id": 19,
-          "name": "collision.home.wall_right_middle",
-          "type": "wall",
-          "width": 24,
-          "x": 868,
-          "y": 340
-        },
-        {
-          "height": 38,
+          "height": 68,
           "id": 20,
           "name": "collision.home.wall_cross_left",
           "type": "wall",
-          "width": 578,
-          "x": 20,
-          "y": 408
+          "width": 493,
+          "x": 42,
+          "y": 342
         },
         {
-          "height": 38,
+          "height": 68,
           "id": 21,
           "name": "collision.home.wall_cross_right",
           "type": "wall",
-          "width": 542,
-          "x": 718,
-          "y": 408
+          "width": 552,
+          "x": 680,
+          "y": 342
+        },
+        {
+          "height": 322,
+          "id": 22,
+          "name": "collision.home.wall_right_outer_upper",
+          "type": "wall",
+          "width": 66,
+          "x": 1182,
+          "y": 20
+        },
+        {
+          "height": 72,
+          "id": 23,
+          "name": "collision.home.wall_right_outer_above_door",
+          "type": "wall",
+          "width": 44,
+          "x": 1204,
+          "y": 410
         }
       ],
       "opacity": 1,
@@ -230,7 +239,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 22,
+  "nextobjectid": 24,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

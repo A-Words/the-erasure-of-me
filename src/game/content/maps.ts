@@ -45,12 +45,12 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
       {
         id: 'entity.home.key_bowl',
         label: '蓝色小碗',
-        x: 1040,
-        y: 482,
+        x: 1080,
+        y: 502,
         kind: 'pickup',
         color: 0x276a78,
       },
-      { id: 'entity.home.front_door', label: '玄关门', x: 1190, y: 360, kind: 'exit' },
+      { id: 'entity.home.front_door', label: '玄关门', x: 1225, y: 560, kind: 'exit' },
     ],
   },
   rain: {

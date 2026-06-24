@@ -280,10 +280,11 @@ type InputAction =
 
 - 采用八方向动画中的四方向逻辑，不允许斜向移动。
 - 角色速度为每秒 180 逻辑像素，低扰动模式不改变速度。
-- `src/game/content/homeLayout.ts` 保存住宅家具脚印、墙体障碍、步行边界和排序线；Tiled `collision` 对象层保持同一份作者数据，后续 Content Loader 可由其生成纯数据 CollisionMap。
+- `src/game/content/homeLayout.ts` 保存住宅统一视觉尺寸、家具脚印、墙体障碍、步行边界和排序线；Phaser Scene 引用 `homeVisualSizes`，不再为同一物件维护第二套显示尺寸。Tiled `collision` 对象层保持同一份家具脚印作者数据，后续 Content Loader 可由其生成纯数据 CollisionMap。
 - MovementSystem 使用与 Phaser 无关的 `moveWithCollisions`，根据 CollisionMap、角色脚部碰撞体和当前 InputAction 分轴计算最终位置；阻挡大步长穿透，同时允许沿家具边缘滑动。
 - Phaser Sprite 只跟随最终位置，不参与碰撞判定；本项目不启用 Arcade Physics 作为玩法真值。
-- 住宅表现按脚底/家具底座 Y 值动态排序；交互小物继承承载家具的排序线，横向墙前脸拆为独立遮挡段。背景、非交互装饰、家具、遮挡段、人物与交互物仍是可分别销毁的视图对象，不进入存档状态；住宅人物可使用纯视图缩放，领域坐标与碰撞体不随缩放改变。
+- 住宅表现按脚底/家具底座 Y 值动态排序；交互小物继承承载家具的排序线。`environment.home.sunlight_overlay` 以低深度覆盖背景但位于家具下方；`environment.home.partition_overlay`、`crosswall_overlay`、`rightwall_overlay` 与 `frontwall_overlay` 从背景像素机械提取，分别按上方隔墙、中墙、右侧门框/墙面和前墙排序线重绘。背景、光照 overlay、非交互装饰、家具、建筑遮挡 overlay、人物与交互物均是可分别销毁的视图对象，不进入存档状态；住宅人物可使用纯视图缩放，但脚部可见像素必须与领域碰撞体底边对齐，领域坐标和碰撞体本身不随缩放改变。
+- `entity.home.front_door` 是位于右下玄关门槛 `(1225, 560)` 的纯交互 hotspot，不绑定家具 atlas frame；门洞、门框和门槛属于背景建筑结构。住宅步行边界只在门洞高度通过分段右墙碰撞扩展到 x=1248。当前交互直接进入开门对白和章节切换，只有未来出现可见开关门演出时才新增独立门板 sprite。
 - 每次位置更新写入领域层坐标；DOM UI 通过纯选择器把坐标映射为“当前最近可用实体 ID”，仅在该 ID 变化时重绘情境交互提示。
 - 按键释放或当前帧没有移动动作时，SceneBridge 发送 `STOP_MOVING`；领域层保留最后朝向并清除 `player.moving`，精灵只据此切回对应方向锚点帧。
 - 恢复存档时先校验坐标是否落在当前导航区域。

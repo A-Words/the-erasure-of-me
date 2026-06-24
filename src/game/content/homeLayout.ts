@@ -10,11 +10,12 @@ export interface HomeFurniturePlacement {
   collision: AxisAlignedRect;
 }
 
-export interface HomeWallOccluder {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
+export interface HomeArchitectureOverlay {
+  key:
+    | 'environment.home.partition_overlay'
+    | 'environment.home.crosswall_overlay'
+    | 'environment.home.rightwall_overlay'
+    | 'environment.home.frontwall_overlay';
   sortY: number;
 }
 
@@ -26,102 +27,132 @@ export interface HomeDecorPlacement {
   sortY: number;
 }
 
+/**
+ * Single source of truth for the home scene's visual scale. Values are square
+ * Phaser display canvases; transparent padding inside each asset is intentional.
+ */
+export const homeVisualSizes = {
+  characterScale: 1.2,
+  furniture: {
+    bed: 225,
+    bedsideTable: 64,
+    sofa: 205,
+    livingSideTable: 58,
+    coffeeTable: 165,
+    kitchenCounter: 220,
+    storageCabinet: 160,
+    entryConsole: 100,
+  },
+  decor: {
+    bedsideRug: 160,
+    slippers: 34,
+    kitchenClutter: 64,
+  },
+  props: {
+    bedsidePhoto: 36,
+    journal: 44,
+    keyBowl: 32,
+    glassesCase: 38,
+  },
+} as const;
+
 export const homeFurnitureLayout: readonly HomeFurniturePlacement[] = [
   {
     id: 'bed',
     frame: 0,
     x: 170,
     y: 190,
-    size: 235,
+    size: homeVisualSizes.furniture.bed,
     sortY: 282,
-    collision: { x: 82, y: 218, width: 176, height: 64 },
+    collision: { x: 86, y: 221, width: 168, height: 61 },
   },
   {
     id: 'bedside_table',
     frame: 1,
     x: 300,
     y: 174,
-    size: 78,
+    size: homeVisualSizes.furniture.bedsideTable,
     sortY: 204,
-    collision: { x: 270, y: 176, width: 60, height: 28 },
+    collision: { x: 275, y: 181, width: 50, height: 23 },
   },
   {
     id: 'sofa',
     frame: 2,
     x: 620,
     y: 158,
-    size: 220,
-    sortY: 226,
-    collision: { x: 520, y: 180, width: 200, height: 46 },
+    size: homeVisualSizes.furniture.sofa,
+    sortY: 229,
+    collision: { x: 526, y: 194, width: 188, height: 35 },
   },
   {
     id: 'living_side_table',
     frame: 1,
     x: 610,
     y: 290,
-    size: 76,
-    sortY: 319,
-    collision: { x: 581, y: 290, width: 58, height: 29 },
+    size: homeVisualSizes.furniture.livingSideTable,
+    sortY: 318,
+    collision: { x: 588, y: 297, width: 44, height: 21 },
   },
   {
     id: 'coffee_table',
     frame: 3,
     x: 700,
     y: 528,
-    size: 210,
-    sortY: 582,
-    collision: { x: 607, y: 530, width: 186, height: 52 },
+    size: homeVisualSizes.furniture.coffeeTable,
+    sortY: 568,
+    collision: { x: 627, y: 527, width: 146, height: 41 },
   },
   {
     id: 'kitchen_counter',
     frame: 4,
     x: 1060,
     y: 164,
-    size: 250,
-    sortY: 238,
-    collision: { x: 948, y: 186, width: 224, height: 52 },
+    size: homeVisualSizes.furniture.kitchenCounter,
+    sortY: 229,
+    collision: { x: 962, y: 183, width: 196, height: 46 },
   },
   {
     id: 'storage_cabinet',
     frame: 5,
     x: 220,
     y: 560,
-    size: 190,
-    sortY: 618,
-    collision: { x: 137, y: 558, width: 166, height: 60 },
+    size: homeVisualSizes.furniture.storageCabinet,
+    sortY: 608,
+    collision: { x: 150, y: 557, width: 140, height: 51 },
   },
   {
     id: 'entry_console',
     frame: 6,
-    x: 1040,
-    y: 520,
-    size: 110,
-    sortY: 568,
-    collision: { x: 992, y: 540, width: 96, height: 28 },
+    x: 1080,
+    y: 540,
+    size: homeVisualSizes.furniture.entryConsole,
+    sortY: 576,
+    collision: { x: 1037, y: 551, width: 86, height: 25 },
   },
 ] as const;
 
 export const homeDecorLayout: readonly HomeDecorPlacement[] = [
-  { frame: 0, x: 170, y: 282, size: 176, sortY: 32 },
-  { frame: 1, x: 286, y: 310, size: 64, sortY: 34 },
-  { frame: 2, x: 1142, y: 118, size: 82, sortY: 239 },
+  { frame: 0, x: 170, y: 282, size: homeVisualSizes.decor.bedsideRug, sortY: 32 },
+  { frame: 1, x: 286, y: 310, size: homeVisualSizes.decor.slippers, sortY: 34 },
+  { frame: 2, x: 1082, y: 118, size: homeVisualSizes.decor.kitchenClutter, sortY: 230 },
 ] as const;
 
 export const homeWalkBounds: MovementBounds = {
-  minX: 55,
-  maxX: 1224,
-  minY: 82,
-  maxY: 662,
+  minX: 68,
+  maxX: 1248,
+  minY: 96,
+  maxY: 635,
 };
 
 export const homeWallObstacles: readonly AxisAlignedRect[] = [
-  { x: 388, y: 20, width: 24, height: 242 },
-  { x: 388, y: 338, width: 24, height: 164 },
-  { x: 388, y: 588, width: 24, height: 112 },
-  { x: 868, y: 20, width: 24, height: 244 },
-  { x: 868, y: 340, width: 24, height: 106 },
-  { x: 20, y: 408, width: 578, height: 38 },
-  { x: 718, y: 408, width: 542, height: 38 },
+  { x: 379, y: 20, width: 31, height: 263 },
+  { x: 370, y: 342, width: 34, height: 160 },
+  { x: 370, y: 502, width: 34, height: 140 },
+  { x: 812, y: 20, width: 30, height: 263 },
+  { x: 42, y: 342, width: 493, height: 68 },
+  { x: 680, y: 342, width: 552, height: 68 },
+  { x: 1182, y: 20, width: 66, height: 322 },
+  { x: 1204, y: 410, width: 44, height: 72 },
 ] as const;
 
 export const homeCollisionObstacles: readonly AxisAlignedRect[] = [
@@ -129,16 +160,16 @@ export const homeCollisionObstacles: readonly AxisAlignedRect[] = [
   ...homeFurnitureLayout.map((furniture) => furniture.collision),
 ];
 
-export const homeWallOccluders: readonly HomeWallOccluder[] = [
-  { x: 20, y: 408, width: 578, height: 38, sortY: 446 },
-  { x: 718, y: 408, width: 542, height: 38, sortY: 446 },
-  { x: 20, y: 666, width: 1240, height: 34, sortY: 700 },
+export const homeArchitectureOverlays: readonly HomeArchitectureOverlay[] = [
+  { key: 'environment.home.partition_overlay', sortY: 342 },
+  { key: 'environment.home.crosswall_overlay', sortY: 410 },
+  { key: 'environment.home.rightwall_overlay', sortY: 635 },
+  { key: 'environment.home.frontwall_overlay', sortY: 705 },
 ] as const;
 
 export const homeEntitySortY: Readonly<Record<string, number>> = {
   'entity.home.bedside_photo': 205,
-  'entity.home.journal': 320,
-  'entity.home.glasses_case': 583,
-  'entity.home.key_bowl': 569,
-  'entity.home.front_door': 420,
+  'entity.home.journal': 319,
+  'entity.home.glasses_case': 569,
+  'entity.home.key_bowl': 577,
 };
