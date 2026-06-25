@@ -14,6 +14,7 @@ export const DOT_ALPHA_MAX = 0.25;
 export function isBreathingActive(state: Readonly<GameState>): boolean {
   return (
     state.phase === 'playing' &&
+    state.mode === 'standard' &&
     !state.modal &&
     state.dialogue.length === 0 &&
     !state.flags.includes('ending.ready_to_hold') &&

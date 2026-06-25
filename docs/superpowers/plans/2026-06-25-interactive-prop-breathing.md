@@ -398,52 +398,11 @@ git commit -m "feat: add resting breathing to interactive props"
 **关键约束：**
 - 既有 `beforeEach` 已 `localStorage.clear()` 并 reload（`5-14` 行），并收集 `browserErrors`，`afterEach` 断言为空（`16-18` 行）——新测试沿用同一夹具，不重复清空。
 - 既有 `startGameWithKeyboard` / `finishOpeningDialogue` 辅助（`25-32` 行）可直接复用。
-- reducedMotion 在暂停菜单里是 labeled checkbox（见既有测试 `72` 行 `静音` 与 `文字大小` 的取法）；本测试改为断言"道具精灵的 transform scale 在 reducedMotion 下等于 1"。
+- reducedMotion 在暂停菜单里是 labeled checkbox（见既有测试 `72` 行 `静音` 与 `文字大小` 的取法）；本测试改为断言 `data-breathing-active="false"`（呼吸门控关闭）并截图，不做精灵 transform scale 的像素级断言（会 flaky）。
 
 - [ ] **Step 1: 写 e2e 测试**
 
-在 `tests/e2e/accessibility.spec.ts` 末尾追加：
-
-```ts
-test('keeps interactive props at base scale under reduced motion', async ({ page }, testInfo) => {
-  await page.setViewportSize({ width: 1366, height: 768 });
-  await startGameWithKeyboard(page);
-  await finishOpeningDialogue(page);
-
-  // 进入住宅并暴露可交互道具精灵后，读取它们的画布缩放。
-  const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
-  await canvas.focus();
-
-  // 开启减少动态效果：暂停 -> 静音旁的 reducedMotion 复选框（沿用既有 settings 布局）。
-  await page.keyboard.press('Escape');
-  const reducedMotion = page.getByLabel('减少动态效果');
-  await reducedMotion.scrollIntoViewIfNeeded();
-  await reducedMotion.focus();
-  await page.keyboard.press('Space');
-  await expect(reducedMotion).toBeChecked();
-  await page.keyboard.press('Escape'); // 关闭暂停菜单回到游玩
-
-  // reducedMotion 下所有可交互精灵的缩放必须恒为 1（呼吸关闭）。
-  const propScales = await page.evaluate(() => {
-    const canvas = document.querySelector('canvas[aria-label="可操作游戏画面"]');
-    if (!canvas) throw new Error('canvas missing');
-    // 住宅有 4 个道具精灵：bedside_photo / journal / key_bowl / glasses_case。
-    // 取画布上下文中所有非零 alpha 的精灵缩放不可行（Phaser 内部）；改为断言页面状态机标记。
-    return (window as unknown as { __erasure?: { propScaleSnapshot?: number[] } }).__erasure
-      ?.propScaleSnapshot ?? null;
-  });
-
-  // 注：若未注入测试钩子，则降级为"不产生控制台错误"的软保证（已有 afterEach 兜底）。
-  expect(propScales === null || propScales.every((s) => Math.abs(s - 1) < 1e-3)).toBe(true);
-
-  await page.screenshot({
-    path: testInfo.outputPath('reduced-motion-prop-base-scale.png'),
-    animations: 'disabled',
-  });
-});
-```
-
-> 实现说明：本测试优先尝试读取测试钩子 `window.__erasure.propScaleSnapshot`；若 Task 2 未注入该钩子，`propScales` 为 `null`，断言退化为软保证（由既有 `afterEach` 的无控制台错误兜底）。**如选择不注入钩子，请在此 step 的代码注释中保留该降级说明，并在 Step 2 中跳过钩子注入、改为仅截图 + 软保证。** 决策：为避免在产品代码里加测试专用钩子（违反"游戏规则状态独立于 Phaser"精神，且呼吸是表现层临时态），**采用降级路径**——本测试只截图 + 依赖既有 afterEach 兜底，不注入钩子。最终代码应简化为：
+在 `tests/e2e/accessibility.spec.ts` 末尾追加（最终方案：不注入测试专用钩子，改为断言 `data-breathing-active="false"` + 截图，由既有 `afterEach` 兜底无控制台错误。曾考虑读取 `window.__erasure.propScaleSnapshot` 的钩子方案，因会在产品代码里加测试专用状态、违反"游戏规则状态独立于 Phaser"而被否决）：
 
 ```ts
 test('keeps interactive props stable under reduced motion', async ({ page }, testInfo) => {
@@ -451,18 +410,23 @@ test('keeps interactive props stable under reduced motion', async ({ page }, tes
   await startGameWithKeyboard(page);
   await finishOpeningDialogue(page);
 
+  const app = page.locator('#app');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
   await canvas.focus();
 
+  // 开启减少动态效果：暂停菜单里的 labeled checkbox（沿用既有 settings 取法）。
   await page.keyboard.press('Escape');
   const reducedMotion = page.getByLabel('减少动态效果');
   await reducedMotion.scrollIntoViewIfNeeded();
   await reducedMotion.focus();
   await page.keyboard.press('Space');
   await expect(reducedMotion).toBeChecked();
-  await page.keyboard.press('Escape');
+  // 显式点"继续"并等暂停层消失再截图，避免 Escape 在 checkbox 聚焦时被 UI 拦截导致截图仍停在暂停层。
+  await page.getByRole('button', { name: '继续' }).click();
+  await expect(page.getByRole('heading', { name: '暂停' })).not.toBeVisible();
 
-  // reducedMotion 下呼吸关闭；由 afterEach 断言无控制台错误兜底。
+  // reducedMotion 下呼吸必须完全关闭。
+  await expect(app).toHaveAttribute('data-breathing-active', 'false');
   await page.screenshot({
     path: testInfo.outputPath('reduced-motion-prop-base-scale.png'),
     animations: 'disabled',

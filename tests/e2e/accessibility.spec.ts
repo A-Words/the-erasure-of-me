@@ -186,7 +186,8 @@ test('keeps interactive props stable under reduced motion', async ({ page }, tes
   await reducedMotion.focus();
   await page.keyboard.press('Space');
   await expect(reducedMotion).toBeChecked();
-  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: '继续' }).click();
+  await expect(page.getByRole('heading', { name: '暂停' })).not.toBeVisible();
 
   // reducedMotion 下呼吸必须完全关闭。
   await expect(app).toHaveAttribute('data-breathing-active', 'false');

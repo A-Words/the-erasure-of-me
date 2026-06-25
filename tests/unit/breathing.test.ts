@@ -17,6 +17,12 @@ function playingState() {
 }
 
 describe('isBreathingActive', () => {
+  it('is inactive in low_stimulation mode', () => {
+    const state = playingState();
+    state.mode = 'low_stimulation';
+    expect(isBreathingActive(state)).toBe(false);
+  });
+
   it('is active during plain playing', () => {
     expect(isBreathingActive(playingState())).toBe(true);
   });
