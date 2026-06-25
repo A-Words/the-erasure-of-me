@@ -43,6 +43,17 @@
 
 > `visual.` 前缀对象仅存在于 `visual_furniture`、`visual_decor`、`visual_props` 编辑参照层中，不参与运行时逻辑。运行时家具、装饰和道具位置以 `homeLayout.ts` 和 `maps.ts` 代码常量为权威来源。
 
+### 2.3 Tiled 运行时适配
+
+`src/game/content/tiledMapLoader.ts` 是 Tiled JSON 与游戏运行时之间的唯一适配层。GameScene 在切章时调用 `parseTiledMap()` 将 Tiled 对象层转换为纯 TypeScript 数据结构：
+
+- `interactables` → `WorldEntity[]`（坐标、kind、label）
+- `collision` → `NamedCollisionRect[]`（纯 `AxisAlignedRect`）
+- `visual_furniture` / `visual_decor` / `visual_props` → `VisualPlacement[]`（assetKey、frame、x/y、size、sortY）
+- `navigation` → `SpawnPoint[]` 和 `MovementBounds`
+
+如果 Tiled JSON 缺少 visual_\* 层或解析失败，GameScene 自动回退到 `homeLayout.ts` 代码常量。GameStore 的碰撞数据仍来自 `homeLayout.ts`，后续可通过依赖注入迁移。
+
 ### 2.3 通用交互距离
 
 - 正面交互：角色锚点距离物件锚点不超过 96 像素；

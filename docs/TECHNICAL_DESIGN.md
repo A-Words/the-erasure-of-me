@@ -343,7 +343,37 @@ type InputAction =
 - `visual_*` 层中的 tile 对象使用与代码一致的坐标（已从 Phaser 中心锚点转换为 Tiled 底部锚点）和显示尺寸，使关卡作者在 Tiled 中看到的布局与游戏画面一致。
 - 每个 `visual_*` 层和层内对象都带 `visual_reference=true` 自定义属性，用于与逻辑层区分。
 - `visual_*` 层的对象名称以 `visual.` 前缀开头，不与 `interactables`、`collision`、`navigation` 等逻辑层的稳定 ID 冲突。
-- 运行时代码不得读取 `visual_*` 层作为游戏真值；`scripts/validate_tiled_maps.mjs` 校验这些层存在、引用图片存在且稳定 ID 无重复。
+- 运行时通过 `src/game/content/tiledMapLoader.ts` 适配层解析 Tiled JSON；`scripts/validate_tiled_maps.mjs` 校验这些层存在、引用图片存在且稳定 ID 无重复。
+
+#### 6.2.2 Tiled 内容适配层（tiledMapLoader）
+
+`src/game/content/tiledMapLoader.ts` 是 Tiled JSON 与游戏领域层之间的唯一适配层。Phaser Scene 和游戏系统不直接解释 Tiled 对象，而是通过适配层输出的纯 TypeScript 数据结构获取运行时数据。
+
+**职责：**
+
+- 启动或切章时读取已加载的 Tiled JSON（通过 Phaser JSON cache）；
+- 将 `interactables` 对象层转换为 `WorldEntity[]`（坐标、kind、label）；
+- 将 `collision` 对象层转换为 `NamedCollisionRect[]`（纯 `AxisAlignedRect`）；
+- 将 `visual_furniture`、`visual_decor`、`visual_props` 对象层转换为 `VisualPlacement[]`（assetKey、frame、x/y、size、sortY、collisionId）；
+- 将 `navigation` 对象层转换为 `SpawnPoint[]` 和 `MovementBounds`；
+- 检测重复稳定 ID 并抛出明确错误。
+
+**迁移状态（第二阶段）：**
+
+| 数据 | Tiled 驱动 | 代码 fallback |
+| --- | --- | --- |
+| 家具视觉位置/帧/尺寸 | `visual_furniture` 层 | `homeLayout.ts:homeFurnitureLayout` |
+| 装饰视觉位置/帧/尺寸 | `visual_decor` 层 | `homeLayout.ts:homeDecorLayout` |
+| 道具视觉位置/尺寸 | `visual_props` 层 | `maps.ts:chapterMaps.home.entities` |
+| 交互物坐标/kind | `interactables` 层 | `maps.ts:chapterMaps.home.entities` |
+| 实体深度排序 sortY | `visual_props` 层 sortY 属性 | `homeLayout.ts:homeEntitySortY` |
+| 碰撞矩形 | Tiled `collision` 层已可解析 | `homeLayout.ts:homeCollisionObstacles`（GameStore 仍使用） |
+| 行走边界 | Tiled `navigation` 层已可解析 | `homeLayout.ts:homeWalkBounds`（GameStore 仍使用） |
+| 建筑遮挡 overlay | 代码常量 | `homeLayout.ts:homeArchitectureOverlays` |
+| 角色缩放 | 代码常量 | `homeLayout.ts:homeVisualSizes.characterScale` |
+| 道具视觉映射 | 代码常量 | `GameScene.ts:homePropVisuals` |
+
+GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 的碰撞数据仍来自 `homeLayout.ts`，因为 GameStore 在 Phaser 之外创建，无法访问 Phaser 缓存；后续可通过依赖注入将 Tiled 解析的碰撞数据传入 GameStore。
 
 ### 6.3 对象属性
 

@@ -48,6 +48,16 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 160
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 32
             }
           ],
           "rotation": 0,
@@ -72,6 +82,16 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 34
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 34
             }
           ],
           "rotation": 0,
@@ -96,6 +116,16 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 64
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 230
             }
           ],
           "rotation": 0,
@@ -144,6 +174,21 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 225
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 282
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.bed"
             }
           ],
           "rotation": 0,
@@ -168,6 +213,21 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 64
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 204
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.bedside_table"
             }
           ],
           "rotation": 0,
@@ -192,6 +252,21 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 205
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 229
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.sofa"
             }
           ],
           "rotation": 0,
@@ -216,6 +291,21 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 58
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 318
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.living_side_table"
             }
           ],
           "rotation": 0,
@@ -240,6 +330,21 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 165
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 568
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.coffee_table"
             }
           ],
           "rotation": 0,
@@ -264,6 +369,21 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 220
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 229
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.kitchen_counter"
             }
           ],
           "rotation": 0,
@@ -288,6 +408,21 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 160
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 608
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.storage_cabinet"
             }
           ],
           "rotation": 0,
@@ -312,6 +447,21 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 100
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 576
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.entry_console"
             }
           ],
           "rotation": 0,
@@ -360,6 +510,16 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 36
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 205
             }
           ],
           "rotation": 0,
@@ -384,6 +544,16 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 319
             }
           ],
           "rotation": 0,
@@ -408,6 +578,16 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 38
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 569
             }
           ],
           "rotation": 0,
@@ -432,6 +612,16 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 32
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 577
             }
           ],
           "rotation": 0,
@@ -493,7 +683,14 @@
           "type": "inspect",
           "width": 44,
           "x": 300,
-          "y": 168
+          "y": 168,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "床边合影"
+            }
+          ]
         },
         {
           "height": 44,
@@ -502,7 +699,14 @@
           "type": "pickup",
           "width": 44,
           "x": 610,
-          "y": 282
+          "y": 282,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "红线日记"
+            }
+          ]
         },
         {
           "height": 44,
@@ -511,7 +715,14 @@
           "type": "pickup",
           "width": 44,
           "x": 700,
-          "y": 510
+          "y": 510,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "眼镜盒"
+            }
+          ]
         },
         {
           "height": 44,
@@ -520,7 +731,14 @@
           "type": "pickup",
           "width": 44,
           "x": 1080,
-          "y": 502
+          "y": 502,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "蓝色小碗"
+            }
+          ]
         },
         {
           "height": 60,
@@ -529,7 +747,14 @@
           "type": "exit",
           "width": 60,
           "x": 1225,
-          "y": 560
+          "y": 560,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "玄关门"
+            }
+          ]
         }
       ],
       "opacity": 1,
