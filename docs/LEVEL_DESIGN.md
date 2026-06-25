@@ -39,6 +39,9 @@
 | journal. | 日记页 | journal.home.key |
 | memory. | 记忆碎片 | memory.rain.umbrella |
 | audio. | 声音 | audio.rain.clock_bell |
+| visual. | 编辑参照对象（非运行时） | visual.home.bed |
+
+> `visual.` 前缀对象仅存在于 `visual_furniture`、`visual_decor`、`visual_props` 编辑参照层中，不参与运行时逻辑。运行时家具、装饰和道具位置以 `homeLayout.ts` 和 `maps.ts` 代码常量为权威来源。
 
 ### 2.3 通用交互距离
 
