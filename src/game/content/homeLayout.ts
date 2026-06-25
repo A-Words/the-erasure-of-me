@@ -81,7 +81,7 @@ export const homeFurnitureLayout: readonly HomeFurniturePlacement[] = [
     y: 158,
     size: homeVisualSizes.furniture.sofa,
     sortY: 229,
-    collision: { x: 526, y: 194, width: 188, height: 35 },
+    collision: { x: 526, y: 166, width: 188, height: 60 },
   },
   {
     id: 'living_side_table',
@@ -108,7 +108,7 @@ export const homeFurnitureLayout: readonly HomeFurniturePlacement[] = [
     y: 164,
     size: homeVisualSizes.furniture.kitchenCounter,
     sortY: 229,
-    collision: { x: 962, y: 183, width: 196, height: 46 },
+    collision: { x: 958, y: 156, width: 204, height: 72 },
   },
   {
     id: 'storage_cabinet',

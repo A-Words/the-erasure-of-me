@@ -105,13 +105,13 @@
           "y": 181
         },
         {
-          "height": 35,
+          "height": 60,
           "id": 9,
           "name": "collision.home.sofa",
           "type": "furniture",
           "width": 188,
           "x": 526,
-          "y": 194
+          "y": 166
         },
         {
           "height": 21,
@@ -132,13 +132,13 @@
           "y": 527
         },
         {
-          "height": 46,
+          "height": 72,
           "id": 12,
           "name": "collision.home.kitchen_counter",
           "type": "furniture",
-          "width": 196,
-          "x": 962,
-          "y": 183
+          "width": 204,
+          "x": 958,
+          "y": 156
         },
         {
           "height": 51,
