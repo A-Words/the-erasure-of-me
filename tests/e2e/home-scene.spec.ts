@@ -69,9 +69,8 @@ test('renders the layered home and blocks the player at the bed footprint', asyn
   await setSavedPlayer(page, 1190, 560);
   await canvas.focus();
   for (let step = 0; step < 8; step += 1) await canvas.press('ArrowRight');
-  expect(Number(await app.getAttribute('data-player-x'))).toBeGreaterThan(1208);
-  expect(Number(await app.getAttribute('data-player-x'))).toBeLessThanOrEqual(1248);
+  expect(Number(await app.getAttribute('data-player-x'))).toBeLessThanOrEqual(1196);
   await expect(page.getByRole('button', { name: '与玄关门交互' })).toBeVisible();
-  await canvas.screenshot({ path: testInfo.outputPath('home-right-wall-door.png') });
+  await canvas.screenshot({ path: testInfo.outputPath('home-front-door-hotspot.png') });
   expect(browserErrors).toEqual([]);
 });

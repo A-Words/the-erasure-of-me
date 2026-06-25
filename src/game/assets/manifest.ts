@@ -48,7 +48,7 @@ export const assetManifest = [
   {
     key: 'environment.home.background',
     type: 'image',
-    url: 'assets/environments/environment_home_v08.png',
+    url: 'assets/environments/environment_home_v10.png',
     chapter: 'home',
     preload: true,
   },
@@ -70,13 +70,6 @@ export const assetManifest = [
     key: 'environment.home.crosswall_overlay',
     type: 'image',
     url: 'assets/environments/environment_home_crosswall_overlay_v01.png',
-    chapter: 'home',
-    preload: true,
-  },
-  {
-    key: 'environment.home.rightwall_overlay',
-    type: 'image',
-    url: 'assets/environments/environment_home_rightwall_overlay_v01.png',
     chapter: 'home',
     preload: true,
   },

@@ -159,38 +159,38 @@
           "y": 551
         },
         {
-          "height": 263,
+          "height": 238,
           "id": 15,
           "name": "collision.home.wall_left_top",
           "type": "wall",
-          "width": 31,
-          "x": 379,
+          "width": 32,
+          "x": 346,
           "y": 20
         },
         {
-          "height": 160,
+          "height": 118,
           "id": 16,
           "name": "collision.home.wall_left_middle",
           "type": "wall",
           "width": 34,
-          "x": 370,
+          "x": 346,
           "y": 342
         },
         {
-          "height": 140,
+          "height": 46,
           "id": 17,
           "name": "collision.home.wall_left_bottom",
           "type": "wall",
           "width": 34,
-          "x": 370,
-          "y": 502
+          "x": 346,
+          "y": 596
         },
         {
-          "height": 263,
+          "height": 244,
           "id": 18,
           "name": "collision.home.wall_right_top",
           "type": "wall",
-          "width": 30,
+          "width": 32,
           "x": 812,
           "y": 20
         },
@@ -199,7 +199,7 @@
           "id": 20,
           "name": "collision.home.wall_cross_left",
           "type": "wall",
-          "width": 493,
+          "width": 465,
           "x": 42,
           "y": 342
         },
@@ -208,8 +208,8 @@
           "id": 21,
           "name": "collision.home.wall_cross_right",
           "type": "wall",
-          "width": 552,
-          "x": 680,
+          "width": 531,
+          "x": 697,
           "y": 342
         },
         {
@@ -217,18 +217,27 @@
           "id": 22,
           "name": "collision.home.wall_right_outer_upper",
           "type": "wall",
-          "width": 66,
-          "x": 1182,
+          "width": 36,
+          "x": 1212,
           "y": 20
         },
         {
-          "height": 72,
+          "height": 94,
           "id": 23,
           "name": "collision.home.wall_right_outer_above_door",
           "type": "wall",
-          "width": 44,
-          "x": 1204,
+          "width": 36,
+          "x": 1212,
           "y": 410
+        },
+        {
+          "height": 138,
+          "id": 24,
+          "name": "collision.home.wall_right_outer_door",
+          "type": "wall",
+          "width": 36,
+          "x": 1212,
+          "y": 504
         }
       ],
       "opacity": 1,
@@ -239,7 +248,7 @@
     }
   ],
   "nextlayerid": 4,
-  "nextobjectid": 24,
+  "nextobjectid": 25,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

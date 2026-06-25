@@ -217,7 +217,7 @@ stateDiagram-v2
 - 挂载当前 Tilemap、角色、相机、音频和表现层；
 - 以章节背景资产表现正式环境候选，Tiled 对象层继续作为出生点、交互物和稳定 ID 的权威来源；
 - 交互物以环境资产中的物件轮廓为视觉主体；Scene 只挂载透明热区、悬停标签和极弱的小点反馈，不创建常驻圆形按钮；
-- 住宅建筑壳层与家具分离：背景只绘制地板、墙体、洞口和固定光照，静态家具通过 manifest key 与场景坐标表组合，交互家具继续绑定稳定实体 ID；住宅壳层水平方向正对场景，仅在垂直方向采用约 35° 俯角；家具和小型交互物可采用符合摆放关系的自然角度，但不得出现互相冲突的落地面，也不得依赖发光或闪烁建立识别；入户门固定在右侧边；
+- 住宅建筑壳层与家具分离：背景只绘制地板、墙体、洞口和固定光照，静态家具通过 manifest key 与场景坐标表组合，交互家具继续绑定稳定实体 ID；住宅壳层采用正交墙体平面，主要墙体、门洞和通道边界在画布平面上保持水平或垂直，仅用墙体立面、墙顶厚度和接触阴影表现轻微俯视；家具和小型交互物可采用符合摆放关系的自然角度，但不得出现互相冲突的落地面，也不得依赖发光或闪烁建立识别；入户门固定在右侧边；
 - 指针点击与确认键共用近距离交互入口，Scene 只发送实体 ID，不在表现层判断交互结果；
 - 将 Phaser 键盘输入送入 InputMapper；
 - 读取 GameStore 快照更新角色、物件、特效和声音；
@@ -283,8 +283,8 @@ type InputAction =
 - `src/game/content/homeLayout.ts` 保存住宅统一视觉尺寸、家具脚印、墙体障碍、步行边界和排序线；Phaser Scene 引用 `homeVisualSizes`，不再为同一物件维护第二套显示尺寸。Tiled `collision` 对象层保持同一份家具脚印作者数据，后续 Content Loader 可由其生成纯数据 CollisionMap。
 - MovementSystem 使用与 Phaser 无关的 `moveWithCollisions`，根据 CollisionMap、角色脚部碰撞体和当前 InputAction 分轴计算最终位置；阻挡大步长穿透，同时允许沿家具边缘滑动。
 - Phaser Sprite 只跟随最终位置，不参与碰撞判定；本项目不启用 Arcade Physics 作为玩法真值。
-- 住宅表现按脚底/家具底座 Y 值动态排序；交互小物继承承载家具的排序线。`environment.home.sunlight_overlay` 以低深度覆盖背景但位于家具下方；`environment.home.partition_overlay`、`crosswall_overlay`、`rightwall_overlay` 与 `frontwall_overlay` 从背景像素机械提取，分别按上方隔墙、中墙、右侧门框/墙面和前墙排序线重绘。背景、光照 overlay、非交互装饰、家具、建筑遮挡 overlay、人物与交互物均是可分别销毁的视图对象，不进入存档状态；住宅人物可使用纯视图缩放，但脚部可见像素必须与领域碰撞体底边对齐，领域坐标和碰撞体本身不随缩放改变。
-- `entity.home.front_door` 是位于右下玄关门槛 `(1225, 560)` 的纯交互 hotspot，不绑定家具 atlas frame；门洞、门框和门槛属于背景建筑结构。住宅步行边界只在门洞高度通过分段右墙碰撞扩展到 x=1248。当前交互直接进入开门对白和章节切换，只有未来出现可见开关门演出时才新增独立门板 sprite。
+- 住宅表现按脚底/家具底座 Y 值动态排序；交互小物继承承载家具的排序线。`environment.home.sunlight_overlay` 以低深度覆盖背景但位于家具下方；`environment.home.partition_overlay`、`crosswall_overlay` 与 `frontwall_overlay` 从背景像素机械提取，分别按上方隔墙、中墙、前墙与左下竖墙段排序线重绘。背景、光照 overlay、非交互装饰、家具、建筑遮挡 overlay、人物与交互物均是可分别销毁的视图对象，不进入存档状态；住宅人物可使用纯视图缩放，但脚部可见像素必须与领域碰撞体底边对齐，领域坐标和碰撞体本身不随缩放改变。
+- `entity.home.front_door` 是位于右下玄关门内侧 `(1225, 560)` 的纯交互 hotspot，不绑定家具 atlas frame；门洞、门框和门槛属于背景建筑结构。住宅角色不需要走进右墙门洞，右侧外墙和门框由碰撞矩形封闭，玩家在室内侧靠近 hotspot 即可触发开门对白和章节切换。只有未来出现可见开关门演出时才新增独立门板 sprite。
 - 每次位置更新写入领域层坐标；DOM UI 通过纯选择器把坐标映射为“当前最近可用实体 ID”，仅在该 ID 变化时重绘情境交互提示。
 - 按键释放或当前帧没有移动动作时，SceneBridge 发送 `STOP_MOVING`；领域层保留最后朝向并清除 `player.moving`，精灵只据此切回对应方向锚点帧。
 - 恢复存档时先校验坐标是否落在当前导航区域。

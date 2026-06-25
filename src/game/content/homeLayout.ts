@@ -14,7 +14,6 @@ export interface HomeArchitectureOverlay {
   key:
     | 'environment.home.partition_overlay'
     | 'environment.home.crosswall_overlay'
-    | 'environment.home.rightwall_overlay'
     | 'environment.home.frontwall_overlay';
   sortY: number;
 }
@@ -145,14 +144,15 @@ export const homeWalkBounds: MovementBounds = {
 };
 
 export const homeWallObstacles: readonly AxisAlignedRect[] = [
-  { x: 379, y: 20, width: 31, height: 263 },
-  { x: 370, y: 342, width: 34, height: 160 },
-  { x: 370, y: 502, width: 34, height: 140 },
-  { x: 812, y: 20, width: 30, height: 263 },
-  { x: 42, y: 342, width: 493, height: 68 },
-  { x: 680, y: 342, width: 552, height: 68 },
-  { x: 1182, y: 20, width: 66, height: 322 },
-  { x: 1204, y: 410, width: 44, height: 72 },
+  { x: 346, y: 20, width: 32, height: 238 },
+  { x: 346, y: 342, width: 34, height: 118 },
+  { x: 346, y: 596, width: 34, height: 46 },
+  { x: 812, y: 20, width: 32, height: 244 },
+  { x: 42, y: 342, width: 465, height: 68 },
+  { x: 697, y: 342, width: 531, height: 68 },
+  { x: 1212, y: 20, width: 36, height: 322 },
+  { x: 1212, y: 410, width: 36, height: 94 },
+  { x: 1212, y: 504, width: 36, height: 138 },
 ] as const;
 
 export const homeCollisionObstacles: readonly AxisAlignedRect[] = [
@@ -163,7 +163,6 @@ export const homeCollisionObstacles: readonly AxisAlignedRect[] = [
 export const homeArchitectureOverlays: readonly HomeArchitectureOverlay[] = [
   { key: 'environment.home.partition_overlay', sortY: 342 },
   { key: 'environment.home.crosswall_overlay', sortY: 410 },
-  { key: 'environment.home.rightwall_overlay', sortY: 635 },
   { key: 'environment.home.frontwall_overlay', sortY: 705 },
 ] as const;
 

@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#2f2a27"/>
+
+  <!-- Floor zones. This guide uses only final-material colors; no blue/marker colors. -->
+  <rect x="60" y="92" width="322" height="250" fill="#a77b47"/>
+  <rect x="410" y="92" width="404" height="250" fill="#b98245"/>
+  <rect x="842" y="92" width="378" height="250" fill="#9fadab"/>
+  <rect x="60" y="430" width="310" height="208" fill="#8f744f"/>
+  <rect x="404" y="410" width="816" height="228" fill="#b98245"/>
+  <rect x="1034" y="506" width="186" height="132" fill="#8d877b"/>
+
+  <!-- Continuous floor through passable openings. These are not markers; they are empty walkable floor. -->
+  <rect x="382" y="244" width="28" height="98" fill="#b98245"/>
+  <rect x="814" y="244" width="28" height="98" fill="#b98245"/>
+  <rect x="500" y="342" width="220" height="68" fill="#b98245"/>
+  <rect x="370" y="500" width="34" height="82" fill="#b98245"/>
+  <rect x="1202" y="494" width="46" height="141" fill="#8d877b"/>
+
+  <!-- Walls: exact screen-space orthogonal rectangles. Every edge is horizontal or vertical. -->
+  <g fill="#16110f">
+    <!-- outer walls -->
+    <rect x="36" y="28" width="1208" height="24"/>
+    <rect x="36" y="28" width="24" height="656"/>
+    <rect x="36" y="660" width="1208" height="24"/>
+    <rect x="1220" y="28" width="24" height="462"/>
+    <rect x="1220" y="638" width="24" height="46"/>
+
+    <!-- upper room dividers; end early so the upper passages are wider/taller. -->
+    <rect x="382" y="28" width="28" height="216"/>
+    <rect x="814" y="28" width="28" height="216"/>
+
+    <!-- middle cross walls with a wide central opening. -->
+    <rect x="42" y="342" width="458" height="68"/>
+    <rect x="720" y="342" width="508" height="68"/>
+
+    <!-- lower left storage divider, split by a real passage opening. -->
+    <rect x="370" y="342" width="34" height="158"/>
+    <rect x="370" y="582" width="34" height="56"/>
+  </g>
+
+  <!-- Right embedded door frame and threshold. Doorway is open/passable floor, not a marker color. -->
+  <g>
+    <rect x="1194" y="490" width="58" height="10" fill="#c7b69e"/>
+    <rect x="1194" y="628" width="58" height="10" fill="#b09c84"/>
+    <rect x="1202" y="490" width="10" height="148" fill="#725b48"/>
+    <rect x="1234" y="490" width="10" height="148" fill="#725b48"/>
+  </g>
+
+  <!-- Thin neutral grid makes accidental perspective drift obvious. -->
+  <g stroke="#ffffff" stroke-opacity=".16" stroke-width="1">
+    <path d="M60 92h1160M60 244h1160M60 342h1160M60 410h1160M60 500h1160M60 582h1160M60 638h1160"/>
+    <path d="M60 52v608M370 52v608M382 52v608M410 52v608M500 52v608M720 52v608M814 52v608M842 52v608M1220 52v608"/>
+  </g>
+</svg>

@@ -13,7 +13,6 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--partition-output", required=True, type=Path)
     parser.add_argument("--crosswall-output", required=True, type=Path)
-    parser.add_argument("--rightwall-output", required=True, type=Path)
     parser.add_argument("--frontwall-output", required=True, type=Path)
     return parser.parse_args()
 
@@ -37,41 +36,35 @@ def main() -> None:
     partition = masked_copy(
         source,
         [
-            [(370, 15), (418, 15), (418, 290), (370, 290)],
-            [(804, 15), (850, 15), (850, 290), (804, 290)],
+            [(343, 7), (379, 7), (379, 277), (343, 277)],
+            [(798, 7), (834, 7), (834, 277), (798, 277)],
         ],
     )
     crosswall = masked_copy(
         source,
         [
-            [(42, 337), (535, 337), (535, 425), (42, 425)],
-            [(680, 337), (1232, 337), (1232, 425), (680, 425)],
-        ],
-    )
-    rightwall = masked_copy(
-        source,
-        [
-            [(1200, 330), (1280, 330), (1280, 482), (1204, 482)],
-            [(1204, 482), (1248, 482), (1248, 520), (1216, 520)],
-            [(1240, 482), (1280, 482), (1280, 650), (1240, 650)],
+            [(44, 349), (508, 349), (508, 431), (44, 431)],
+            [(697, 349), (1235, 349), (1235, 431), (697, 431)],
         ],
     )
     frontwall = masked_copy(
         source,
-        [[(8, 638), (1272, 638), (1280, 720), (0, 720)]],
+        [
+            [(17, 674), (1262, 674), (1262, 720), (17, 720)],
+            [(344, 350), (370, 350), (370, 468), (344, 468)],
+            [(344, 597), (370, 597), (370, 674), (344, 674)],
+        ],
     )
 
     args.partition_output.parent.mkdir(parents=True, exist_ok=True)
     args.crosswall_output.parent.mkdir(parents=True, exist_ok=True)
-    args.rightwall_output.parent.mkdir(parents=True, exist_ok=True)
     args.frontwall_output.parent.mkdir(parents=True, exist_ok=True)
     partition.save(args.partition_output, format="PNG", optimize=True)
     crosswall.save(args.crosswall_output, format="PNG", optimize=True)
-    rightwall.save(args.rightwall_output, format="PNG", optimize=True)
     frontwall.save(args.frontwall_output, format="PNG", optimize=True)
     print(
         f"Wrote {args.partition_output}, {args.crosswall_output}, "
-        f"{args.rightwall_output}, and {args.frontwall_output}"
+        f"and {args.frontwall_output}"
     )
 
 
