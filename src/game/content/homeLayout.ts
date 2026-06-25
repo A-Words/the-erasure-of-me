@@ -137,22 +137,23 @@ export const homeDecorLayout: readonly HomeDecorPlacement[] = [
 ] as const;
 
 export const homeWalkBounds: MovementBounds = {
-  minX: 68,
-  maxX: 1248,
-  minY: 96,
-  maxY: 635,
+  minX: 72,
+  maxX: 1208,
+  minY: 90,
+  maxY: 698,
 };
 
 export const homeWallObstacles: readonly AxisAlignedRect[] = [
-  { x: 346, y: 20, width: 32, height: 238 },
-  { x: 346, y: 342, width: 34, height: 118 },
-  { x: 346, y: 596, width: 34, height: 46 },
-  { x: 812, y: 20, width: 32, height: 244 },
-  { x: 42, y: 342, width: 465, height: 68 },
-  { x: 697, y: 342, width: 531, height: 68 },
-  { x: 1212, y: 20, width: 36, height: 322 },
-  { x: 1212, y: 410, width: 36, height: 94 },
-  { x: 1212, y: 504, width: 36, height: 138 },
+  { x: 0, y: 0, width: 1280, height: 90 },  // wall_outer_top
+  { x: 0, y: 0, width: 72, height: 720 },  // wall_outer_left
+  { x: 1208, y: 0, width: 72, height: 720 },  // wall_outer_right
+  { x: 0, y: 698, width: 1280, height: 22 },  // wall_outer_bottom
+  { x: 346, y: 30, width: 32, height: 248 },  // wall_left_top
+  { x: 346, y: 398, width: 34, height: 120 },  // wall_left_middle
+  { x: 346, y: 598, width: 34, height: 100 },  // wall_left_bottom
+  { x: 800, y: 30, width: 36, height: 248 },  // wall_right_top
+  { x: 44, y: 398, width: 466, height: 32 },  // wall_cross_left
+  { x: 697, y: 398, width: 538, height: 32 },  // wall_cross_right
 ] as const;
 
 export const homeCollisionObstacles: readonly AxisAlignedRect[] = [
@@ -161,8 +162,8 @@ export const homeCollisionObstacles: readonly AxisAlignedRect[] = [
 ];
 
 export const homeArchitectureOverlays: readonly HomeArchitectureOverlay[] = [
-  { key: 'environment.home.crosswall_overlay', sortY: 410 },
-  { key: 'environment.home.frontwall_overlay', sortY: 705 },
+  { key: 'environment.home.crosswall_overlay', sortY: 398 },
+  { key: 'environment.home.frontwall_overlay', sortY: 698 },
 ] as const;
 
 export const homeEntitySortY: Readonly<Record<string, number>> = {
