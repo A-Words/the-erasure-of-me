@@ -14,12 +14,24 @@ import type { InputAction } from '../../game/input/actions';
 import type { GameState } from '../../game/state/GameState';
 import type { GameStore } from '../../game/state/GameStore';
 import { SceneBridge } from '../bridge/SceneBridge';
+import {
+  computeBreathSine,
+  computeBreathScale,
+  isBreathingActive,
+  DOT_SCALE_AMPLITUDE,
+  DOT_ALPHA_MIN,
+  DOT_ALPHA_MAX,
+} from '../../game/presentation/breathing';
 
 interface EntityView {
   definition: WorldEntity;
   container: Phaser.GameObjects.Container;
   marker: Phaser.GameObjects.Shape;
   label: Phaser.GameObjects.Text;
+  actor: Phaser.GameObjects.Image | Phaser.GameObjects.Sprite | null;
+  breathKind: 'scale' | 'dot' | 'none';
+  breathBaseScale: number;
+  breathPhase: number;
   hover: boolean;
 }
 
@@ -157,10 +169,11 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  update(_time: number, delta: number): void {
+  update(time: number, delta: number): void {
     const state = this.bridge.getSnapshot();
     const action = state.phase === 'playing' ? this.currentMovementAction() : null;
     if (!action && state.player.moving) this.bridge.send({ type: 'STOP_MOVING' });
+    this.updateEntityBreathing(state, time);
     if (state.phase !== 'playing') return;
     this.tickAccumulator += delta / 1000;
     if (this.tickAccumulator >= 1) {
@@ -571,7 +584,26 @@ export class GameScene extends Phaser.Scene {
     // Generous circular hit area so the label appears before the cursor is exactly on the sprite.
     container.setInteractive(new Phaser.Geom.Circle(0, 0, 30), Phaser.Geom.Circle.Contains);
 
-    const view: EntityView = { definition: entity, container, marker, label, hover: false };
+    const breathKind: EntityView['breathKind'] = isXiulan
+      ? 'none'
+      : actor
+        ? 'scale'
+        : 'dot';
+    const breathBaseScale = actor ? actor.scaleX : 1;
+    // 稳定错相，避免所有道具同步；用当前实体数量作为确定性索引。
+    const breathPhase = this.entityViews.length * 0.6;
+
+    const view: EntityView = {
+      definition: entity,
+      container,
+      marker,
+      label,
+      actor,
+      breathKind,
+      breathBaseScale,
+      breathPhase,
+      hover: false,
+    };
 
     container.on('pointerover', () => {
       view.hover = true;
@@ -627,6 +659,39 @@ export class GameScene extends Phaser.Scene {
       if (!visible && view.hover) {
         view.hover = false;
         this.setEntityHover(view, false);
+      }
+    }
+  }
+
+  private updateEntityBreathing(state: Readonly<GameState>, timeMs: number): void {
+    const active = isBreathingActive(state);
+    const timeSeconds = timeMs / 1000;
+    for (const view of this.entityViews) {
+      if (!view.container.visible) continue;
+      if (view.breathKind === 'none') continue;
+
+      if (view.breathKind === 'scale') {
+        const actor = view.actor;
+        if (!actor) continue;
+        if (active && !view.hover) {
+          actor.setScale(
+            computeBreathScale(view.breathBaseScale, timeSeconds, view.breathPhase),
+          );
+        } else {
+          actor.setScale(view.breathBaseScale);
+        }
+        continue;
+      }
+
+      // breathKind === 'dot'
+      if (view.hover) continue; // let setEntityHover own the marker
+      if (active) {
+        const s = computeBreathSine(timeSeconds, view.breathPhase);
+        view.marker
+          .setScale(1 + s * DOT_SCALE_AMPLITUDE)
+          .setAlpha(DOT_ALPHA_MIN + ((s + 1) * (DOT_ALPHA_MAX - DOT_ALPHA_MIN)) / 2);
+      } else {
+        view.marker.setScale(1).setAlpha(0);
       }
     }
   }

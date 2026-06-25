@@ -2,6 +2,7 @@ import { chapterMaps, itemLabels } from '../game/content/maps';
 import { nearestAvailableEntity } from '../game/content/entitySelectors';
 import { assetUrl } from '../game/assets/manifest';
 import { normalizeSettings } from '../game/state/initialState';
+import { isBreathingActive } from '../game/presentation/breathing';
 import type {
   AccessibilitySettings,
   GameState,
@@ -86,6 +87,7 @@ export class AppShell {
       app.dataset.playerX = String(Math.round(state.player.x));
       app.dataset.playerY = String(Math.round(state.player.y));
       app.dataset.holdProgress = String(Math.round(state.holdProgress * 100));
+      app.dataset.breathingActive = String(isBreathingActive(state));
     }
     document.documentElement.dataset.font = state.settings.fontSize;
     document.documentElement.dataset.contrast = String(state.settings.highContrast);
