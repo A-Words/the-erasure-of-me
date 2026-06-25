@@ -161,7 +161,6 @@ export const homeCollisionObstacles: readonly AxisAlignedRect[] = [
 ];
 
 export const homeArchitectureOverlays: readonly HomeArchitectureOverlay[] = [
-  { key: 'environment.home.partition_overlay', sortY: 342 },
   { key: 'environment.home.crosswall_overlay', sortY: 410 },
   { key: 'environment.home.frontwall_overlay', sortY: 705 },
 ] as const;

@@ -11,7 +11,6 @@ from PIL import Image, ImageDraw
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", required=True, type=Path)
-    parser.add_argument("--partition-output", required=True, type=Path)
     parser.add_argument("--crosswall-output", required=True, type=Path)
     parser.add_argument("--frontwall-output", required=True, type=Path)
     return parser.parse_args()
@@ -33,13 +32,6 @@ def main() -> None:
     if source.size != (1280, 720):
         raise ValueError(f"Expected a 1280x720 home background, got {source.size}")
 
-    partition = masked_copy(
-        source,
-        [
-            [(343, 7), (379, 7), (379, 277), (343, 277)],
-            [(798, 7), (834, 7), (834, 277), (798, 277)],
-        ],
-    )
     crosswall = masked_copy(
         source,
         [
@@ -56,16 +48,11 @@ def main() -> None:
         ],
     )
 
-    args.partition_output.parent.mkdir(parents=True, exist_ok=True)
     args.crosswall_output.parent.mkdir(parents=True, exist_ok=True)
     args.frontwall_output.parent.mkdir(parents=True, exist_ok=True)
-    partition.save(args.partition_output, format="PNG", optimize=True)
     crosswall.save(args.crosswall_output, format="PNG", optimize=True)
     frontwall.save(args.frontwall_output, format="PNG", optimize=True)
-    print(
-        f"Wrote {args.partition_output}, {args.crosswall_output}, "
-        f"and {args.frontwall_output}"
-    )
+    print(f"Wrote {args.crosswall_output} and {args.frontwall_output}")
 
 
 if __name__ == "__main__":

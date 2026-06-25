@@ -60,13 +60,6 @@ export const assetManifest = [
     preload: true,
   },
   {
-    key: 'environment.home.partition_overlay',
-    type: 'image',
-    url: 'assets/environments/environment_home_partition_overlay_v01.png',
-    chapter: 'home',
-    preload: true,
-  },
-  {
     key: 'environment.home.crosswall_overlay',
     type: 'image',
     url: 'assets/environments/environment_home_crosswall_overlay_v01.png',
