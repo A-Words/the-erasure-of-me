@@ -403,6 +403,10 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 
 有 gid 的正式 tile object 不得标记 `placeholder=true`。`scripts/validate_tiled_maps.mjs` Check 7 强制校验上述规则。后续替换 placeholder 为正式资产时，只需在 Tiled 中为对象分配 gid 并移除 placeholder/status/replacement 属性即可。
 
+**运行时冒烟测试：**
+
+`tests/e2e/tiled-maps.spec.ts` 提供 5 张地图的运行时冒烟覆盖，验证 Tiled JSON → `tiledMapLoader` → GameScene 整条管线在生产构建中不会白屏或抛出控制台错误。测试通过 localStorage 存档注入跳转到各章节（生产构建不含调试面板），检查 canvas 可见、`data-chapter` 属性匹配、玩家坐标在地图边界内。连续章节跳转测试验证存档→重载循环不会破坏游戏状态。
+
 ### 6.3 对象属性
 
 可交互物至少包含：
