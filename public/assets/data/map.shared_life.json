@@ -59,9 +59,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated photo prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "1979 搬家照片道具图"
             }
           ],
           "rotation": 0,
@@ -97,9 +107,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated photo prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "1992 桂花窗台照片道具图"
             }
           ],
           "rotation": 0,
@@ -135,9 +155,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated photo prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "2001 银婚照片道具图"
             }
           ],
           "rotation": 0,
@@ -173,9 +203,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated album prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "空着三格的相册道具图"
             }
           ],
           "rotation": 0,
@@ -211,9 +251,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated comb prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "木梳道具图（条纹纹理，裂缝修补痕迹）"
             }
           ],
           "rotation": 0,
@@ -249,9 +299,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated cup prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "搪瓷杯道具图（桂花圆点图案）"
             }
           ],
           "rotation": 0,
@@ -287,9 +347,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated cassette prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "录音带道具图（双线圈波纹）"
             }
           ],
           "rotation": 0,
@@ -325,9 +395,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated slot prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "镜台放置槽视觉图（条纹纹理标记）"
             }
           ],
           "rotation": 0,
@@ -363,9 +443,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated slot prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "窗台放置槽视觉图（圆点纹理标记）"
             }
           ],
           "rotation": 0,
@@ -401,9 +491,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated slot prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "收音机放置槽视觉图（波纹纹理标记）"
             }
           ],
           "rotation": 0,
@@ -439,9 +539,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated exit prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "延长走廊出口视觉图"
             }
           ],
           "rotation": 0,

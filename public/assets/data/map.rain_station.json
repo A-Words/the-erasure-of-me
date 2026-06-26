@@ -59,9 +59,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated ticket prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "旧车票道具图（湿透的纸质车票，背面可见 2→4→5）"
             }
           ],
           "rotation": 0,
@@ -97,9 +107,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated stone prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "2 号石板道具图（地面石板，两个圆点标记）"
             }
           ],
           "rotation": 0,
@@ -135,9 +155,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated stone prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "4 号石板道具图（地面石板，四个圆点标记）"
             }
           ],
           "rotation": 0,
@@ -173,9 +203,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated stone prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "5 号石板道具图（地面石板，五个圆点标记）"
             }
           ],
           "rotation": 0,

@@ -59,9 +59,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated route prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "向上出口箭头视觉图"
             }
           ],
           "rotation": 0,
@@ -97,9 +107,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated route prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "向右出口箭头视觉图"
             }
           ],
           "rotation": 0,
@@ -135,9 +155,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated route prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "向下出口箭头视觉图"
             }
           ],
           "rotation": 0,
@@ -173,9 +203,19 @@
               "value": true
             },
             {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
               "name": "status",
               "type": "string",
-              "value": "placeholder: no dedicated route prop image"
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "向左出口箭头视觉图"
             }
           ],
           "rotation": 0,

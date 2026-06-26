@@ -202,6 +202,54 @@ function validateMap(mapId) {
     }
   }
 
+  // --- Check 7: Placeholder vs real tile object validation ---
+  for (const layer of layers) {
+    if (!layer.name?.startsWith('visual_')) continue;
+    for (const obj of layer.objects ?? []) {
+      const props = obj.properties ?? [];
+      const hasGid = obj.gid !== undefined;
+
+      if (hasGid) {
+        // Real tile object: must have a tileset whose name maps to an asset key
+        // (already checked in Check 2c). Must NOT be marked as placeholder.
+        const placeholderProp = props.find((p) => p.name === 'placeholder');
+        if (placeholderProp && placeholderProp.value === true) {
+          errors.push(
+            `Visual object "${obj.name}" has a gid (real tile) but is marked placeholder=true`,
+          );
+        }
+      } else {
+        // Placeholder object (no gid): must have placeholder=true,
+        // status=visual-placeholder, and a non-empty replacement string.
+        const placeholderProp = props.find((p) => p.name === 'placeholder');
+        if (!placeholderProp || placeholderProp.value !== true) {
+          errors.push(
+            `Visual object "${obj.name}" has no gid but is missing placeholder=true`,
+          );
+        }
+        const statusProp = props.find((p) => p.name === 'status');
+        if (!statusProp || statusProp.value !== 'visual-placeholder') {
+          errors.push(
+            `Visual object "${obj.name}" has no gid but status is not "visual-placeholder"`,
+          );
+        }
+        const replacementProp = props.find((p) => p.name === 'replacement');
+        if (!replacementProp || typeof replacementProp.value !== 'string' || replacementProp.value.length === 0) {
+          errors.push(
+            `Visual object "${obj.name}" is a placeholder but has no replacement description`,
+          );
+        }
+        // Placeholder must still have entityId pointing to a real interactable
+        const entityIdProp = props.find((p) => p.name === 'entityId');
+        if (!entityIdProp || typeof entityIdProp.value !== 'string' || entityIdProp.value.length === 0) {
+          errors.push(
+            `Visual object "${obj.name}" is a placeholder but has no entityId binding`,
+          );
+        }
+      }
+    }
+  }
+
   const passed = errors.length === 0;
   return { errors, warnings, passed };
 }

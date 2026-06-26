@@ -385,7 +385,23 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 | map.return_corridor | ✓ | ✓ (entityId, placeholder) | — | — | — fallback | — fallback |
 | map.home_ending | ✓ | ✓ (entityId, placeholder) | — | — | — fallback | — fallback |
 
-非 home 地图的 visual_props 对象大多使用 placeholder（无 gid/tileset），仅携带 entityId/sortY/size 元数据。rain_station 的红伞实体使用 `prop_red_umbrella_closed` tileset。后续替换 placeholder 为正式资产时，只需在 Tiled 中为对象分配 gid 即可。
+非 home 地图的 visual_props 对象大多使用 placeholder（无 gid/tileset），仅携带 entityId/sortY/size 元数据。rain_station 的红伞实体使用 `prop_red_umbrella_closed` tileset。
+
+**Placeholder 对象规范：**
+
+没有 gid 的 visual_props 对象必须携带以下属性：
+
+| 属性 | 值 | 说明 |
+| --- | --- | --- |
+| `placeholder` | `true` | 标记为占位对象 |
+| `status` | `visual-placeholder` | 统一状态标识 |
+| `replacement` | 非空字符串 | 后续应替换的正式视觉资产说明 |
+| `entityId` | 非空字符串 | 必须指向 interactables 层的真实实体 |
+| `size` | 整数 | 显示尺寸 |
+| `sortY` | 整数 | 深度排序线 |
+| `visual_reference` | `true` | 编辑参照层标记 |
+
+有 gid 的正式 tile object 不得标记 `placeholder=true`。`scripts/validate_tiled_maps.mjs` Check 7 强制校验上述规则。后续替换 placeholder 为正式资产时，只需在 Tiled 中为对象分配 gid 并移除 placeholder/status/replacement 属性即可。
 
 ### 6.3 对象属性
 

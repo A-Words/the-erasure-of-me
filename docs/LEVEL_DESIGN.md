@@ -56,6 +56,16 @@
 
 如果 Tiled JSON 缺少 visual_\* 层或解析失败，GameScene 自动回退到 `homeLayout.ts` 代码常量。GameStore 的碰撞和行走边界通过 `CollisionDataProvider` 注入；生产入口使用 `TiledCollisionProvider`，`CodeCollisionProvider` 仅作为测试或明确 fallback 使用。
 
+### 2.4 Placeholder visual_props 规范
+
+非 home 地图中暂无正式 tile 资产的 visual_props 对象使用 placeholder 模式。placeholder 对象没有 gid，不渲染 tile 图像，但仍携带 entityId/sortY/size 元数据供运行时深度排序和实体绑定使用。
+
+**必须属性：** `placeholder=true`、`status=visual-placeholder`、`replacement=<非空资产说明>`、`entityId=<真实 interactables ID>`。
+
+**禁止：** 有 gid 的正式 tile object 不得标记 `placeholder=true`。
+
+`scripts/validate_tiled_maps.mjs` Check 7 强制校验上述规则。替换 placeholder 为正式资产时，在 Tiled 中为对象分配 gid 并移除 placeholder/status/replacement 属性。
+
 ### 2.4 通用交互距离
 
 - 正面交互：角色锚点距离物件锚点不超过 96 像素；
