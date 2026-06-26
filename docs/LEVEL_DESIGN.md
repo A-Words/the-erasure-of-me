@@ -207,6 +207,8 @@
 | 红伞招牌二 | (35, 6) | entity.rain.umbrella_sign_b |
 | 钟表铺红伞 | (39, 5) | entity.rain.red_umbrella |
 
+上述对象均由 `map.rain_station` 的 `visual_props` tile object 提供正式视觉参照：车票、2/4/5 石板和两个红伞招牌使用 Rain Station 专属 `prop.rain.*` 资产，钟表铺前红伞复用 `prop.red_umbrella.closed`。Tiled 对象坐标保持左下角锚点，由 `tiledMapLoader` 在运行时转换为 Phaser 中心点。
+
 ### 5.4 D1 触发
 
 玩家第一次打开地图时显示完整道路。关闭地图并向右移动超过两格后进入 trigger.rain.map_wash：

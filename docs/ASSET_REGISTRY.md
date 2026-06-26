@@ -1,6 +1,6 @@
 # 《记忆的缝隙》资产登记台账
 
-> 最近更新：2026-06-24
+> 最近更新：2026-06-26
 > 规则来源：ART_BIBLE.md 第 8、9 节
 
 本表记录进入仓库的美术与音频资产。只有来源、许可证、锚点和审核状态完整的资产才能标记为 `shipped`。
@@ -22,11 +22,17 @@
 | character.xiulan_old.idle.down | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_down_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_down_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；作为角色身份源，不单独进入发布构建 |
 | character.xiulan_old.idle.right | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_right_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_right_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览 | 2026-06-22 | 64×96；底部中心锚点；短发、旧绿开衫与侧向身份锚点；作为 reach_hand 第一帧来源 |
 | character.xiulan_old.reach_hand.right | 项目团队 | assets-source/art/characters/character_xiulan_old_reach_hand_right_v01_chromakey.png | public/assets/characters/character_xiulan_old_reach_hand_right_v01_8x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 8×64×96；8 FPS 单次播放；前 3 帧停下等待，末帧开放掌心；减少动态直接显示末帧 |
-| prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，所有雨站红伞实体共用 |
+| prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，钟表铺前红伞实体复用 |
 | prop.home.bedside_photo | 项目团队 | assets-source/art/props/prop_home_bedside_photo_v01_chromakey.png | public/assets/props/prop_home_bedside_photo_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 36×36；旧木框、老年夫妻与红伞边缘；有效宽度不超过床边桌约一半 |
 | prop.home.red_thread_journal | 项目团队 | assets-source/art/props/prop_home_red_thread_journal_v01_chromakey.png | public/assets/props/prop_home_red_thread_journal_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 44×44；米色布封面、线装边与红线书签；独立拾取素材 |
 | prop.home.blue_key_bowl | 项目团队 | assets-source/art/props/prop_home_blue_key_bowl_v01_chromakey.png | public/assets/props/prop_home_blue_key_bowl_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 32×32，置于玄关桌面；低饱和蓝碗、两道金色修补线与两把旧钥匙 |
 | prop.home.glasses_case | 项目团队 | assets-source/art/props/prop_home_glasses_case_v01_chromakey.png | public/assets/props/prop_home_glasses_case_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 38×38；旧棕布硬盒与红胶布角标；不显示眼镜 |
+| prop.rain.ticket | 项目团队 | assets-source/art/props/prop_rain_ticket_v01_chromakey.png | public/assets/props/prop_rain_ticket_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 44px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 44×44；湿皱旧车票，背面保留 2→4→5 线索；绑定 entity.rain.ticket |
+| prop.rain.stone_2 | 项目团队 | assets-source/art/props/prop_rain_stone_2_v01_chromakey.png | public/assets/props/prop_rain_stone_2_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 44px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 44×44；贴地湿石板，两个凹刻圆点；绑定 entity.rain.stone_2 |
+| prop.rain.stone_4 | 项目团队 | assets-source/art/props/prop_rain_stone_4_v01_chromakey.png | public/assets/props/prop_rain_stone_4_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 44px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 44×44；贴地湿石板，四个凹刻圆点；绑定 entity.rain.stone_4 |
+| prop.rain.stone_5 | 项目团队 | assets-source/art/props/prop_rain_stone_5_v01_chromakey.png | public/assets/props/prop_rain_stone_5_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 44px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 44×44；贴地湿石板，五点骰面式凹刻圆点；绑定 entity.rain.stone_5 |
+| prop.rain.umbrella_sign_a | 项目团队 | assets-source/art/props/prop_rain_umbrella_sign_a_v01_chromakey.png | public/assets/props/prop_rain_umbrella_sign_a_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 58px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 58×58；立柱式红伞招牌，木柱、金属支架与伞柄轮廓清晰；绑定 entity.rain.umbrella_sign_a |
+| prop.rain.umbrella_sign_b | 项目团队 | assets-source/art/props/prop_rain_umbrella_sign_b_v01_chromakey.png | public/assets/props/prop_rain_umbrella_sign_b_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 58px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 58×58；贴墙/短柱红伞招牌变体，保留深色补丁和弯柄轮廓；绑定 entity.rain.umbrella_sign_b |
 | decor.home.bedside_rug | 项目团队 | assets-source/art/decor/decor_home_bedside_rug_v01_chromakey.png | public/assets/decor/decor_home_bedside_rug_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 160×160；褪色砖红/米色条纹旧地毯；非交互地面装饰 |
 | decor.home.slippers | 项目团队 | assets-source/art/decor/decor_home_slippers_v01_chromakey.png | public/assets/decor/decor_home_slippers_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 34×34；整组有效宽度不超过角色身体；非交互地面装饰 |
 | decor.home.kitchen_clutter | 项目团队 | assets-source/art/decor/decor_home_kitchen_clutter_v01_chromakey.png | public/assets/decor/decor_home_kitchen_clutter_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 64×64；放在水槽与煤气炉之间，不覆盖炉头；非交互台面装饰 |
@@ -56,7 +62,7 @@
 | environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v01.svg | public/assets/environments/environment_return_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；重复十字长廊、四向地砖箭头与暗红伞痕 |
 | environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v01.svg | public/assets/environments/environment_ending_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；回到现实清晨、暖白留白、桌上两碗热面 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | Codex 静态数据同步；本轮未跑自动化测试 | 2026-06-25 | Tiled 对象层提供出生区、稳定 ID 与 17 个家具/墙体碰撞矩形；v10 扩大上方开口并拆分左下竖墙以恢复储物间通道；右侧门洞只保留室内侧 hotspot，不要求走入门槛；门 hotspot 位于 `(1225, 560)` |
-| map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供 2→4→5、伞标与出口；正式背景已接入 |
+| map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | Codex validate:maps | 2026-06-26 | Tiled 对象层提供 2→4→5、伞标与出口；visual_props 已为车票、石板、红伞招牌和钟表铺红伞分配正式 gid |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供照片、物件和三槽位；正式背景已接入 |
 | map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供四向出口；背景箭头与世界方向一致 |
 | map.home_ending | 项目团队 | public/assets/data/map.home_ending.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供秀兰锚点；正式尾声背景和 D4 构图已接入 |
@@ -112,6 +118,15 @@
 - 生成限制：单一完整物件、无文字、无场景、无投影、无水印、纯 `#00ff00` 色键背景，不使用发光或 UI 按钮构图。
 - 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 裁切并归一化到 128×128 透明画布。Phaser 通过 manifest key 与 Tiled 实体 ID 绑定，拾取后随实体隐藏。
 - 当前结论：透明边缘沿用既有检查结果；本轮已按住宅比例标尺完成相框、日记、钥匙碗和眼镜盒的静态尺寸复核，并通过四浏览器场景、HUD、交互提示和减少动态效果回归。外部美术审核前保持 `review`。
+
+### prop.rain.*
+
+- 生成方式：内置 OpenAI ImageGen；`stylized-concept`；使用纯 `#00ff00` 色键背景，目标为第二章雨站可放置场景道具。
+- 生成目标：替换 `map.rain_station` 中 `visual_props` 的车票、2/4/5 石板和红伞招牌视觉占位；钟表铺前红伞继续复用 `prop.red_umbrella.closed`。
+- 稳定特征：旧车票保留湿皱纸张和 `2→4→5`；三块石板分别保留 2、4、5 个凹刻圆点；红伞招牌保留红伞轮廓、弯柄、木/金属支架和深色补丁。
+- 生成限制：轻俯视 2D 场景实体、透明背景、无 UI 边框、无发光、无装饰底板、无强投影；线索同时依靠形状、纹理和数量，不只依赖颜色。
+- 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 裁切并归一化到 128×128 透明画布。`map.rain_station` 通过独立 tileset gid 绑定 manifest key，Tiled 坐标保持 tile object 左下角锚点。
+- 当前结论：透明边缘、44px 车票/石板和 58px 招牌小尺寸预览通过；`npm run validate:maps` 通过。外部美术审核前保持 `review`。
 
 ### furniture.home.* v01/v02/v03 / decor.home.* v01 / environment.home.background v10
 

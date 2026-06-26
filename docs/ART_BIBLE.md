@@ -202,6 +202,8 @@
 
 D2 状态只能让名称不稳定，物件轮廓和上述识别特征不得随退化改变。
 
+第二章雨站交互道具使用独立 128×128 透明 PNG：`prop.rain.ticket`、`prop.rain.stone_2`、`prop.rain.stone_4`、`prop.rain.stone_5`、`prop.rain.umbrella_sign_a`、`prop.rain.umbrella_sign_b` 和复用的 `prop.red_umbrella.closed`。车票与石板运行时显示 44×44，红伞招牌与钟表铺红伞显示 58×58；所有非 home 道具必须保持轻俯视场景实体感，不得做成纯平面 UI 图标或带发光提示的贴纸。
+
 ## 7. UI 视觉
 
 ### 7.1 材质
