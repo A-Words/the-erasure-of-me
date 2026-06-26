@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import {
   parseTiledMap,
   extractCollisionObstacles,
@@ -6,6 +8,7 @@ import {
   extractEntitySortY,
 } from '../../src/game/content/tiledMapLoader';
 import type { WorldEntity } from '../../src/game/content/maps';
+import { chapterMaps } from '../../src/game/content/maps';
 
 // Minimal Tiled JSON fixture matching the structure of map.home.json
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -380,5 +383,95 @@ describe('extractEntitySortY', () => {
     const fallback = { 'entity.home.journal': 319 };
     const sortYMap = extractEntitySortY(content, fallback);
     expect(sortYMap['entity.home.journal']).toBe(319);
+  });
+});
+
+// --- Tests using actual map JSON files from public/assets/data ---
+
+function loadMapJson(mapId: string): unknown {
+  const path = resolve(process.cwd(), 'public', 'assets', 'data', `${mapId}.json`);
+  return JSON.parse(readFileSync(path, 'utf-8'));
+}
+
+describe('parseTiledMap with real map.rain_station.json', () => {
+  const mapId = 'map.rain_station';
+  const entities = chapterMaps.rain.entities as WorldEntity[];
+
+  it('parses visual_props with entityId bindings', () => {
+    const content = parseTiledMap(mapId, loadMapJson(mapId), entities);
+    expect(content.visualProps.length).toBeGreaterThan(0);
+
+    // Every visual_prop should have an entityId
+    for (const prop of content.visualProps) {
+      expect(prop.entityId).toBeDefined();
+    }
+
+    // Check a specific entity binding
+    const umbrella = content.visualProps.find((p) => p.id === 'visual.rain.red_umbrella');
+    expect(umbrella).toBeDefined();
+    expect(umbrella!.entityId).toBe('entity.rain.red_umbrella');
+  });
+
+  it('parses interactables from Tiled layer', () => {
+    const content = parseTiledMap(mapId, loadMapJson(mapId), entities);
+    expect(content.interactables.length).toBe(7);
+    const ticket = content.interactables.find((e) => e.id === 'entity.rain.ticket');
+    expect(ticket).toBeDefined();
+    expect(ticket!.x).toBe(180);
+    expect(ticket!.y).toBe(560);
+    expect(ticket!.kind).toBe('pickup');
+  });
+
+  it('has background image layer', () => {
+    const data = loadMapJson(mapId) as { layers: Array<{ name: string; type: string }> };
+    const bg = data.layers.find((l) => l.name === 'background');
+    expect(bg).toBeDefined();
+    expect(bg!.type).toBe('imagelayer');
+  });
+});
+
+describe('parseTiledMap with real map.home_ending.json', () => {
+  const mapId = 'map.home_ending';
+  const entities = chapterMaps.ending.entities as WorldEntity[];
+
+  it('parses visual_props with entityId binding for xiulan', () => {
+    const content = parseTiledMap(mapId, loadMapJson(mapId), entities);
+    expect(content.visualProps).toHaveLength(1);
+    expect(content.visualProps[0].entityId).toBe('entity.ending.xiulan');
+  });
+});
+
+describe('TiledCollisionProvider with multi-map data', () => {
+  it('does not use home collision data for non-home chapters', async () => {
+    const { TiledCollisionProvider } = await import(
+      '../../src/game/content/collisionProvider'
+    );
+    const provider = new TiledCollisionProvider({
+      'map.home': loadMapJson('map.home'),
+      'map.rain_station': loadMapJson('map.rain_station'),
+    });
+
+    const homeData = provider.getCollisionData('home');
+    const rainData = provider.getCollisionData('rain');
+
+    // Home should have collision obstacles (walls + furniture)
+    expect(homeData.obstacles.length).toBeGreaterThan(10);
+
+    // Rain station has no collision layer in Tiled, so obstacles should be empty
+    expect(rainData.obstacles.length).toBe(0);
+
+    // Rain walk bounds should not be the same as home walk bounds
+    expect(rainData.walkBounds).not.toEqual(homeData.walkBounds);
+  });
+
+  it('falls back to generic bounds for chapters without Tiled data', async () => {
+    const { TiledCollisionProvider } = await import(
+      '../../src/game/content/collisionProvider'
+    );
+    const provider = new TiledCollisionProvider({});
+
+    const rainData = provider.getCollisionData('rain');
+    expect(rainData.obstacles.length).toBe(0);
+    expect(rainData.walkBounds.minX).toBe(55);
   });
 });

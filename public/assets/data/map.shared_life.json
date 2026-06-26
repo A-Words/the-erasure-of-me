@@ -4,6 +4,473 @@
   "infinite": false,
   "layers": [
     {
+      "id": 3,
+      "image": "../environments/environment_life_v01.png",
+      "name": "background",
+      "offsetx": 0,
+      "offsety": 0,
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "manifest.ts"
+        }
+      ],
+      "transparentcolor": "",
+      "type": "imagelayer",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 4,
+      "name": "visual_props",
+      "objects": [
+        {
+          "height": 44,
+          "id": 13,
+          "name": "visual.life.move_1979",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 520
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.photo.move_1979"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated photo prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 208,
+          "y": 542
+        },
+        {
+          "height": 44,
+          "id": 14,
+          "name": "visual.life.osmanthus_1992",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 180
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.photo.osmanthus_1992"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated photo prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 1038,
+          "y": 202
+        },
+        {
+          "height": 44,
+          "id": 15,
+          "name": "visual.life.anniversary_2001",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 520
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.photo.anniversary_2001"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated photo prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 1008,
+          "y": 542
+        },
+        {
+          "height": 44,
+          "id": 16,
+          "name": "visual.life.album",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 160
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.life.album"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated album prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 618,
+          "y": 182
+        },
+        {
+          "height": 44,
+          "id": 17,
+          "name": "visual.life.wood_comb",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 340
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.life.wood_comb"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated comb prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 288,
+          "y": 362
+        },
+        {
+          "height": 44,
+          "id": 18,
+          "name": "visual.life.enamel_cup",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 330
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.life.enamel_cup"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated cup prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 868,
+          "y": 352
+        },
+        {
+          "height": 44,
+          "id": 19,
+          "name": "visual.life.cassette",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 570
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.life.cassette"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated cassette prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 858,
+          "y": 592
+        },
+        {
+          "height": 44,
+          "id": 20,
+          "name": "visual.life.dresser_slot",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 150
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "slot.life.dresser"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated slot prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 238,
+          "y": 172
+        },
+        {
+          "height": 44,
+          "id": 21,
+          "name": "visual.life.windowsill_slot",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 150
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "slot.life.windowsill"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated slot prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 1008,
+          "y": 172
+        },
+        {
+          "height": 44,
+          "id": 22,
+          "name": "visual.life.radio_slot",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 590
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "slot.life.radio"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated slot prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 1018,
+          "y": 612
+        },
+        {
+          "height": 60,
+          "id": 23,
+          "name": "visual.life.exit",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 60
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 50
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.life.exit"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated exit prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 60,
+          "x": 610,
+          "y": 80
+        }
+      ],
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "maps.ts"
+        }
+      ],
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
       "draworder": "topdown",
       "id": 1,
       "name": "navigation",
@@ -136,8 +603,8 @@
       "y": 0
     }
   ],
-  "nextlayerid": 3,
-  "nextobjectid": 13,
+  "nextlayerid": 5,
+  "nextobjectid": 24,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

@@ -4,6 +4,207 @@
   "infinite": false,
   "layers": [
     {
+      "id": 3,
+      "image": "../environments/environment_return_v01.png",
+      "name": "background",
+      "offsetx": 0,
+      "offsety": 0,
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "manifest.ts"
+        }
+      ],
+      "transparentcolor": "",
+      "type": "imagelayer",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 4,
+      "name": "visual_props",
+      "objects": [
+        {
+          "height": 60,
+          "id": 6,
+          "name": "visual.return.route_up",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 60
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 90
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "route.up"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated route prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 60,
+          "x": 610,
+          "y": 120
+        },
+        {
+          "height": 60,
+          "id": 7,
+          "name": "visual.return.route_right",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 60
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 360
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "route.right"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated route prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 60,
+          "x": 1130,
+          "y": 390
+        },
+        {
+          "height": 60,
+          "id": 8,
+          "name": "visual.return.route_down",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 60
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 630
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "route.down"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated route prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 60,
+          "x": 610,
+          "y": 660
+        },
+        {
+          "height": 60,
+          "id": 9,
+          "name": "visual.return.route_left",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 60
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 360
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "route.left"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "placeholder: no dedicated route prop image"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 60,
+          "x": 90,
+          "y": 390
+        }
+      ],
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "maps.ts"
+        }
+      ],
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
       "draworder": "topdown",
       "id": 1,
       "name": "navigation",
@@ -73,8 +274,8 @@
       "y": 0
     }
   ],
-  "nextlayerid": 3,
-  "nextobjectid": 6,
+  "nextlayerid": 5,
+  "nextobjectid": 10,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

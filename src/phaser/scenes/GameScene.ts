@@ -300,10 +300,13 @@ export class GameScene extends Phaser.Scene {
         .image(map.width / 2, map.height / 2, 'environment.home.sunlight_overlay')
         .setDisplaySize(map.width, map.height)
         .setDepth(20);
+    }
 
-      // Use Tiled-driven visual placements when available; fall back to code constants.
-      const decorPlacements = tiledContent?.visualDecor ?? [];
-      const furniturePlacements = tiledContent?.visualFurniture ?? [];
+    // Render Tiled-driven visual placements for any chapter that has them.
+    // Home falls back to code constants if Tiled data is missing.
+    const decorPlacements = tiledContent?.visualDecor ?? [];
+    const furniturePlacements = tiledContent?.visualFurniture ?? [];
+    if (state.chapterId === 'home') {
       if (decorPlacements.length > 0) {
         for (const decor of decorPlacements) {
           this.add
@@ -335,6 +338,20 @@ export class GameScene extends Phaser.Scene {
         }
       }
       this.createHomeArchitectureOverlays(map.width, map.height);
+    } else {
+      // Non-home chapters: render Tiled-driven decor/furniture if available.
+      for (const decor of decorPlacements) {
+        this.add
+          .image(decor.x, decor.y, decor.assetKey, decor.frame)
+          .setDisplaySize(decor.size, decor.size)
+          .setDepth(worldDepth(decor.sortY));
+      }
+      for (const furniture of furniturePlacements) {
+        this.add
+          .image(furniture.x, furniture.y, furniture.assetKey, furniture.frame)
+          .setDisplaySize(furniture.size, furniture.size)
+          .setDepth(worldDepth(furniture.sortY));
+      }
     }
 
     // Use Tiled-driven interactable coordinates when available; fall back to code entities.

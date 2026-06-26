@@ -14,8 +14,22 @@ async function loadJson<T>(url: string): Promise<T> {
 }
 
 async function bootstrap(): Promise<void> {
-  const homeTiledJson = await loadJson<unknown>('/assets/data/map.home.json');
-  const collisionProvider = new TiledCollisionProvider(homeTiledJson);
+  const mapIds = [
+    'map.home',
+    'map.rain_station',
+    'map.shared_life',
+    'map.return_corridor',
+    'map.home_ending',
+  ];
+  const tiledJsons: Record<string, unknown> = {};
+  for (const mapId of mapIds) {
+    try {
+      tiledJsons[mapId] = await loadJson<unknown>(`/assets/data/${mapId}.json`);
+    } catch {
+      // Map JSON may fail to load in some environments; provider will use fallback.
+    }
+  }
+  const collisionProvider = new TiledCollisionProvider(tiledJsons);
   const store = new GameStore(createInitialState(), collisionProvider);
   const saves = new SaveRepository();
   const audio = new AudioManager();

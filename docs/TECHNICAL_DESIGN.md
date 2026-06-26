@@ -373,7 +373,19 @@ type InputAction =
 | 角色缩放 | 代码常量 | `homeLayout.ts:homeVisualSizes.characterScale` |
 | 道具视觉映射 | 代码常量 | `GameScene.ts:homePropVisuals` |
 
-GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 通过纯数据依赖注入接收碰撞数据：`main.ts` 在启动时从 `/assets/data/map.home.json` fetch 地图 JSON，通过 `TiledCollisionProvider` 解析为 `AxisAlignedRect[]` 和 `MovementBounds`，注入 GameStore 构造函数。GameStore 不再直接导入 `homeLayout.ts` 的碰撞常量；`CodeCollisionProvider` 作为测试 fallback 仍使用代码常量。
+GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 通过纯数据依赖注入接收碰撞数据：`main.ts` 在启动时 fetch 全部 5 张地图 JSON，通过 `TiledCollisionProvider` 解析为 `AxisAlignedRect[]` 和 `MovementBounds`，注入 GameStore 构造函数。GameStore 不再直接导入 `homeLayout.ts` 的碰撞常量；`CodeCollisionProvider` 作为测试 fallback 仍使用代码常量。
+
+**5 张地图迁移状态：**
+
+| 地图 | background | visual_props | visual_furniture | visual_decor | collision | navigation |
+| --- | --- | --- | --- | --- | --- | --- |
+| map.home | ✓ | ✓ (entityId) | ✓ (collisionId) | ✓ | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| map.rain_station | ✓ | ✓ (entityId, placeholder) | — | — | — fallback | — fallback |
+| map.shared_life | ✓ | ✓ (entityId, placeholder) | — | — | — fallback | — fallback |
+| map.return_corridor | ✓ | ✓ (entityId, placeholder) | — | — | — fallback | — fallback |
+| map.home_ending | ✓ | ✓ (entityId, placeholder) | — | — | — fallback | — fallback |
+
+非 home 地图的 visual_props 对象大多使用 placeholder（无 gid/tileset），仅携带 entityId/sortY/size 元数据。rain_station 的红伞实体使用 `prop_red_umbrella_closed` tileset。后续替换 placeholder 为正式资产时，只需在 Tiled 中为对象分配 gid 即可。
 
 ### 6.3 对象属性
 

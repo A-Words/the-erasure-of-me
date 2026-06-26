@@ -172,6 +172,7 @@ const TILESET_ASSET_KEYS: Record<string, string> = {
   prop_home_red_thread_journal: 'prop.home.red_thread_journal',
   prop_home_glasses_case: 'prop.home.glasses_case',
   prop_home_blue_key_bowl: 'prop.home.blue_key_bowl',
+  prop_red_umbrella_closed: 'prop.red_umbrella.closed',
 };
 
 function resolveTilesetAssetKey(tilesetName: string): string {
@@ -308,7 +309,6 @@ function parseVisualLayer(
     }
     seenIds.add(id);
 
-    const { assetKey, frame } = resolveGid(obj.gid, tilesetIndex);
     const size = getNumberProperty(obj, 'size', obj.width ?? 0);
     const sortY = getNumberProperty(obj, 'sortY', obj.y);
     const collisionId = getOptionalStringProperty(obj, 'collisionId');
@@ -316,6 +316,24 @@ function parseVisualLayer(
     const width = obj.width ?? size;
     const height = obj.height ?? size;
 
+    // Objects without a gid are placeholder visuals (no tile image).
+    // They still carry entityId/sortY metadata for depth sorting and binding.
+    if (obj.gid === undefined) {
+      placements.push({
+        id,
+        assetKey: '',
+        frame: 0,
+        x: obj.x + width / 2,
+        y: obj.y - height / 2,
+        size,
+        sortY,
+        collisionId,
+        entityId,
+      });
+      continue;
+    }
+
+    const { assetKey, frame } = resolveGid(obj.gid, tilesetIndex);
     placements.push({
       id,
       assetKey,

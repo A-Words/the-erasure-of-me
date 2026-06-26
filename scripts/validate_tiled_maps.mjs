@@ -29,8 +29,20 @@ const MAP_FILES = {
   'map.home_ending': 'map.home_ending.json',
 };
 
-const REQUIRED_VISUAL_LAYERS = ['background', 'visual_furniture', 'visual_decor', 'visual_props'];
+const REQUIRED_VISUAL_LAYERS_ALL = ['background', 'visual_props'];
+const REQUIRED_VISUAL_LAYERS_HOME = ['visual_furniture', 'visual_decor'];
 const LOGICAL_LAYERS = ['navigation', 'interactables', 'collision'];
+
+// Must match TILESET_ASSET_KEYS in src/game/content/tiledMapLoader.ts
+const VALID_TILESET_NAMES = new Set([
+  'furniture_home_atlas',
+  'decor_home_atlas',
+  'prop_home_bedside_photo',
+  'prop_home_red_thread_journal',
+  'prop_home_glasses_case',
+  'prop_home_blue_key_bowl',
+  'prop_red_umbrella_closed',
+]);
 
 /**
  * @param {string} mapId
@@ -66,9 +78,17 @@ function validateMap(mapId) {
 
   // --- Check 1: Required visual layers exist ---
   const layerNames = layers.map((l) => l.name);
-  for (const required of REQUIRED_VISUAL_LAYERS) {
+  for (const required of REQUIRED_VISUAL_LAYERS_ALL) {
     if (!layerNames.includes(required)) {
       errors.push(`Missing required visual layer: "${required}"`);
+    }
+  }
+  // Home requires additional furniture/decor layers
+  if (mapId === 'map.home') {
+    for (const required of REQUIRED_VISUAL_LAYERS_HOME) {
+      if (!layerNames.includes(required)) {
+        errors.push(`Missing required visual layer: "${required}"`);
+      }
     }
   }
 
@@ -90,6 +110,12 @@ function validateMap(mapId) {
       if (!existsSync(imgPath)) {
         errors.push(`Tileset "${ts.name}" references missing file: ${ts.image}`);
       }
+    }
+    // 2c: Tileset name must be mappable to a runtime asset key
+    if (!VALID_TILESET_NAMES.has(ts.name)) {
+      errors.push(
+        `Tileset "${ts.name}" has no mapping to a Phaser asset key in TILESET_ASSET_KEYS`,
+      );
     }
   }
 
