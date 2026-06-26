@@ -39,9 +39,9 @@
 | journal. | 日记页 | journal.home.key |
 | memory. | 记忆碎片 | memory.rain.umbrella |
 | audio. | 声音 | audio.rain.clock_bell |
-| visual. | 编辑参照对象（非运行时） | visual.home.bed |
+| visual. | Tiled 可视化对象 | visual.home.bed |
 
-> `visual.` 前缀对象仅存在于 `visual_furniture`、`visual_decor`、`visual_props` 编辑参照层中，不参与运行时逻辑。运行时家具、装饰和道具位置以 `homeLayout.ts` 和 `maps.ts` 代码常量为权威来源。
+> `visual.` 前缀对象仅存在于 `visual_furniture`、`visual_decor`、`visual_props` 层中。它们可作为运行时视觉数据来源，但不进入存档、不决定谜题真值，也不得替代 `interactables`、`collision`、`navigation` 等逻辑层的稳定 ID。
 
 ### 2.3 Tiled 运行时适配
 
@@ -49,12 +49,14 @@
 
 - `interactables` → `WorldEntity[]`（坐标、kind、label）
 - `collision` → `NamedCollisionRect[]`（纯 `AxisAlignedRect`）
-- `visual_furniture` / `visual_decor` / `visual_props` → `VisualPlacement[]`（assetKey、frame、x/y、size、sortY）
+- `visual_furniture` / `visual_decor` / `visual_props` → `VisualPlacement[]`（assetKey、frame、x/y、size、sortY、entityId、collisionId）
 - `navigation` → `SpawnPoint[]` 和 `MovementBounds`
 
-如果 Tiled JSON 缺少 visual_\* 层或解析失败，GameScene 自动回退到 `homeLayout.ts` 代码常量。GameStore 的碰撞数据仍来自 `homeLayout.ts`，后续可通过依赖注入迁移。
+`visual_props` 通过 `entityId` 绑定 `interactables` 层实体，例如 `visual.home.key_bowl` 绑定 `entity.home.key_bowl`。`visual_furniture` 通过 `collisionId` 绑定 `collision` 层脚印矩形，例如 `visual.home.sofa` 绑定 `collision.home.sofa`。Tiled tile object 使用左下角坐标；适配层转换为 Phaser Image 的中心坐标，关卡作者不需要在 Tiled 中手动抵消偏移。
 
-### 2.3 通用交互距离
+如果 Tiled JSON 缺少 visual_\* 层或解析失败，GameScene 自动回退到 `homeLayout.ts` 代码常量。GameStore 的碰撞和行走边界通过 `CollisionDataProvider` 注入；生产入口使用 `TiledCollisionProvider`，`CodeCollisionProvider` 仅作为测试或明确 fallback 使用。
+
+### 2.4 通用交互距离
 
 - 正面交互：角色锚点距离物件锚点不超过 96 像素；
 - 观察高亮：不超过 192 像素且中间无遮挡；

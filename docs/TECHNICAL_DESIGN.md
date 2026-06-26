@@ -319,9 +319,9 @@ type InputAction =
 | 图层 | 类型 | 用途 |
 | --- | --- | --- |
 | background | Image Layer | 编辑参照：环境背景图，不参与运行时渲染 |
-| visual_decor | Object Layer | 编辑参照：非交互装饰位置，不参与运行时渲染 |
-| visual_furniture | Object Layer | 编辑参照：家具摆放位置与图集帧，不参与运行时渲染 |
-| visual_props | Object Layer | 编辑参照：交互道具视觉位置，不参与运行时渲染 |
+| visual_decor | Object Layer | 非交互装饰的 Tiled 可视化位置，已可作为运行时视觉数据 |
+| visual_furniture | Object Layer | 家具摆放位置、图集帧、尺寸、排序和碰撞绑定，已可作为运行时视觉数据 |
+| visual_props | Object Layer | 交互道具视觉位置、尺寸、排序和实体绑定，已可作为运行时视觉数据 |
 | ground | Tile Layer | 地面 |
 | floor_detail | Tile Layer | 地毯、水渍、裂纹 |
 | walls_low | Tile Layer | 角色可被遮挡前的低墙 |
@@ -337,13 +337,13 @@ type InputAction =
 
 #### 6.2.1 编辑参照层（visual_*）
 
-`background`、`visual_furniture`、`visual_decor` 和 `visual_props` 是仅供 Tiled 编辑器可视化参照的图层，**不是运行时权威数据**。
+`background` 是仅供 Tiled 编辑器可视化参照的图层，运行时背景仍由 asset manifest 加载。`visual_furniture`、`visual_decor` 和 `visual_props` 既承担 Tiled 编辑器中的可视化参照，也经 `tiledMapLoader` 转换为纯 `VisualPlacement[]` 供 Phaser View 渲染；这些视觉数据不进入存档，也不决定谜题真值。
 
-- 运行时背景、家具、装饰和道具的位置、尺寸和帧来自 `manifest.ts`、`maps.ts` 和 `homeLayout.ts`，Phaser Scene 直接引用这些代码常量渲染。
-- `visual_*` 层中的 tile 对象使用与代码一致的坐标（已从 Phaser 中心锚点转换为 Tiled 底部锚点）和显示尺寸，使关卡作者在 Tiled 中看到的布局与游戏画面一致。
+- `visual_*` 层中的 tile 对象使用 Tiled tile object 的左下角坐标；适配层会转换为 Phaser Image 需要的中心坐标，使关卡作者在 Tiled 中看到的布局与游戏画面一致。
 - 每个 `visual_*` 层和层内对象都带 `visual_reference=true` 自定义属性，用于与逻辑层区分。
 - `visual_*` 层的对象名称以 `visual.` 前缀开头，不与 `interactables`、`collision`、`navigation` 等逻辑层的稳定 ID 冲突。
-- 运行时通过 `src/game/content/tiledMapLoader.ts` 适配层解析 Tiled JSON；`scripts/validate_tiled_maps.mjs` 校验这些层存在、引用图片存在且稳定 ID 无重复。
+- `visual_props` 用 `entityId` 显式绑定 `interactables` 中的实体；`visual_furniture` 用 `collisionId` 显式绑定 `collision` 中的脚印矩形。
+- 运行时通过 `src/game/content/tiledMapLoader.ts` 适配层解析 Tiled JSON；`scripts/validate_tiled_maps.mjs` 校验这些层存在、引用图片存在、稳定 ID 无重复且 `entityId` / `collisionId` 指向真实对象。
 
 #### 6.2.2 Tiled 内容适配层（tiledMapLoader）
 
@@ -351,10 +351,10 @@ type InputAction =
 
 **职责：**
 
-- 启动或切章时读取已加载的 Tiled JSON（通过 Phaser JSON cache）；
+- 启动或切章时读取已加载的 Tiled JSON；GameScene 使用 Phaser JSON cache，GameStore 的碰撞提供器使用启动时从 `/assets/data/map.home.json` fetch 的纯 JSON；
 - 将 `interactables` 对象层转换为 `WorldEntity[]`（坐标、kind、label）；
 - 将 `collision` 对象层转换为 `NamedCollisionRect[]`（纯 `AxisAlignedRect`）；
-- 将 `visual_furniture`、`visual_decor`、`visual_props` 对象层转换为 `VisualPlacement[]`（assetKey、frame、x/y、size、sortY、collisionId）；
+- 将 `visual_furniture`、`visual_decor`、`visual_props` 对象层转换为 `VisualPlacement[]`（assetKey、frame、x/y、size、sortY、collisionId、entityId）；
 - 将 `navigation` 对象层转换为 `SpawnPoint[]` 和 `MovementBounds`；
 - 检测重复稳定 ID 并抛出明确错误。
 
@@ -364,7 +364,7 @@ type InputAction =
 | --- | --- | --- |
 | 家具视觉位置/帧/尺寸 | `visual_furniture` 层 | `homeLayout.ts:homeFurnitureLayout` |
 | 装饰视觉位置/帧/尺寸 | `visual_decor` 层 | `homeLayout.ts:homeDecorLayout` |
-| 道具视觉位置/尺寸 | `visual_props` 层 | `maps.ts:chapterMaps.home.entities` |
+| 道具视觉位置/尺寸 | `visual_props` 层（通过 entityId 绑定实体） | `maps.ts:chapterMaps.home.entities` |
 | 交互物坐标/kind | `interactables` 层 | `maps.ts:chapterMaps.home.entities` |
 | 实体深度排序 sortY | `visual_props` 层 sortY 属性 | `homeLayout.ts:homeEntitySortY` |
 | 碰撞矩形 | `collision` 层 → `TiledCollisionProvider` | `homeLayout.ts:homeCollisionObstacles`（`CodeCollisionProvider` 测试 fallback） |
@@ -373,7 +373,7 @@ type InputAction =
 | 角色缩放 | 代码常量 | `homeLayout.ts:homeVisualSizes.characterScale` |
 | 道具视觉映射 | 代码常量 | `GameScene.ts:homePropVisuals` |
 
-GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 通过纯数据依赖注入接收碰撞数据：`main.ts` 在启动时用 Vite JSON import 加载 `map.home.json`，通过 `TiledCollisionProvider` 解析为 `AxisAlignedRect[]` 和 `MovementBounds`，注入 GameStore 构造函数。GameStore 不再直接导入 `homeLayout.ts` 的碰撞常量；`CodeCollisionProvider` 作为测试 fallback 仍使用代码常量。
+GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 通过纯数据依赖注入接收碰撞数据：`main.ts` 在启动时从 `/assets/data/map.home.json` fetch 地图 JSON，通过 `TiledCollisionProvider` 解析为 `AxisAlignedRect[]` 和 `MovementBounds`，注入 GameStore 构造函数。GameStore 不再直接导入 `homeLayout.ts` 的碰撞常量；`CodeCollisionProvider` 作为测试 fallback 仍使用代码常量。
 
 ### 6.3 对象属性
 
