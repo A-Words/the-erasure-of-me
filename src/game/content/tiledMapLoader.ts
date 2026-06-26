@@ -124,13 +124,6 @@ function getProperty(obj: TiledObject, name: string): unknown {
   return prop?.value;
 }
 
-function getStringProperty(obj: TiledObject, name: string, fallback?: string): string {
-  const value = getProperty(obj, name);
-  if (typeof value === 'string' && value.length > 0) return value;
-  if (fallback !== undefined) return fallback;
-  throw new Error(`Tiled object "${obj.name ?? obj.id}" missing required string property "${name}"`);
-}
-
 function getOptionalStringProperty(obj: TiledObject, name: string): string | undefined {
   const value = getProperty(obj, name);
   if (typeof value === 'string' && value.length > 0) return value;
@@ -247,14 +240,15 @@ function parseInteractables(
     }
     seenIds.add(id);
 
-    const kind = (obj.type ?? 'inspect') as WorldEntity['kind'];
+    const fallback = fallbackEntities.find((e) => e.id === id);
+    const kind = (obj.type ?? fallback?.kind ?? 'inspect') as WorldEntity['kind'];
     const colorProp = getOptionalNumberProperty(obj, 'color');
     // Tiled stores color as int in some exports; we pass through if present.
-    const color = typeof colorProp === 'number' ? colorProp : undefined;
+    const color = typeof colorProp === 'number' ? colorProp : fallback?.color;
 
     entities.push({
       id,
-      label: getStringProperty(obj, 'label', id),
+      label: getOptionalStringProperty(obj, 'label') ?? fallback?.label ?? id,
       x: obj.x,
       y: obj.y,
       kind,
@@ -389,6 +383,16 @@ export function parseTiledMap(
   const data = rawData as TiledMapData;
   if (!data || !Array.isArray(data.layers)) {
     throw new Error(`Invalid Tiled map data for "${mapId}": missing layers array`);
+  }
+  for (const [key, value] of [
+    ['width', data.width],
+    ['height', data.height],
+    ['tilewidth', data.tilewidth],
+    ['tileheight', data.tileheight],
+  ] as const) {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      throw new Error(`Invalid Tiled map data for "${mapId}": missing numeric "${key}"`);
+    }
   }
 
   const tilesetIndex = buildTilesetIndex(data.tilesets ?? []);

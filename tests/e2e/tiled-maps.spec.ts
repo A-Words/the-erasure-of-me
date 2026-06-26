@@ -5,7 +5,7 @@ import { expect, test, type Page } from '@playwright/test';
  *
  * These tests verify that the Tiled JSON → tiledMapLoader → GameScene pipeline
  * works for every chapter: canvas renders, chapterId is correct, and no browser
- * console errors occur.
+ * console errors or fallback warnings occur.
  *
  * They do NOT verify pixel-perfect rendering or puzzle logic — those are
  * covered by the dedicated home-scene and game e2e tests.
@@ -84,6 +84,30 @@ function buildChapterSave(chapterId: string): Record<string, unknown> {
   };
 }
 
+/** Collect browser errors and Tiled data pipeline warnings for assertion. */
+interface ConsoleCapture {
+  errors: string[];
+  tiledWarns: string[];
+}
+
+function setupConsoleCapture(page: Page): ConsoleCapture {
+  const capture: ConsoleCapture = { errors: [], tiledWarns: [] };
+  page.on('console', (m) => {
+    if (m.type() === 'error') {
+      capture.errors.push(m.text());
+    } else if (m.type() === 'warning') {
+      const text = m.text();
+      // Only flag warnings from the Tiled data pipeline, not bootstrap fetch
+      // failures which can occur intermittently in test environments.
+      if (text.includes('[TiledCollisionProvider]')) {
+        capture.tiledWarns.push(text);
+      }
+    }
+  });
+  page.on('pageerror', (e) => capture.errors.push(e.stack ?? e.message));
+  return capture;
+}
+
 /** Boot the game from a fresh state (home chapter). */
 async function bootFreshGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1366, height: 768 });
@@ -113,10 +137,11 @@ async function bootIntoChapter(page: Page, chapterId: string): Promise<void> {
   await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
 }
 
-/** Verify the chapter renders correctly: canvas visible, chapterId matches, no errors. */
+/** Verify the chapter renders correctly: canvas visible, chapterId matches, no errors or fallbacks. */
 async function assertChapterRenders(
   page: Page,
   chapterId: string,
+  capture: ConsoleCapture,
 ): Promise<void> {
   const app = page.locator('#app');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
@@ -142,6 +167,10 @@ async function assertChapterRenders(
   // Canvas has rendered pixels
   const canvasPixel = await canvas.screenshot();
   expect(canvasPixel.byteLength).toBeGreaterThan(0);
+
+  // No browser errors and no Tiled data pipeline warnings
+  expect(capture.errors).toEqual([]);
+  expect(capture.tiledWarns).toEqual([]);
 }
 
 // ---------------------------------------------------------------------------
@@ -149,53 +178,33 @@ async function assertChapterRenders(
 // ---------------------------------------------------------------------------
 
 test('tiled map smoke: home renders, player in bounds, no errors', async ({ page }) => {
-  const browserErrors: string[] = [];
-  page.on('console', (m) => { if (m.type() === 'error') browserErrors.push(m.text()); });
-  page.on('pageerror', (e) => browserErrors.push(e.stack ?? e.message));
-
+  const capture = setupConsoleCapture(page);
   await bootFreshGame(page);
-  await assertChapterRenders(page, 'home');
-  expect(browserErrors).toEqual([]);
+  await assertChapterRenders(page, 'home', capture);
 });
 
 test('tiled map smoke: rain renders, player in bounds, no errors', async ({ page }) => {
-  const browserErrors: string[] = [];
-  page.on('console', (m) => { if (m.type() === 'error') browserErrors.push(m.text()); });
-  page.on('pageerror', (e) => browserErrors.push(e.stack ?? e.message));
-
+  const capture = setupConsoleCapture(page);
   await bootIntoChapter(page, 'rain');
-  await assertChapterRenders(page, 'rain');
-  expect(browserErrors).toEqual([]);
+  await assertChapterRenders(page, 'rain', capture);
 });
 
 test('tiled map smoke: life renders, player in bounds, no errors', async ({ page }) => {
-  const browserErrors: string[] = [];
-  page.on('console', (m) => { if (m.type() === 'error') browserErrors.push(m.text()); });
-  page.on('pageerror', (e) => browserErrors.push(e.stack ?? e.message));
-
+  const capture = setupConsoleCapture(page);
   await bootIntoChapter(page, 'life');
-  await assertChapterRenders(page, 'life');
-  expect(browserErrors).toEqual([]);
+  await assertChapterRenders(page, 'life', capture);
 });
 
 test('tiled map smoke: return renders, player in bounds, no errors', async ({ page }) => {
-  const browserErrors: string[] = [];
-  page.on('console', (m) => { if (m.type() === 'error') browserErrors.push(m.text()); });
-  page.on('pageerror', (e) => browserErrors.push(e.stack ?? e.message));
-
+  const capture = setupConsoleCapture(page);
   await bootIntoChapter(page, 'return');
-  await assertChapterRenders(page, 'return');
-  expect(browserErrors).toEqual([]);
+  await assertChapterRenders(page, 'return', capture);
 });
 
 test('tiled map smoke: ending renders, player in bounds, no errors', async ({ page }) => {
-  const browserErrors: string[] = [];
-  page.on('console', (m) => { if (m.type() === 'error') browserErrors.push(m.text()); });
-  page.on('pageerror', (e) => browserErrors.push(e.stack ?? e.message));
-
+  const capture = setupConsoleCapture(page);
   await bootIntoChapter(page, 'ending');
-  await assertChapterRenders(page, 'ending');
-  expect(browserErrors).toEqual([]);
+  await assertChapterRenders(page, 'ending', capture);
 });
 
 // ---------------------------------------------------------------------------
@@ -203,10 +212,7 @@ test('tiled map smoke: ending renders, player in bounds, no errors', async ({ pa
 // ---------------------------------------------------------------------------
 
 test('tiled map smoke: sequential chapter saves do not corrupt state', async ({ page }) => {
-  const browserErrors: string[] = [];
-  page.on('console', (m) => { if (m.type() === 'error') browserErrors.push(m.text()); });
-  page.on('pageerror', (e) => browserErrors.push(e.stack ?? e.message));
-
+  const capture = setupConsoleCapture(page);
   await page.setViewportSize({ width: 1366, height: 768 });
 
   for (const chapterId of CHAPTERS) {
@@ -229,5 +235,6 @@ test('tiled map smoke: sequential chapter saves do not corrupt state', async ({ 
     await expect(canvas).toBeVisible({ timeout: 5_000 });
   }
 
-  expect(browserErrors).toEqual([]);
+  expect(capture.errors).toEqual([]);
+  expect(capture.tiledWarns).toEqual([]);
 });

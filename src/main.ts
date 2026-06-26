@@ -21,12 +21,13 @@ async function bootstrap(): Promise<void> {
     'map.return_corridor',
     'map.home_ending',
   ];
+  const baseUrl = import.meta.env.BASE_URL;
   const tiledJsons: Record<string, unknown> = {};
   for (const mapId of mapIds) {
     try {
-      tiledJsons[mapId] = await loadJson<unknown>(`/assets/data/${mapId}.json`);
-    } catch {
-      // Map JSON may fail to load in some environments; provider will use fallback.
+      tiledJsons[mapId] = await loadJson<unknown>(`${baseUrl}assets/data/${mapId}.json`);
+    } catch (err) {
+      console.warn(`[bootstrap] Failed to load ${mapId}.json:`, err instanceof Error ? err.message : err);
     }
   }
   const collisionProvider = new TiledCollisionProvider(tiledJsons);

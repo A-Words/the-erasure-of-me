@@ -24,7 +24,7 @@ describe('validate_tiled_maps', () => {
     expect(result.exitCode).toBe(0);
   });
 
-  it('detects missing background image layer', () => {
+  it('passes for map.home (happy path; missing-layer failure tested via CLI)', () => {
     // We can't easily remove a layer from the real file, so we test the
     // happy path here. The script itself is integration-tested via CLI.
     const result = runValidator('map.home');

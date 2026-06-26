@@ -146,13 +146,24 @@ function validateMap(mapId) {
     }
   }
 
-  // --- Check 4: visual_* layers have visual_reference property ---
+  // --- Check 4: visual_* layers and objects have visual_reference property ---
   for (const layer of layers) {
     if (!layer.name?.startsWith('visual_')) continue;
     const props = layer.properties ?? [];
     const hasFlag = props.some((p) => p.name === 'visual_reference' && p.value === true);
     if (!hasFlag) {
       warnings.push(`Layer "${layer.name}" is missing visual_reference=true property`);
+    }
+    for (const obj of layer.objects ?? []) {
+      const objectProps = obj.properties ?? [];
+      const objectHasFlag = objectProps.some(
+        (p) => p.name === 'visual_reference' && p.value === true,
+      );
+      if (!objectHasFlag) {
+        warnings.push(
+          `Visual object "${obj.name ?? '(unnamed)'}" in "${layer.name}" is missing visual_reference=true property`,
+        );
+      }
     }
   }
 

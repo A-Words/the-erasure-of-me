@@ -63,8 +63,11 @@ export class TiledCollisionProvider implements CollisionDataProvider {
           obstacles: extractCollisionObstacles(content),
           walkBounds: extractWalkBounds(content, genericWalkBounds(chapter)),
         };
-      } catch {
-        // Fall back to code constants for this chapter
+      } catch (err) {
+        console.warn(
+          `[TiledCollisionProvider] Failed to parse ${mapId} for chapter "${chapter}", using generic fallback:`,
+          err instanceof Error ? err.message : err,
+        );
       }
     }
 

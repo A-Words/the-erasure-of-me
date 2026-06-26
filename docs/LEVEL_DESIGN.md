@@ -66,7 +66,7 @@
 
 `scripts/validate_tiled_maps.mjs` Check 7 强制校验上述规则。替换 placeholder 为正式资产时，在 Tiled 中为对象分配 gid 并移除 placeholder/status/replacement 属性。
 
-### 2.4 通用交互距离
+### 2.5 通用交互距离
 
 - 正面交互：角色锚点距离物件锚点不超过 96 像素；
 - 观察高亮：不超过 192 像素且中间无遮挡；
