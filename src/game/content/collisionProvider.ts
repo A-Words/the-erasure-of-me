@@ -5,9 +5,9 @@
  * access Phaser's asset cache. Instead, it receives collision data through
  * this interface — a pure data dependency injection.
  *
- * The default implementation loads Tiled JSON at startup and parses it with
- * tiledMapLoader. If Tiled data is unavailable, it falls back to
- * homeLayout.ts code constants for home and generic bounds for other chapters.
+ * The production implementation loads Tiled JSON at startup and parses it with
+ * tiledMapLoader. Missing or invalid map data fails explicitly; tests that need
+ * code fallback should use CodeCollisionProvider instead.
  */
 
 import type { AxisAlignedRect, MovementBounds } from '../simulation/collision';
@@ -40,9 +40,6 @@ function genericWalkBounds(chapterId: ChapterId): MovementBounds {
 }
 
 /**
- * Default provider that uses Tiled-parsed data when available,
- * falling back to code constants when Tiled data is missing or unparseable.
- *
  * Accepts a Record of mapId → raw Tiled JSON so all chapters can be
  * collision-driven without Phaser.
  */
@@ -53,30 +50,28 @@ export class TiledCollisionProvider implements CollisionDataProvider {
     for (const [mapId, rawJson] of Object.entries(tiledJsons)) {
       const chapter = this.mapIdToChapter(mapId);
       if (!chapter) continue;
-      try {
-        const content = parseTiledMap(
-          mapId,
-          rawJson,
-          chapterMaps[chapter].entities as WorldEntity[],
-        );
-        this.chapterData[chapter] = {
-          obstacles: extractCollisionObstacles(content),
-          walkBounds: extractWalkBounds(content, genericWalkBounds(chapter)),
-        };
-      } catch (err) {
-        console.warn(
-          `[TiledCollisionProvider] Failed to parse ${mapId} for chapter "${chapter}", using generic fallback:`,
-          err instanceof Error ? err.message : err,
-        );
+      const content = parseTiledMap(
+        mapId,
+        rawJson,
+        chapterMaps[chapter].entities as WorldEntity[],
+      );
+      const obstacles = extractCollisionObstacles(content);
+      if (obstacles.length === 0) {
+        throw new Error(`Tiled map "${mapId}" has no collision obstacles`);
       }
+      if (content.spawns.length === 0) {
+        throw new Error(`Tiled map "${mapId}" has no navigation spawn area`);
+      }
+      this.chapterData[chapter] = {
+        obstacles,
+        walkBounds: extractWalkBounds(content, genericWalkBounds(chapter)),
+      };
     }
 
-    // Ensure home always has data (code fallback if Tiled parse failed)
-    if (!this.chapterData.home) {
-      this.chapterData.home = {
-        obstacles: homeCollisionObstacles,
-        walkBounds: homeWalkBounds,
-      };
+    for (const chapter of Object.keys(chapterMaps) as ChapterId[]) {
+      if (!this.chapterData[chapter]) {
+        throw new Error(`Missing Tiled collision data for chapter "${chapter}"`);
+      }
     }
   }
 
@@ -90,8 +85,7 @@ export class TiledCollisionProvider implements CollisionDataProvider {
   getCollisionData(chapterId: ChapterId): ChapterCollisionData {
     const data = this.chapterData[chapterId];
     if (data) return data;
-    // Fallback for chapters without Tiled data
-    return { obstacles: [], walkBounds: genericWalkBounds(chapterId) };
+    throw new Error(`Missing Tiled collision data for chapter "${chapterId}"`);
   }
 }
 

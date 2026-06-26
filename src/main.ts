@@ -24,11 +24,7 @@ async function bootstrap(): Promise<void> {
   const baseUrl = import.meta.env.BASE_URL;
   const tiledJsons: Record<string, unknown> = {};
   for (const mapId of mapIds) {
-    try {
-      tiledJsons[mapId] = await loadJson<unknown>(`${baseUrl}assets/data/${mapId}.json`);
-    } catch (err) {
-      console.warn(`[bootstrap] Failed to load ${mapId}.json:`, err instanceof Error ? err.message : err);
-    }
+    tiledJsons[mapId] = await loadJson<unknown>(`${baseUrl}assets/data/${mapId}.json`);
   }
   const collisionProvider = new TiledCollisionProvider(tiledJsons);
   const store = new GameStore(createInitialState(), collisionProvider);

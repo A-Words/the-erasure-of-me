@@ -393,6 +393,10 @@ function loadMapJson(mapId: string): unknown {
   return JSON.parse(readFileSync(path, 'utf-8'));
 }
 
+interface MutableTiledFixture {
+  layers: Array<{ name: string }>;
+}
+
 describe('parseTiledMap with real map.rain_station.json', () => {
   const mapId = 'map.rain_station';
   const entities = chapterMaps.rain.entities as WorldEntity[];
@@ -479,6 +483,9 @@ describe('TiledCollisionProvider with multi-map data', () => {
     const provider = new TiledCollisionProvider({
       'map.home': loadMapJson('map.home'),
       'map.rain_station': loadMapJson('map.rain_station'),
+      'map.shared_life': loadMapJson('map.shared_life'),
+      'map.return_corridor': loadMapJson('map.return_corridor'),
+      'map.home_ending': loadMapJson('map.home_ending'),
     });
 
     const homeData = provider.getCollisionData('home');
@@ -488,14 +495,33 @@ describe('TiledCollisionProvider with multi-map data', () => {
     expect(rainData.walkBounds).not.toEqual(homeData.walkBounds);
   });
 
-  it('falls back to generic bounds for chapters without Tiled data', async () => {
+  it('throws when a chapter is missing Tiled collision data', async () => {
     const { TiledCollisionProvider } = await import(
       '../../src/game/content/collisionProvider'
     );
-    const provider = new TiledCollisionProvider({});
+    expect(() => new TiledCollisionProvider({})).toThrow(
+      /Missing Tiled collision data for chapter "home"/,
+    );
+  });
 
-    const rainData = provider.getCollisionData('rain');
-    expect(rainData.obstacles.length).toBe(0);
-    expect(rainData.walkBounds.minX).toBe(55);
+  it('throws when a Tiled map has no navigation layer', async () => {
+    const { TiledCollisionProvider } = await import(
+      '../../src/game/content/collisionProvider'
+    );
+    const brokenRain = loadMapJson('map.rain_station') as MutableTiledFixture;
+    brokenRain.layers = brokenRain.layers.filter(
+      (layer: { name: string }) => layer.name !== 'navigation',
+    );
+
+    expect(
+      () =>
+        new TiledCollisionProvider({
+          'map.home': loadMapJson('map.home'),
+          'map.rain_station': brokenRain,
+          'map.shared_life': loadMapJson('map.shared_life'),
+          'map.return_corridor': loadMapJson('map.return_corridor'),
+          'map.home_ending': loadMapJson('map.home_ending'),
+        }),
+    ).toThrow(/map\.rain_station" has no navigation spawn area/);
   });
 });
