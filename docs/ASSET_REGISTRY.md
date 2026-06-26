@@ -57,7 +57,9 @@
 | environment.home.sunlight_overlay | 项目团队 | assets-source/art/environments/environment_home_sunlight_overlay_v01.svg | public/assets/environments/environment_home_sunlight_overlay_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 透明通道与静态合成检查 | 2026-06-24 | 1280×720 透明 PNG；阳光束、透视亮斑、窗棂影子与反射光斑；运行时位于背景和家具之间 |
 | environment.home.crosswall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_crosswall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 中墙透明遮挡层，sortY=410 |
 | environment.home.frontwall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_frontwall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 前墙与左下竖墙段透明遮挡层，sortY=705 |
-| environment.rain.background | 项目团队 | assets-source/art/environments/environment_rain_v02_generated.png | public/assets/environments/environment_rain_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720；轻俯视旧车站、售票亭、雨棚、湿石材站台和钟表铺立面；不烘焙车票、石板、红伞招牌或钟表铺红伞 |
+| environment.rain.background | 项目团队 | assets-source/art/environments/environment_rain_base_v02_generated.png | public/assets/environments/environment_rain_base_v02.png | 项目定制生成；OpenAI ImageGen；参考 `memory_rain_umbrella_v01.png` 气氛；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 底图；轻俯视旧车站、售票亭、雨棚、湿石材站台和钟表铺立面；不烘焙雨线、车票、石板、红伞招牌或钟表铺红伞 |
+| environment.rain.puddle_reflection_overlay | 项目团队 | scripts/prepare_rain_environment_overlays.py | public/assets/environments/environment_rain_puddle_reflection_overlay_v01.png | 项目程序化透明叠层；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 透明 PNG；地面积水和轻反光层，运行时叠在雨站底图上、props 下方 |
+| environment.rain.rain_overlay | 项目团队 | scripts/prepare_rain_environment_overlays.py | public/assets/environments/environment_rain_rain_overlay_v01.png | 项目程序化透明叠层；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 透明 PNG；雨线层，运行时叠在雨站底图上、props 下方；减少动态效果时降低透明度 |
 | environment.life.background | 项目团队 | assets-source/art/environments/environment_life_v01.svg | public/assets/environments/environment_life_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；三段生活空间叠影、纸箱、桂花窗与录音机 |
 | environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v01.svg | public/assets/environments/environment_return_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；重复十字长廊、四向地砖箭头与暗红伞痕 |
 | environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v01.svg | public/assets/environments/environment_ending_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；回到现实清晨、暖白留白、桌上两碗热面 |
@@ -109,6 +111,15 @@
 - 生成限制：无可读文字、无现代物件、无额外前景人物、无亲吻或戏剧化姿态、无疾病或诊断隐喻。
 - 运行时处理：高分辨率 PNG 原稿归档于 `assets-source`，通过 `scripts/prepare_memory_illustration.py` 导出 1152×768 WebP。
 - 当前结论：内容、对白、裁切和叙事脚本一致，浏览器控制台无错误；待低扰动转场检查后决定是否升为 `approved`。
+
+### environment.rain.*
+
+- 生成方式：内置 OpenAI ImageGen；`illustration-story`；以 `memory_rain_umbrella_v01.png` 作为故事、材质和钟表铺情绪参考，以当前 `map.rain_station` 可行走构图作为布局参考。
+- 生成目标：把第二章雨站背景从平面灰盒感提升为接近 home v10 的轻俯视空间：旧站台、售票亭、雨棚、湿石材路径和钟表铺均有可见厚度、接触面和地面关系。
+- 分层约束：`environment.rain.background` 只保存底图；`environment.rain.puddle_reflection_overlay` 保存地面积水与轻反光；`environment.rain.rain_overlay` 保存雨线。车票、2/4/5 石板、红伞招牌和钟表铺前红伞继续由 `visual_props` 独立渲染。
+- 生成限制：底图不包含人物、前景红伞、车票、编号石板、红伞招牌、强雨线、强反光、HUD、可读文字或交互发光；明度保持雨天可读，避免黑块和重暗角。
+- 运行时处理：底图经 `scripts/prepare_environment_asset.py` 导出 1280×720 PNG；雨层和积水层由 `scripts/prepare_rain_environment_overlays.py` 程序化导出透明 PNG。GameScene 按底图、积水反光、雨线、Tiled visual_props 的顺序叠放，减少动态效果时降低雨线透明度。
+- 当前结论：静态分层合成检查通过；外部美术审核前保持 `review`。
 
 ### prop.home.*
 

@@ -76,7 +76,21 @@ export const assetManifest = [
   {
     key: 'environment.rain.background',
     type: 'image',
-    url: 'assets/environments/environment_rain_v02.png',
+    url: 'assets/environments/environment_rain_base_v02.png',
+    chapter: 'rain',
+    preload: true,
+  },
+  {
+    key: 'environment.rain.puddle_reflection_overlay',
+    type: 'image',
+    url: 'assets/environments/environment_rain_puddle_reflection_overlay_v01.png',
+    chapter: 'rain',
+    preload: true,
+  },
+  {
+    key: 'environment.rain.rain_overlay',
+    type: 'image',
+    url: 'assets/environments/environment_rain_rain_overlay_v01.png',
     chapter: 'rain',
     preload: true,
   },
