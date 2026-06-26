@@ -1,5 +1,6 @@
 import { chapterMaps } from '../content/maps';
-import { homeCollisionObstacles, homeWalkBounds } from '../content/homeLayout';
+import type { CollisionDataProvider } from '../content/collisionProvider';
+import { CodeCollisionProvider } from '../content/collisionProvider';
 import { moveWithCollisions } from '../simulation/collision';
 import type {
   ChapterId,
@@ -58,9 +59,14 @@ function addUnique(list: string[], value: string): void {
 export class GameStore {
   private state: GameState;
   private listeners = new Set<Listener>();
+  private readonly collisionProvider: CollisionDataProvider;
 
-  constructor(initialState = createInitialState()) {
+  constructor(
+    initialState = createInitialState(),
+    collisionProvider: CollisionDataProvider = new CodeCollisionProvider(),
+  ) {
     this.state = structuredClone(initialState);
+    this.collisionProvider = collisionProvider;
   }
 
   getState(): Readonly<GameState> {
@@ -233,14 +239,12 @@ export class GameStore {
       right: [speed, 0],
     };
     const [dx, dy] = delta[direction];
-    const map = chapterMaps[this.state.chapterId];
+    const collisionData = this.collisionProvider.getCollisionData(this.state.chapterId);
     const next = moveWithCollisions(
       this.state.player,
       { x: dx, y: dy },
-      this.state.chapterId === 'home'
-        ? homeWalkBounds
-        : { minX: 55, maxX: map.width - 55, minY: 75, maxY: map.height - 45 },
-      this.state.chapterId === 'home' ? homeCollisionObstacles : [],
+      collisionData.walkBounds,
+      collisionData.obstacles,
     );
     this.state.player.x = next.x;
     this.state.player.y = next.y;

@@ -367,13 +367,13 @@ type InputAction =
 | 道具视觉位置/尺寸 | `visual_props` 层 | `maps.ts:chapterMaps.home.entities` |
 | 交互物坐标/kind | `interactables` 层 | `maps.ts:chapterMaps.home.entities` |
 | 实体深度排序 sortY | `visual_props` 层 sortY 属性 | `homeLayout.ts:homeEntitySortY` |
-| 碰撞矩形 | Tiled `collision` 层已可解析 | `homeLayout.ts:homeCollisionObstacles`（GameStore 仍使用） |
-| 行走边界 | Tiled `navigation` 层已可解析 | `homeLayout.ts:homeWalkBounds`（GameStore 仍使用） |
+| 碰撞矩形 | `collision` 层 → `TiledCollisionProvider` | `homeLayout.ts:homeCollisionObstacles`（`CodeCollisionProvider` 测试 fallback） |
+| 行走边界 | `navigation` 层 → `TiledCollisionProvider` | `homeLayout.ts:homeWalkBounds`（`CodeCollisionProvider` 测试 fallback） |
 | 建筑遮挡 overlay | 代码常量 | `homeLayout.ts:homeArchitectureOverlays` |
 | 角色缩放 | 代码常量 | `homeLayout.ts:homeVisualSizes.characterScale` |
 | 道具视觉映射 | 代码常量 | `GameScene.ts:homePropVisuals` |
 
-GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 的碰撞数据仍来自 `homeLayout.ts`，因为 GameStore 在 Phaser 之外创建，无法访问 Phaser 缓存；后续可通过依赖注入将 Tiled 解析的碰撞数据传入 GameStore。
+GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 通过纯数据依赖注入接收碰撞数据：`main.ts` 在启动时用 Vite JSON import 加载 `map.home.json`，通过 `TiledCollisionProvider` 解析为 `AxisAlignedRect[]` 和 `MovementBounds`，注入 GameStore 构造函数。GameStore 不再直接导入 `homeLayout.ts` 的碰撞常量；`CodeCollisionProvider` 作为测试 fallback 仍使用代码常量。
 
 ### 6.3 对象属性
 

@@ -1,11 +1,16 @@
 import './styles.css';
 import { createGame } from './phaser/config';
 import { GameStore } from './game/state/GameStore';
+import { createInitialState } from './game/state/initialState';
 import { SaveRepository } from './save/SaveRepository';
 import { AppShell } from './ui/AppShell';
 import { AudioManager } from './phaser/audio/AudioManager';
+import { TiledCollisionProvider } from './game/content/collisionProvider';
+// Vite imports JSON as a plain ES module — no fetch or top-level await needed.
+import homeTiledJson from '../public/assets/data/map.home.json';
 
-const store = new GameStore();
+const collisionProvider = new TiledCollisionProvider(homeTiledJson);
+const store = new GameStore(createInitialState(), collisionProvider);
 const saves = new SaveRepository();
 const audio = new AudioManager();
 const savedSettings = saves.loadSettings();
