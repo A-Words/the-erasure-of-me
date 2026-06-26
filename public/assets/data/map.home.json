@@ -656,13 +656,13 @@
       "name": "navigation",
       "objects": [
         {
-          "height": 656,
+          "height": 608,
           "id": 1,
           "name": "spawn.home.bed",
           "type": "spawn",
-          "width": 1216,
-          "x": 32,
-          "y": 32
+          "width": 1136,
+          "x": 72,
+          "y": 90
         }
       ],
       "opacity": 1,
