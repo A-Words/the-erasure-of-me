@@ -76,7 +76,7 @@ export const assetManifest = [
   {
     key: 'environment.rain.background',
     type: 'image',
-    url: 'assets/environments/environment_rain_v01.png',
+    url: 'assets/environments/environment_rain_v02.png',
     chapter: 'rain',
     preload: true,
   },

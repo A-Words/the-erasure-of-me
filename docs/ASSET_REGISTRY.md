@@ -1,6 +1,6 @@
 # 《记忆的缝隙》资产登记台账
 
-> 最近更新：2026-06-26
+> 最近更新：2026-06-27
 > 规则来源：ART_BIBLE.md 第 8、9 节
 
 本表记录进入仓库的美术与音频资产。只有来源、许可证、锚点和审核状态完整的资产才能标记为 `shipped`。
@@ -57,7 +57,7 @@
 | environment.home.sunlight_overlay | 项目团队 | assets-source/art/environments/environment_home_sunlight_overlay_v01.svg | public/assets/environments/environment_home_sunlight_overlay_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 透明通道与静态合成检查 | 2026-06-24 | 1280×720 透明 PNG；阳光束、透视亮斑、窗棂影子与反射光斑；运行时位于背景和家具之间 |
 | environment.home.crosswall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_crosswall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 中墙透明遮挡层，sortY=410 |
 | environment.home.frontwall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_frontwall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 前墙与左下竖墙段透明遮挡层，sortY=705 |
-| environment.rain.background | 项目团队 | assets-source/art/environments/environment_rain_v01.svg | public/assets/environments/environment_rain_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；斜向站台、积水、石板与钟表铺雨棚 |
+| environment.rain.background | 项目团队 | assets-source/art/environments/environment_rain_v02_generated.png | public/assets/environments/environment_rain_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720；轻俯视旧车站、售票亭、雨棚、湿石材站台和钟表铺立面；不烘焙车票、石板、红伞招牌或钟表铺红伞 |
 | environment.life.background | 项目团队 | assets-source/art/environments/environment_life_v01.svg | public/assets/environments/environment_life_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；三段生活空间叠影、纸箱、桂花窗与录音机 |
 | environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v01.svg | public/assets/environments/environment_return_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；重复十字长廊、四向地砖箭头与暗红伞痕 |
 | environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v01.svg | public/assets/environments/environment_ending_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；回到现实清晨、暖白留白、桌上两碗热面 |
@@ -172,10 +172,10 @@
 
 ### environment.*.background
 
-- 制作方式：项目原创 SVG，使用固定 1280×720 画布、低饱和色板、轻微纸张颗粒和章节专属构图，无第三方图形或字体。
+- 制作方式：home v10 和 rain v02 使用项目定制 ImageGen 原稿，经 `scripts/prepare_environment_asset.py` 裁切导出；life、return、ending 使用项目原创 SVG 渲染。所有背景统一固定 1280×720、低饱和色板、轻微纸张颗粒和章节专属构图。
 - 运行时结构：背景只承担世界表现；出生点、交互对象和稳定 ID 继续来自对应 Tiled JSON 对象层，碰撞与玩法状态未写入图片。
-- 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站数字石板、生活物品纹理和长廊方向均保留非颜色冗余。
-- 当前结论：五章候选背景已导出并接入 manifest；1280×720 逐章检查通过，关键物件、角色脚底、HUD 与 Tiled 坐标无阻塞遮挡，控制台无错误。
+- 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站 2/4/5 石板、车票、红伞招牌和钟表铺红伞由独立 visual_props 资产承载，背景只提供湿站台、售票亭、雨棚和钟表铺空间。
+- 当前结论：五章候选背景已导出并接入 manifest；rain v02 已完成 1280×720 静态合成检查，关键道具与 Tiled 坐标无阻塞遮挡；外部美术审核前保持 `review`。
 
 ### audio.theme.* / audio.ambience.*
 

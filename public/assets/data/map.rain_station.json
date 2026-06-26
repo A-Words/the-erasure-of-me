@@ -5,7 +5,7 @@
   "layers": [
     {
       "id": 3,
-      "image": "../environments/environment_rain_v01.png",
+      "image": "../environments/environment_rain_v02.png",
       "name": "background",
       "offsetx": 0,
       "offsety": 0,
