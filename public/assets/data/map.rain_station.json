@@ -4,21 +4,343 @@
   "infinite": false,
   "layers": [
     {
+      "id": 3,
+      "image": "../environments/environment_rain_v01.png",
+      "name": "background",
+      "offsetx": 0,
+      "offsety": 0,
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "manifest.ts"
+        }
+      ],
+      "transparentcolor": "",
+      "type": "imagelayer",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
       "draworder": "topdown",
-      "id": 1,
-      "name": "navigation",
+      "id": 4,
+      "name": "visual_props",
       "objects": [
         {
-          "height": 656,
-          "id": 1,
-          "name": "spawn.rain.platform",
-          "type": "spawn",
-          "width": 1216,
-          "x": 32,
-          "y": 32
+          "height": 44,
+          "id": 9,
+          "name": "visual.rain.ticket",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 560
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.rain.ticket"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "旧车票道具图（湿透的纸质车票，背面可见 2→4→5）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 158,
+          "y": 582
+        },
+        {
+          "height": 44,
+          "id": 10,
+          "name": "visual.rain.stone_2",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 520
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.rain.stone_2"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "2 号石板道具图（地面石板，两个圆点标记）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 308,
+          "y": 542
+        },
+        {
+          "height": 44,
+          "id": 11,
+          "name": "visual.rain.stone_4",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 410
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.rain.stone_4"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "4 号石板道具图（地面石板，四个圆点标记）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 488,
+          "y": 432
+        },
+        {
+          "height": 44,
+          "id": 12,
+          "name": "visual.rain.stone_5",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 310
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.rain.stone_5"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "5 号石板道具图（地面石板，五个圆点标记）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 658,
+          "y": 332
+        },
+        {
+          "height": 58,
+          "id": 13,
+          "name": "visual.rain.umbrella_sign_a",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 58
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 270
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.rain.umbrella_sign_a"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 58,
+          "x": 791,
+          "y": 299,
+          "gid": 1
+        },
+        {
+          "height": 58,
+          "id": 14,
+          "name": "visual.rain.umbrella_sign_b",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 58
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 180
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.rain.umbrella_sign_b"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 58,
+          "x": 951,
+          "y": 209,
+          "gid": 1
+        },
+        {
+          "height": 58,
+          "id": 15,
+          "name": "visual.rain.red_umbrella",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 58
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 120
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.rain.red_umbrella"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 58,
+          "x": 1111,
+          "y": 149,
+          "gid": 1
         }
       ],
       "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "maps.ts"
+        }
+      ],
       "type": "objectgroup",
       "visible": true,
       "x": 0,
@@ -98,15 +420,98 @@
       "visible": true,
       "x": 0,
       "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 5,
+      "name": "navigation",
+      "objects": [
+        {
+          "height": 1416,
+          "id": 1,
+          "name": "spawn.rain.platform",
+          "type": "spawn",
+          "width": 2706,
+          "x": 55,
+          "y": 75
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 6,
+      "name": "collision",
+      "objects": [
+        {
+          "height": 75,
+          "id": 20,
+          "name": "collision.rain.wall_outer_top",
+          "type": "wall",
+          "width": 2816,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 45,
+          "id": 21,
+          "name": "collision.rain.wall_outer_bottom",
+          "type": "wall",
+          "width": 2816,
+          "x": 0,
+          "y": 1491
+        },
+        {
+          "height": 1536,
+          "id": 22,
+          "name": "collision.rain.wall_outer_left",
+          "type": "wall",
+          "width": 55,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 1536,
+          "id": 23,
+          "name": "collision.rain.wall_outer_right",
+          "type": "wall",
+          "width": 55,
+          "x": 2761,
+          "y": 0
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
     }
   ],
-  "nextlayerid": 3,
-  "nextobjectid": 9,
+  "nextlayerid": 7,
+  "nextobjectid": 24,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
   "tileheight": 64,
-  "tilesets": [],
+  "tilesets": [
+    {
+      "columns": 1,
+      "firstgid": 1,
+      "image": "../props/prop_red_umbrella_closed_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_red_umbrella_closed",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    }
+  ],
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",

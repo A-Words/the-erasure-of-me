@@ -4,18 +4,685 @@
   "infinite": false,
   "layers": [
     {
+      "id": 4,
+      "image": "../environments/environment_home_v10.png",
+      "name": "background",
+      "offsetx": 0,
+      "offsety": 0,
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "manifest.ts:environment.home.background"
+        }
+      ],
+      "transparentcolor": "",
+      "type": "imagelayer",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 5,
+      "name": "visual_decor",
+      "objects": [
+        {
+          "gid": 8,
+          "height": 160,
+          "id": 37,
+          "name": "visual.home.bedside_rug",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeDecorLayout[0]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 160
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 32
+            }
+          ],
+          "rotation": 0,
+          "type": "decor",
+          "visible": true,
+          "width": 160,
+          "x": 90,
+          "y": 362
+        },
+        {
+          "gid": 9,
+          "height": 34,
+          "id": 38,
+          "name": "visual.home.slippers",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeDecorLayout[1]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 34
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 34
+            }
+          ],
+          "rotation": 0,
+          "type": "decor",
+          "visible": true,
+          "width": 34,
+          "x": 269,
+          "y": 327
+        },
+        {
+          "gid": 10,
+          "height": 64,
+          "id": 39,
+          "name": "visual.home.kitchen_clutter",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeDecorLayout[2]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 64
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 230
+            }
+          ],
+          "rotation": 0,
+          "type": "decor",
+          "visible": true,
+          "width": 64,
+          "x": 1050,
+          "y": 150
+        }
+      ],
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "homeLayout.ts:homeDecorLayout"
+        }
+      ],
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 6,
+      "name": "visual_furniture",
+      "objects": [
+        {
+          "gid": 1,
+          "height": 225,
+          "id": 29,
+          "name": "visual.home.bed",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeFurnitureLayout[bed]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 225
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 282
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.bed"
+            }
+          ],
+          "rotation": 0,
+          "type": "furniture",
+          "visible": true,
+          "width": 225,
+          "x": 57.5,
+          "y": 302.5
+        },
+        {
+          "gid": 2,
+          "height": 64,
+          "id": 30,
+          "name": "visual.home.bedside_table",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeFurnitureLayout[bedside_table]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 64
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 204
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.bedside_table"
+            }
+          ],
+          "rotation": 0,
+          "type": "furniture",
+          "visible": true,
+          "width": 64,
+          "x": 268,
+          "y": 206
+        },
+        {
+          "gid": 3,
+          "height": 205,
+          "id": 31,
+          "name": "visual.home.sofa",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeFurnitureLayout[sofa]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 205
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 229
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.sofa"
+            }
+          ],
+          "rotation": 0,
+          "type": "furniture",
+          "visible": true,
+          "width": 205,
+          "x": 517.5,
+          "y": 260.5
+        },
+        {
+          "gid": 2,
+          "height": 58,
+          "id": 32,
+          "name": "visual.home.living_side_table",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeFurnitureLayout[living_side_table]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 58
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 318
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.living_side_table"
+            }
+          ],
+          "rotation": 0,
+          "type": "furniture",
+          "visible": true,
+          "width": 58,
+          "x": 581,
+          "y": 319
+        },
+        {
+          "gid": 4,
+          "height": 165,
+          "id": 33,
+          "name": "visual.home.coffee_table",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeFurnitureLayout[coffee_table]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 165
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 568
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.coffee_table"
+            }
+          ],
+          "rotation": 0,
+          "type": "furniture",
+          "visible": true,
+          "width": 165,
+          "x": 617.5,
+          "y": 610.5
+        },
+        {
+          "gid": 5,
+          "height": 220,
+          "id": 34,
+          "name": "visual.home.kitchen_counter",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeFurnitureLayout[kitchen_counter]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 220
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 229
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.kitchen_counter"
+            }
+          ],
+          "rotation": 0,
+          "type": "furniture",
+          "visible": true,
+          "width": 220,
+          "x": 950,
+          "y": 274
+        },
+        {
+          "gid": 6,
+          "height": 160,
+          "id": 35,
+          "name": "visual.home.storage_cabinet",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeFurnitureLayout[storage_cabinet]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 160
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 608
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.storage_cabinet"
+            }
+          ],
+          "rotation": 0,
+          "type": "furniture",
+          "visible": true,
+          "width": 160,
+          "x": 140,
+          "y": 640
+        },
+        {
+          "gid": 7,
+          "height": 100,
+          "id": 36,
+          "name": "visual.home.entry_console",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeFurnitureLayout[entry_console]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 100
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 576
+            },
+            {
+              "name": "collisionId",
+              "type": "string",
+              "value": "collision.home.entry_console"
+            }
+          ],
+          "rotation": 0,
+          "type": "furniture",
+          "visible": true,
+          "width": 100,
+          "x": 1030,
+          "y": 590
+        }
+      ],
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "homeLayout.ts:homeFurnitureLayout"
+        }
+      ],
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 7,
+      "name": "visual_props",
+      "objects": [
+        {
+          "gid": 11,
+          "height": 36,
+          "id": 40,
+          "name": "visual.home.bedside_photo",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "maps.ts:entity.home.bedside_photo"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 36
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 205
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.home.bedside_photo"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 36,
+          "x": 282,
+          "y": 186
+        },
+        {
+          "gid": 12,
+          "height": 44,
+          "id": 41,
+          "name": "visual.home.journal",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "maps.ts:entity.home.journal"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 319
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.home.journal"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 588,
+          "y": 304
+        },
+        {
+          "gid": 13,
+          "height": 38,
+          "id": 42,
+          "name": "visual.home.glasses_case",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "maps.ts:entity.home.glasses_case"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 38
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 569
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.home.glasses_case"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 38,
+          "x": 681,
+          "y": 529
+        },
+        {
+          "gid": 14,
+          "height": 32,
+          "id": 43,
+          "name": "visual.home.key_bowl",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "maps.ts:entity.home.key_bowl"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 32
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 577
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.home.key_bowl"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 32,
+          "x": 1064,
+          "y": 518
+        }
+      ],
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "maps.ts:chapterMaps.home.entities"
+        }
+      ],
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
       "draworder": "topdown",
       "id": 1,
       "name": "navigation",
       "objects": [
         {
-          "height": 656,
+          "height": 608,
           "id": 1,
           "name": "spawn.home.bed",
           "type": "spawn",
-          "width": 1216,
-          "x": 32,
-          "y": 32
+          "width": 1136,
+          "x": 72,
+          "y": 90
         }
       ],
       "opacity": 1,
@@ -36,7 +703,14 @@
           "type": "inspect",
           "width": 44,
           "x": 300,
-          "y": 168
+          "y": 168,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "床边合影"
+            }
+          ]
         },
         {
           "height": 44,
@@ -45,7 +719,14 @@
           "type": "pickup",
           "width": 44,
           "x": 610,
-          "y": 282
+          "y": 282,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "红线日记"
+            }
+          ]
         },
         {
           "height": 44,
@@ -54,7 +735,14 @@
           "type": "pickup",
           "width": 44,
           "x": 700,
-          "y": 510
+          "y": 510,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "眼镜盒"
+            }
+          ]
         },
         {
           "height": 44,
@@ -63,7 +751,14 @@
           "type": "pickup",
           "width": 44,
           "x": 1080,
-          "y": 502
+          "y": 502,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "蓝色小碗"
+            }
+          ]
         },
         {
           "height": 60,
@@ -72,7 +767,14 @@
           "type": "exit",
           "width": 60,
           "x": 1225,
-          "y": 560
+          "y": 560,
+          "properties": [
+            {
+              "name": "label",
+              "type": "string",
+              "value": "玄关门"
+            }
+          ]
         }
       ],
       "opacity": 1,
@@ -105,13 +807,13 @@
           "y": 181
         },
         {
-          "height": 35,
+          "height": 60,
           "id": 9,
           "name": "collision.home.sofa",
           "type": "furniture",
           "width": 188,
           "x": 526,
-          "y": 194
+          "y": 166
         },
         {
           "height": 21,
@@ -132,13 +834,13 @@
           "y": 527
         },
         {
-          "height": 46,
+          "height": 72,
           "id": 12,
           "name": "collision.home.kitchen_counter",
           "type": "furniture",
-          "width": 196,
-          "x": 962,
-          "y": 183
+          "width": 204,
+          "x": 958,
+          "y": 156
         },
         {
           "height": 51,
@@ -256,13 +958,92 @@
       "y": 0
     }
   ],
-  "nextlayerid": 4,
-  "nextobjectid": 29,
+  "nextlayerid": 8,
+  "nextobjectid": 44,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
   "tileheight": 64,
-  "tilesets": [],
+  "tilesets": [
+    {
+      "columns": 7,
+      "firstgid": 1,
+      "image": "../furniture/furniture_home_atlas_v08_7x256x256.png",
+      "imageheight": 256,
+      "imagewidth": 1792,
+      "margin": 0,
+      "name": "furniture_home_atlas",
+      "spacing": 0,
+      "tilecount": 7,
+      "tileheight": 256,
+      "tilewidth": 256
+    },
+    {
+      "columns": 3,
+      "firstgid": 8,
+      "image": "../decor/decor_home_atlas_v01_3x256x256.png",
+      "imageheight": 256,
+      "imagewidth": 768,
+      "margin": 0,
+      "name": "decor_home_atlas",
+      "spacing": 0,
+      "tilecount": 3,
+      "tileheight": 256,
+      "tilewidth": 256
+    },
+    {
+      "columns": 1,
+      "firstgid": 11,
+      "image": "../props/prop_home_bedside_photo_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_home_bedside_photo",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    },
+    {
+      "columns": 1,
+      "firstgid": 12,
+      "image": "../props/prop_home_red_thread_journal_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_home_red_thread_journal",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    },
+    {
+      "columns": 1,
+      "firstgid": 13,
+      "image": "../props/prop_home_glasses_case_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_home_glasses_case",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    },
+    {
+      "columns": 1,
+      "firstgid": 14,
+      "image": "../props/prop_home_blue_key_bowl_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_home_blue_key_bowl",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    }
+  ],
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",

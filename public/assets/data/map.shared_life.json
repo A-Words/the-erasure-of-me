@@ -4,21 +4,577 @@
   "infinite": false,
   "layers": [
     {
+      "id": 3,
+      "image": "../environments/environment_life_v01.png",
+      "name": "background",
+      "offsetx": 0,
+      "offsety": 0,
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "manifest.ts"
+        }
+      ],
+      "transparentcolor": "",
+      "type": "imagelayer",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
       "draworder": "topdown",
-      "id": 1,
-      "name": "navigation",
+      "id": 4,
+      "name": "visual_props",
       "objects": [
         {
-          "height": 656,
-          "id": 1,
-          "name": "spawn.life.center",
-          "type": "spawn",
-          "width": 1216,
-          "x": 32,
-          "y": 32
+          "height": 44,
+          "id": 13,
+          "name": "visual.life.move_1979",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 520
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.photo.move_1979"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "1979 搬家照片道具图"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 208,
+          "y": 542
+        },
+        {
+          "height": 44,
+          "id": 14,
+          "name": "visual.life.osmanthus_1992",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 180
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.photo.osmanthus_1992"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "1992 桂花窗台照片道具图"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 1038,
+          "y": 202
+        },
+        {
+          "height": 44,
+          "id": 15,
+          "name": "visual.life.anniversary_2001",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 520
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.photo.anniversary_2001"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "2001 银婚照片道具图"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 1008,
+          "y": 542
+        },
+        {
+          "height": 44,
+          "id": 16,
+          "name": "visual.life.album",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 160
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.life.album"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "空着三格的相册道具图"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 618,
+          "y": 182
+        },
+        {
+          "height": 44,
+          "id": 17,
+          "name": "visual.life.wood_comb",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 340
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.life.wood_comb"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "木梳道具图（条纹纹理，裂缝修补痕迹）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 288,
+          "y": 362
+        },
+        {
+          "height": 44,
+          "id": 18,
+          "name": "visual.life.enamel_cup",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 330
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.life.enamel_cup"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "搪瓷杯道具图（桂花圆点图案）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 868,
+          "y": 352
+        },
+        {
+          "height": 44,
+          "id": 19,
+          "name": "visual.life.cassette",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 570
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "item.life.cassette"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "录音带道具图（双线圈波纹）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 858,
+          "y": 592
+        },
+        {
+          "height": 44,
+          "id": 20,
+          "name": "visual.life.dresser_slot",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 150
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "slot.life.dresser"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "镜台放置槽视觉图（条纹纹理标记）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 238,
+          "y": 172
+        },
+        {
+          "height": 44,
+          "id": 21,
+          "name": "visual.life.windowsill_slot",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 150
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "slot.life.windowsill"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "窗台放置槽视觉图（圆点纹理标记）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 1008,
+          "y": 172
+        },
+        {
+          "height": 44,
+          "id": 22,
+          "name": "visual.life.radio_slot",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 590
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "slot.life.radio"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "收音机放置槽视觉图（波纹纹理标记）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 44,
+          "x": 1018,
+          "y": 612
+        },
+        {
+          "height": 60,
+          "id": 23,
+          "name": "visual.life.exit",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 60
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 50
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.life.exit"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "延长走廊出口视觉图"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 60,
+          "x": 610,
+          "y": 80
         }
       ],
       "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "maps.ts"
+        }
+      ],
       "type": "objectgroup",
       "visible": true,
       "x": 0,
@@ -134,10 +690,79 @@
       "visible": true,
       "x": 0,
       "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 5,
+      "name": "navigation",
+      "objects": [
+        {
+          "height": 1032,
+          "id": 1,
+          "name": "spawn.life.center",
+          "type": "spawn",
+          "width": 1682,
+          "x": 55,
+          "y": 75
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 6,
+      "name": "collision",
+      "objects": [
+        {
+          "height": 75,
+          "id": 24,
+          "name": "collision.life.wall_outer_top",
+          "type": "wall",
+          "width": 1792,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 45,
+          "id": 25,
+          "name": "collision.life.wall_outer_bottom",
+          "type": "wall",
+          "width": 1792,
+          "x": 0,
+          "y": 1107
+        },
+        {
+          "height": 1152,
+          "id": 26,
+          "name": "collision.life.wall_outer_left",
+          "type": "wall",
+          "width": 55,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 1152,
+          "id": 27,
+          "name": "collision.life.wall_outer_right",
+          "type": "wall",
+          "width": 55,
+          "x": 1737,
+          "y": 0
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
     }
   ],
-  "nextlayerid": 3,
-  "nextobjectid": 13,
+  "nextlayerid": 7,
+  "nextobjectid": 28,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

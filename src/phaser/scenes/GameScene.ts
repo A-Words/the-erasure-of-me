@@ -9,6 +9,12 @@ import {
   homeVisualSizes,
 } from '../../game/content/homeLayout';
 import { chapterMaps, type WorldEntity } from '../../game/content/maps';
+import {
+  extractEntitySortY,
+  parseTiledMap,
+  type TiledMapContent,
+  type VisualPlacement,
+} from '../../game/content/tiledMapLoader';
 import { mapMovement } from '../../game/input/InputMapper';
 import type { InputAction } from '../../game/input/actions';
 import type { GameState } from '../../game/state/GameState';
@@ -89,6 +95,7 @@ export class GameScene extends Phaser.Scene {
   private tickAccumulator = 0;
   private unsubscribe: (() => void) | null = null;
   private reducedMotion = false;
+  private tiledContent: TiledMapContent | null = null;
 
   constructor(store: GameStore) {
     super('GameScene');
@@ -98,8 +105,11 @@ export class GameScene extends Phaser.Scene {
   preload(): void {
     for (const asset of assetManifest) {
       if (!asset.preload) continue;
-      if (asset.type === 'tilemap') this.load.tilemapTiledJSON(asset.key, asset.url);
-      else if (asset.type === 'spritesheet') {
+      if (asset.type === 'tilemap') {
+        this.load.tilemapTiledJSON(asset.key, asset.url);
+        // Also load as plain JSON so tiledMapLoader can parse it without Phaser.
+        this.load.json(`${asset.key}.raw`, asset.url);
+      } else if (asset.type === 'spritesheet') {
         this.load.spritesheet(asset.key, asset.url, asset.frameConfig);
       } else this.load.image(asset.key, asset.url);
     }
@@ -272,34 +282,85 @@ export class GameScene extends Phaser.Scene {
       .image(map.width / 2, map.height / 2, map.backgroundKey)
       .setDisplaySize(map.width, map.height)
       .setDepth(0);
+
+    // Parse Tiled JSON into pure data structures. Falls back to code constants
+    // if the Tiled map lacks visual layers (e.g. non-home chapters).
+    const tiledRawData = this.cache.json.get(`${map.id}.raw`);
+    let tiledContent: TiledMapContent | null = null;
+    if (tiledRawData) {
+      try {
+        tiledContent = parseTiledMap(map.id, tiledRawData, map.entities);
+      } catch (err) {
+        console.warn(`[tiledMapLoader] Failed to parse "${map.id}":`, err);
+      }
+    }
+    this.tiledContent = tiledContent;
+
     if (state.chapterId === 'home') {
       this.add
         .image(map.width / 2, map.height / 2, 'environment.home.sunlight_overlay')
         .setDisplaySize(map.width, map.height)
         .setDepth(20);
-      for (const decor of homeDecorLayout) {
+    }
+
+    // Render Tiled-driven visual placements for any chapter that has them.
+    // Home falls back to code constants if Tiled data is missing.
+    const decorPlacements = tiledContent?.visualDecor ?? [];
+    const furniturePlacements = tiledContent?.visualFurniture ?? [];
+    if (state.chapterId === 'home') {
+      if (decorPlacements.length > 0) {
+        for (const decor of decorPlacements) {
+          this.add
+            .image(decor.x, decor.y, decor.assetKey, decor.frame)
+            .setDisplaySize(decor.size, decor.size)
+            .setDepth(worldDepth(decor.sortY));
+        }
+      } else {
+        for (const decor of homeDecorLayout) {
+          this.add
+            .image(decor.x, decor.y, 'decor.home.atlas', decor.frame)
+            .setDisplaySize(decor.size, decor.size)
+            .setDepth(worldDepth(decor.sortY));
+        }
+      }
+      if (furniturePlacements.length > 0) {
+        for (const furniture of furniturePlacements) {
+          this.add
+            .image(furniture.x, furniture.y, furniture.assetKey, furniture.frame)
+            .setDisplaySize(furniture.size, furniture.size)
+            .setDepth(worldDepth(furniture.sortY));
+        }
+      } else {
+        for (const furniture of homeFurnitureLayout) {
+          this.add
+            .image(furniture.x, furniture.y, 'furniture.home.atlas', furniture.frame)
+            .setDisplaySize(furniture.size, furniture.size)
+            .setDepth(worldDepth(furniture.sortY));
+        }
+      }
+      this.createHomeArchitectureOverlays(map.width, map.height);
+    } else {
+      // Non-home chapters: render Tiled-driven decor/furniture if available.
+      for (const decor of decorPlacements) {
         this.add
-          .image(decor.x, decor.y, 'decor.home.atlas', decor.frame)
+          .image(decor.x, decor.y, decor.assetKey, decor.frame)
           .setDisplaySize(decor.size, decor.size)
           .setDepth(worldDepth(decor.sortY));
       }
-      for (const furniture of homeFurnitureLayout) {
+      for (const furniture of furniturePlacements) {
         this.add
-          .image(furniture.x, furniture.y, 'furniture.home.atlas', furniture.frame)
+          .image(furniture.x, furniture.y, furniture.assetKey, furniture.frame)
           .setDisplaySize(furniture.size, furniture.size)
           .setDepth(worldDepth(furniture.sortY));
       }
-      this.createHomeArchitectureOverlays(map.width, map.height);
     }
 
-    const tiledMap = this.make.tilemap({ key: map.id });
-    const tiledObjects = tiledMap.getObjectLayer('interactables')?.objects ?? [];
-    for (const entity of map.entities) {
-      const authored = tiledObjects.find((object) => object.name === entity.id);
-      const runtimeEntity = authored
-        ? { ...entity, x: authored.x ?? entity.x, y: authored.y ?? entity.y }
-        : entity;
-      this.entityViews.push(this.createEntity(runtimeEntity));
+    const visualPropsByEntityId = this.indexVisualPropsByEntityId(tiledContent?.visualProps ?? []);
+
+    // Use Tiled-driven interactable coordinates when available; fall back to code entities.
+    const tiledEntities = tiledContent?.interactables ?? map.entities;
+    for (const entity of tiledEntities) {
+      this.entityViews.push(this.createEntity(entity, visualPropsByEntityId.get(entity.id)));
     }
     if (state.chapterId === 'ending') {
       const xiulan = this.entityViews.find((view) => view.definition.id === 'entity.ending.xiulan');
@@ -335,6 +396,19 @@ export class GameScene extends Phaser.Scene {
         .setDisplaySize(width, height)
         .setDepth(worldDepth(overlay.sortY));
     }
+  }
+
+  private indexVisualPropsByEntityId(
+    visualProps: readonly VisualPlacement[],
+  ): Map<string, VisualPlacement> {
+    const indexed = new Map<string, VisualPlacement>();
+    for (const prop of visualProps) {
+      const entityId =
+        prop.entityId ??
+        (prop.id.startsWith('visual.') ? prop.id.replace('visual.', 'entity.') : undefined);
+      if (entityId) indexed.set(entityId, prop);
+    }
+    return indexed;
   }
 
   private createPlayerAnimations(): void {
@@ -530,13 +604,18 @@ export class GameScene extends Phaser.Scene {
       .setAlpha(state.settings.reducedMotion ? 0.96 : 0.78 + progress * 0.22);
   }
 
-  private createEntity(entity: WorldEntity): EntityView {
+  private createEntity(entity: WorldEntity, visualPlacement?: VisualPlacement): EntityView {
     const color = entity.color ?? (entity.kind === 'exit' ? 0xeee7d8 : 0xd6c58e);
     const isXiulan = entity.id === 'entity.ending.xiulan';
     const isUmbrella = entity.id.includes('umbrella');
     const propVisual = homePropVisuals[entity.id];
+    const visualActorOffsetX = visualPlacement ? visualPlacement.x - entity.x : 0;
+    const visualActorOffsetY = visualPlacement ? visualPlacement.y - entity.y : 0;
     const container = this.add.container(entity.x, entity.y);
-    container.setDepth(worldDepth(homeEntitySortY[entity.id] ?? entity.y));
+    const sortYMap = this.tiledContent
+      ? extractEntitySortY(this.tiledContent, homeEntitySortY)
+      : homeEntitySortY;
+    container.setDepth(worldDepth(sortYMap[entity.id] ?? entity.y));
 
     // Tiny resting dot that only becomes visible on hover; replaces the old big circle button.
     const marker = this.add.circle(0, 0, 6, color, 1).setAlpha(0).setDepth(0);
@@ -546,8 +625,21 @@ export class GameScene extends Phaser.Scene {
           .sprite(0, 16, 'character.xiulan_old.reach_hand.right', 0)
           .setOrigin(0.5, 1)
           .setDepth(0)
+      : visualPlacement?.assetKey
+        ? this.add
+            .image(
+              visualActorOffsetX,
+              visualActorOffsetY,
+              visualPlacement.assetKey,
+              visualPlacement.frame,
+            )
+            .setDisplaySize(visualPlacement.size, visualPlacement.size)
+            .setDepth(0)
       : isUmbrella
-        ? this.add.image(0, 0, 'prop.red_umbrella.closed').setDisplaySize(58, 58).setDepth(0)
+        ? this.add
+            .image(visualActorOffsetX, visualActorOffsetY, 'prop.red_umbrella.closed')
+            .setDisplaySize(visualPlacement?.size ?? 58, visualPlacement?.size ?? 58)
+            .setDepth(0)
         : propVisual
           ? this.add
               .image(
@@ -560,10 +652,13 @@ export class GameScene extends Phaser.Scene {
               .setDepth(0)
           : null;
 
+    const labelOffset =
+      propVisual?.labelOffset ??
+      (isXiulan ? 24 : isUmbrella ? 32 : (visualPlacement?.size ?? 60) / 2 + 8);
     const label = this.add
       .text(
-        entity.x,
-        entity.y + (propVisual?.labelOffset ?? (isXiulan ? 24 : isUmbrella ? 32 : 38)),
+        visualPlacement?.x ?? entity.x,
+        (visualPlacement?.y ?? entity.y) + labelOffset,
         entity.label,
         {
           color: '#f7f3e8',

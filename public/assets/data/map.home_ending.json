@@ -4,21 +4,97 @@
   "infinite": false,
   "layers": [
     {
+      "id": 3,
+      "image": "../environments/environment_ending_v01.png",
+      "name": "background",
+      "offsetx": 0,
+      "offsety": 0,
+      "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "manifest.ts"
+        }
+      ],
+      "transparentcolor": "",
+      "type": "imagelayer",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
       "draworder": "topdown",
-      "id": 1,
-      "name": "navigation",
+      "id": 4,
+      "name": "visual_props",
       "objects": [
         {
-          "height": 656,
-          "id": 1,
-          "name": "spawn.ending.hall",
-          "type": "spawn",
-          "width": 1216,
-          "x": 32,
-          "y": 32
+          "height": 64,
+          "id": 3,
+          "name": "visual.ending.xiulan",
+          "properties": [
+            {
+              "name": "size",
+              "type": "int",
+              "value": 64
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 360
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.ending.xiulan"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "placeholder",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "visual-placeholder"
+            },
+            {
+              "name": "replacement",
+              "type": "string",
+              "value": "林秀兰角色锚点视觉图（旧绿开衫、短发、开放掌心等待姿态）"
+            }
+          ],
+          "rotation": 0,
+          "type": "prop",
+          "visible": true,
+          "width": 64,
+          "x": 588,
+          "y": 392
         }
       ],
       "opacity": 1,
+      "properties": [
+        {
+          "name": "visual_reference",
+          "type": "bool",
+          "value": true
+        },
+        {
+          "name": "runtime_authority",
+          "type": "string",
+          "value": "maps.ts"
+        }
+      ],
       "type": "objectgroup",
       "visible": true,
       "x": 0,
@@ -44,10 +120,79 @@
       "visible": true,
       "x": 0,
       "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 5,
+      "name": "navigation",
+      "objects": [
+        {
+          "height": 1032,
+          "id": 1,
+          "name": "spawn.ending.hall",
+          "type": "spawn",
+          "width": 1938,
+          "x": 55,
+          "y": 75
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 6,
+      "name": "collision",
+      "objects": [
+        {
+          "height": 75,
+          "id": 4,
+          "name": "collision.ending.wall_outer_top",
+          "type": "wall",
+          "width": 2048,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 45,
+          "id": 5,
+          "name": "collision.ending.wall_outer_bottom",
+          "type": "wall",
+          "width": 2048,
+          "x": 0,
+          "y": 1107
+        },
+        {
+          "height": 1152,
+          "id": 6,
+          "name": "collision.ending.wall_outer_left",
+          "type": "wall",
+          "width": 55,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 1152,
+          "id": 7,
+          "name": "collision.ending.wall_outer_right",
+          "type": "wall",
+          "width": 55,
+          "x": 1993,
+          "y": 0
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
     }
   ],
-  "nextlayerid": 3,
-  "nextobjectid": 3,
+  "nextlayerid": 7,
+  "nextobjectid": 8,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

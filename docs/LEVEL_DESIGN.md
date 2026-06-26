@@ -39,8 +39,34 @@
 | journal. | 日记页 | journal.home.key |
 | memory. | 记忆碎片 | memory.rain.umbrella |
 | audio. | 声音 | audio.rain.clock_bell |
+| visual. | Tiled 可视化对象 | visual.home.bed |
 
-### 2.3 通用交互距离
+> `visual.` 前缀对象仅存在于 `visual_furniture`、`visual_decor`、`visual_props` 层中。它们可作为运行时视觉数据来源，但不进入存档、不决定谜题真值，也不得替代 `interactables`、`collision`、`navigation` 等逻辑层的稳定 ID。
+
+### 2.3 Tiled 运行时适配
+
+`src/game/content/tiledMapLoader.ts` 是 Tiled JSON 与游戏运行时之间的唯一适配层。GameScene 在切章时调用 `parseTiledMap()` 将 Tiled 对象层转换为纯 TypeScript 数据结构：
+
+- `interactables` → `WorldEntity[]`（坐标、kind、label）
+- `collision` → `NamedCollisionRect[]`（纯 `AxisAlignedRect`）
+- `visual_furniture` / `visual_decor` / `visual_props` → `VisualPlacement[]`（assetKey、frame、x/y、size、sortY、entityId、collisionId）
+- `navigation` → `SpawnPoint[]` 和 `MovementBounds`
+
+`visual_props` 通过 `entityId` 绑定 `interactables` 层实体，例如 `visual.home.key_bowl` 绑定 `entity.home.key_bowl`。`visual_furniture` 通过 `collisionId` 绑定 `collision` 层脚印矩形，例如 `visual.home.sofa` 绑定 `collision.home.sofa`。Tiled tile object 使用左下角坐标；适配层转换为 Phaser Image 的中心坐标，关卡作者不需要在 Tiled 中手动抵消偏移。
+
+如果 Tiled JSON 缺少 visual_\* 层或解析失败，GameScene 自动回退到 `homeLayout.ts` 代码常量。GameStore 的碰撞和行走边界通过 `CollisionDataProvider` 注入；生产入口使用 `TiledCollisionProvider`，`CodeCollisionProvider` 仅作为测试或明确 fallback 使用。
+
+### 2.4 Placeholder visual_props 规范
+
+非 home 地图中暂无正式 tile 资产的 visual_props 对象使用 placeholder 模式。placeholder 对象没有 gid，不渲染 tile 图像，但仍携带 entityId/sortY/size 元数据供运行时深度排序和实体绑定使用。
+
+**必须属性：** `placeholder=true`、`status=visual-placeholder`、`replacement=<非空资产说明>`、`entityId=<真实 interactables ID>`。
+
+**禁止：** 有 gid 的正式 tile object 不得标记 `placeholder=true`。
+
+`scripts/validate_tiled_maps.mjs` Check 7 强制校验上述规则。替换 placeholder 为正式资产时，在 Tiled 中为对象分配 gid 并移除 placeholder/status/replacement 属性。
+
+### 2.5 通用交互距离
 
 - 正面交互：角色锚点距离物件锚点不超过 96 像素；
 - 观察高亮：不超过 192 像素且中间无遮挡；
