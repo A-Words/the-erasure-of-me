@@ -442,6 +442,36 @@ describe('parseTiledMap with real map.home_ending.json', () => {
 });
 
 describe('TiledCollisionProvider with multi-map data', () => {
+  it('reads collision data from Tiled for all 5 chapters', async () => {
+    const { TiledCollisionProvider } = await import(
+      '../../src/game/content/collisionProvider'
+    );
+    const provider = new TiledCollisionProvider({
+      'map.home': loadMapJson('map.home'),
+      'map.rain_station': loadMapJson('map.rain_station'),
+      'map.shared_life': loadMapJson('map.shared_life'),
+      'map.return_corridor': loadMapJson('map.return_corridor'),
+      'map.home_ending': loadMapJson('map.home_ending'),
+    });
+
+    // Home should have many collision obstacles (walls + furniture)
+    const homeData = provider.getCollisionData('home');
+    expect(homeData.obstacles.length).toBeGreaterThan(10);
+
+    // Non-home chapters should now have border wall collision obstacles
+    const rainData = provider.getCollisionData('rain');
+    expect(rainData.obstacles.length).toBeGreaterThan(0);
+
+    const lifeData = provider.getCollisionData('life');
+    expect(lifeData.obstacles.length).toBeGreaterThan(0);
+
+    const returnData = provider.getCollisionData('return');
+    expect(returnData.obstacles.length).toBeGreaterThan(0);
+
+    const endingData = provider.getCollisionData('ending');
+    expect(endingData.obstacles.length).toBeGreaterThan(0);
+  });
+
   it('does not use home collision data for non-home chapters', async () => {
     const { TiledCollisionProvider } = await import(
       '../../src/game/content/collisionProvider'
@@ -453,12 +483,6 @@ describe('TiledCollisionProvider with multi-map data', () => {
 
     const homeData = provider.getCollisionData('home');
     const rainData = provider.getCollisionData('rain');
-
-    // Home should have collision obstacles (walls + furniture)
-    expect(homeData.obstacles.length).toBeGreaterThan(10);
-
-    // Rain station has no collision layer in Tiled, so obstacles should be empty
-    expect(rainData.obstacles.length).toBe(0);
 
     // Rain walk bounds should not be the same as home walk bounds
     expect(rainData.walkBounds).not.toEqual(homeData.walkBounds);

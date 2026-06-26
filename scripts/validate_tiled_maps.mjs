@@ -136,6 +136,16 @@ function validateMap(mapId) {
     }
   }
 
+  // --- Check 3b: All maps must have non-empty collision and navigation layers ---
+  for (const requiredLayer of ['collision', 'navigation']) {
+    const layer = layers.find((l) => l.name === requiredLayer && l.type === 'objectgroup');
+    if (!layer) {
+      errors.push(`Missing required logical layer: "${requiredLayer}"`);
+    } else if (!layer.objects || layer.objects.length === 0) {
+      errors.push(`Logical layer "${requiredLayer}" has no objects`);
+    }
+  }
+
   // --- Check 4: visual_* layers have visual_reference property ---
   for (const layer of layers) {
     if (!layer.name?.startsWith('visual_')) continue;

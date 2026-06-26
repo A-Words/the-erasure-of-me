@@ -102,27 +102,6 @@
     },
     {
       "draworder": "topdown",
-      "id": 1,
-      "name": "navigation",
-      "objects": [
-        {
-          "height": 656,
-          "id": 1,
-          "name": "spawn.ending.hall",
-          "type": "spawn",
-          "width": 1216,
-          "x": 32,
-          "y": 32
-        }
-      ],
-      "opacity": 1,
-      "type": "objectgroup",
-      "visible": true,
-      "x": 0,
-      "y": 0
-    },
-    {
-      "draworder": "topdown",
       "id": 2,
       "name": "interactables",
       "objects": [
@@ -141,10 +120,79 @@
       "visible": true,
       "x": 0,
       "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 5,
+      "name": "navigation",
+      "objects": [
+        {
+          "height": 1032,
+          "id": 1,
+          "name": "spawn.ending.hall",
+          "type": "spawn",
+          "width": 1938,
+          "x": 55,
+          "y": 75
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 6,
+      "name": "collision",
+      "objects": [
+        {
+          "height": 75,
+          "id": 4,
+          "name": "collision.ending.wall_outer_top",
+          "type": "wall",
+          "width": 2048,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 45,
+          "id": 5,
+          "name": "collision.ending.wall_outer_bottom",
+          "type": "wall",
+          "width": 2048,
+          "x": 0,
+          "y": 1107
+        },
+        {
+          "height": 1152,
+          "id": 6,
+          "name": "collision.ending.wall_outer_left",
+          "type": "wall",
+          "width": 55,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 1152,
+          "id": 7,
+          "name": "collision.ending.wall_outer_right",
+          "type": "wall",
+          "width": 55,
+          "x": 1993,
+          "y": 0
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
     }
   ],
-  "nextlayerid": 5,
-  "nextobjectid": 4,
+  "nextlayerid": 7,
+  "nextobjectid": 8,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
