@@ -306,6 +306,8 @@
 | 窗台放置槽 | (23, 5) | slot.life.windowsill |
 | 收音机放置槽 | (23, 14) | slot.life.radio |
 
+上述十个照片、相册、物件与槽位的 `visual_props` 已使用 `prop_life_shared_life_atlas` Tiled tileset：frame 0–2 为三张照片，frame 3 为空相册，frame 4–6 为木梳、搪瓷杯、录音带，frame 7–9 为三处放置槽。所有对象保留 Tiled tile object 左下角锚点与 44×44 运行时尺寸；`entity.life.exit` 继续作为无图像出口 hotspot，由背景中的延长走廊和章节切换逻辑表达。
+
 ### 6.4 D2 触发
 
 玩家首次拾取任一物品后：

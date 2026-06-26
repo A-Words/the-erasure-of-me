@@ -1,6 +1,6 @@
 # 《记忆的缝隙》资产登记台账
 
-> 最近更新：2026-06-24
+> 最近更新：2026-06-26
 > 规则来源：ART_BIBLE.md 第 8、9 节
 
 本表记录进入仓库的美术与音频资产。只有来源、许可证、锚点和审核状态完整的资产才能标记为 `shipped`。
@@ -27,6 +27,17 @@
 | prop.home.red_thread_journal | 项目团队 | assets-source/art/props/prop_home_red_thread_journal_v01_chromakey.png | public/assets/props/prop_home_red_thread_journal_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 44×44；米色布封面、线装边与红线书签；独立拾取素材 |
 | prop.home.blue_key_bowl | 项目团队 | assets-source/art/props/prop_home_blue_key_bowl_v01_chromakey.png | public/assets/props/prop_home_blue_key_bowl_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 32×32，置于玄关桌面；低饱和蓝碗、两道金色修补线与两把旧钥匙 |
 | prop.home.glasses_case | 项目团队 | assets-source/art/props/prop_home_glasses_case_v01_chromakey.png | public/assets/props/prop_home_glasses_case_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 38×38；旧棕布硬盒与红胶布角标；不显示眼镜 |
+| prop.life.photo.move_1979 | 项目团队 | assets-source/art/props/prop_life_photo_move_1979_v01_chromakey.png | public/assets/props/prop_life_photo_move_1979_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 0；运行时显示 44×44；旧照片实物，纸箱内含 1979 文字线索 |
+| prop.life.photo.osmanthus_1992 | 项目团队 | assets-source/art/props/prop_life_photo_osmanthus_1992_v01_chromakey.png | public/assets/props/prop_life_photo_osmanthus_1992_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 1；运行时显示 44×44；旧照片实物，桂花枝、窗台和 1992 身高刻度 |
+| prop.life.photo.anniversary_2001 | 项目团队 | assets-source/art/props/prop_life_photo_anniversary_2001_v01_chromakey.png | public/assets/props/prop_life_photo_anniversary_2001_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 2；运行时显示 44×44；旧照片实物，蛋糕牌保留银婚与 2001 线索 |
+| prop.life.album | 项目团队 | assets-source/art/props/prop_life_album_v01_chromakey.png | public/assets/props/prop_life_album_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 3；运行时显示 44×44；打开的空相册，三格照片位 |
+| prop.life.wood_comb | 项目团队 | assets-source/art/props/prop_life_wood_comb_v01_chromakey.png | public/assets/props/prop_life_wood_comb_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 4；运行时显示 44×44；木梳、密齿、修补裂缝和条纹凹槽 |
+| prop.life.enamel_cup | 项目团队 | assets-source/art/props/prop_life_enamel_cup_v01_chromakey.png | public/assets/props/prop_life_enamel_cup_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 5；运行时显示 44×44；搪瓷杯、桂花图案、圆点纹理和磨损杯底 |
+| prop.life.cassette | 项目团队 | assets-source/art/props/prop_life_cassette_v01_chromakey.png | public/assets/props/prop_life_cassette_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 6；运行时显示 44×44；深灰透明录音带、双线圈和波纹标签 |
+| prop.life.slot.dresser | 项目团队 | assets-source/art/props/prop_life_dresser_slot_v01_chromakey.png | public/assets/props/prop_life_dresser_slot_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 7；运行时显示 44×44；镜台条纹托盘，不使用发光任务框 |
+| prop.life.slot.windowsill | 项目团队 | assets-source/art/props/prop_life_windowsill_slot_v01_chromakey.png | public/assets/props/prop_life_windowsill_slot_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 8；运行时显示 44×44；窗台圆点垫，含花瓣压纹 |
+| prop.life.slot.radio | 项目团队 | assets-source/art/props/prop_life_radio_slot_v01_chromakey.png | public/assets/props/prop_life_radio_slot_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 9；运行时显示 44×44；收音机旁波纹凹槽，非 UI 框 |
+| prop.life.shared_life.atlas | 项目团队 | public/assets/props/prop_life_*_v01.png | public/assets/props/prop_life_shared_life_atlas_v01_10x128x128.png | 上述十件 Shared Life 道具与槽位机械打包；无新增第三方素材 | review | Codex 图集静态检查 | 2026-06-26 | 10×128×128 横向图集；Tiled `prop_life_shared_life_atlas` firstgid=1；`entity.life.exit` 仍为无图像 hotspot |
 | decor.home.bedside_rug | 项目团队 | assets-source/art/decor/decor_home_bedside_rug_v01_chromakey.png | public/assets/decor/decor_home_bedside_rug_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 160×160；褪色砖红/米色条纹旧地毯；非交互地面装饰 |
 | decor.home.slippers | 项目团队 | assets-source/art/decor/decor_home_slippers_v01_chromakey.png | public/assets/decor/decor_home_slippers_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 34×34；整组有效宽度不超过角色身体；非交互地面装饰 |
 | decor.home.kitchen_clutter | 项目团队 | assets-source/art/decor/decor_home_kitchen_clutter_v01_chromakey.png | public/assets/decor/decor_home_kitchen_clutter_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 64×64；放在水槽与煤气炉之间，不覆盖炉头；非交互台面装饰 |
@@ -112,6 +123,15 @@
 - 生成限制：单一完整物件、无文字、无场景、无投影、无水印、纯 `#00ff00` 色键背景，不使用发光或 UI 按钮构图。
 - 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 裁切并归一化到 128×128 透明画布。Phaser 通过 manifest key 与 Tiled 实体 ID 绑定，拾取后随实体隐藏。
 - 当前结论：透明边缘沿用既有检查结果；本轮已按住宅比例标尺完成相框、日记、钥匙碗和眼镜盒的静态尺寸复核，并通过四浏览器场景、HUD、交互提示和减少动态效果回归。外部美术审核前保持 `review`。
+
+### prop.life.shared_life.*
+
+- 生成方式：内置 OpenAI ImageGen；`stylized-concept`；以 home v10 家具/道具的 30°～35° 轻斜俯视、纸张质感、粗轮廓和实物厚度作为方向约束。
+- 生成目标：替换 `map.shared_life` 中照片、空相册、三件生活物件和三个放置槽的 visual_props placeholder；照片仍作为可拾取场景道具，不替换 `memory.life.*.illustration` 记忆插图 key。
+- 稳定特征：三张照片分别保留 `1979` 纸箱、`1992` 桂花窗台身高刻度、`银婚 2001` 蛋糕牌；木梳保留密齿、裂缝和条纹；搪瓷杯保留桂花、圆点和磨损杯底；录音带保留双线圈和波纹；三个槽位分别以条纹托盘、圆点垫、波纹凹槽表达匹配关系。
+- 生成限制：单一实物、透明背景、无大块投影、无外发光、无 UI 边框或任务底板；所有颜色线索均有文字、形状或纹理冗余。
+- 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 归一化到 128×128；`scripts/pack_image_strip.py` 打包为 `prop.life.shared_life.atlas`。Tiled `visual_props` 使用 `prop_life_shared_life_atlas` tileset frame 0–9，运行时尺寸均为 44×44。
+- 当前结论：十个候选图已接入 Shared Life Tiled visual_props 并保持 `review`；`entity.life.exit` 没有独立走廊 sprite，继续使用无图像热点，走廊延长由背景和交互逻辑表达。当前 `environment.life.background` 仍偏平面设计感，后续应按 home v10 轻俯视空间语言重绘或升级。
 
 ### furniture.home.* v01/v02/v03 / decor.home.* v01 / environment.home.background v10
 

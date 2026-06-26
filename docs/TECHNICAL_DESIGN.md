@@ -381,11 +381,11 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 | --- | --- | --- | --- | --- | --- | --- |
 | map.home | ✓ | ✓ (entityId) | ✓ (collisionId) | ✓ | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.rain_station | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
-| map.shared_life | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| map.shared_life | ✓ | ✓ (entityId, props atlas；exit placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.return_corridor | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.home_ending | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 
-非 home 地图的 visual_props 对象大多使用 placeholder（无 gid/tileset），仅携带 entityId/sortY/size 元数据。rain_station 的红伞实体使用 `prop_red_umbrella_closed` tileset。
+非 home 地图的 visual_props 对象大多使用 placeholder（无 gid/tileset），仅携带 entityId/sortY/size 元数据。rain_station 的红伞实体使用 `prop_red_umbrella_closed` tileset；Shared Life 的照片、空相册、三件生活物件和三处放置槽使用 `prop_life_shared_life_atlas` tileset，只有 `entity.life.exit` 仍保持无图像 hotspot。
 
 **Placeholder 对象规范：**
 

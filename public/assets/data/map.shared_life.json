@@ -57,21 +57,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "1979 搬家照片道具图"
             }
           ],
           "rotation": 0,
@@ -79,7 +64,8 @@
           "visible": true,
           "width": 44,
           "x": 208,
-          "y": 542
+          "y": 542,
+          "gid": 1
         },
         {
           "height": 44,
@@ -105,21 +91,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "1992 桂花窗台照片道具图"
             }
           ],
           "rotation": 0,
@@ -127,7 +98,8 @@
           "visible": true,
           "width": 44,
           "x": 1038,
-          "y": 202
+          "y": 202,
+          "gid": 2
         },
         {
           "height": 44,
@@ -153,21 +125,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "2001 银婚照片道具图"
             }
           ],
           "rotation": 0,
@@ -175,7 +132,8 @@
           "visible": true,
           "width": 44,
           "x": 1008,
-          "y": 542
+          "y": 542,
+          "gid": 3
         },
         {
           "height": 44,
@@ -201,21 +159,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "空着三格的相册道具图"
             }
           ],
           "rotation": 0,
@@ -223,7 +166,8 @@
           "visible": true,
           "width": 44,
           "x": 618,
-          "y": 182
+          "y": 182,
+          "gid": 4
         },
         {
           "height": 44,
@@ -249,21 +193,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "木梳道具图（条纹纹理，裂缝修补痕迹）"
             }
           ],
           "rotation": 0,
@@ -271,7 +200,8 @@
           "visible": true,
           "width": 44,
           "x": 288,
-          "y": 362
+          "y": 362,
+          "gid": 5
         },
         {
           "height": 44,
@@ -297,21 +227,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "搪瓷杯道具图（桂花圆点图案）"
             }
           ],
           "rotation": 0,
@@ -319,7 +234,8 @@
           "visible": true,
           "width": 44,
           "x": 868,
-          "y": 352
+          "y": 352,
+          "gid": 6
         },
         {
           "height": 44,
@@ -345,21 +261,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "录音带道具图（双线圈波纹）"
             }
           ],
           "rotation": 0,
@@ -367,7 +268,8 @@
           "visible": true,
           "width": 44,
           "x": 858,
-          "y": 592
+          "y": 592,
+          "gid": 7
         },
         {
           "height": 44,
@@ -393,21 +295,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "镜台放置槽视觉图（条纹纹理标记）"
             }
           ],
           "rotation": 0,
@@ -415,7 +302,8 @@
           "visible": true,
           "width": 44,
           "x": 238,
-          "y": 172
+          "y": 172,
+          "gid": 8
         },
         {
           "height": 44,
@@ -441,21 +329,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "窗台放置槽视觉图（圆点纹理标记）"
             }
           ],
           "rotation": 0,
@@ -463,7 +336,8 @@
           "visible": true,
           "width": 44,
           "x": 1008,
-          "y": 172
+          "y": 172,
+          "gid": 9
         },
         {
           "height": 44,
@@ -489,21 +363,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "收音机放置槽视觉图（波纹纹理标记）"
             }
           ],
           "rotation": 0,
@@ -511,7 +370,8 @@
           "visible": true,
           "width": 44,
           "x": 1018,
-          "y": 612
+          "y": 612,
+          "gid": 10
         },
         {
           "height": 60,
@@ -767,7 +627,21 @@
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
   "tileheight": 64,
-  "tilesets": [],
+  "tilesets": [
+    {
+      "columns": 10,
+      "firstgid": 1,
+      "image": "../props/prop_life_shared_life_atlas_v01_10x128x128.png",
+      "imageheight": 128,
+      "imagewidth": 1280,
+      "margin": 0,
+      "name": "prop_life_shared_life_atlas",
+      "spacing": 0,
+      "tilecount": 10,
+      "tileheight": 128,
+      "tilewidth": 128
+    }
+  ],
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",

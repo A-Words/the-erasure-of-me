@@ -42,6 +42,7 @@ const VALID_TILESET_NAMES = new Set([
   'prop_home_glasses_case',
   'prop_home_blue_key_bowl',
   'prop_red_umbrella_closed',
+  'prop_life_shared_life_atlas',
 ]);
 
 /**

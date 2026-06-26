@@ -229,6 +229,14 @@ export const assetManifest = [
     preload: true,
   },
   {
+    key: 'prop.life.shared_life.atlas',
+    type: 'spritesheet',
+    url: 'assets/props/prop_life_shared_life_atlas_v01_10x128x128.png',
+    frameConfig: { frameWidth: 128, frameHeight: 128 },
+    chapter: 'life',
+    preload: true,
+  },
+  {
     key: 'decor.home.atlas',
     type: 'spritesheet',
     url: 'assets/decor/decor_home_atlas_v01_3x256x256.png',
