@@ -134,6 +134,48 @@ function validateMap(mapId) {
     }
   }
 
+  // --- Check 6: Binding integrity — collisionId and entityId point to real objects ---
+  // Build sets of valid collision and interactable object names
+  const collisionNames = new Set();
+  const interactableNames = new Set();
+  for (const layer of layers) {
+    if (layer.name === 'collision' && layer.type === 'objectgroup') {
+      for (const obj of layer.objects ?? []) {
+        if (obj.name) collisionNames.add(obj.name);
+      }
+    }
+    if (layer.name === 'interactables' && layer.type === 'objectgroup') {
+      for (const obj of layer.objects ?? []) {
+        if (obj.name) interactableNames.add(obj.name);
+      }
+    }
+  }
+
+  for (const layer of layers) {
+    if (!layer.name?.startsWith('visual_')) continue;
+    for (const obj of layer.objects ?? []) {
+      const props = obj.properties ?? [];
+      // Check collisionId binding (visual_furniture)
+      const collisionIdProp = props.find((p) => p.name === 'collisionId');
+      if (collisionIdProp && typeof collisionIdProp.value === 'string') {
+        if (!collisionNames.has(collisionIdProp.value)) {
+          errors.push(
+            `Visual object "${obj.name}" has collisionId "${collisionIdProp.value}" but no collision object with that name exists`,
+          );
+        }
+      }
+      // Check entityId binding (visual_props)
+      const entityIdProp = props.find((p) => p.name === 'entityId');
+      if (entityIdProp && typeof entityIdProp.value === 'string') {
+        if (!interactableNames.has(entityIdProp.value)) {
+          errors.push(
+            `Visual object "${obj.name}" has entityId "${entityIdProp.value}" but no interactable object with that name exists`,
+          );
+        }
+      }
+    }
+  }
+
   const passed = errors.length === 0;
   return { errors, warnings, passed };
 }

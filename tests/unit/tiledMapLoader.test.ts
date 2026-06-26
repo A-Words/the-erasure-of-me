@@ -80,6 +80,7 @@ function makeHomeMapFixture(): any {
             properties: [
               { name: 'size', type: 'int', value: 36 },
               { name: 'sortY', type: 'int', value: 205 },
+              { name: 'entityId', type: 'string', value: 'entity.home.bedside_photo' },
               { name: 'visual_reference', type: 'bool', value: true },
             ],
           },
@@ -224,6 +225,8 @@ describe('parseTiledMap', () => {
     expect(bed.id).toBe('visual.home.bed');
     expect(bed.assetKey).toBe('furniture.home.atlas');
     expect(bed.frame).toBe(0);
+    expect(bed.x).toBe(170);
+    expect(bed.y).toBe(190);
     expect(bed.size).toBe(225);
     expect(bed.sortY).toBe(282);
     expect(bed.collisionId).toBe('collision.home.bed');
@@ -235,18 +238,29 @@ describe('parseTiledMap', () => {
     const rug = content.visualDecor[0];
     expect(rug.assetKey).toBe('decor.home.atlas');
     expect(rug.frame).toBe(0);
+    expect(rug.x).toBe(170);
+    expect(rug.y).toBe(282);
     expect(rug.size).toBe(160);
     expect(rug.sortY).toBe(32);
   });
 
-  it('reads visual_props placements', () => {
+  it('reads visual_props placements including entityId binding', () => {
     const content = parseTiledMap('map.home', makeHomeMapFixture(), fallbackEntities);
     expect(content.visualProps).toHaveLength(1);
     const photo = content.visualProps[0];
     expect(photo.assetKey).toBe('prop.home.bedside_photo');
     expect(photo.frame).toBe(0);
+    expect(photo.x).toBe(300);
+    expect(photo.y).toBe(168);
     expect(photo.size).toBe(36);
     expect(photo.sortY).toBe(205);
+    expect(photo.entityId).toBe('entity.home.bedside_photo');
+  });
+
+  it('reads visual_furniture collisionId binding', () => {
+    const content = parseTiledMap('map.home', makeHomeMapFixture(), fallbackEntities);
+    const bed = content.visualFurniture[0];
+    expect(bed.collisionId).toBe('collision.home.bed');
   });
 
   it('falls back to code entities when interactables layer is empty', () => {

@@ -83,6 +83,8 @@ export interface VisualPlacement {
   sortY: number;
   /** Links to a collision object name, if this visual has a collision rect. */
   collisionId?: string;
+  /** Links to an interactable entity ID, if this visual represents a prop. */
+  entityId?: string;
 }
 
 /** Collision rectangle with a stable name for debugging. */
@@ -310,16 +312,20 @@ function parseVisualLayer(
     const size = getNumberProperty(obj, 'size', obj.width ?? 0);
     const sortY = getNumberProperty(obj, 'sortY', obj.y);
     const collisionId = getOptionalStringProperty(obj, 'collisionId');
+    const entityId = getOptionalStringProperty(obj, 'entityId');
+    const width = obj.width ?? size;
+    const height = obj.height ?? size;
 
     placements.push({
       id,
       assetKey,
       frame,
-      x: obj.x,
-      y: obj.y,
+      x: obj.x + width / 2,
+      y: obj.y - height / 2,
       size,
       sortY,
       collisionId,
+      entityId,
     });
   }
 
@@ -420,6 +426,8 @@ export function extractWalkBounds(
 /**
  * Extract entity sortY values from visual_props placements.
  * Returns a map of entity ID → sortY for depth sorting.
+ * Uses the explicit entityId property when available, falling back to
+ * the visual.* → entity.* name convention.
  */
 export function extractEntitySortY(
   content: TiledMapContent,
@@ -432,9 +440,11 @@ export function extractEntitySortY(
   }
   // Override with Tiled data if available
   for (const prop of content.visualProps) {
-    // visual.home.bedside_photo → entity.home.bedside_photo
-    if (prop.id.startsWith('visual.')) {
-      const entityId = prop.id.replace('visual.', 'entity.');
+    let entityId = prop.entityId;
+    if (!entityId && prop.id.startsWith('visual.')) {
+      entityId = prop.id.replace('visual.', 'entity.');
+    }
+    if (entityId) {
       result[entityId] = prop.sortY;
     }
   }

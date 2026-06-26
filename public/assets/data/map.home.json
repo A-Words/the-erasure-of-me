@@ -520,6 +520,11 @@
               "name": "sortY",
               "type": "int",
               "value": 205
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.home.bedside_photo"
             }
           ],
           "rotation": 0,
@@ -554,6 +559,11 @@
               "name": "sortY",
               "type": "int",
               "value": 319
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.home.journal"
             }
           ],
           "rotation": 0,
@@ -588,6 +598,11 @@
               "name": "sortY",
               "type": "int",
               "value": 569
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.home.glasses_case"
             }
           ],
           "rotation": 0,
@@ -622,6 +637,11 @@
               "name": "sortY",
               "type": "int",
               "value": 577
+            },
+            {
+              "name": "entityId",
+              "type": "string",
+              "value": "entity.home.key_bowl"
             }
           ],
           "rotation": 0,
