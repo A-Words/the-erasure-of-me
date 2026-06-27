@@ -46,6 +46,8 @@ const chapterState: Record<
 
 async function createSave(page: Page): Promise<void> {
   await page.goto('/');
+  await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.getByRole('button', { name: /标准模式/ }).click();
@@ -91,6 +93,7 @@ async function loadChapter(
   await page.reload();
   await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', chapterId);
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await expect(page.locator('canvas')).toBeVisible();
   await page.waitForTimeout(120);
 }
@@ -216,8 +219,9 @@ for (const viewport of [
     });
     await page.reload();
     await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
-    await page.locator('canvas').focus();
-    await page.keyboard.press('e');
+    const canvas = page.locator('canvas');
+    await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
+    await canvas.press('e', { delay: 100 });
     for (let index = 0; index < 3; index += 1)
       await page.getByRole('button', { name: '继续对白' }).click();
     await expect(page.getByRole('heading', { name: '早期表现与就医陪伴指南' })).toBeVisible();

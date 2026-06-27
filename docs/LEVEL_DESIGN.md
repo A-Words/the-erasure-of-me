@@ -282,31 +282,36 @@
 ### 6.2 布局
 
 ~~~text
-┌──────────────────────────┐
-│ 镜台/搬家区  相册桌  桂花窗台│
-│     梳槽     [照片槽]    杯槽│
-│                          │
-│  纸箱                  收音机│
-│               P        带槽 │
-└──────────────────────────┘
+┌────────────────────────────────┐
+│ 1979 同源窗  1992 同源窗  走廊  2001 同源窗 │
+│ 纸箱/镜台     桂花窗台          收音机/纪念日晚餐 │
+│                 相册桌                          │
+│                 主通道                          │
+│                   P                             │
+└────────────────────────────────┘
 ~~~
+
+三个区域不是三间房，而是同一个家在三个时期的纸张叠影。三扇窗保持相同外框、四格比例、中央插销和右下磕痕；1979 木框较新，1992 有桂花、身高刻度和圆形杯印，2001 木框明显磨损并处于停电夜的柔暖光。准确年份由 Phaser 文字牌显示。相册桌位于视觉中心但留出左右绕行空间，上方中央走廊保持可达。
 
 ### 6.3 关键对象
 
 | 对象 | 坐标 | ID |
 | --- | --- | --- |
-| 相册桌 | (14, 5) | entity.life.album |
-| 搬家照片 | (5, 12) | item.photo.move_1979 |
-| 桂花照片 | (23, 4) | item.photo.osmanthus_1992 |
-| 银婚照片 | (23, 12) | item.photo.anniversary_2001 |
-| 木梳 | (7, 8) | item.life.wood_comb |
-| 搪瓷杯 | (20, 7) | item.life.enamel_cup |
-| 录音带 | (20, 14) | item.life.cassette |
-| 镜台放置槽 | (5, 5) | slot.life.dresser |
-| 窗台放置槽 | (23, 5) | slot.life.windowsill |
-| 收音机放置槽 | (23, 14) | slot.life.radio |
+| 搬家照片 | (140, 430) | item.photo.move_1979 |
+| 桂花照片 | (500, 250) | item.photo.osmanthus_1992 |
+| 银婚照片 | (885, 420) | item.photo.anniversary_2001 |
+| 相册桌 | (625, 465) | entity.life.album |
+| 木梳 | (320, 390) | item.life.wood_comb |
+| 搪瓷杯 | (610, 320) | item.life.enamel_cup |
+| 录音带 | (870, 570) | item.life.cassette |
+| 镜台放置槽 | (335, 285) | slot.life.dresser |
+| 窗台放置槽 | (585, 215) | slot.life.windowsill |
+| 收音机放置槽 | (1065, 285) | slot.life.radio |
+| 延长走廊出口 | (700, 70) | entity.life.exit |
 
-上述十个照片、相册、物件与槽位的 `visual_props` 已使用 `prop_life_shared_life_atlas` Tiled tileset：frame 0–2 为三张照片，frame 3 为空相册，frame 4–6 为木梳、搪瓷杯、录音带，frame 7–9 为三处放置槽。所有对象保留 Tiled tile object 左下角锚点与 44×44 运行时尺寸；`entity.life.exit` 继续作为无图像出口 hotspot，由背景中的延长走廊和章节切换逻辑表达。
+上述十个照片、相册、物件与槽位的 `visual_props` 已使用 v02 `prop_life_shared_life_atlas` Tiled tileset：frame 0–2 为不含生成式年份文字的三张照片，frame 3 为空相册，frame 4–6 为木梳、搪瓷杯、录音带，frame 7–9 为三处放置槽。所有对象保留 Tiled tile object 左下角锚点与 44×44 运行时尺寸；物件拾取后隐藏，归位后槽位实体切换到 frame 4–6。`entity.life.exit` 的正式视觉由 v02 背景中的延长走廊承担，因此不再保留伪造的 `visual_props` 占位对象。
+
+`collision` 层使用 1280×720 运行时边界，并为相册桌、镜台、收音机柜、纪念日晚餐桌、纸箱和左下前景柜建立脚印矩形；纸箱与镜台脚印之间保留不少于一个角色脚部宽度的通道，顶部外墙在 x=620–780 留出走廊口。`navigation` 恢复区为 x=32–1248、y=32–688，玩家不会走出可见画布。
 
 ### 6.4 D2 触发
 

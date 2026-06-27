@@ -5,7 +5,7 @@
   "layers": [
     {
       "id": 3,
-      "image": "../environments/environment_life_v01.png",
+      "image": "../environments/environment_life_v02.png",
       "name": "background",
       "offsetx": 0,
       "offsety": 0,
@@ -46,7 +46,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 520
+              "value": 430
             },
             {
               "name": "entityId",
@@ -63,8 +63,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 208,
-          "y": 542,
+          "x": 118,
+          "y": 452,
           "gid": 1
         },
         {
@@ -80,7 +80,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 180
+              "value": 250
             },
             {
               "name": "entityId",
@@ -97,8 +97,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 1038,
-          "y": 202,
+          "x": 478,
+          "y": 272,
           "gid": 2
         },
         {
@@ -114,7 +114,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 520
+              "value": 420
             },
             {
               "name": "entityId",
@@ -131,8 +131,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 1008,
-          "y": 542,
+          "x": 863,
+          "y": 442,
           "gid": 3
         },
         {
@@ -148,7 +148,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 160
+              "value": 465
             },
             {
               "name": "entityId",
@@ -165,8 +165,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 618,
-          "y": 182,
+          "x": 603,
+          "y": 487,
           "gid": 4
         },
         {
@@ -182,7 +182,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 340
+              "value": 390
             },
             {
               "name": "entityId",
@@ -199,8 +199,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 288,
-          "y": 362,
+          "x": 298,
+          "y": 412,
           "gid": 5
         },
         {
@@ -216,7 +216,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 330
+              "value": 320
             },
             {
               "name": "entityId",
@@ -233,8 +233,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 868,
-          "y": 352,
+          "x": 588,
+          "y": 342,
           "gid": 6
         },
         {
@@ -267,7 +267,7 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 858,
+          "x": 848,
           "y": 592,
           "gid": 7
         },
@@ -284,7 +284,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 150
+              "value": 285
             },
             {
               "name": "entityId",
@@ -301,8 +301,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 238,
-          "y": 172,
+          "x": 313,
+          "y": 307,
           "gid": 8
         },
         {
@@ -318,7 +318,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 150
+              "value": 215
             },
             {
               "name": "entityId",
@@ -335,8 +335,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 1008,
-          "y": 172,
+          "x": 563,
+          "y": 237,
           "gid": 9
         },
         {
@@ -352,7 +352,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 590
+              "value": 285
             },
             {
               "name": "entityId",
@@ -369,57 +369,9 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 1018,
-          "y": 612,
+          "x": 1043,
+          "y": 307,
           "gid": 10
-        },
-        {
-          "height": 60,
-          "id": 23,
-          "name": "visual.life.exit",
-          "properties": [
-            {
-              "name": "size",
-              "type": "int",
-              "value": 60
-            },
-            {
-              "name": "sortY",
-              "type": "int",
-              "value": 50
-            },
-            {
-              "name": "entityId",
-              "type": "string",
-              "value": "entity.life.exit"
-            },
-            {
-              "name": "visual_reference",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "延长走廊出口视觉图"
-            }
-          ],
-          "rotation": 0,
-          "type": "prop",
-          "visible": true,
-          "width": 60,
-          "x": 610,
-          "y": 80
         }
       ],
       "opacity": 1,
@@ -451,8 +403,8 @@
           "name": "item.photo.move_1979",
           "type": "pickup",
           "width": 44,
-          "x": 230,
-          "y": 520
+          "x": 140,
+          "y": 430
         },
         {
           "height": 44,
@@ -460,8 +412,8 @@
           "name": "item.photo.osmanthus_1992",
           "type": "pickup",
           "width": 44,
-          "x": 1060,
-          "y": 180
+          "x": 500,
+          "y": 250
         },
         {
           "height": 44,
@@ -469,8 +421,8 @@
           "name": "item.photo.anniversary_2001",
           "type": "pickup",
           "width": 44,
-          "x": 1030,
-          "y": 520
+          "x": 885,
+          "y": 420
         },
         {
           "height": 44,
@@ -478,8 +430,8 @@
           "name": "entity.life.album",
           "type": "puzzle",
           "width": 44,
-          "x": 640,
-          "y": 160
+          "x": 625,
+          "y": 465
         },
         {
           "height": 44,
@@ -487,8 +439,8 @@
           "name": "item.life.wood_comb",
           "type": "pickup",
           "width": 44,
-          "x": 310,
-          "y": 340
+          "x": 320,
+          "y": 390
         },
         {
           "height": 44,
@@ -496,8 +448,8 @@
           "name": "item.life.enamel_cup",
           "type": "pickup",
           "width": 44,
-          "x": 890,
-          "y": 330
+          "x": 610,
+          "y": 320
         },
         {
           "height": 44,
@@ -505,7 +457,7 @@
           "name": "item.life.cassette",
           "type": "pickup",
           "width": 44,
-          "x": 880,
+          "x": 870,
           "y": 570
         },
         {
@@ -514,8 +466,8 @@
           "name": "slot.life.dresser",
           "type": "slot",
           "width": 44,
-          "x": 260,
-          "y": 150
+          "x": 335,
+          "y": 285
         },
         {
           "height": 44,
@@ -523,8 +475,8 @@
           "name": "slot.life.windowsill",
           "type": "slot",
           "width": 44,
-          "x": 1030,
-          "y": 150
+          "x": 585,
+          "y": 215
         },
         {
           "height": 44,
@@ -532,8 +484,8 @@
           "name": "slot.life.radio",
           "type": "slot",
           "width": 44,
-          "x": 1040,
-          "y": 590
+          "x": 1065,
+          "y": 285
         },
         {
           "height": 60,
@@ -541,8 +493,8 @@
           "name": "entity.life.exit",
           "type": "exit",
           "width": 60,
-          "x": 640,
-          "y": 50
+          "x": 700,
+          "y": 70
         }
       ],
       "opacity": 1,
@@ -557,13 +509,13 @@
       "name": "navigation",
       "objects": [
         {
-          "height": 1032,
+          "height": 656,
           "id": 1,
           "name": "spawn.life.center",
           "type": "spawn",
-          "width": 1682,
-          "x": 55,
-          "y": 75
+          "width": 1216,
+          "x": 32,
+          "y": 32
         }
       ],
       "opacity": 1,
@@ -578,40 +530,103 @@
       "name": "collision",
       "objects": [
         {
-          "height": 75,
+          "height": 32,
           "id": 24,
-          "name": "collision.life.wall_outer_top",
+          "name": "collision.life.wall_outer_top_left",
           "type": "wall",
-          "width": 1792,
+          "width": 620,
           "x": 0,
           "y": 0
         },
         {
-          "height": 45,
+          "height": 32,
           "id": 25,
+          "name": "collision.life.wall_outer_top_right",
+          "type": "wall",
+          "width": 500,
+          "x": 780,
+          "y": 0
+        },
+        {
+          "height": 32,
+          "id": 26,
           "name": "collision.life.wall_outer_bottom",
           "type": "wall",
-          "width": 1792,
+          "width": 1280,
           "x": 0,
-          "y": 1107
+          "y": 688
         },
         {
-          "height": 1152,
-          "id": 26,
+          "height": 720,
+          "id": 27,
           "name": "collision.life.wall_outer_left",
           "type": "wall",
-          "width": 55,
+          "width": 32,
           "x": 0,
           "y": 0
         },
         {
-          "height": 1152,
-          "id": 27,
+          "height": 720,
+          "id": 28,
           "name": "collision.life.wall_outer_right",
           "type": "wall",
-          "width": 55,
-          "x": 1737,
+          "width": 32,
+          "x": 1248,
           "y": 0
+        },
+        {
+          "height": 86,
+          "id": 29,
+          "name": "collision.life.album_table",
+          "type": "furniture",
+          "width": 180,
+          "x": 535,
+          "y": 455
+        },
+        {
+          "height": 105,
+          "id": 30,
+          "name": "collision.life.dresser",
+          "type": "furniture",
+          "width": 90,
+          "x": 305,
+          "y": 260
+        },
+        {
+          "height": 115,
+          "id": 31,
+          "name": "collision.life.radio_cabinet",
+          "type": "furniture",
+          "width": 200,
+          "x": 980,
+          "y": 245
+        },
+        {
+          "height": 250,
+          "id": 32,
+          "name": "collision.life.anniversary_table",
+          "type": "furniture",
+          "width": 315,
+          "x": 925,
+          "y": 365
+        },
+        {
+          "height": 170,
+          "id": 33,
+          "name": "collision.life.moving_boxes",
+          "type": "furniture",
+          "width": 185,
+          "x": 55,
+          "y": 230
+        },
+        {
+          "height": 210,
+          "id": 34,
+          "name": "collision.life.left_foreground_cabinet",
+          "type": "furniture",
+          "width": 250,
+          "x": 0,
+          "y": 470
         }
       ],
       "opacity": 1,
@@ -622,7 +637,7 @@
     }
   ],
   "nextlayerid": 7,
-  "nextobjectid": 28,
+  "nextobjectid": 35,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -631,7 +646,7 @@
     {
       "columns": 10,
       "firstgid": 1,
-      "image": "../props/prop_life_shared_life_atlas_v01_10x128x128.png",
+      "image": "../props/prop_life_shared_life_atlas_v02_10x128x128.png",
       "imageheight": 128,
       "imagewidth": 1280,
       "margin": 0,

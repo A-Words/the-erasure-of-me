@@ -9,6 +9,7 @@ import {
 } from '../../src/game/content/tiledMapLoader';
 import type { WorldEntity } from '../../src/game/content/maps';
 import { chapterMaps } from '../../src/game/content/maps';
+import { moveWithCollisions } from '../../src/game/simulation/collision';
 
 // Minimal Tiled JSON fixture matching the structure of map.home.json
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -268,7 +269,9 @@ describe('parseTiledMap', () => {
 
   it('falls back to code entities when interactables layer is empty', () => {
     const fixture = makeHomeMapFixture();
-    const interactablesLayer = fixture.layers.find((l: Record<string, unknown>) => l.name === 'interactables');
+    const interactablesLayer = fixture.layers.find(
+      (l: Record<string, unknown>) => l.name === 'interactables',
+    );
     if (interactablesLayer) interactablesLayer.objects = [];
     const content = parseTiledMap('map.home', fixture, fallbackEntities);
     expect(content.interactables).toBe(fallbackEntities);
@@ -276,7 +279,9 @@ describe('parseTiledMap', () => {
 
   it('falls back to code entities when interactables layer is missing', () => {
     const fixture = makeHomeMapFixture();
-    fixture.layers = fixture.layers.filter((l: Record<string, unknown>) => l.name !== 'interactables');
+    fixture.layers = fixture.layers.filter(
+      (l: Record<string, unknown>) => l.name !== 'interactables',
+    );
     const content = parseTiledMap('map.home', fixture, fallbackEntities);
     expect(content.interactables).toBe(fallbackEntities);
   });
@@ -378,7 +383,9 @@ describe('extractEntitySortY', () => {
 
   it('returns fallback when no visual_props exist', () => {
     const fixture = makeHomeMapFixture();
-    fixture.layers = fixture.layers.filter((l: Record<string, unknown>) => l.name !== 'visual_props');
+    fixture.layers = fixture.layers.filter(
+      (l: Record<string, unknown>) => l.name !== 'visual_props',
+    );
     const content = parseTiledMap('map.home', fixture, fallbackEntities);
     const fallback = { 'entity.home.journal': 319 };
     const sortYMap = extractEntitySortY(content, fallback);
@@ -447,9 +454,7 @@ describe('parseTiledMap with real map.home_ending.json', () => {
 
 describe('TiledCollisionProvider with multi-map data', () => {
   it('reads collision data from Tiled for all 5 chapters', async () => {
-    const { TiledCollisionProvider } = await import(
-      '../../src/game/content/collisionProvider'
-    );
+    const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
     const provider = new TiledCollisionProvider({
       'map.home': loadMapJson('map.home'),
       'map.rain_station': loadMapJson('map.rain_station'),
@@ -477,9 +482,7 @@ describe('TiledCollisionProvider with multi-map data', () => {
   });
 
   it('does not use home collision data for non-home chapters', async () => {
-    const { TiledCollisionProvider } = await import(
-      '../../src/game/content/collisionProvider'
-    );
+    const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
     const provider = new TiledCollisionProvider({
       'map.home': loadMapJson('map.home'),
       'map.rain_station': loadMapJson('map.rain_station'),
@@ -495,19 +498,34 @@ describe('TiledCollisionProvider with multi-map data', () => {
     expect(rainData.walkBounds).not.toEqual(homeData.walkBounds);
   });
 
+  it('keeps the Shared Life window route and boxes-to-dresser passage walkable', async () => {
+    const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
+    const provider = new TiledCollisionProvider({
+      'map.home': loadMapJson('map.home'),
+      'map.rain_station': loadMapJson('map.rain_station'),
+      'map.shared_life': loadMapJson('map.shared_life'),
+      'map.return_corridor': loadMapJson('map.return_corridor'),
+      'map.home_ending': loadMapJson('map.home_ending'),
+    });
+    const life = provider.getCollisionData('life');
+
+    expect(
+      moveWithCollisions({ x: 500, y: 250 }, { x: 0, y: -20 }, life.walkBounds, life.obstacles),
+    ).toEqual({ x: 500, y: 230 });
+    expect(
+      moveWithCollisions({ x: 270, y: 220 }, { x: 0, y: 210 }, life.walkBounds, life.obstacles),
+    ).toEqual({ x: 270, y: 430 });
+  });
+
   it('throws when a chapter is missing Tiled collision data', async () => {
-    const { TiledCollisionProvider } = await import(
-      '../../src/game/content/collisionProvider'
-    );
+    const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
     expect(() => new TiledCollisionProvider({})).toThrow(
       /Missing Tiled collision data for chapter "home"/,
     );
   });
 
   it('throws when a Tiled map has no navigation layer', async () => {
-    const { TiledCollisionProvider } = await import(
-      '../../src/game/content/collisionProvider'
-    );
+    const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
     const brokenRain = loadMapJson('map.rain_station') as MutableTiledFixture;
     brokenRain.layers = brokenRain.layers.filter(
       (layer: { name: string }) => layer.name !== 'navigation',

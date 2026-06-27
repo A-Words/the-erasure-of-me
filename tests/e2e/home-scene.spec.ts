@@ -15,7 +15,17 @@ async function setSavedPlayer(page: import('@playwright/test').Page, x: number, 
   );
   await page.reload();
   await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
-  await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'home');
+  const app = page.locator('#app');
+  await expect(app).toHaveAttribute('data-chapter', 'home');
+  await expect(app).toHaveAttribute('data-player-x', String(x));
+  await expect(app).toHaveAttribute('data-player-y', String(y));
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
 }
 
 test('renders the layered home and blocks the player at the bed footprint', async ({
@@ -29,6 +39,8 @@ test('renders the layered home and blocks the player at the bed footprint', asyn
 
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
+  await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.getByRole('button', { name: /标准模式/ }).click();
@@ -38,7 +50,7 @@ test('renders the layered home and blocks the player at the bed footprint', asyn
   const app = page.locator('#app');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
   await expect(app).toHaveAttribute('data-chapter', 'home');
-  await expect(canvas).toBeVisible();
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
   await canvas.screenshot({ path: testInfo.outputPath('home-layered-scene.png') });
 
   await setSavedPlayer(page, 170, 310);
@@ -57,10 +69,15 @@ test('renders the layered home and blocks the player at the bed footprint', asyn
   expect(Number(await app.getAttribute('data-player-x'))).toBeGreaterThan(410);
 
   await setSavedPlayer(page, 700, 520);
+  await page.bringToFront();
   const behindTable = await canvas.screenshot({
     path: testInfo.outputPath('home-player-behind-table.png'),
   });
   await setSavedPlayer(page, 700, 630);
+  await page.bringToFront();
+  await expect
+    .poll(async () => !behindTable.equals(await canvas.screenshot()), { timeout: 10_000 })
+    .toBe(true);
   const inFrontOfTable = await canvas.screenshot({
     path: testInfo.outputPath('home-player-in-front-of-table.png'),
   });

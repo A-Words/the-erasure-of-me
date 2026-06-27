@@ -26,11 +26,36 @@ type ChapterConfig = {
 };
 
 const CHAPTER_DATA: Record<string, ChapterConfig> = {
-  home:    { stage: 'D0', checkpoint: 'checkpoint.home.start',     objective: '找到钥匙和秀兰留下的日记',     spawn: { x: 310, y: 302 } },
-  rain:    { stage: 'D1', checkpoint: 'checkpoint.rain.start',     objective: '按 2 → 4 → 5 踩亮石板，再跟随红伞', spawn: { x: 100, y: 600 } },
-  life:    { stage: 'D2', checkpoint: 'checkpoint.life.start',     objective: '整理照片，并让三件生活物品回到原处', spawn: { x: 640, y: 590 } },
-  return:  { stage: 'D3', checkpoint: 'checkpoint.return.training', objective: '理解新的方向，沿着仍可靠的线索回家', spawn: { x: 640, y: 360 } },
-  ending:  { stage: 'D4', checkpoint: 'checkpoint.ending.start',   objective: '走近秀兰',                 spawn: { x: 920, y: 430 } },
+  home: {
+    stage: 'D0',
+    checkpoint: 'checkpoint.home.start',
+    objective: '找到钥匙和秀兰留下的日记',
+    spawn: { x: 310, y: 302 },
+  },
+  rain: {
+    stage: 'D1',
+    checkpoint: 'checkpoint.rain.start',
+    objective: '按 2 → 4 → 5 踩亮石板，再跟随红伞',
+    spawn: { x: 100, y: 600 },
+  },
+  life: {
+    stage: 'D2',
+    checkpoint: 'checkpoint.life.start',
+    objective: '整理照片，并让三件生活物品回到原处',
+    spawn: { x: 640, y: 590 },
+  },
+  return: {
+    stage: 'D3',
+    checkpoint: 'checkpoint.return.training',
+    objective: '理解新的方向，沿着仍可靠的线索回家',
+    spawn: { x: 640, y: 360 },
+  },
+  ending: {
+    stage: 'D4',
+    checkpoint: 'checkpoint.ending.start',
+    objective: '走近秀兰',
+    spawn: { x: 920, y: 430 },
+  },
 };
 
 /**
@@ -112,6 +137,9 @@ function setupConsoleCapture(page: Page): ConsoleCapture {
 async function bootFreshGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
+  await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
+  await page.waitForLoadState('networkidle');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await page.getByRole('button', { name: /标准模式/ }).click();
@@ -124,6 +152,8 @@ async function bootFreshGame(page: Page): Promise<void> {
 async function bootIntoChapter(page: Page, chapterId: string): Promise<void> {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
+  await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   // Inject save before reload so the game picks it up
   await page.evaluate(
@@ -151,6 +181,7 @@ async function assertChapterRenders(
 
   // Canvas visible and non-empty
   await expect(canvas).toBeVisible({ timeout: 5_000 });
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
   const box = await canvas.boundingBox();
   expect(box).not.toBeNull();
   expect(box!.width).toBeGreaterThan(100);
@@ -218,6 +249,9 @@ test('tiled map smoke: sequential chapter saves do not corrupt state', async ({ 
   for (const chapterId of CHAPTERS) {
     // Inject save and reload for each chapter
     await page.goto('/');
+    await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
+    await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
+    await page.waitForLoadState('networkidle');
     await page.evaluate(() => localStorage.clear());
     await page.evaluate(
       ({ save }) => {
@@ -233,6 +267,7 @@ test('tiled map smoke: sequential chapter saves do not corrupt state', async ({ 
 
     const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
     await expect(canvas).toBeVisible({ timeout: 5_000 });
+    await page.waitForLoadState('networkidle');
   }
 
   expect(capture.errors).toEqual([]);
