@@ -134,7 +134,9 @@ function getNumberProperty(obj: TiledObject, name: string, fallback?: number): n
   const value = getProperty(obj, name);
   if (typeof value === 'number' && !Number.isNaN(value)) return value;
   if (fallback !== undefined) return fallback;
-  throw new Error(`Tiled object "${obj.name ?? obj.id}" missing required number property "${name}"`);
+  throw new Error(
+    `Tiled object "${obj.name ?? obj.id}" missing required number property "${name}"`,
+  );
 }
 
 function getOptionalNumberProperty(obj: TiledObject, name: string): number | undefined {
