@@ -1,6 +1,11 @@
-import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { expect, test, type Locator, type Page, type TestInfo } from '@playwright/test';
 
 const SAVE_KEY = 'erasure.save.v1';
+
+async function activateWithKeyboard(locator: Locator): Promise<void> {
+  await locator.focus();
+  await locator.press('Enter');
+}
 
 async function createSave(page: Page): Promise<void> {
   await page.goto('/');
@@ -8,9 +13,9 @@ async function createSave(page: Page): Promise<void> {
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await activateWithKeyboard(page.getByRole('button', { name: /标准模式/ }));
   for (let index = 0; index < 2; index += 1)
-    await page.getByRole('button', { name: '继续对白' }).click();
+    await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
   await expect
     .poll(() => page.evaluate((key) => localStorage.getItem(key), SAVE_KEY))
     .not.toBeNull();
@@ -32,7 +37,7 @@ async function patchSave(page: Page, patch: Record<string, unknown>): Promise<vo
 
 async function continueSavedGame(page: Page): Promise<void> {
   await page.reload();
-  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+  await activateWithKeyboard(page.getByRole('button', { name: '从最近的安全位置继续' }));
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
 }
 
@@ -62,9 +67,9 @@ async function enterLifeFromRain(page: Page): Promise<void> {
 
   const rainExitPrompt = page.getByRole('button', { name: '与钟表铺前的红伞交互' });
   await expect(rainExitPrompt).toBeVisible();
-  await rainExitPrompt.click();
+  await activateWithKeyboard(rainExitPrompt);
   for (let index = 0; index < 3; index += 1)
-    await page.getByRole('button', { name: '继续对白' }).click();
+    await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
 
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'life');
   await expect(page.getByRole('button', { name: '继续对白' })).toContainText(
@@ -159,7 +164,7 @@ async function interactWith(page: Page, label: string): Promise<void> {
   const prompt = page.locator('.interaction-prompt');
   await expect(prompt).toBeVisible();
   await expect(prompt).toContainText(label);
-  await prompt.click();
+  await activateWithKeyboard(prompt);
   await page.waitForTimeout(850);
 }
 
@@ -185,14 +190,14 @@ for (const viewport of [
   });
 }
 
-test('completes photo ordering, all three placements and the corridor exit', async ({
+test('completes photo ordering, all three placements and the corridor exit using only the keyboard', async ({
   page,
 }, testInfo) => {
   test.setTimeout(90_000);
   await page.setViewportSize({ width: 1366, height: 768 });
   await enterLifeFromRain(page);
   for (let index = 0; index < 2; index += 1)
-    await page.getByRole('button', { name: '继续对白' }).click();
+    await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
 
   await moveTo(page, 480, 590);
   await moveTo(page, 500, 250);
@@ -215,9 +220,9 @@ test('completes photo ordering, all three placements and the corridor exit', asy
   await interactWith(page, '空着三格的相册');
   await capture(page, testInfo, 'shared-life-photo-clues');
 
-  await page.getByRole('button', { name: '上移 1979 · 搬家' }).click();
-  await page.getByRole('button', { name: '上移 1992 · 桂花窗台' }).click();
-  await page.getByRole('button', { name: '确认顺序' }).click();
+  await activateWithKeyboard(page.getByRole('button', { name: '上移 1979 · 搬家纸箱' }));
+  await activateWithKeyboard(page.getByRole('button', { name: '上移 1992 · 桂花窗台' }));
+  await activateWithKeyboard(page.getByRole('button', { name: '确认顺序' }));
   await expect(page.locator('#app')).toHaveAttribute('data-checkpoint', 'checkpoint.life.photos');
   await capture(page, testInfo, 'shared-life-photos-ordered');
 
@@ -240,13 +245,13 @@ test('completes photo ordering, all three placements and the corridor exit', asy
   await moveTo(page, 320, 570);
   await moveTo(page, 320, 385);
   await interactWith(page, '镜台 · 条纹槽');
-  await page.getByRole('button', { name: '继续对白' }).click();
+  await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
   await capture(page, testInfo, 'shared-life-1979-stabilized');
 
   await moveTo(page, 585, 385);
   await moveTo(page, 585, 215);
   await interactWith(page, '窗台 · 圆点槽');
-  await page.getByRole('button', { name: '继续对白' }).click();
+  await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
   await capture(page, testInfo, 'shared-life-1992-stabilized');
 
   await moveTo(page, 940, 215);
@@ -254,11 +259,11 @@ test('completes photo ordering, all three placements and the corridor exit', asy
   await moveTo(page, 1065, 385);
   const radioPrompt = page.locator('.interaction-prompt');
   await expect(radioPrompt).toContainText('收音机 · 波纹槽');
-  await radioPrompt.click();
+  await activateWithKeyboard(radioPrompt);
   await page.waitForTimeout(340);
   await captureCanvas(page, testInfo, 'shared-life-resolved-crossfade-midpoint');
   await page.waitForTimeout(510);
-  await page.getByRole('button', { name: '继续对白' }).click();
+  await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
   await expect(page.locator('.objective-chip')).toContainText('走进房间上方延长的走廊');
   await capture(page, testInfo, 'shared-life-all-objects-placed');
 
@@ -267,8 +272,50 @@ test('completes photo ordering, all three placements and the corridor exit', asy
   await interactWith(page, '延长的走廊');
   await capture(page, testInfo, 'shared-life-exit-dialogue');
   for (let index = 0; index < 2; index += 1)
-    await page.getByRole('button', { name: '继续对白' }).click();
+    await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'return');
+});
+
+test('uses visible photo clues to progress while muted', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await createSave(page);
+  await patchSave(page, {
+    phase: 'playing',
+    chapterId: 'life',
+    checkpointId: 'checkpoint.life.start',
+    degradationStage: 'D2',
+    objective: '整理照片，并让三件生活物品回到原处',
+    player: { x: 740, y: 465, facing: 'left', moving: false },
+    inventory: ['item.photo.1979', 'item.photo.1992', 'item.photo.2001'],
+    flags: ['degradation.d2.started'],
+    puzzles: {
+      photoOrder: ['photo.2001', 'photo.1979', 'photo.1992'],
+      placedObjects: [],
+    },
+    settings: { muted: true },
+    modal: null,
+    dialogue: [],
+    dialogueIndex: 0,
+    activeMemoryId: null,
+    message: null,
+  });
+  await continueSavedGame(page);
+
+  const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
+  await canvas.press('Escape');
+  await expect(page.getByLabel('静音（所有声音线索都有视觉替代）')).toBeChecked();
+  await activateWithKeyboard(page.getByRole('button', { name: '继续', exact: true }));
+
+  await interactWith(page, '空着三格的相册');
+  await expect(page.getByText('年份写在尚未拆开的纸箱角落。')).toBeVisible();
+  await expect(page.getByText('年份写在孩子的身高刻度旁。')).toBeVisible();
+  await expect(page.getByText('年份写在银婚蛋糕的小牌上。')).toBeVisible();
+  await activateWithKeyboard(page.getByRole('button', { name: '上移 1979 · 搬家纸箱' }));
+  await activateWithKeyboard(page.getByRole('button', { name: '上移 1992 · 桂花窗台' }));
+  await activateWithKeyboard(page.getByRole('button', { name: '确认顺序' }));
+
+  await expect(page.locator('#app')).toHaveAttribute('data-checkpoint', 'checkpoint.life.photos');
+  await expect(page.locator('.toast')).toContainText('三个年份安静地排在了一起');
 });
 
 test('keeps Shared Life stable with low stimulation and reduced motion', async ({
