@@ -5,7 +5,7 @@
   "layers": [
     {
       "id": 3,
-      "image": "../environments/environment_rain_v01.png",
+      "image": "../environments/environment_rain_base_v02.png",
       "name": "background",
       "offsetx": 0,
       "offsety": 0,
@@ -57,21 +57,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "旧车票道具图（湿透的纸质车票，背面可见 2→4→5）"
             }
           ],
           "rotation": 0,
@@ -79,7 +64,8 @@
           "visible": true,
           "width": 44,
           "x": 158,
-          "y": 582
+          "y": 582,
+          "gid": 1
         },
         {
           "height": 44,
@@ -105,21 +91,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "2 号石板道具图（地面石板，两个圆点标记）"
             }
           ],
           "rotation": 0,
@@ -127,7 +98,8 @@
           "visible": true,
           "width": 44,
           "x": 308,
-          "y": 542
+          "y": 542,
+          "gid": 2
         },
         {
           "height": 44,
@@ -153,21 +125,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "4 号石板道具图（地面石板，四个圆点标记）"
             }
           ],
           "rotation": 0,
@@ -175,7 +132,8 @@
           "visible": true,
           "width": 44,
           "x": 488,
-          "y": 432
+          "y": 432,
+          "gid": 3
         },
         {
           "height": 44,
@@ -201,21 +159,6 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "5 号石板道具图（地面石板，五个圆点标记）"
             }
           ],
           "rotation": 0,
@@ -223,7 +166,8 @@
           "visible": true,
           "width": 44,
           "x": 658,
-          "y": 332
+          "y": 332,
+          "gid": 4
         },
         {
           "height": 58,
@@ -257,7 +201,7 @@
           "width": 58,
           "x": 791,
           "y": 299,
-          "gid": 1
+          "gid": 5
         },
         {
           "height": 58,
@@ -291,7 +235,7 @@
           "width": 58,
           "x": 951,
           "y": 209,
-          "gid": 1
+          "gid": 6
         },
         {
           "height": 58,
@@ -325,7 +269,7 @@
           "width": 58,
           "x": 1111,
           "y": 149,
-          "gid": 1
+          "gid": 7
         }
       ],
       "opacity": 1,
@@ -501,6 +445,84 @@
     {
       "columns": 1,
       "firstgid": 1,
+      "image": "../props/prop_rain_ticket_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_rain_ticket",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    },
+    {
+      "columns": 1,
+      "firstgid": 2,
+      "image": "../props/prop_rain_stone_2_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_rain_stone_2",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    },
+    {
+      "columns": 1,
+      "firstgid": 3,
+      "image": "../props/prop_rain_stone_4_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_rain_stone_4",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    },
+    {
+      "columns": 1,
+      "firstgid": 4,
+      "image": "../props/prop_rain_stone_5_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_rain_stone_5",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    },
+    {
+      "columns": 1,
+      "firstgid": 5,
+      "image": "../props/prop_rain_umbrella_sign_a_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_rain_umbrella_sign_a",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    },
+    {
+      "columns": 1,
+      "firstgid": 6,
+      "image": "../props/prop_rain_umbrella_sign_b_v01.png",
+      "imageheight": 128,
+      "imagewidth": 128,
+      "margin": 0,
+      "name": "prop_rain_umbrella_sign_b",
+      "spacing": 0,
+      "tilecount": 1,
+      "tileheight": 128,
+      "tilewidth": 128
+    },
+    {
+      "columns": 1,
+      "firstgid": 7,
       "image": "../props/prop_red_umbrella_closed_v01.png",
       "imageheight": 128,
       "imagewidth": 128,

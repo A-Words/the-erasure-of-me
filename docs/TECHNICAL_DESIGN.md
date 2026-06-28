@@ -345,6 +345,8 @@ type InputAction =
 - `visual_props` 用 `entityId` 显式绑定 `interactables` 中的实体；`visual_furniture` 用 `collisionId` 显式绑定 `collision` 中的脚印矩形。
 - 运行时通过 `src/game/content/tiledMapLoader.ts` 适配层解析 Tiled JSON；`scripts/validate_tiled_maps.mjs` 校验这些层存在、引用图片存在、稳定 ID 无重复且 `entityId` / `collisionId` 指向真实对象。
 
+Rain Station 的环境表现拆为底图、地面积水反光层和雨线层：Tiled `background` 仍只指向底图编辑参照，GameScene 在运行时从 manifest 叠加 `environment.rain.puddle_reflection_overlay` 与 `environment.rain.rain_overlay`，再渲染 `visual_props`。天气叠层不改变坐标、碰撞、谜题状态或 Tiled tile object 锚点。
+
 #### 6.2.2 Tiled 内容适配层（tiledMapLoader）
 
 `src/game/content/tiledMapLoader.ts` 是 Tiled JSON 与游戏领域层之间的唯一适配层。Phaser Scene 和游戏系统不直接解释 Tiled 对象，而是通过适配层输出的纯 TypeScript 数据结构获取运行时数据。
@@ -380,12 +382,12 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 | 地图 | background | visual_props | visual_furniture | visual_decor | collision | navigation |
 | --- | --- | --- | --- | --- | --- | --- |
 | map.home | ✓ | ✓ (entityId) | ✓ (collisionId) | ✓ | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
-| map.rain_station | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| map.rain_station | ✓ | ✓ (entityId, 正式 prop tileset) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.shared_life | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.return_corridor | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.home_ending | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 
-非 home 地图的 visual_props 对象大多使用 placeholder（无 gid/tileset），仅携带 entityId/sortY/size 元数据。rain_station 的红伞实体使用 `prop_red_umbrella_closed` tileset。
+非 home 地图的 visual_props 对象大多使用 placeholder（无 gid/tileset），仅携带 entityId/sortY/size 元数据。rain_station 已为车票、2/4/5 石板、红伞招牌和钟表铺前红伞分配正式 tileset，其中钟表铺前红伞继续使用 `prop_red_umbrella_closed`。
 
 **Placeholder 对象规范：**
 
