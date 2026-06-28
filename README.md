@@ -66,6 +66,12 @@ npm run assets:render:environments
 npx playwright install chromium firefox webkit
 ~~~
 
+资产处理脚本（如 `assets:prepare:*` 和 `assets:render:*`）需要 Python 3 与 Pillow 库，可通过以下命令安装：
+
+~~~bash
+pip install -r requirements.txt
+~~~
+
 ## 开发原则
 
 - 游戏规则与可存档状态独立于 Phaser Scene。

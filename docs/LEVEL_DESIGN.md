@@ -194,6 +194,8 @@
 
 玩家可绕行，但正确站牌顺序会依次打开雨棚、小巷和钟表铺前的视觉通路。
 
+背景视觉采用 30°～35° 轻俯视旧车站空间，并参考 `memory_rain_umbrella_v01.png` 的钟表铺、旧站牌、湿石材和红伞记忆氛围：左下旧站台、售票亭、中央雨棚和右上钟表铺以可见檐口、墙面厚度、站台边缘和湿地反光建立空间纵深。底图保持雨天可读，不使用黑块或重暗角；雨线与地面积水反光拆为独立环境叠层。可交互车票、石板与红伞线索仍由独立 `visual_props` 提供。
+
 ### 5.3 关键对象
 
 | 对象 | 坐标 | ID |
@@ -206,6 +208,8 @@
 | 红伞招牌一 | (27, 8) | entity.rain.umbrella_sign_a |
 | 红伞招牌二 | (35, 6) | entity.rain.umbrella_sign_b |
 | 钟表铺红伞 | (39, 5) | entity.rain.red_umbrella |
+
+上述对象均由 `map.rain_station` 的 `visual_props` tile object 提供正式视觉参照：车票、2/4/5 石板和两个红伞招牌使用 Rain Station 专属 `prop.rain.*` 资产，钟表铺前红伞复用 `prop.red_umbrella.closed`。Tiled 对象坐标保持左下角锚点，由 `tiledMapLoader` 在运行时转换为 Phaser 中心点。
 
 ### 5.4 D1 触发
 

@@ -22,7 +22,7 @@
 | character.xiulan_old.idle.down | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_down_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_down_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 64×96；底部中心锚点；作为角色身份源，不单独进入发布构建 |
 | character.xiulan_old.idle.right | 项目团队 | assets-source/art/characters/character_xiulan_old_idle_right_v01_chromakey.png | assets-source/art/characters/frames/character_xiulan_old_idle_right_v01/01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览 | 2026-06-22 | 64×96；底部中心锚点；短发、旧绿开衫与侧向身份锚点；作为 reach_hand 第一帧来源 |
 | character.xiulan_old.reach_hand.right | 项目团队 | assets-source/art/characters/character_xiulan_old_reach_hand_right_v01_chromakey.png | public/assets/characters/character_xiulan_old_reach_hand_right_v01_8x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex Browser 与 Playwright 验收 | 2026-06-22 | 8×64×96；8 FPS 单次播放；前 3 帧停下等待，末帧开放掌心；减少动态直接显示末帧 |
-| prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，所有雨站红伞实体共用 |
+| prop.red_umbrella.closed | 项目团队 | assets-source/art/props/prop_red_umbrella_closed_v01.svg | public/assets/props/prop_red_umbrella_closed_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 锚点红、木弯柄、深色补丁与缝线；SVG 原稿经 Chromium 导出透明 PNG，钟表铺前红伞实体复用 |
 | prop.home.bedside_photo | 项目团队 | assets-source/art/props/prop_home_bedside_photo_v01_chromakey.png | public/assets/props/prop_home_bedside_photo_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 36×36；旧木框、老年夫妻与红伞边缘；有效宽度不超过床边桌约一半 |
 | prop.home.red_thread_journal | 项目团队 | assets-source/art/props/prop_home_red_thread_journal_v01_chromakey.png | public/assets/props/prop_home_red_thread_journal_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 44×44；米色布封面、线装边与红线书签；独立拾取素材 |
 | prop.home.blue_key_bowl | 项目团队 | assets-source/art/props/prop_home_blue_key_bowl_v01_chromakey.png | public/assets/props/prop_home_blue_key_bowl_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 32×32，置于玄关桌面；低饱和蓝碗、两道金色修补线与两把旧钥匙 |
@@ -38,6 +38,12 @@
 | prop.life.slot.windowsill | 项目团队 | assets-source/art/props/prop_life_windowsill_slot_v01_chromakey.png | public/assets/props/prop_life_windowsill_slot_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 8；运行时显示 44×44；窗台圆点垫，含花瓣压纹 |
 | prop.life.slot.radio | 项目团队 | assets-source/art/props/prop_life_radio_slot_v01_chromakey.png | public/assets/props/prop_life_radio_slot_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 9；运行时显示 44×44；收音机旁波纹凹槽，非 UI 框 |
 | prop.life.shared_life.atlas | 项目团队 | public/assets/props/prop_life_photo_*_v02.png + public/assets/props/prop_life_*_v01.png | public/assets/props/prop_life_shared_life_atlas_v02_10x128x128.png | 上述十件 Shared Life 道具与槽位机械打包；无新增第三方素材 | review | Codex 图集静态检查与 Chromium 完整流程 | 2026-06-27 | 10×128×128 横向图集；Tiled `prop_life_shared_life_atlas` firstgid=1；拾取隐藏，归位后槽位切换为物件 frame；出口由正式背景走廊表现 |
+| prop.rain.ticket | 项目团队 | assets-source/art/props/prop_rain_ticket_v01_chromakey.png | public/assets/props/prop_rain_ticket_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 44px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 44×44；湿皱旧车票，背面保留 2→4→5 线索；绑定 entity.rain.ticket |
+| prop.rain.stone_2 | 项目团队 | assets-source/art/props/prop_rain_stone_2_v01_chromakey.png | public/assets/props/prop_rain_stone_2_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 44px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 44×44；贴地湿石板，两个凹刻圆点；绑定 entity.rain.stone_2 |
+| prop.rain.stone_4 | 项目团队 | assets-source/art/props/prop_rain_stone_4_v01_chromakey.png | public/assets/props/prop_rain_stone_4_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 44px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 44×44；贴地湿石板，四个凹刻圆点；绑定 entity.rain.stone_4 |
+| prop.rain.stone_5 | 项目团队 | assets-source/art/props/prop_rain_stone_5_v01_chromakey.png | public/assets/props/prop_rain_stone_5_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 44px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 44×44；贴地湿石板，五点骰面式凹刻圆点；绑定 entity.rain.stone_5 |
+| prop.rain.umbrella_sign_a | 项目团队 | assets-source/art/props/prop_rain_umbrella_sign_a_v01_chromakey.png | public/assets/props/prop_rain_umbrella_sign_a_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 58px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 58×58；立柱式红伞招牌，木柱、金属支架与伞柄轮廓清晰；绑定 entity.rain.umbrella_sign_a |
+| prop.rain.umbrella_sign_b | 项目团队 | assets-source/art/props/prop_rain_umbrella_sign_b_v01_chromakey.png | public/assets/props/prop_rain_umbrella_sign_b_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与 58px 小尺寸检查 | 2026-06-26 | 128×128；运行时显示 58×58；贴墙/短柱红伞招牌变体，保留深色补丁和弯柄轮廓；绑定 entity.rain.umbrella_sign_b |
 | decor.home.bedside_rug | 项目团队 | assets-source/art/decor/decor_home_bedside_rug_v01_chromakey.png | public/assets/decor/decor_home_bedside_rug_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 160×160；褪色砖红/米色条纹旧地毯；非交互地面装饰 |
 | decor.home.slippers | 项目团队 | assets-source/art/decor/decor_home_slippers_v01_chromakey.png | public/assets/decor/decor_home_slippers_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 34×34；整组有效宽度不超过角色身体；非交互地面装饰 |
 | decor.home.kitchen_clutter | 项目团队 | assets-source/art/decor/decor_home_kitchen_clutter_v01_chromakey.png | public/assets/decor/decor_home_kitchen_clutter_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 64×64；放在水槽与煤气炉之间，不覆盖炉头；非交互台面装饰 |
@@ -62,13 +68,15 @@
 | environment.home.sunlight_overlay | 项目团队 | assets-source/art/environments/environment_home_sunlight_overlay_v01.svg | public/assets/environments/environment_home_sunlight_overlay_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 透明通道与静态合成检查 | 2026-06-24 | 1280×720 透明 PNG；阳光束、透视亮斑、窗棂影子与反射光斑；运行时位于背景和家具之间 |
 | environment.home.crosswall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_crosswall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 中墙透明遮挡层，sortY=410 |
 | environment.home.frontwall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_frontwall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 前墙与左下竖墙段透明遮挡层，sortY=705 |
-| environment.rain.background | 项目团队 | assets-source/art/environments/environment_rain_v01.svg | public/assets/environments/environment_rain_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；斜向站台、积水、石板与钟表铺雨棚 |
+| environment.rain.background | 项目团队 | assets-source/art/environments/environment_rain_base_v02_generated.png | public/assets/environments/environment_rain_base_v02.png | 项目定制生成；OpenAI ImageGen；参考 `memory_rain_umbrella_v01.png` 气氛；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 底图；轻俯视旧车站、售票亭、雨棚、湿石材站台和钟表铺立面；不烘焙雨线、车票、石板、红伞招牌或钟表铺红伞 |
+| environment.rain.puddle_reflection_overlay | 项目团队 | scripts/prepare_rain_environment_overlays.py | public/assets/environments/environment_rain_puddle_reflection_overlay_v01.png | 项目程序化透明叠层；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 透明 PNG；地面积水和轻反光层，运行时叠在雨站底图上、props 下方 |
+| environment.rain.rain_overlay | 项目团队 | scripts/prepare_rain_environment_overlays.py | public/assets/environments/environment_rain_rain_overlay_v01.png | 项目程序化透明叠层；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 透明 PNG；雨线层，运行时叠在雨站底图上、props 下方；减少动态效果时降低透明度 |
 | environment.life.background | 项目团队 | assets-source/art/environments/environment_life_v02_generated.png | public/assets/environments/environment_life_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查与 Playwright 三视口验收 | 2026-06-28 | 1280×720；同一家庭在 1979/1992/2001 同时显影；三扇窗严格复用相同外框、四格、插销与右下磕痕；右侧餐桌收小并提高夜景暗部可读性；不烘焙拾取物或年份文字 |
 | environment.life.resolved | 项目团队 | assets-source/art/environments/environment_life_resolved_v01_generated.png | public/assets/environments/environment_life_resolved_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查、淡变中点与 Playwright 完成态验收 | 2026-06-28 | 1280×720；与 Shared Life v02 墙体、走廊、中央桌及固定家具注册对齐；只保留中间成熟桂花窗，移除左右时间窗、纸箱、年代接缝及停电宴席，统一为同向晨光和日常圆桌；不承担谜题真值 |
 | environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v01.svg | public/assets/environments/environment_return_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；重复十字长廊、四向地砖箭头与暗红伞痕 |
 | environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v01.svg | public/assets/environments/environment_ending_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；回到现实清晨、暖白留白、桌上两碗热面 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | Codex 静态数据同步；本轮未跑自动化测试 | 2026-06-25 | Tiled 对象层提供出生区、稳定 ID 与 17 个家具/墙体碰撞矩形；v10 扩大上方开口并拆分左下竖墙以恢复储物间通道；右侧门洞只保留室内侧 hotspot，不要求走入门槛；门 hotspot 位于 `(1225, 560)` |
-| map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供 2→4→5、伞标与出口；正式背景已接入 |
+| map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | Codex validate:maps | 2026-06-26 | Tiled 对象层提供 2→4→5、伞标与出口；visual_props 已为车票、石板、红伞招牌和钟表铺红伞分配正式 gid |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps` 与 Chromium 完整流程 | 2026-06-27 | Tiled 对象层提供照片、物件和三槽位；visual_props 使用 v02 图集；1280×720 导航/碰撞与正式背景对齐；已移除 exit visual-placeholder |
 | map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供四向出口；背景箭头与世界方向一致 |
 | map.home_ending | 项目团队 | public/assets/data/map.home_ending.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供秀兰锚点；正式尾声背景和 D4 构图已接入 |
@@ -116,6 +124,15 @@
 - 运行时处理：高分辨率 PNG 原稿归档于 `assets-source`，通过 `scripts/prepare_memory_illustration.py` 导出 1152×768 WebP。
 - 当前结论：内容、对白、裁切和叙事脚本一致，浏览器控制台无错误；待低扰动转场检查后决定是否升为 `approved`。
 
+### environment.rain.*
+
+- 生成方式：内置 OpenAI ImageGen；`illustration-story`；以 `memory_rain_umbrella_v01.png` 作为故事、材质和钟表铺情绪参考，以当前 `map.rain_station` 可行走构图作为布局参考。
+- 生成目标：把第二章雨站背景从平面灰盒感提升为接近 home v10 的轻俯视空间：旧站台、售票亭、雨棚、湿石材路径和钟表铺均有可见厚度、接触面和地面关系。
+- 分层约束：`environment.rain.background` 只保存底图；`environment.rain.puddle_reflection_overlay` 保存地面积水与轻反光；`environment.rain.rain_overlay` 保存雨线。车票、2/4/5 石板、红伞招牌和钟表铺前红伞继续由 `visual_props` 独立渲染。
+- 生成限制：底图不包含人物、前景红伞、车票、编号石板、红伞招牌、强雨线、强反光、HUD、可读文字或交互发光；明度保持雨天可读，避免黑块和重暗角。
+- 运行时处理：底图经 `scripts/prepare_environment_asset.py` 导出 1280×720 PNG；雨层和积水层由 `scripts/prepare_rain_environment_overlays.py` 程序化导出透明 PNG。GameScene 按底图、积水反光、雨线、Tiled visual_props 的顺序叠放，减少动态效果时降低雨线透明度。
+- 当前结论：静态分层合成检查通过；外部美术审核前保持 `review`。
+
 ### prop.home.*
 
 - 生成方式：内置 OpenAI ImageGen；`stylized-concept`；以 `environment_home_v01.png` 作为低饱和色板、粗轮廓和纸张质感参考。
@@ -133,6 +150,15 @@
 - 生成限制：单一实物、透明背景、无大块投影、无外发光、无 UI 边框或任务底板；所有颜色线索均有文字、形状或纹理冗余。
 - 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 归一化到 128×128；`scripts/pack_image_strip.py` 打包为 `prop.life.shared_life.atlas`。Tiled `visual_props` 使用 `prop_life_shared_life_atlas` tileset frame 0–9，运行时尺寸均为 44×44。
 - 当前结论：v02 照片与其余七个候选图已接入 Shared Life Tiled visual_props 并保持 `review`；拾取后隐藏，归位后槽位 actor 切换为对应物件 frame。`entity.life.exit` 的走廊已经进入正式背景，地图不再保留 visual-placeholder。
+
+### prop.rain.*
+
+- 生成方式：内置 OpenAI ImageGen；`stylized-concept`；使用纯 `#00ff00` 色键背景，目标为第二章雨站可放置场景道具。
+- 生成目标：替换 `map.rain_station` 中 `visual_props` 的车票、2/4/5 石板和红伞招牌视觉占位；钟表铺前红伞继续复用 `prop.red_umbrella.closed`。
+- 稳定特征：旧车票保留湿皱纸张和 `2→4→5`；三块石板分别保留 2、4、5 个凹刻圆点；红伞招牌保留红伞轮廓、弯柄、木/金属支架和深色补丁。
+- 生成限制：轻俯视 2D 场景实体、透明背景、无 UI 边框、无发光、无装饰底板、无强投影；线索同时依靠形状、纹理和数量，不只依赖颜色。
+- 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 裁切并归一化到 128×128 透明画布。`map.rain_station` 通过独立 tileset gid 绑定 manifest key，Tiled 坐标保持 tile object 左下角锚点。
+- 当前结论：透明边缘、44px 车票/石板和 58px 招牌小尺寸预览通过；`npm run validate:maps` 通过。外部美术审核前保持 `review`。
 
 ### furniture.home.* v01/v02/v03 / decor.home.* v01 / environment.home.background v10
 
@@ -178,10 +204,10 @@
 
 ### environment.*.background
 
-- 制作方式：除 Shared Life v02 外使用项目原创 SVG；Shared Life v02 使用内置 OpenAI ImageGen `stylized-concept` 建立手绘空间，再用 `precise-object-edit` 移除会与独立交互物混淆的相册、杯子和照片，并于 2026-06-28 再次定点编辑三扇窗、2001 暗部与右侧餐桌。`environment.life.resolved` 以修正后的 v02 为注册参考生成，只改变接缝与整体光线。高分辨率原稿统一归档于 `assets-source`，运行时导出 1280×720 PNG。
+- 制作方式：home v10、rain v02 和 Shared Life v02 使用项目定制 ImageGen 原稿，经 `scripts/prepare_environment_asset.py` 裁切导出；Shared Life 另以 `precise-object-edit` 生成注册一致的 `environment.life.resolved` 收束态；return、ending 使用项目原创 SVG 渲染。所有背景统一固定 1280×720、低饱和色板、轻微纸张颗粒和章节专属构图。
 - 运行时结构：背景只承担世界表现；出生点、交互对象和稳定 ID 继续来自对应 Tiled JSON 对象层，碰撞与玩法状态未写入图片。
-- 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站数字石板、生活物品纹理和长廊方向均保留非颜色冗余。
-- 当前结论：五章候选背景已导出并接入 manifest。Shared Life v02 的三扇窗严格复用同源尺寸、四格比例、插销和磕痕，三个年代的磨损/光线/生活痕迹可区分；照片完成、逐件归位和全部收束态由 View 读取既有领域状态淡变。三视口入场截图、完整解谜与出口流程、低扰动/减少动态状态均纳入 Playwright 检查。外部美术审核前保持 `review`。
+- 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站 2/4/5 石板、车票与红伞招牌，以及 Shared Life 的照片、生活物件与槽位均由独立 visual_props 资产承载。
+- 当前结论：五章候选背景已导出并接入 manifest；rain v02 的底图/天气叠层与 Shared Life v02 的三年代/收束态均完成浏览器检查，关键道具与 Tiled 坐标无阻塞遮挡。外部美术审核前保持 `review`。
 
 ### audio.theme.* / audio.ambience.*
 

@@ -307,6 +307,18 @@ export class GameScene extends Phaser.Scene {
       .setDisplaySize(map.width, map.height)
       .setDepth(0);
 
+    if (state.chapterId === 'rain') {
+      this.add
+        .image(map.width / 2, map.height / 2, 'environment.rain.puddle_reflection_overlay')
+        .setDisplaySize(map.width, map.height)
+        .setDepth(4);
+      this.add
+        .image(map.width / 2, map.height / 2, 'environment.rain.rain_overlay')
+        .setDisplaySize(map.width, map.height)
+        .setDepth(8)
+        .setAlpha(state.settings.reducedMotion ? 0.5 : 0.68);
+    }
+
     // Parse Tiled JSON into pure data structures. Falls back to code constants
     // if the Tiled map lacks visual layers (e.g. non-home chapters).
     const tiledRawData = this.cache.json.get(`${map.id}.raw`);

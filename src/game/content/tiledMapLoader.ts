@@ -169,6 +169,12 @@ const TILESET_ASSET_KEYS: Record<string, string> = {
   prop_home_blue_key_bowl: 'prop.home.blue_key_bowl',
   prop_red_umbrella_closed: 'prop.red_umbrella.closed',
   prop_life_shared_life_atlas: 'prop.life.shared_life.atlas',
+  prop_rain_ticket: 'prop.rain.ticket',
+  prop_rain_stone_2: 'prop.rain.stone_2',
+  prop_rain_stone_4: 'prop.rain.stone_4',
+  prop_rain_stone_5: 'prop.rain.stone_5',
+  prop_rain_umbrella_sign_a: 'prop.rain.umbrella_sign_a',
+  prop_rain_umbrella_sign_b: 'prop.rain.umbrella_sign_b',
 };
 
 function resolveTilesetAssetKey(tilesetName: string): string {
