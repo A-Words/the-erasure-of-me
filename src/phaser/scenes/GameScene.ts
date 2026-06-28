@@ -471,7 +471,7 @@ export class GameScene extends Phaser.Scene {
       });
     }
 
-    const resolvedTarget = lifeCompleted ? 0.9 : photosOrdered ? 0.18 : 0;
+    const resolvedTarget = lifeCompleted ? 1 : photosOrdered ? 0.18 : 0;
     if (this.lifeResolvedBackdrop && this.lifeResolvedTarget !== resolvedTarget) {
       this.lifeResolvedTarget = resolvedTarget;
       this.tweens.killTweensOf(this.lifeResolvedBackdrop);

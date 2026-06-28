@@ -80,6 +80,23 @@ async function capture(page: Page, testInfo: TestInfo, name: string): Promise<vo
   });
 }
 
+async function captureCanvas(page: Page, testInfo: TestInfo, name: string): Promise<void> {
+  const overlays = page.locator('#hud, #panel-layer, #system-layer');
+  await overlays.evaluateAll((elements) => {
+    for (const element of elements) (element as HTMLElement).style.visibility = 'hidden';
+  });
+  try {
+    await page.locator('canvas').screenshot({
+      path: testInfo.outputPath(`${name}.png`),
+      animations: 'allow',
+    });
+  } finally {
+    await overlays.evaluateAll((elements) => {
+      for (const element of elements) (element as HTMLElement).style.visibility = '';
+    });
+  }
+}
+
 async function assertNoPageScroll(page: Page): Promise<void> {
   const metrics = await page.evaluate(() => ({
     viewportWidth: window.innerWidth,
@@ -235,7 +252,12 @@ test('completes photo ordering, all three placements and the corridor exit', asy
   await moveTo(page, 940, 215);
   await moveTo(page, 940, 385);
   await moveTo(page, 1065, 385);
-  await interactWith(page, '收音机 · 波纹槽');
+  const radioPrompt = page.locator('.interaction-prompt');
+  await expect(radioPrompt).toContainText('收音机 · 波纹槽');
+  await radioPrompt.click();
+  await page.waitForTimeout(340);
+  await captureCanvas(page, testInfo, 'shared-life-resolved-crossfade-midpoint');
+  await page.waitForTimeout(510);
   await page.getByRole('button', { name: '继续对白' }).click();
   await expect(page.locator('.objective-chip')).toContainText('走进房间上方延长的走廊');
   await capture(page, testInfo, 'shared-life-all-objects-placed');
@@ -257,15 +279,16 @@ test('keeps Shared Life stable with low stimulation and reduced motion', async (
   await patchSave(page, {
     phase: 'playing',
     chapterId: 'life',
-    checkpointId: 'checkpoint.life.photos',
+    checkpointId: 'checkpoint.life.complete',
+    objective: '走进房间上方延长的走廊',
     degradationStage: 'D2',
     mode: 'low_stimulation',
     player: { x: 640, y: 590, facing: 'up', moving: false },
-    inventory: ['item.life.enamel_cup', 'item.life.cassette'],
+    inventory: ['item.life.wood_comb', 'item.life.enamel_cup', 'item.life.cassette'],
     flags: ['degradation.d2.started', 'puzzle.life.photo_order.completed'],
     puzzles: {
       photoOrder: ['photo.1979', 'photo.1992', 'photo.2001'],
-      placedObjects: ['item.life.wood_comb'],
+      placedObjects: ['item.life.wood_comb', 'item.life.enamel_cup', 'item.life.cassette'],
     },
     settings: { reducedMotion: true },
     modal: null,
@@ -278,6 +301,7 @@ test('keeps Shared Life stable with low stimulation and reduced motion', async (
   await expect.poll(() => canvasSampleColorCount(page)).toBeGreaterThan(16);
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
   await expect(page.locator('.stage-chip')).toContainText('低扰动');
+  await page.waitForTimeout(180);
   await assertNoPageScroll(page);
   await capture(page, testInfo, 'shared-life-low-stimulation-reduced-motion');
 });
