@@ -36,6 +36,7 @@ test('boots, starts, moves by keyboard, pauses and keeps accessibility stable', 
   const app = page.locator('#app');
   await expect(app).toHaveAttribute('data-chapter', 'home');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
   await canvas.focus();
   await canvas.press('ArrowRight');
   expect(Number(await app.getAttribute('data-player-x'))).toBeGreaterThan(180);
@@ -93,6 +94,7 @@ test('shows a restrained nearby interaction prompt and keeps reduced-motion hove
 
   const app = page.locator('#app');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
   await canvas.focus();
   await canvas.press('Escape');
   await page.getByLabel('减少动态效果').check();
@@ -129,7 +131,9 @@ test('shows a restrained nearby interaction prompt and keeps reduced-motion hove
 test('offers a safe checkpoint continuation after refresh', async ({ page }) => {
   await page.getByRole('button', { name: /低扰动模式/ }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-checkpoint', 'checkpoint.home.start');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.reload();
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await expect(page.getByRole('button', { name: '从最近的安全位置继续' })).toBeVisible();
   await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'home');

@@ -12,17 +12,10 @@
 
 import type { AxisAlignedRect, MovementBounds } from '../simulation/collision';
 import type { ChapterId } from '../state/GameState';
-import {
-  parseTiledMap,
-  extractCollisionObstacles,
-  extractWalkBounds,
-} from './tiledMapLoader';
+import { parseTiledMap, extractCollisionObstacles, extractWalkBounds } from './tiledMapLoader';
 import type { WorldEntity } from './maps';
 import { chapterMaps } from './maps';
-import {
-  homeCollisionObstacles,
-  homeWalkBounds,
-} from './homeLayout';
+import { homeCollisionObstacles, homeWalkBounds } from './homeLayout';
 
 export interface ChapterCollisionData {
   obstacles: readonly AxisAlignedRect[];
@@ -50,11 +43,7 @@ export class TiledCollisionProvider implements CollisionDataProvider {
     for (const [mapId, rawJson] of Object.entries(tiledJsons)) {
       const chapter = this.mapIdToChapter(mapId);
       if (!chapter) continue;
-      const content = parseTiledMap(
-        mapId,
-        rawJson,
-        chapterMaps[chapter].entities as WorldEntity[],
-      );
+      const content = parseTiledMap(mapId, rawJson, chapterMaps[chapter].entities as WorldEntity[]);
       const obstacles = extractCollisionObstacles(content);
       if (obstacles.length === 0) {
         throw new Error(`Tiled map "${mapId}" has no collision obstacles`);

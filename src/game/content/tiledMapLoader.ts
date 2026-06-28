@@ -134,7 +134,9 @@ function getNumberProperty(obj: TiledObject, name: string, fallback?: number): n
   const value = getProperty(obj, name);
   if (typeof value === 'number' && !Number.isNaN(value)) return value;
   if (fallback !== undefined) return fallback;
-  throw new Error(`Tiled object "${obj.name ?? obj.id}" missing required number property "${name}"`);
+  throw new Error(
+    `Tiled object "${obj.name ?? obj.id}" missing required number property "${name}"`,
+  );
 }
 
 function getOptionalNumberProperty(obj: TiledObject, name: string): number | undefined {
@@ -166,6 +168,7 @@ const TILESET_ASSET_KEYS: Record<string, string> = {
   prop_home_glasses_case: 'prop.home.glasses_case',
   prop_home_blue_key_bowl: 'prop.home.blue_key_bowl',
   prop_red_umbrella_closed: 'prop.red_umbrella.closed',
+  prop_life_shared_life_atlas: 'prop.life.shared_life.atlas',
   prop_rain_ticket: 'prop.rain.ticket',
   prop_rain_stone_2: 'prop.rain.stone_2',
   prop_rain_stone_4: 'prop.rain.stone_4',

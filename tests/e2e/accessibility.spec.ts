@@ -9,6 +9,8 @@ test.beforeEach(async ({ page }) => {
   });
   page.on('pageerror', (error) => browserErrors.push(error.stack ?? error.message));
   await page.goto('/');
+  await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
 });
@@ -116,8 +118,8 @@ test('exposes content warning, objectives, settings, guide sources and credits s
   await page.reload();
   await activateWithKeyboard(page.getByRole('button', { name: '从最近的安全位置继续' }));
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
-  await canvas.focus();
-  await page.keyboard.press('e');
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
+  await canvas.press('e', { delay: 100 });
   for (let index = 0; index < 3; index += 1)
     await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
 
@@ -177,10 +179,10 @@ test('keeps interactive props stable under reduced motion', async ({ page }, tes
 
   const app = page.locator('#app');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
-  await canvas.focus();
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
 
   // 开启减少动态效果：暂停菜单里的 labeled checkbox（沿用既有 settings 取法）。
-  await page.keyboard.press('Escape');
+  await canvas.press('Escape');
   const reducedMotion = page.getByLabel('减少动态效果');
   await reducedMotion.scrollIntoViewIfNeeded();
   await reducedMotion.focus();
@@ -212,17 +214,19 @@ test('captures standard-mode breathing snapshot for review', async ({ page }, te
   });
 });
 
-test('shows hover marker for spriteless interactables under reduced motion', async ({ page }, testInfo) => {
+test('shows hover marker for spriteless interactables under reduced motion', async ({
+  page,
+}, testInfo) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   await startGameWithKeyboard(page);
   await finishOpeningDialogue(page);
 
   const app = page.locator('#app');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
-  await canvas.focus();
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
 
   // 在 reducedMotion 下测试：呼吸静止，只需验证 marker 显形。
-  await page.keyboard.press('Escape');
+  await canvas.press('Escape');
   const reducedMotion = page.getByLabel('减少动态效果');
   await reducedMotion.scrollIntoViewIfNeeded();
   await reducedMotion.focus();

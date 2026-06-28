@@ -97,7 +97,14 @@ export const assetManifest = [
   {
     key: 'environment.life.background',
     type: 'image',
-    url: 'assets/environments/environment_life_v01.png',
+    url: 'assets/environments/environment_life_v02.png',
+    chapter: 'life',
+    preload: true,
+  },
+  {
+    key: 'environment.life.resolved',
+    type: 'image',
+    url: 'assets/environments/environment_life_resolved_v01.png',
     chapter: 'life',
     preload: true,
   },
@@ -282,6 +289,14 @@ export const assetManifest = [
     type: 'image',
     url: 'assets/props/prop_home_glasses_case_v01.png',
     chapter: 'home',
+    preload: true,
+  },
+  {
+    key: 'prop.life.shared_life.atlas',
+    type: 'spritesheet',
+    url: 'assets/props/prop_life_shared_life_atlas_v02_10x128x128.png',
+    frameConfig: { frameWidth: 128, frameHeight: 128 },
+    chapter: 'life',
     preload: true,
   },
   {

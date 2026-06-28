@@ -77,6 +77,15 @@ const homePropVisuals: Record<
 const worldDepth = (sortY: number): number => 100 + sortY;
 const overlayDepth = 2000;
 
+const lifeSlotPlacedFrames: Record<
+  string,
+  { itemId: string; emptyFrame: number; placedFrame: number }
+> = {
+  'slot.life.dresser': { itemId: 'item.life.wood_comb', emptyFrame: 7, placedFrame: 4 },
+  'slot.life.windowsill': { itemId: 'item.life.enamel_cup', emptyFrame: 8, placedFrame: 5 },
+  'slot.life.radio': { itemId: 'item.life.cassette', emptyFrame: 9, placedFrame: 6 },
+};
+
 export class GameScene extends Phaser.Scene {
   private readonly bridge: SceneBridge;
   private player!: Phaser.GameObjects.Container;
@@ -96,6 +105,10 @@ export class GameScene extends Phaser.Scene {
   private unsubscribe: (() => void) | null = null;
   private reducedMotion = false;
   private tiledContent: TiledMapContent | null = null;
+  private lifeResolvedBackdrop: Phaser.GameObjects.Image | null = null;
+  private lifeResolvedTarget = -1;
+  private lifeEraVeils: Phaser.GameObjects.Rectangle[] = [];
+  private lifeEraVeilTargets: number[] = [];
 
   constructor(store: GameStore) {
     super('GameScene');
@@ -103,11 +116,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   preload(): void {
+    this.game.canvas.dataset.sceneReady = 'false';
     for (const asset of assetManifest) {
       if (!asset.preload) continue;
       if (asset.type === 'tilemap') {
-        this.load.tilemapTiledJSON(asset.key, asset.url);
-        // Also load as plain JSON so tiledMapLoader can parse it without Phaser.
+        // The adapter consumes plain JSON; avoid a duplicate request for the unused Tilemap cache.
         this.load.json(`${asset.key}.raw`, asset.url);
       } else if (asset.type === 'spritesheet') {
         this.load.spritesheet(asset.key, asset.url, asset.frameConfig);
@@ -167,7 +180,13 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.unsubscribe = this.bridge.subscribe((state) => this.syncState(state));
+    this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
+      this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
+        this.game.canvas.dataset.sceneReady = 'true';
+      });
+    });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      delete this.game.canvas.dataset.sceneReady;
       this.unsubscribe?.();
       this.playerActor = null;
       this.xiulanActor = null;
@@ -255,6 +274,7 @@ export class GameScene extends Phaser.Scene {
     this.updateHoldWarmth(state);
     this.updateHoldHand(state);
     this.updateEntityVisibility(state);
+    this.updateLifeVisualState(state);
     if (motionPreferenceChanged) {
       for (const view of this.entityViews) {
         if (view.hover) this.setEntityHover(view, true);
@@ -269,6 +289,10 @@ export class GameScene extends Phaser.Scene {
     this.xiulanActor = null;
     this.holdWarmth = null;
     this.holdHandActor = null;
+    this.lifeEraVeils = [];
+    this.lifeEraVeilTargets = [];
+    this.lifeResolvedBackdrop = null;
+    this.lifeResolvedTarget = -1;
     this.xiulanReachStarted = false;
     this.playerAction = null;
     this.playerActionVersion += 1;
@@ -314,6 +338,7 @@ export class GameScene extends Phaser.Scene {
         .setDisplaySize(map.width, map.height)
         .setDepth(20);
     }
+    if (state.chapterId === 'life') this.createLifeBackdropDetails(state);
 
     // Render Tiled-driven visual placements for any chapter that has them.
     // Home falls back to code constants if Tiled data is missing.
@@ -407,6 +432,67 @@ export class GameScene extends Phaser.Scene {
         .image(width / 2, height / 2, overlay.key)
         .setDisplaySize(width, height)
         .setDepth(worldDepth(overlay.sortY));
+    }
+  }
+
+  private createLifeBackdropDetails(state: Readonly<GameState>): void {
+    this.lifeResolvedBackdrop = this.add
+      .image(640, 360, 'environment.life.resolved')
+      .setDisplaySize(1280, 720)
+      .setAlpha(0)
+      .setDepth(4);
+
+    const eraBands = [
+      { x: 205, width: 410, color: 0xd8c28e },
+      { x: 595, width: 370, color: 0xd8c66f },
+      { x: 1030, width: 500, color: 0x58666c },
+    ];
+    this.lifeEraVeils = eraBands.map(({ x, width, color }) =>
+      this.add.rectangle(x, 360, width, 720, color, 0).setDepth(8),
+    );
+    this.lifeEraVeilTargets = [-1, -1, -1];
+    this.updateLifeVisualState(state);
+  }
+
+  private updateLifeVisualState(state: Readonly<GameState>): void {
+    if (state.chapterId !== 'life') return;
+    const placedObjects = state.puzzles.placedObjects ?? [];
+    const photosOrdered = state.flags.includes('puzzle.life.photo_order.completed');
+    const lifeCompleted = photosOrdered && placedObjects.length === 3;
+
+    for (const view of this.entityViews) {
+      const slot = lifeSlotPlacedFrames[view.definition.id];
+      if (!slot || !view.actor) continue;
+      const placed = placedObjects.includes(slot.itemId);
+      view.actor.setFrame(placed ? slot.placedFrame : slot.emptyFrame);
+      view.actor.setAlpha(placed ? 1 : 0.92);
+    }
+
+    const items = ['item.life.wood_comb', 'item.life.enamel_cup', 'item.life.cassette'];
+    for (let index = 0; index < this.lifeEraVeils.length; index += 1) {
+      const target = placedObjects.includes(items[index]) ? 0.012 : photosOrdered ? 0.05 : 0.085;
+      if (this.lifeEraVeilTargets[index] === target) continue;
+      this.lifeEraVeilTargets[index] = target;
+      const veil = this.lifeEraVeils[index];
+      this.tweens.killTweensOf(veil);
+      this.tweens.add({
+        targets: veil,
+        alpha: target,
+        duration: state.settings.reducedMotion ? 140 : 420,
+        ease: 'Sine.easeInOut',
+      });
+    }
+
+    const resolvedTarget = lifeCompleted ? 1 : photosOrdered ? 0.18 : 0;
+    if (this.lifeResolvedBackdrop && this.lifeResolvedTarget !== resolvedTarget) {
+      this.lifeResolvedTarget = resolvedTarget;
+      this.tweens.killTweensOf(this.lifeResolvedBackdrop);
+      this.tweens.add({
+        targets: this.lifeResolvedBackdrop,
+        alpha: resolvedTarget,
+        duration: state.settings.reducedMotion ? 140 : lifeCompleted ? 680 : 420,
+        ease: 'Sine.easeInOut',
+      });
     }
   }
 
@@ -647,22 +733,22 @@ export class GameScene extends Phaser.Scene {
             )
             .setDisplaySize(visualPlacement.size, visualPlacement.size)
             .setDepth(0)
-      : isUmbrella
-        ? this.add
-            .image(visualActorOffsetX, visualActorOffsetY, 'prop.red_umbrella.closed')
-            .setDisplaySize(visualPlacement?.size ?? 58, visualPlacement?.size ?? 58)
-            .setDepth(0)
-        : propVisual
+        : isUmbrella
           ? this.add
-              .image(
-                propVisual.offsetX ?? 0,
-                propVisual.offsetY ?? 0,
-                propVisual.key,
-                propVisual.frame,
-              )
-              .setDisplaySize(propVisual.size, propVisual.size)
+              .image(visualActorOffsetX, visualActorOffsetY, 'prop.red_umbrella.closed')
+              .setDisplaySize(visualPlacement?.size ?? 58, visualPlacement?.size ?? 58)
               .setDepth(0)
-          : null;
+          : propVisual
+            ? this.add
+                .image(
+                  propVisual.offsetX ?? 0,
+                  propVisual.offsetY ?? 0,
+                  propVisual.key,
+                  propVisual.frame,
+                )
+                .setDisplaySize(propVisual.size, propVisual.size)
+                .setDepth(0)
+            : null;
 
     const labelOffset =
       propVisual?.labelOffset ??
@@ -691,11 +777,7 @@ export class GameScene extends Phaser.Scene {
     // Generous circular hit area so the label appears before the cursor is exactly on the sprite.
     container.setInteractive(new Phaser.Geom.Circle(0, 0, 30), Phaser.Geom.Circle.Contains);
 
-    const breathKind: EntityView['breathKind'] = isXiulan
-      ? 'none'
-      : actor
-        ? 'scale'
-        : 'dot';
+    const breathKind: EntityView['breathKind'] = isXiulan ? 'none' : actor ? 'scale' : 'dot';
     const breathBaseScale = actor ? actor.scaleX : 1;
     // 稳定错相，避免所有道具同步；用当前实体数量作为确定性索引。
     const breathPhase = this.entityViews.length * 0.6;
@@ -781,9 +863,7 @@ export class GameScene extends Phaser.Scene {
         const actor = view.actor;
         if (!actor) continue;
         if (active && !view.hover) {
-          actor.setScale(
-            computeBreathScale(view.breathBaseScale, timeSeconds, view.breathPhase),
-          );
+          actor.setScale(computeBreathScale(view.breathBaseScale, timeSeconds, view.breathPhase));
         } else {
           actor.setScale(view.breathBaseScale);
         }

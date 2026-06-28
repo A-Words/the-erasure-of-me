@@ -31,10 +31,18 @@ const journalText: Record<string, { title: string; body: string }> = {
   },
 };
 
-const photoLabels: Record<string, string> = {
+const photoLabels = {
   'photo.1979': '1979 · 搬家纸箱',
   'photo.1992': '1992 · 桂花窗台',
   'photo.2001': '2001 · 银婚蛋糕',
+} as const;
+
+type PhotoId = keyof typeof photoLabels;
+
+const photoClues: Record<PhotoId, string> = {
+  'photo.1979': '年份写在尚未拆开的纸箱角落。',
+  'photo.1992': '年份写在孩子的身高刻度旁。',
+  'photo.2001': '年份写在银婚蛋糕的小牌上。',
 };
 
 export class AppShell {
@@ -229,10 +237,12 @@ export class AppShell {
   private photoPanel(state: Readonly<GameState>): string {
     if (this.photoOrder.length === 0) this.photoOrder = [...state.puzzles.photoOrder];
     const rows = this.photoOrder
-      .map(
-        (id, index) =>
-          `<li><span>${index + 1}. ${photoLabels[id]}</span><span><button data-photo-up="${index}" aria-label="上移 ${photoLabels[id]}">↑</button><button data-photo-down="${index}" aria-label="下移 ${photoLabels[id]}">↓</button></span></li>`,
-      )
+      .map((id, index) => {
+        const photoId = id in photoLabels ? (id as PhotoId) : null;
+        const label = photoId ? photoLabels[photoId] : '未识别的照片';
+        const clue = photoId ? photoClues[photoId] : '暂时无法辨认这张照片的线索。';
+        return `<li><span class="photo-clue-copy"><span>${index + 1}. ${label}</span><small>${clue}</small></span><span><button data-photo-up="${index}" aria-label="上移 ${label}">↑</button><button data-photo-down="${index}" aria-label="下移 ${label}">↓</button></span></li>`;
+      })
       .join('');
     return `<h2>把照片放回时间里</h2><p>年份、家具的新旧和桂花的高度都能提供线索。</p><ol class="photo-order">${rows}</ol><button class="primary" data-submit-photos>确认顺序</button>`;
   }

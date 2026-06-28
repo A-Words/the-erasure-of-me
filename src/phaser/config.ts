@@ -9,6 +9,7 @@ export function createGame(store: GameStore): Phaser.Game {
     width: 1280,
     height: 720,
     backgroundColor: '#2f2b28',
+    loader: { maxParallelDownloads: 6 },
     scene: [new GameScene(store)],
     render: { antialias: true, pixelArt: false },
     scale: {
