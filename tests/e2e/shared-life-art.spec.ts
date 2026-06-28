@@ -21,9 +21,9 @@ async function patchSave(page: Page, patch: Record<string, unknown>): Promise<vo
     ({ key, patch }) => {
       const state = JSON.parse(localStorage.getItem(key) ?? 'null');
       if (!state) throw new Error('Expected an existing save');
-      Object.assign(state, patch);
-      if (patch.puzzles) state.puzzles = { ...state.puzzles, ...patch.puzzles };
-      if (patch.settings) state.settings = { ...state.settings, ...patch.settings };
+      const puzzles = patch.puzzles ? { ...state.puzzles, ...patch.puzzles } : state.puzzles;
+      const settings = patch.settings ? { ...state.settings, ...patch.settings } : state.settings;
+      Object.assign(state, patch, { puzzles, settings });
       localStorage.setItem(key, JSON.stringify(state));
     },
     { key: SAVE_KEY, patch },
@@ -93,6 +93,21 @@ async function assertNoPageScroll(page: Page): Promise<void> {
   expect(metrics.htmlWidth).toBeLessThanOrEqual(metrics.viewportWidth);
   expect(metrics.bodyHeight).toBeLessThanOrEqual(metrics.viewportHeight);
   expect(metrics.htmlHeight).toBeLessThanOrEqual(metrics.viewportHeight);
+}
+
+async function canvasSampleColorCount(page: Page): Promise<number> {
+  return page.locator('canvas').evaluate((element) => {
+    const canvas = element as HTMLCanvasElement;
+    const context = canvas.getContext('2d');
+    if (!context) return 0;
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    const colors = new Set<string>();
+    const stride = Math.max(4, Math.floor((canvas.width * canvas.height) / 256) * 4);
+    for (let offset = 0; offset < pixels.length; offset += stride) {
+      colors.add(`${pixels[offset]},${pixels[offset + 1]},${pixels[offset + 2]}`);
+    }
+    return colors.size;
+  });
 }
 
 async function playerPosition(page: Page): Promise<{ x: number; y: number }> {
@@ -181,11 +196,13 @@ test('completes photo ordering, all three placements and the corridor exit', asy
   await moveTo(page, 850, 465);
   await moveTo(page, 740, 465);
   await interactWith(page, '空着三格的相册');
+  await capture(page, testInfo, 'shared-life-photo-clues');
 
   await page.getByRole('button', { name: '上移 1979 · 搬家' }).click();
   await page.getByRole('button', { name: '上移 1992 · 桂花窗台' }).click();
   await page.getByRole('button', { name: '确认顺序' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-checkpoint', 'checkpoint.life.photos');
+  await capture(page, testInfo, 'shared-life-photos-ordered');
 
   await moveTo(page, 740, 570);
   await moveTo(page, 320, 570);
@@ -207,19 +224,23 @@ test('completes photo ordering, all three placements and the corridor exit', asy
   await moveTo(page, 320, 385);
   await interactWith(page, '镜台 · 条纹槽');
   await page.getByRole('button', { name: '继续对白' }).click();
+  await capture(page, testInfo, 'shared-life-1979-stabilized');
 
   await moveTo(page, 585, 385);
   await moveTo(page, 585, 215);
   await interactWith(page, '窗台 · 圆点槽');
   await page.getByRole('button', { name: '继续对白' }).click();
+  await capture(page, testInfo, 'shared-life-1992-stabilized');
 
-  await moveTo(page, 1065, 205);
+  await moveTo(page, 940, 215);
+  await moveTo(page, 940, 385);
+  await moveTo(page, 1065, 385);
   await interactWith(page, '收音机 · 波纹槽');
   await page.getByRole('button', { name: '继续对白' }).click();
   await expect(page.locator('.objective-chip')).toContainText('走进房间上方延长的走廊');
   await capture(page, testInfo, 'shared-life-all-objects-placed');
 
-  await moveTo(page, 1065, 70);
+  await moveTo(page, 700, 385);
   await moveTo(page, 700, 70);
   await interactWith(page, '延长的走廊');
   await capture(page, testInfo, 'shared-life-exit-dialogue');
@@ -253,6 +274,8 @@ test('keeps Shared Life stable with low stimulation and reduced motion', async (
     activeMemoryId: null,
   });
   await continueSavedGame(page);
+  await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'life');
+  await expect.poll(() => canvasSampleColorCount(page)).toBeGreaterThan(16);
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
   await expect(page.locator('.stage-chip')).toContainText('低扰动');
   await assertNoPageScroll(page);

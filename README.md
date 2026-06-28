@@ -58,6 +58,8 @@ npm run assets:render:home-overlays
 npm run assets:render:environments
 ~~~
 
+`assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景。
+
 首次运行浏览器端到端测试前，需要安装 Playwright 浏览器；Edge 项目还需要系统已安装 Microsoft Edge：
 
 ~~~bash

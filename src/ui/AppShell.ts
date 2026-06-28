@@ -37,6 +37,12 @@ const photoLabels: Record<string, string> = {
   'photo.2001': '2001 · 银婚蛋糕',
 };
 
+const photoClues: Record<string, string> = {
+  'photo.1979': '年份写在尚未拆开的纸箱角落。',
+  'photo.1992': '年份写在孩子的身高刻度旁。',
+  'photo.2001': '年份写在银婚蛋糕的小牌上。',
+};
+
 export class AppShell {
   private readonly hud = document.querySelector<HTMLDivElement>('#hud')!;
   private readonly panel = document.querySelector<HTMLDivElement>('#panel-layer')!;
@@ -231,7 +237,7 @@ export class AppShell {
     const rows = this.photoOrder
       .map(
         (id, index) =>
-          `<li><span>${index + 1}. ${photoLabels[id]}</span><span><button data-photo-up="${index}" aria-label="上移 ${photoLabels[id]}">↑</button><button data-photo-down="${index}" aria-label="下移 ${photoLabels[id]}">↓</button></span></li>`,
+          `<li><span class="photo-clue-copy"><span>${index + 1}. ${photoLabels[id]}</span><small>${photoClues[id]}</small></span><span><button data-photo-up="${index}" aria-label="上移 ${photoLabels[id]}">↑</button><button data-photo-down="${index}" aria-label="下移 ${photoLabels[id]}">↓</button></span></li>`,
       )
       .join('');
     return `<h2>把照片放回时间里</h2><p>年份、家具的新旧和桂花的高度都能提供线索。</p><ol class="photo-order">${rows}</ol><button class="primary" data-submit-photos>确认顺序</button>`;

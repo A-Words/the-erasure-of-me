@@ -1,6 +1,6 @@
 # 《记忆的缝隙》资产登记台账
 
-> 最近更新：2026-06-27
+> 最近更新：2026-06-28
 > 规则来源：ART_BIBLE.md 第 8、9 节
 
 本表记录进入仓库的美术与音频资产。只有来源、许可证、锚点和审核状态完整的资产才能标记为 `shipped`。
@@ -63,7 +63,8 @@
 | environment.home.crosswall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_crosswall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 中墙透明遮挡层，sortY=410 |
 | environment.home.frontwall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_frontwall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 前墙与左下竖墙段透明遮挡层，sortY=705 |
 | environment.rain.background | 项目团队 | assets-source/art/environments/environment_rain_v01.svg | public/assets/environments/environment_rain_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；斜向站台、积水、石板与钟表铺雨棚 |
-| environment.life.background | 项目团队 | assets-source/art/environments/environment_life_v02_generated.png | public/assets/environments/environment_life_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查、Browser 与 Playwright 三视口验收 | 2026-06-27 | 1280×720；同一家庭在 1979/1992/2001 同时显影；三扇同源四格窗、中央相册桌、下中出生通道和上中延长走廊；不烘焙拾取物或年份文字 |
+| environment.life.background | 项目团队 | assets-source/art/environments/environment_life_v02_generated.png | public/assets/environments/environment_life_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查与 Playwright 三视口验收 | 2026-06-28 | 1280×720；同一家庭在 1979/1992/2001 同时显影；三扇窗严格复用相同外框、四格、插销与右下磕痕；右侧餐桌收小并提高夜景暗部可读性；不烘焙拾取物或年份文字 |
+| environment.life.resolved | 项目团队 | assets-source/art/environments/environment_life_resolved_v01_generated.png | public/assets/environments/environment_life_resolved_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查与 Playwright 完成态验收 | 2026-06-28 | 1280×720；与 Shared Life v02 构图注册的收束态；三件物品全部归位后短淡入，统一墙地与光线为连贯当代客厅印象；不承担谜题真值 |
 | environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v01.svg | public/assets/environments/environment_return_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；重复十字长廊、四向地砖箭头与暗红伞痕 |
 | environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v01.svg | public/assets/environments/environment_ending_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；回到现实清晨、暖白留白、桌上两碗热面 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | Codex 静态数据同步；本轮未跑自动化测试 | 2026-06-25 | Tiled 对象层提供出生区、稳定 ID 与 17 个家具/墙体碰撞矩形；v10 扩大上方开口并拆分左下竖墙以恢复储物间通道；右侧门洞只保留室内侧 hotspot，不要求走入门槛；门 hotspot 位于 `(1225, 560)` |
@@ -177,10 +178,10 @@
 
 ### environment.*.background
 
-- 制作方式：除 Shared Life v02 外使用项目原创 SVG；Shared Life v02 使用内置 OpenAI ImageGen `stylized-concept`，以三张既有生活记忆插图作为风格参考，再用 `precise-object-edit` 移除背景中会与独立交互物混淆的相册、杯子和照片。高分辨率原稿统一归档于 `assets-source`，运行时导出 1280×720 PNG。
+- 制作方式：除 Shared Life v02 外使用项目原创 SVG；Shared Life v02 使用内置 OpenAI ImageGen `stylized-concept` 建立手绘空间，再用 `precise-object-edit` 移除会与独立交互物混淆的相册、杯子和照片，并于 2026-06-28 再次定点编辑三扇窗、2001 暗部与右侧餐桌。`environment.life.resolved` 以修正后的 v02 为注册参考生成，只改变接缝与整体光线。高分辨率原稿统一归档于 `assets-source`，运行时导出 1280×720 PNG。
 - 运行时结构：背景只承担世界表现；出生点、交互对象和稳定 ID 继续来自对应 Tiled JSON 对象层，碰撞与玩法状态未写入图片。
 - 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站数字石板、生活物品纹理和长廊方向均保留非颜色冗余。
-- 当前结论：五章候选背景已导出并接入 manifest。Shared Life v02 的三扇窗保持同源尺寸、四格比例、插销和磕痕，三个年代的磨损/光线/生活痕迹可区分；三视口入场截图、完整解谜与出口流程、低扰动/减少动态状态均纳入 Playwright 检查。外部美术审核前保持 `review`。
+- 当前结论：五章候选背景已导出并接入 manifest。Shared Life v02 的三扇窗严格复用同源尺寸、四格比例、插销和磕痕，三个年代的磨损/光线/生活痕迹可区分；照片完成、逐件归位和全部收束态由 View 读取既有领域状态淡变。三视口入场截图、完整解谜与出口流程、低扰动/减少动态状态均纳入 Playwright 检查。外部美术审核前保持 `review`。
 
 ### audio.theme.* / audio.ambience.*
 

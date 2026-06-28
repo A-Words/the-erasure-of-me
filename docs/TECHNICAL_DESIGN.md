@@ -221,7 +221,7 @@ stateDiagram-v2
 - 指针点击与确认键共用近距离交互入口，Scene 只发送实体 ID，不在表现层判断交互结果；
 - 将 Phaser 键盘输入送入 InputMapper；
 - 读取 GameStore 快照更新角色、物件、特效和声音；
-- Shared Life 通过同一 `visual_props` actor 在槽位 frame 与归位物件 frame 之间切换；领域层 `placedObjects` 仍是唯一真值。三个年代薄雾只读取归位进度做淡变，不参与碰撞或答案判断；准确年份使用 Phaser 文字绘制。
+- Shared Life 通过同一 `visual_props` actor 在槽位 frame 与归位物件 frame 之间切换；领域层 `puzzle.life.photo_order.completed` 与 `placedObjects` 仍是唯一真值。三个年代薄雾先随照片排序完成整体收束，再随对应物件归位局部收束；三件全部归位后淡入 `environment.life.resolved` 当代客厅印象。所有淡变只属于 View，不参与碰撞或答案判断；场景不绘制年份牌，准确年份只由照片面板的 DOM 可控文字显示。
 - Scene 或 Game 进入销毁阶段后忽略迟到的状态通知；动画注册表尚不可用时显示同方向静态首帧，避免刷新恢复与页面卸载竞态；
 - 不直接判断谜题完成、提示等级或存档条件。
 

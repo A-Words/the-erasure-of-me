@@ -402,6 +402,13 @@ kbd {
   margin-left: 0.25rem;
   background: transparent;
 }
+.photo-clue-copy {
+  display: grid;
+  gap: 0.15rem;
+}
+.photo-clue-copy small {
+  color: color-mix(in srgb, var(--ink) 68%, transparent);
+}
 
 .title-screen {
   position: absolute;
@@ -694,6 +701,12 @@ html[data-motion='reduced'] *::after {
 }
 
 @media (max-width: 720px), (max-height: 620px) {
+  #app[data-chapter='life'] .dialogue-box {
+    bottom: 0.75rem;
+    gap: 0.35rem;
+    width: min(48rem, 84vw);
+    padding: 0.7rem 1rem;
+  }
   .objective-chip {
     max-width: 66vw;
   }

@@ -88,6 +88,13 @@ export const assetManifest = [
     preload: true,
   },
   {
+    key: 'environment.life.resolved',
+    type: 'image',
+    url: 'assets/environments/environment_life_resolved_v01.png',
+    chapter: 'life',
+    preload: true,
+  },
+  {
     key: 'environment.return.background',
     type: 'image',
     url: 'assets/environments/environment_return_v01.png',

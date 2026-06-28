@@ -105,6 +105,8 @@ export class GameScene extends Phaser.Scene {
   private unsubscribe: (() => void) | null = null;
   private reducedMotion = false;
   private tiledContent: TiledMapContent | null = null;
+  private lifeResolvedBackdrop: Phaser.GameObjects.Image | null = null;
+  private lifeResolvedTarget = -1;
   private lifeEraVeils: Phaser.GameObjects.Rectangle[] = [];
   private lifeEraVeilTargets: number[] = [];
 
@@ -289,6 +291,8 @@ export class GameScene extends Phaser.Scene {
     this.holdHandActor = null;
     this.lifeEraVeils = [];
     this.lifeEraVeilTargets = [];
+    this.lifeResolvedBackdrop = null;
+    this.lifeResolvedTarget = -1;
     this.xiulanReachStarted = false;
     this.playerAction = null;
     this.playerActionVersion += 1;
@@ -420,6 +424,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createLifeBackdropDetails(state: Readonly<GameState>): void {
+    this.lifeResolvedBackdrop = this.add
+      .image(640, 360, 'environment.life.resolved')
+      .setDisplaySize(1280, 720)
+      .setAlpha(0)
+      .setDepth(4);
+
     const eraBands = [
       { x: 205, width: 410, color: 0xd8c28e },
       { x: 595, width: 370, color: 0xd8c66f },
@@ -429,31 +439,14 @@ export class GameScene extends Phaser.Scene {
       this.add.rectangle(x, 360, width, 720, color, 0).setDepth(8),
     );
     this.lifeEraVeilTargets = [-1, -1, -1];
-
-    for (const { year, x } of [
-      { year: '1979', x: 165 },
-      { year: '1992', x: 495 },
-      { year: '2001', x: 910 },
-    ]) {
-      this.add
-        .text(x, 215, year, {
-          color: '#2f2b28',
-          backgroundColor: '#eee7d8d9',
-          fontFamily: 'Georgia, "Noto Serif SC", serif',
-          fontSize: '17px',
-          padding: { x: 8, y: 3 },
-          stroke: '#756253',
-          strokeThickness: 1,
-        })
-        .setOrigin(0.5)
-        .setDepth(16);
-    }
     this.updateLifeVisualState(state);
   }
 
   private updateLifeVisualState(state: Readonly<GameState>): void {
     if (state.chapterId !== 'life') return;
     const placedObjects = state.puzzles.placedObjects ?? [];
+    const photosOrdered = state.flags.includes('puzzle.life.photo_order.completed');
+    const lifeCompleted = photosOrdered && placedObjects.length === 3;
 
     for (const view of this.entityViews) {
       const slot = lifeSlotPlacedFrames[view.definition.id];
@@ -465,7 +458,7 @@ export class GameScene extends Phaser.Scene {
 
     const items = ['item.life.wood_comb', 'item.life.enamel_cup', 'item.life.cassette'];
     for (let index = 0; index < this.lifeEraVeils.length; index += 1) {
-      const target = placedObjects.includes(items[index]) ? 0.015 : 0.085;
+      const target = placedObjects.includes(items[index]) ? 0.012 : photosOrdered ? 0.05 : 0.085;
       if (this.lifeEraVeilTargets[index] === target) continue;
       this.lifeEraVeilTargets[index] = target;
       const veil = this.lifeEraVeils[index];
@@ -474,6 +467,18 @@ export class GameScene extends Phaser.Scene {
         targets: veil,
         alpha: target,
         duration: state.settings.reducedMotion ? 140 : 420,
+        ease: 'Sine.easeInOut',
+      });
+    }
+
+    const resolvedTarget = lifeCompleted ? 0.9 : photosOrdered ? 0.18 : 0;
+    if (this.lifeResolvedBackdrop && this.lifeResolvedTarget !== resolvedTarget) {
+      this.lifeResolvedTarget = resolvedTarget;
+      this.tweens.killTweensOf(this.lifeResolvedBackdrop);
+      this.tweens.add({
+        targets: this.lifeResolvedBackdrop,
+        alpha: resolvedTarget,
+        duration: state.settings.reducedMotion ? 140 : lifeCompleted ? 680 : 420,
         ease: 'Sine.easeInOut',
       });
     }
