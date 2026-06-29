@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page, type TestInfo } from '@playwright/test';
 
-const SAVE_KEY = 'erasure.save.v1';
+const SAVE_KEY = 'erasure.save.slot.1.v1';
 
 async function activateWithKeyboard(locator: Locator): Promise<void> {
   await locator.focus();
@@ -24,12 +24,16 @@ async function createSave(page: Page): Promise<void> {
 async function patchSave(page: Page, patch: Record<string, unknown>): Promise<void> {
   await page.evaluate(
     ({ key, patch }) => {
-      const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const state = record?.state;
       if (!state) throw new Error('Expected an existing save');
       const puzzles = patch.puzzles ? { ...state.puzzles, ...patch.puzzles } : state.puzzles;
       const settings = patch.settings ? { ...state.settings, ...patch.settings } : state.settings;
       Object.assign(state, patch, { puzzles, settings });
-      localStorage.setItem(key, JSON.stringify(state));
+      localStorage.setItem(key, JSON.stringify(record));
+      if (patch.settings) {
+        localStorage.setItem('erasure.settings.v1', JSON.stringify(settings));
+      }
     },
     { key: SAVE_KEY, patch },
   );

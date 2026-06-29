@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createInitialState } from '../../src/game/state/initialState';
-import { SaveRepository } from '../../src/save/SaveRepository';
+import { SAVE_SLOT_IDS, SaveRepository, saveSlotKey } from '../../src/save/SaveRepository';
 
 class MemoryStorage implements Storage {
-  private readonly values = new Map<string, string>();
+  protected readonly values = new Map<string, string>();
 
   get length(): number {
     return this.values.size;
@@ -30,64 +30,150 @@ class MemoryStorage implements Storage {
   }
 }
 
+class ThrowingStorage extends MemoryStorage {
+  override setItem(): void {
+    throw new DOMException('Quota exceeded', 'QuotaExceededError');
+  }
+}
+
 describe('SaveRepository', () => {
+  let storage: MemoryStorage;
+
   beforeEach(() => {
-    Object.defineProperty(globalThis, 'localStorage', {
-      value: new MemoryStorage(),
-      configurable: true,
+    storage = new MemoryStorage();
+  });
+
+  it('keeps three save slots isolated and reports their summaries', () => {
+    const repository = new SaveRepository(storage, () => new Date('2026-06-29T08:00:00.000Z'));
+    const first = createInitialState();
+    first.phase = 'playing';
+    const second = createInitialState('low_stimulation');
+    second.phase = 'playing';
+    second.chapterId = 'rain';
+    second.checkpointId = 'checkpoint.rain.start';
+    second.playTimeSeconds = 375;
+
+    expect(repository.saveToSlot(1, first).ok).toBe(true);
+    expect(repository.saveToSlot(2, second).ok).toBe(true);
+
+    expect(repository.getSlotSummaries()).toEqual([
+      expect.objectContaining({ slotId: 1, status: 'valid', chapterId: 'home' }),
+      expect.objectContaining({
+        slotId: 2,
+        status: 'valid',
+        chapterId: 'rain',
+        mode: 'low_stimulation',
+        playTimeSeconds: 375,
+      }),
+      expect.objectContaining({ slotId: 3, status: 'empty' }),
+    ]);
+    expect(repository.getFirstEmptySlot()).toBe(3);
+  });
+
+  it('saves through the active slot and removes transient view state', () => {
+    const repository = new SaveRepository(storage);
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.modal = 'pause';
+    state.dialogue = ['临时对白'];
+    state.dialogueIndex = 0;
+    state.activeMemoryId = 'rain';
+    state.holdProgress = 0.5;
+    state.player.moving = true;
+    repository.setActiveSlot(2);
+
+    expect(repository.saveActive(state).ok).toBe(true);
+    expect(repository.loadSlot(2)).toMatchObject({
+      phase: 'playing',
+      modal: null,
+      dialogue: [],
+      activeMemoryId: null,
+      holdProgress: 0,
+      player: expect.objectContaining({ moving: false }),
     });
   });
 
-  it('keeps accessibility settings after clearing only game progress', () => {
-    const repository = new SaveRepository();
+  it('keeps global settings when loading another slot', () => {
+    const repository = new SaveRepository(storage);
     const state = createInitialState();
     state.phase = 'playing';
-    state.settings.fontSize = 'large';
-    state.settings.muted = true;
+    state.settings.fontSize = 'normal';
+    repository.saveToSlot(1, state);
+    const globalSettings = { ...state.settings, fontSize: 'large' as const, muted: true };
 
-    repository.save(state);
-    repository.clear();
-
-    expect(repository.getSaveStatus()).toBe('none');
-    expect(repository.loadSettings()).toMatchObject({ fontSize: 'large', muted: true });
+    expect(repository.loadSlot(1, globalSettings)?.settings).toMatchObject({
+      fontSize: 'large',
+      muted: true,
+    });
   });
 
-  it('reports malformed data without deleting or overwriting the original string', () => {
-    const repository = new SaveRepository();
-    localStorage.setItem('erasure.save.v1', '{broken-json');
+  it('reports one malformed slot without hiding valid or empty slots', () => {
+    const repository = new SaveRepository(storage);
+    const state = createInitialState();
+    state.phase = 'playing';
+    repository.saveToSlot(1, state);
+    storage.setItem(saveSlotKey(2), '{broken-json');
 
-    expect(repository.getSaveStatus()).toBe('invalid');
-    expect(repository.load()).toBeNull();
-    expect(localStorage.getItem('erasure.save.v1')).toBe('{broken-json');
-  });
-
-  it('ignores settings that are valid JSON but not an object', () => {
-    const repository = new SaveRepository();
-    localStorage.setItem('erasure.settings.v1', 'null');
-
-    expect(repository.loadSettings()).toBeNull();
+    expect(repository.getSlotSummaries().map((slot) => slot.status)).toEqual([
+      'valid',
+      'invalid',
+      'empty',
+    ]);
+    expect(repository.loadSlot(2)).toBeNull();
+    expect(storage.getItem(saveSlotKey(2))).toBe('{broken-json');
   });
 
   it('recovers invalid coordinates to the authored chapter spawn', () => {
-    const repository = new SaveRepository();
+    const repository = new SaveRepository(storage);
     const state = createInitialState();
     state.phase = 'playing';
     state.player.x = 99999;
     state.player.y = -10;
-    repository.save(state);
+    repository.saveToSlot(1, state);
 
-    expect(repository.load()?.player).toEqual({ x: 310, y: 302, facing: 'down', moving: false });
+    expect(repository.loadSlot(1)?.player).toEqual({
+      x: 310,
+      y: 302,
+      facing: 'down',
+      moving: false,
+    });
   });
 
-  it('clears progress and settings only after the all-data operation', () => {
-    const repository = new SaveRepository();
+  it('does not claim success or replace a slot when storage rejects the write', () => {
+    const repository = new SaveRepository(new ThrowingStorage());
     const state = createInitialState();
     state.phase = 'playing';
-    repository.save(state);
 
-    repository.clearAll();
+    expect(repository.saveToSlot(1, state)).toEqual({ ok: false, reason: 'storage_error' });
+    expect(repository.getSlotSummary(1).status).toBe('empty');
+  });
 
-    expect(repository.getSaveStatus()).toBe('none');
+  it('deletes individual slots and clears all new, legacy, and settings data', () => {
+    const repository = new SaveRepository(storage);
+    const state = createInitialState();
+    state.phase = 'playing';
+    for (const slotId of SAVE_SLOT_IDS) repository.saveToSlot(slotId, state);
+    repository.saveSettings({ ...state.settings, muted: true });
+    storage.setItem('erasure.save.v1', JSON.stringify(state));
+
+    expect(repository.deleteSlot(2)).toBe(true);
+    expect(repository.getSlotSummary(2).status).toBe('empty');
+    expect(storage.getItem('erasure.save.v1')).not.toBeNull();
+
+    expect(repository.clearAll()).toBe(true);
+    expect(repository.getSlotSummaries().every((slot) => slot.status === 'empty')).toBe(true);
     expect(repository.loadSettings()).toBeNull();
+    expect(storage.getItem('erasure.save.v1')).toBeNull();
+  });
+
+  it('ignores the legacy save instead of migrating it', () => {
+    const repository = new SaveRepository(storage);
+    const state = createInitialState();
+    state.phase = 'playing';
+    storage.setItem('erasure.save.v1', JSON.stringify(state));
+
+    expect(repository.getSlotSummaries().every((slot) => slot.status === 'empty')).toBe(true);
+    expect(repository.getFirstEmptySlot()).toBe(1);
+    expect(storage.getItem('erasure.save.v1')).not.toBeNull();
   });
 });

@@ -3,13 +3,14 @@ import { expect, test } from '@playwright/test';
 async function setSavedPlayer(page: import('@playwright/test').Page, x: number, y: number) {
   await page.evaluate(
     ({ x, y }) => {
-      const key = 'erasure.save.v1';
-      const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const key = 'erasure.save.slot.1.v1';
+      const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const state = record?.state;
       if (!state) throw new Error('Expected a home save before moving the player');
       state.player = { x, y, facing: 'down', moving: false };
       state.dialogue = [];
       state.modal = null;
-      localStorage.setItem(key, JSON.stringify(state));
+      localStorage.setItem(key, JSON.stringify(record));
     },
     { x, y },
   );

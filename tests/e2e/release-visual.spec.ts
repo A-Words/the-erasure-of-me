@@ -54,7 +54,7 @@ async function createSave(page: Page): Promise<void> {
   for (let index = 0; index < 2; index += 1)
     await page.getByRole('button', { name: '继续对白' }).click();
   await expect
-    .poll(() => page.evaluate(() => localStorage.getItem('erasure.save.v1')))
+    .poll(() => page.evaluate(() => localStorage.getItem('erasure.save.slot.1.v1')))
     .not.toBeNull();
 }
 
@@ -66,8 +66,9 @@ async function loadChapter(
   const authored = chapterState[chapterId];
   await page.evaluate(
     ({ chapterId, authored, patch }) => {
-      const key = 'erasure.save.v1';
-      const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const key = 'erasure.save.slot.1.v1';
+      const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const state = record?.state;
       if (!state) throw new Error('Release screenshot seed save is missing');
       Object.assign(state, {
         phase: 'playing',
@@ -86,7 +87,10 @@ async function loadChapter(
       });
       if (patch.puzzles) state.puzzles = { ...state.puzzles, ...patch.puzzles };
       if (patch.settings) state.settings = { ...state.settings, ...patch.settings };
-      localStorage.setItem(key, JSON.stringify(state));
+      localStorage.setItem(key, JSON.stringify(record));
+      if (patch.settings) {
+        localStorage.setItem('erasure.settings.v1', JSON.stringify(state.settings));
+      }
     },
     { chapterId, authored, patch },
   );
@@ -211,11 +215,13 @@ for (const viewport of [
     await page.getByRole('button', { name: '继续' }).click();
 
     await page.evaluate(() => {
-      const key = 'erasure.save.v1';
-      const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const key = 'erasure.save.slot.1.v1';
+      const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const state = record?.state;
       state.settings.holdMode = 'single';
       state.flags = ['ending.dialogue_started', 'ending.ready_to_hold'];
-      localStorage.setItem(key, JSON.stringify(state));
+      localStorage.setItem(key, JSON.stringify(record));
+      localStorage.setItem('erasure.settings.v1', JSON.stringify(state.settings));
     });
     await page.reload();
     await page.getByRole('button', { name: '从最近的安全位置继续' }).click();

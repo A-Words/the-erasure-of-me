@@ -158,7 +158,10 @@ async function bootIntoChapter(page: Page, chapterId: string): Promise<void> {
   // Inject save before reload so the game picks it up
   await page.evaluate(
     ({ save }) => {
-      localStorage.setItem('erasure.save.v1', JSON.stringify(save));
+      localStorage.setItem(
+        'erasure.save.slot.1.v1',
+        JSON.stringify({ formatVersion: 1, savedAt: new Date().toISOString(), state: save }),
+      );
     },
     { save: buildChapterSave(chapterId) },
   );
@@ -255,7 +258,10 @@ test('tiled map smoke: sequential chapter saves do not corrupt state', async ({ 
     await page.evaluate(() => localStorage.clear());
     await page.evaluate(
       ({ save }) => {
-        localStorage.setItem('erasure.save.v1', JSON.stringify(save));
+        localStorage.setItem(
+          'erasure.save.slot.1.v1',
+          JSON.stringify({ formatVersion: 1, savedAt: new Date().toISOString(), state: save }),
+        );
       },
       { save: buildChapterSave(chapterId) },
     );

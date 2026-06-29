@@ -6,6 +6,21 @@ import { SaveRepository } from './save/SaveRepository';
 import { AppShell } from './ui/AppShell';
 import { AudioManager } from './phaser/audio/AudioManager';
 import { TiledCollisionProvider } from './game/content/collisionProvider';
+import type { GameState } from './game/state/GameState';
+import type { SaveSlotId } from './save/SaveRepository';
+
+function progressSignature(state: Readonly<GameState>): string {
+  return JSON.stringify({
+    phase: state.phase,
+    checkpoint: state.checkpointId,
+    inventory: state.inventory,
+    journal: state.journalPages,
+    memories: state.memories,
+    flags: state.flags,
+    puzzles: state.puzzles,
+    mode: state.mode,
+  });
+}
 
 async function loadJson<T>(url: string): Promise<T> {
   const response = await fetch(url);
@@ -36,12 +51,14 @@ async function bootstrap(): Promise<void> {
   game.canvas.tabIndex = 0;
   game.canvas.setAttribute('aria-label', '可操作游戏画面');
   game.canvas.addEventListener('pointerdown', () => game.canvas.focus());
-  new AppShell(store, saves);
+  const appShell = new AppShell(store, saves);
   const unlockAudio = () => void audio.unlock();
   window.addEventListener('pointerdown', unlockAudio);
   window.addEventListener('keydown', unlockAudio);
 
   let lastSaveSignature = '';
+  let lastActiveSlot: SaveSlotId | null = null;
+  let lastSettingsSignature = '';
   let lastAudioMessage = '';
   store.subscribe((state) => {
     audio.setSettings(state.settings);
@@ -50,21 +67,30 @@ async function bootstrap(): Promise<void> {
       lastAudioMessage = state.message;
       audio.play('soft_feedback');
     }
-    if (state.phase === 'title') return;
-    const signature = JSON.stringify({
-      phase: state.phase,
-      checkpoint: state.checkpointId,
-      inventory: state.inventory,
-      journal: state.journalPages,
-      memories: state.memories,
-      flags: state.flags,
-      puzzles: state.puzzles,
-      mode: state.mode,
-      settings: state.settings,
-    });
+    const settingsSignature = JSON.stringify(state.settings);
+    if (settingsSignature !== lastSettingsSignature) {
+      lastSettingsSignature = settingsSignature;
+      if (!saves.saveSettings(state.settings)) {
+        appShell.reportSaveResult({ ok: false, reason: 'storage_error' }, 'automatic');
+      }
+    }
+    if (state.phase === 'title') {
+      lastSaveSignature = '';
+      lastActiveSlot = null;
+      return;
+    }
+    const activeSlot = saves.getActiveSlot();
+    if (!activeSlot) return;
+    if (activeSlot !== lastActiveSlot) {
+      lastActiveSlot = activeSlot;
+      const existing = saves.loadSlot(activeSlot, state.settings);
+      lastSaveSignature = existing ? progressSignature(existing) : '';
+    }
+    const signature = progressSignature(state);
     if (signature !== lastSaveSignature) {
-      lastSaveSignature = signature;
-      saves.save(state);
+      const result = saves.saveActive(state);
+      if (result.ok) lastSaveSignature = signature;
+      appShell.reportSaveResult(result, 'automatic');
     }
   });
 

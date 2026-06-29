@@ -551,15 +551,35 @@
 
 ### system.save.complete
 
-已保存
+已保存 · 存档 {slotId}
+
+### system.save.auto
+
+已自动保存 · 存档 {slotId}
+
+### system.save.action
+
+立即保存
+
+### system.save.failed
+
+无法写入本地存档，请检查浏览器存储空间与隐私设置。
 
 ### system.save.recovered
 
-已从最近的安全位置继续
+从最近的安全位置继续
 
 ### system.save.corrupt
 
-存档无法读取。设置已保留。你可以清除损坏存档后重新开始。
+存档无法读取。其他槽位与全局设置不受影响。
+
+### system.save.overwrite
+
+三个槽位都已占用。覆盖后原进度无法恢复。
+
+### system.save.delete
+
+这个槽位的游戏进度将被永久删除，全局无障碍与音量设置会保留。
 
 ### system.browser.pause
 

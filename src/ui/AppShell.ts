@@ -5,12 +5,18 @@ import { normalizeSettings } from '../game/state/initialState';
 import { isBreathingActive } from '../game/presentation/breathing';
 import type {
   AccessibilitySettings,
+  GameMode,
   GameState,
   MemoryIllustrationId,
   ModalId,
 } from '../game/state/GameState';
 import type { GameStore } from '../game/state/GameStore';
-import type { SaveRepository } from '../save/SaveRepository';
+import type {
+  SaveRepository,
+  SaveResult,
+  SaveSlotId,
+  SaveSlotSummary,
+} from '../save/SaveRepository';
 
 const journalText: Record<string, { title: string; body: string }> = {
   'journal.home.key': {
@@ -52,6 +58,9 @@ export class AppShell {
   private signature = '';
   private photoOrder: string[] = [];
   private confirmingClearData = false;
+  private pendingNewMode: GameMode | null = null;
+  private confirmingDeleteSlot: SaveSlotId | null = null;
+  private saveNotice = '';
   private readonly debugEnabled =
     import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === '1';
 
@@ -72,6 +81,17 @@ export class AppShell {
         this.store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
       }
     });
+  }
+
+  reportSaveResult(result: SaveResult, kind: 'automatic' | 'manual'): void {
+    if (!result.ok) {
+      if (result.reason === 'no_active_slot' && kind === 'automatic') return;
+      this.saveNotice = '无法写入本地存档，请检查浏览器存储空间与隐私设置。';
+    } else {
+      this.saveNotice = `${kind === 'automatic' ? '已自动保存' : '已保存'} · 存档 ${result.summary.slotId}`;
+    }
+    this.signature = '';
+    this.render(this.store.getState());
   }
 
   private readonly protectDomKeyboardInput = (event: KeyboardEvent): void => {
@@ -153,6 +173,7 @@ export class AppShell {
       </nav>
       ${nearbyEntity ? `<button class="interaction-prompt" data-interact="${nearbyEntity.id}" aria-label="与${nearbyEntity.label}交互"><kbd>E</kbd><span>${nearbyEntity.label}</span><span class="touch-action">交互</span></button>` : ''}
       ${state.message && state.holdProgress === 0 ? `<button class="toast" data-clear-message aria-label="关闭提示">${state.message}</button>` : ''}
+      ${this.saveNotice ? `<div class="save-notice" role="status" aria-live="polite">${this.saveNotice}</div>` : ''}
       ${state.holdProgress > 0 ? `<div class="hold-progress-a11y" role="progressbar" aria-label="掌心逐渐变暖" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(state.holdProgress * 100)}"></div>` : ''}
       ${this.debugEnabled ? this.debugPanel(state) : ''}
     `;
@@ -248,12 +269,13 @@ export class AppShell {
   }
 
   private renderSystem(state: Readonly<GameState>): void {
+    const managementDialog = this.saveManagementDialog();
     if (state.phase === 'title') {
-      this.system.innerHTML = this.titleScreen();
+      this.system.innerHTML = this.titleScreen() + managementDialog;
       return;
     }
     if (state.phase === 'guide') {
-      this.system.innerHTML = this.guideScreen();
+      this.system.innerHTML = this.guideScreen() + managementDialog;
       return;
     }
     if (state.modal === 'pause') {
@@ -291,13 +313,10 @@ export class AppShell {
   }
 
   private titleScreen(): string {
-    const saveStatus = this.saves.getSaveStatus();
-    const saveControl =
-      saveStatus === 'valid'
-        ? '<button class="continue" data-continue>从最近的安全位置继续</button>'
-        : saveStatus === 'invalid'
-          ? `<aside class="content-note" role="status"><strong>存档无法读取</strong><span>设置已保留。你可以清除损坏存档后重新开始。</span>${this.clearDataControl()}</aside>`
-          : '';
+    const slots = this.saves
+      .getSlotSummaries()
+      .map((slot) => this.saveSlotCard(slot))
+      .join('');
     return `<section class="title-screen" aria-labelledby="game-title">
       <div class="title-art" aria-hidden="true"><span>☂</span></div>
       <p class="eyebrow">一段关于记忆、尊严与陪伴的故事</p>
@@ -308,9 +327,54 @@ export class AppShell {
         <button class="mode-card primary" data-new="standard"><strong>标准模式</strong><span>固定、可学习的方向错位与完整退化表现</span></button>
         <button class="mode-card" data-new="low_stimulation"><strong>低扰动模式</strong><span>保留标准方向，降低模糊、漂移和动态</span></button>
       </div>
-      ${saveControl}
+      <section class="save-slots" aria-labelledby="save-slots-title"><h2 id="save-slots-title">本地存档</h2><div class="save-slot-grid">${slots}</div></section>
+      ${this.saveNotice ? `<p class="title-save-notice" role="status" aria-live="polite">${this.saveNotice}</p>` : ''}
       <p class="controls">纯键盘可完成 · WASD / 方向键移动 · E 交互 · Esc 暂停</p>
     </section>`;
+  }
+
+  private saveSlotCard(slot: SaveSlotSummary): string {
+    if (slot.status === 'empty') {
+      return `<article class="save-slot empty"><h3>存档 ${slot.slotId}</h3><p>空槽位</p></article>`;
+    }
+    if (slot.status === 'invalid') {
+      return `<article class="save-slot invalid"><h3>存档 ${slot.slotId}</h3><p><strong>存档无法读取</strong></p><p>其他槽位与全局设置不受影响。</p><button class="secondary" data-delete-slot="${slot.slotId}">删除损坏存档</button></article>`;
+    }
+    const chapter = slot.chapterId ? chapterMaps[slot.chapterId].title : '未知章节';
+    const mode = slot.mode === 'standard' ? '标准模式' : '低扰动模式';
+    return `<article class="save-slot"><h3>存档 ${slot.slotId}</h3><p><strong>${chapter}</strong><span>${mode} · ${this.formatPlayTime(slot.playTimeSeconds ?? 0)}</span><span>${this.formatSavedAt(slot.savedAt)}</span></p><div><button class="continue" data-continue-slot="${slot.slotId}">从最近的安全位置继续</button><button class="secondary" data-delete-slot="${slot.slotId}">删除</button></div></article>`;
+  }
+
+  private formatPlayTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    return `${Math.floor(minutes / 60)} 小时 ${minutes % 60} 分钟`;
+  }
+
+  private formatSavedAt(savedAt: string | null): string {
+    if (!savedAt) return '保存时间未知';
+    return new Intl.DateTimeFormat('zh-CN', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(new Date(savedAt));
+  }
+
+  private saveManagementDialog(): string {
+    if (this.pendingNewMode) {
+      const slots = this.saves
+        .getSlotSummaries()
+        .map(
+          (slot) =>
+            `<button class="secondary overwrite-slot" data-confirm-overwrite="${slot.slotId}"><strong>确认覆盖存档 ${slot.slotId}</strong><span>${slot.status === 'valid' && slot.chapterId ? chapterMaps[slot.chapterId].title : '损坏存档'}</span></button>`,
+        )
+        .join('');
+      return `<div class="scrim save-management-scrim"><section class="paper-panel save-dialog" role="dialog" aria-modal="true" aria-labelledby="overwrite-title"><h2 id="overwrite-title">选择要覆盖的存档</h2><p>三个槽位都已占用。覆盖后原进度无法恢复。</p><div class="overwrite-grid">${slots}</div><button data-cancel-save-management>取消</button></section></div>`;
+    }
+    if (this.confirmingDeleteSlot) {
+      return `<div class="scrim save-management-scrim"><section class="paper-panel save-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-save-title"><h2 id="delete-save-title">删除存档 ${this.confirmingDeleteSlot}？</h2><p>这个槽位的游戏进度将被永久删除，全局无障碍与音量设置会保留。</p><div class="confirm-row"><button class="secondary" data-confirm-delete-slot="${this.confirmingDeleteSlot}">确认删除</button><button data-cancel-save-management>取消</button></div></section></div>`;
+    }
+    return '';
   }
 
   private d3Training(state: Readonly<GameState>): string {
@@ -320,7 +384,8 @@ export class AppShell {
 
   private pauseScreen(state: Readonly<GameState>): string {
     const settings = state.settings;
-    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2><button class="primary" data-close>继续</button><fieldset><legend>设置与无障碍</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label></fieldset><section class="clear-data"><h3>本地数据</h3><p class="muted">清除后将删除本机上的进度和设置，且无法恢复。</p>${this.clearDataControl()}</section><button class="secondary" data-title>返回标题</button></section></div>`;
+    const activeSlot = this.saves.getActiveSlot();
+    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2><button class="primary" data-close>继续</button><section class="current-save"><h3>${activeSlot ? `存档 ${activeSlot}` : '当前进度'}</h3><p class="muted">立即保存会保留当前位置和解谜进度，并从安全状态恢复。</p><button class="secondary" data-save-current ${activeSlot ? '' : 'disabled'}>立即保存</button>${this.saveNotice ? `<p role="status" aria-live="polite">${this.saveNotice}</p>` : ''}</section><fieldset><legend>设置与无障碍</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label></fieldset><section class="clear-data"><h3>本地数据</h3><p class="muted">清除后将删除本机上的全部存档和设置，且无法恢复。</p>${this.clearDataControl()}</section><button class="secondary" data-title>返回标题</button></section></div>`;
   }
 
   private clearDataControl(): string {
@@ -352,20 +417,96 @@ export class AppShell {
     return `<article class="guide-page"><header><p class="eyebrow">故事结束后，留下一点可以带走的东西</p><h1>早期表现与就医陪伴指南</h1><p class="disclaimer">本页用于一般健康科普，不能替代专业筛查、诊断或治疗。如果你发现自己或家人的认知、情绪或日常能力持续发生变化并影响生活，请记录具体情况，并向正规医疗机构的相关专业人员咨询。</p></header><section><h2>值得留意的持续变化</h2><ul><li>比过去更频繁地忘记近期事件，或反复询问同一件事</li><li>经常放错物品，并且难以沿原路寻找</li><li>在熟悉地点迷路，或混淆时间、地点</li><li>完成熟悉任务、解决问题或作出决定变得困难</li><li>跟随对话、理解表达或寻找词语变得困难</li><li>视觉空间判断、情绪、行为或社交状态持续改变</li></ul><p>这些表现可能有多种原因，不能凭单一表现自行判断疾病。</p></section><section><h2>可以怎样行动</h2><ol><li>记录变化出现的时间、频率、场景和对生活的影响。</li><li>与本人平静沟通，避免测试、指责或争辩。</li><li>预约正规医疗机构评估，携带病史、用药信息和观察记录。</li><li>用稳定日程、清晰标记、充足照明改善日常安全。</li><li>鼓励本人继续参与力所能及的熟悉活动与社会交往。</li><li>照护者也需要休息，并可以向家人、社区和专业人员求助。</li></ol></section><aside class="game-notice"><h2>关于游戏中的谜题</h2><p>照片排序、数字连接、颜色和形状辨识只用于叙事体验，不是医学筛查，也不能产生任何认知健康结论。</p></aside><section><h2>资料来源</h2><ul><li><a href="https://www.who.int/news-room/fact-sheets/detail/dementia" target="_blank" rel="noopener noreferrer">世界卫生组织：Dementia</a></li><li><a href="https://www.gov.cn/zhengce/zhengceku/202501/content_6996231.htm" target="_blank" rel="noopener noreferrer">应对老年期痴呆国家行动计划（2024—2030年）</a></li><li><a href="https://www.gov.cn/zhengce/202501/content_6996237.htm" target="_blank" rel="noopener noreferrer">国家行动计划政策解读</a></li></ul><p class="muted">来源最近核验：2026-06-23。正式发布前仍需专业审核。</p></section><section><h2>制作与致谢</h2><p>本作由项目团队原创制作，使用 Phaser、TypeScript、Vite 与 Tiled。生成式图像的来源和处理记录见仓库资产台账。</p><p class="muted">感谢公开权威资料的维护者；上列机构未参与本作制作，也不代表对本作背书。医学与敏感性专业审核完成后，仅在取得同意时补充公开致谢。</p></section><footer><button class="primary" data-title>回到标题</button><button class="secondary" data-new="standard">重新开始</button></footer></article>`;
   }
 
+  private requestNewGame(mode: GameMode): void {
+    const emptySlot = this.saves.getFirstEmptySlot();
+    if (emptySlot) {
+      this.beginNewGame(emptySlot, mode, false);
+      return;
+    }
+    this.pendingNewMode = mode;
+    this.confirmingDeleteSlot = null;
+    this.signature = '';
+    this.render(this.store.getState());
+  }
+
+  private beginNewGame(slotId: SaveSlotId, mode: GameMode, overwrite: boolean): void {
+    if (overwrite && !this.saves.deleteSlot(slotId)) {
+      this.saveNotice = `无法覆盖存档 ${slotId}，请检查浏览器存储权限。`;
+      this.pendingNewMode = null;
+      this.signature = '';
+      this.render(this.store.getState());
+      return;
+    }
+    this.saves.setActiveSlot(slotId);
+    this.pendingNewMode = null;
+    this.confirmingDeleteSlot = null;
+    this.saveNotice = '';
+    this.store.dispatch({ type: 'NEW_GAME', mode });
+  }
+
   private bindEvents(state: Readonly<GameState>): void {
-    document.querySelectorAll<HTMLElement>('[data-new]').forEach((button) =>
+    document
+      .querySelectorAll<HTMLElement>('[data-new]')
+      .forEach((button) =>
+        button.addEventListener('click', () => this.requestNewGame(button.dataset.new as GameMode)),
+      );
+    document.querySelectorAll<HTMLElement>('[data-continue-slot]').forEach((button) =>
       button.addEventListener('click', () => {
-        this.saves.clear();
-        this.store.dispatch({
-          type: 'NEW_GAME',
-          mode: button.dataset.new as 'standard' | 'low_stimulation',
-        });
+        const slotId = Number(button.dataset.continueSlot) as SaveSlotId;
+        const loaded = this.saves.loadSlot(slotId, state.settings);
+        if (loaded) {
+          this.saves.setActiveSlot(slotId);
+          this.saveNotice = '';
+          this.store.replaceFromSave(loaded);
+        } else {
+          this.saveNotice = `存档 ${slotId} 无法读取。`;
+          this.signature = '';
+          this.render(state);
+        }
       }),
     );
-    document.querySelectorAll<HTMLElement>('[data-continue]').forEach((button) =>
+    document
+      .querySelectorAll<HTMLElement>('[data-save-current]')
+      .forEach((button) =>
+        button.addEventListener('click', () =>
+          this.reportSaveResult(this.saves.saveActive(state), 'manual'),
+        ),
+      );
+    document.querySelectorAll<HTMLElement>('[data-delete-slot]').forEach((button) =>
       button.addEventListener('click', () => {
-        const loaded = this.saves.load();
-        if (loaded) this.store.replaceFromSave(loaded);
+        this.confirmingDeleteSlot = Number(button.dataset.deleteSlot) as SaveSlotId;
+        this.pendingNewMode = null;
+        this.signature = '';
+        this.render(state);
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('[data-confirm-delete-slot]').forEach((button) =>
+      button.addEventListener('click', () => {
+        const slotId = Number(button.dataset.confirmDeleteSlot) as SaveSlotId;
+        this.saveNotice = this.saves.deleteSlot(slotId)
+          ? `已删除存档 ${slotId}`
+          : `无法删除存档 ${slotId}，请检查浏览器存储权限。`;
+        this.confirmingDeleteSlot = null;
+        this.signature = '';
+        this.render(state);
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('[data-confirm-overwrite]').forEach((button) =>
+      button.addEventListener('click', () => {
+        if (!this.pendingNewMode) return;
+        this.beginNewGame(
+          Number(button.dataset.confirmOverwrite) as SaveSlotId,
+          this.pendingNewMode,
+          true,
+        );
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('[data-cancel-save-management]').forEach((button) =>
+      button.addEventListener('click', () => {
+        this.pendingNewMode = null;
+        this.confirmingDeleteSlot = null;
+        this.signature = '';
+        this.render(state);
       }),
     );
     document.querySelectorAll<HTMLElement>('[data-open]').forEach((button) =>
@@ -392,6 +533,8 @@ export class AppShell {
     document.querySelectorAll<HTMLElement>('[data-title]').forEach((button) =>
       button.addEventListener('click', () => {
         this.confirmingClearData = false;
+        this.pendingNewMode = null;
+        this.confirmingDeleteSlot = null;
         this.store.dispatch({ type: 'RETURN_TITLE' });
       }),
     );
@@ -412,9 +555,17 @@ export class AppShell {
     document.querySelectorAll<HTMLElement>('[data-confirm-clear]').forEach((button) =>
       button.addEventListener('click', () => {
         this.confirmingClearData = false;
-        this.saves.clearAll();
         this.store.dispatch({ type: 'RETURN_TITLE' });
         this.store.dispatch({ type: 'SETTINGS', patch: normalizeSettings() });
+        if (!this.saves.clearAll()) {
+          this.saveNotice = '无法清除全部本地数据，请检查浏览器存储权限。';
+          this.signature = '';
+          this.render(this.store.getState());
+          return;
+        }
+        this.saveNotice = '已清除全部本地数据';
+        this.signature = '';
+        this.render(this.store.getState());
       }),
     );
     document

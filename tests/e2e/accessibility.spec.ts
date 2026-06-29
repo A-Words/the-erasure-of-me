@@ -95,8 +95,9 @@ test('exposes content warning, objectives, settings, guide sources and credits s
   await expect(page.getByRole('region', { name: '当前信息状态' })).toContainText('D0');
 
   await page.evaluate(() => {
-    const key = 'erasure.save.v1';
-    const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+    const key = 'erasure.save.slot.1.v1';
+    const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+    const state = record?.state;
     if (!state) throw new Error('Expected a save after starting the game');
     Object.assign(state, {
       phase: 'playing',
@@ -113,7 +114,8 @@ test('exposes content warning, objectives, settings, guide sources and credits s
       message: '按住 E / Enter，握住她的手。',
     });
     state.settings.holdMode = 'single';
-    localStorage.setItem(key, JSON.stringify(state));
+    localStorage.setItem(key, JSON.stringify(record));
+    localStorage.setItem('erasure.settings.v1', JSON.stringify(state.settings));
   });
   await page.reload();
   await activateWithKeyboard(page.getByRole('button', { name: '从最近的安全位置继续' }));
@@ -138,8 +140,9 @@ test('retains shape and texture labels under forced colors', async ({ page }, te
   await startGameWithKeyboard(page);
   await finishOpeningDialogue(page);
   await page.evaluate(() => {
-    const key = 'erasure.save.v1';
-    const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+    const key = 'erasure.save.slot.1.v1';
+    const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+    const state = record?.state;
     if (!state) throw new Error('Expected a save after starting the game');
     Object.assign(state, {
       phase: 'playing',
@@ -155,7 +158,7 @@ test('retains shape and texture labels under forced colors', async ({ page }, te
       activeMemoryId: null,
       message: null,
     });
-    localStorage.setItem(key, JSON.stringify(state));
+    localStorage.setItem(key, JSON.stringify(record));
   });
   await page.reload();
   await page.emulateMedia({ forcedColors: 'active' });

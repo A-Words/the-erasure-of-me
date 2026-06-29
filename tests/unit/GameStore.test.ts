@@ -8,6 +8,22 @@ function clearDialogue(store: GameStore): void {
 }
 
 describe('GameStore', () => {
+  it('keeps current global settings when replacing progress from a save', () => {
+    const current = createInitialState();
+    current.settings.fontSize = 'large';
+    current.settings.muted = true;
+    const saved = createInitialState('low_stimulation');
+    saved.phase = 'playing';
+    saved.settings.fontSize = 'normal';
+    saved.settings.muted = false;
+    const store = new GameStore(current);
+
+    store.replaceFromSave(saved);
+
+    expect(store.getState().mode).toBe('low_stimulation');
+    expect(store.getState().settings).toMatchObject({ fontSize: 'large', muted: true });
+  });
+
   it('blocks movement under a modal', () => {
     const store = new GameStore(createInitialState());
     store.dispatch({ type: 'NEW_GAME', mode: 'standard' });
