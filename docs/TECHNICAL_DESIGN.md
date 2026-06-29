@@ -569,6 +569,8 @@ interface AssetManifestEntry {
 
 玩法代码引用 key，例如 character.xu_old.walk.down，不引用文件路径。精灵条带的帧尺寸由 manifest 的 `frameConfig` 提供，Scene 不散落文件名或裁切参数。`preload: false` 的 DOM 插图不进入 Phaser 启动加载队列，由对应面板首次显示时按需加载，避免重复请求和延长首屏等待。
 
+第四章 `prop.return.clues.atlas` 是 5×128×128 spritesheet，Tiled `visual_props` 只负责四个出口的稳定位置、尺寸和 entityId 绑定。`resolveReturnCues` 根据 `returnJunction`、`returnPrefix.length` 与 `routeLoops` 生成纯表现描述，Scene 只把描述映射为帧、世界方向旋转和透明度；路线答案、提示升级与存档字段仍留在领域层。完成三个路口后同一上方 actor 切换为家门帧，不新增进度字段。
+
 观察动作由已映射的 `observe` 输入选择表现层动画，不写入领域状态，也不参与谜题答案判断。交互物不随观察键统一发光或缩放，而以场景轮廓、材质及按需悬停标签区分。角色移动时行走优先；对话或 DOM 模态层打开时不播放观察动画。减少动态效果下使用静态注意姿态替代 6 FPS 循环，并取消交互小点的缩放动画。
 
 拾取动作只在交互对象 `kind` 为 `pickup` 且命令前后背包数量确实增加时播放，因此失败交互、重复拾取、观察和谜题不会误触发。该动作是 8 FPS 单次表现；移动输入可立即打断，减少动态效果下以 180 毫秒静态俯身姿态替代。

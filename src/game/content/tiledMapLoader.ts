@@ -175,6 +175,7 @@ const TILESET_ASSET_KEYS: Record<string, string> = {
   prop_rain_stone_5: 'prop.rain.stone_5',
   prop_rain_umbrella_sign_a: 'prop.rain.umbrella_sign_a',
   prop_rain_umbrella_sign_b: 'prop.rain.umbrella_sign_b',
+  prop_return_clues_atlas: 'prop.return.clues.atlas',
 };
 
 function resolveTilesetAssetKey(tilesetName: string): string {

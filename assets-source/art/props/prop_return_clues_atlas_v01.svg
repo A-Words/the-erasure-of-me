@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="128" viewBox="0 0 640 128">
+  <defs>
+    <filter id="paper-edge" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency=".055" numOctaves="2" seed="29" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <linearGradient id="curtain" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#263944"/>
+      <stop offset=".25" stop-color="#6d8189"/>
+      <stop offset=".52" stop-color="#344b57"/>
+      <stop offset=".78" stop-color="#788a8e"/>
+      <stop offset="1" stop-color="#2a3d47"/>
+    </linearGradient>
+    <linearGradient id="door" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#3d2c27"/>
+      <stop offset=".62" stop-color="#76523e"/>
+      <stop offset="1" stop-color="#2f2926"/>
+    </linearGradient>
+    <radialGradient id="warm-light">
+      <stop stop-color="#f3d9a5" stop-opacity=".8"/>
+      <stop offset="1" stop-color="#d0ad72" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Frame 0: hand-painted floor arrow, authored facing up. -->
+  <g transform="translate(0)" filter="url(#paper-edge)">
+    <path d="M64 108V35M33 64l31-31 31 31" fill="none" stroke="#d3d0bf" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity=".86"/>
+    <path d="M64 108V35M33 64l31-31 31 31" fill="none" stroke="#56666c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".38"/>
+    <path d="M47 117q17-20 34 0h-6q-11-10-22 0z" fill="#b54949" opacity=".58"/>
+  </g>
+
+  <!-- Frame 1: red umbrella canopy with a long directional handle shadow. -->
+  <g transform="translate(128)" filter="url(#paper-edge)">
+    <path d="M24 51q10-28 40-31 30 3 40 31-13-7-26 1-14-10-28 0-13-8-26-1z" fill="#b54949" stroke="#5d3d40" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M64 22v36" stroke="#4f3d39" stroke-width="5" stroke-linecap="round"/>
+    <path d="M64 57v45q0 17 15 17 13 0 13-13" fill="none" stroke="#24323a" stroke-width="9" stroke-linecap="round" opacity=".62"/>
+    <path d="M68 58v44q0 11 9 11" fill="none" stroke="#829197" stroke-width="2" stroke-linecap="round" opacity=".4"/>
+  </g>
+
+  <!-- Frame 2: a pair of soft shoe prints, authored walking up. -->
+  <g transform="translate(256)" fill="#c9c7b8" stroke="#4e5d63" stroke-width="3" opacity=".82" filter="url(#paper-edge)">
+    <path d="M40 102c-7-13-6-31 0-42 5-9 16-7 20 2 5 12 4 30-2 42-4 9-14 9-18-2z"/>
+    <path d="M70 67c-7-13-6-31 0-42 5-9 16-7 20 2 5 12 4 30-2 42-4 9-14 9-18-2z"/>
+    <path d="M43 83h14M73 48h14" stroke="#738187" stroke-width="3" stroke-linecap="round" opacity=".6"/>
+  </g>
+
+  <!-- Frame 3: window curtain visual substitute for the humming direction. -->
+  <g transform="translate(384)" filter="url(#paper-edge)">
+    <path d="M23 18h82" stroke="#40352f" stroke-width="7" stroke-linecap="round"/>
+    <path d="M31 22h66v70q-13-10-25 4-13-14-25 4-8-8-16-3z" fill="url(#curtain)" stroke="#283840" stroke-width="4"/>
+    <path d="M45 28v58M64 28v62M83 28v55" fill="none" stroke="#d4d9d5" stroke-width="3" opacity=".22"/>
+    <path d="M39 108q25-17 50 0" fill="none" stroke="#a9bbc0" stroke-width="4" stroke-linecap="round" opacity=".55"/>
+  </g>
+
+  <!-- Frame 4: the real home door and warm threshold at the final exit. -->
+  <g transform="translate(512)" filter="url(#paper-edge)">
+    <ellipse cx="64" cy="105" rx="55" ry="23" fill="url(#warm-light)"/>
+    <path d="M23 111V21h82v90" fill="none" stroke="#2f2926" stroke-width="12" stroke-linejoin="round"/>
+    <rect x="31" y="26" width="66" height="83" rx="3" fill="url(#door)" stroke="#9a7658" stroke-width="4"/>
+    <path d="M39 35h50v28H39zM39 70h50v31H39z" fill="none" stroke="#b48a64" stroke-width="3" opacity=".62"/>
+    <circle cx="83" cy="67" r="5" fill="#d3b36d" stroke="#44352d" stroke-width="2"/>
+    <path d="M27 109h74" stroke="#e7c98e" stroke-width="6" stroke-linecap="round" opacity=".85"/>
+  </g>
+</svg>

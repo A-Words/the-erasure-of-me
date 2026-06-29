@@ -73,7 +73,8 @@
 | environment.rain.rain_overlay | 项目团队 | scripts/prepare_rain_environment_overlays.py | public/assets/environments/environment_rain_rain_overlay_v01.png | 项目程序化透明叠层；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 透明 PNG；雨线层，运行时叠在雨站底图上、props 下方；减少动态效果时降低透明度 |
 | environment.life.background | 项目团队 | assets-source/art/environments/environment_life_v02_generated.png | public/assets/environments/environment_life_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查与 Playwright 三视口验收 | 2026-06-28 | 1280×720；同一家庭在 1979/1992/2001 同时显影；三扇窗严格复用相同外框、四格、插销与右下磕痕；右侧餐桌收小并提高夜景暗部可读性；不烘焙拾取物或年份文字 |
 | environment.life.resolved | 项目团队 | assets-source/art/environments/environment_life_resolved_v01_generated.png | public/assets/environments/environment_life_resolved_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查、淡变中点与 Playwright 完成态验收 | 2026-06-28 | 1280×720；与 Shared Life v02 墙体、走廊、中央桌及固定家具注册对齐；只保留中间成熟桂花窗，移除左右时间窗、纸箱、年代接缝及停电宴席，统一为同向晨光和日常圆桌；不承担谜题真值 |
-| environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v01.svg | public/assets/environments/environment_return_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；重复十字长廊、四向地砖箭头与暗红伞痕 |
+| environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v02_generated.png | public/assets/environments/environment_return_v02.png | 项目定制生成；OpenAI ImageGen；参考项目自有 home v10、rain v02、life v02 的几何与材质语言；无第三方素材 | review | Codex 静态检查与 Playwright 状态回归 | 2026-06-29 | 1280×720；冷灰十字长廊底图；四向出口与中央动线清楚；不烘焙箭头、伞影、脚印、窗帘或家门 |
+| prop.return.clues.atlas | 项目团队 | assets-source/art/props/prop_return_clues_atlas_v01.svg | public/assets/props/prop_return_clues_atlas_v01_5x128x128.png | 项目原创 SVG；无第三方素材 | review | Codex 透明图集检查、validate:maps 与 Playwright 状态回归 | 2026-06-29 | 5×128×128；箭头、伞柄影、脚印、窗帘、家门；四个正式 Tiled visual_props 按领域状态切帧与旋转 |
 | environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v01.svg | public/assets/environments/environment_ending_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；回到现实清晨、暖白留白、桌上两碗热面 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | Codex 静态数据同步；本轮未跑自动化测试 | 2026-06-25 | Tiled 对象层提供出生区、稳定 ID 与 17 个家具/墙体碰撞矩形；v10 扩大上方开口并拆分左下竖墙以恢复储物间通道；右侧门洞只保留室内侧 hotspot，不要求走入门槛；门 hotspot 位于 `(1225, 560)` |
 | map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | Codex validate:maps | 2026-06-26 | Tiled 对象层提供 2→4→5、伞标与出口；visual_props 已为车票、石板、红伞招牌和钟表铺红伞分配正式 gid |
@@ -202,12 +203,20 @@
 - 运行时处理：高分辨率 2:1 PNG 原稿归档于 `assets-source`，导出 1024×512 WebP，与 `ART_BIBLE.md` 手部尾声特写规格一致。
 - 当前结论：内容与 `dialogue.ending.handheld` 一致；D4 实际构图、裁切、标准/低扰动路径、退出科普页和控制台检查通过。
 
+### environment.return.background / prop.return.clues.atlas
+
+- 生成方式：内置 OpenAI ImageGen；home v10 用作轴对齐墙体与俯视几何参考，rain v02 用作旧车站材质与冷色气氛参考，life v02 用作手绘纸张质感与生活磨损参考。
+- 生成目标：一个可重复的十字长廊路口，把许家走廊、旧车站通道和钟表铺后门的材质克制拼接；四向出口保持等宽开放，中央交叉动线不放物件。
+- 生成限制：无人物、文字、数字、箭头、脚印、红伞、红色标记、窗帘、家门、家具、UI、恐怖或医院意象，不把谜题线索烘焙进底图。
+- 运行时处理：1672×941 PNG 原稿归档于 `assets-source`，通过 `scripts/prepare_environment_asset.py` 居中裁切导出 1280×720 PNG。箭头、红伞柄影、脚印、窗帘与家门使用独立原创 SVG 五帧图集，Tiled 提供四个正式 visual_props，`resolveReturnCues` 按既有领域状态切帧、旋转和调节 alpha。
+- 当前结论：1280×720、1366×768 与 1024×576 状态截图中，四向通道、角色、HUD、箭头、伞柄、脚印、窗帘和家门均可读；训练确认与第一路口实际交互推进正常，控制台无错误。外部美术审核前保持 `review`。
+
 ### environment.*.background
 
-- 制作方式：home v10、rain v02 和 Shared Life v02 使用项目定制 ImageGen 原稿，经 `scripts/prepare_environment_asset.py` 裁切导出；Shared Life 另以 `precise-object-edit` 生成注册一致的 `environment.life.resolved` 收束态；return、ending 使用项目原创 SVG 渲染。所有背景统一固定 1280×720、低饱和色板、轻微纸张颗粒和章节专属构图。
+- 制作方式：home v10、rain v02、Shared Life v02 和 return v02 使用项目定制 ImageGen 原稿，经 `scripts/prepare_environment_asset.py` 裁切导出；Shared Life 另以 `precise-object-edit` 生成注册一致的 `environment.life.resolved` 收束态；ending 使用项目原创 SVG 渲染。所有背景统一固定 1280×720、低饱和色板、轻微纸张颗粒和章节专属构图。
 - 运行时结构：背景只承担世界表现；出生点、交互对象和稳定 ID 继续来自对应 Tiled JSON 对象层，碰撞与玩法状态未写入图片。
-- 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站 2/4/5 石板、车票与红伞招牌，以及 Shared Life 的照片、生活物件与槽位均由独立 visual_props 资产承载。
-- 当前结论：五章候选背景已导出并接入 manifest；rain v02 的底图/天气叠层与 Shared Life v02 的三年代/收束态均完成浏览器检查，关键道具与 Tiled 坐标无阻塞遮挡。外部美术审核前保持 `review`。
+- 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站 2/4/5 石板、车票与红伞招牌，Shared Life 的照片、生活物件与槽位，以及 Return Corridor 的方向线索均由独立 visual_props 资产承载。
+- 当前结论：五章候选背景已导出并接入 manifest；rain v02 的底图/天气叠层、Shared Life v02 的三年代/收束态和 return v02 的五类状态线索均完成浏览器检查，关键道具与 Tiled 坐标无阻塞遮挡。外部美术审核前保持 `review`。
 
 ### audio.theme.* / audio.ambience.*
 

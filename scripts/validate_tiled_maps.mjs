@@ -49,6 +49,7 @@ const VALID_TILESET_NAMES = new Set([
   'prop_rain_stone_5',
   'prop_rain_umbrella_sign_a',
   'prop_rain_umbrella_sign_b',
+  'prop_return_clues_atlas',
 ]);
 
 /**

@@ -111,7 +111,7 @@ export const assetManifest = [
   {
     key: 'environment.return.background',
     type: 'image',
-    url: 'assets/environments/environment_return_v01.png',
+    url: 'assets/environments/environment_return_v02.png',
     chapter: 'return',
     preload: true,
   },
@@ -219,6 +219,14 @@ export const assetManifest = [
     key: 'prop.red_umbrella.closed',
     type: 'image',
     url: 'assets/props/prop_red_umbrella_closed_v01.png',
+    preload: true,
+  },
+  {
+    key: 'prop.return.clues.atlas',
+    type: 'spritesheet',
+    url: 'assets/props/prop_return_clues_atlas_v01_5x128x128.png',
+    frameConfig: { frameWidth: 128, frameHeight: 128 },
+    chapter: 'return',
     preload: true,
   },
   {
