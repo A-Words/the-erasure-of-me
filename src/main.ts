@@ -60,6 +60,7 @@ async function bootstrap(): Promise<void> {
   let lastActiveSlot: SaveSlotId | null = null;
   let lastSettingsSignature = '';
   let lastAudioMessage = '';
+  let wasPaused = false;
   store.subscribe((state) => {
     audio.setSettings(state.settings);
     audio.setChapter(state.phase === 'playing' ? state.chapterId : null);
@@ -71,12 +72,13 @@ async function bootstrap(): Promise<void> {
     if (settingsSignature !== lastSettingsSignature) {
       lastSettingsSignature = settingsSignature;
       if (!saves.saveSettings(state.settings)) {
-        appShell.reportSaveResult({ ok: false, reason: 'storage_error' }, 'automatic');
+        appShell.reportSaveResult({ ok: false, reason: 'storage_error' });
       }
     }
     if (state.phase === 'title') {
       lastSaveSignature = '';
       lastActiveSlot = null;
+      wasPaused = false;
       return;
     }
     const activeSlot = saves.getActiveSlot();
@@ -87,11 +89,20 @@ async function bootstrap(): Promise<void> {
       lastSaveSignature = existing ? progressSignature(existing) : '';
     }
     const signature = progressSignature(state);
+    let savedThisEmission = false;
     if (signature !== lastSaveSignature) {
       const result = saves.saveActive(state);
-      if (result.ok) lastSaveSignature = signature;
-      appShell.reportSaveResult(result, 'automatic');
+      if (result.ok) {
+        lastSaveSignature = signature;
+        savedThisEmission = true;
+      }
+      appShell.reportSaveResult(result);
     }
+    const paused = state.phase === 'playing' && state.modal === 'pause';
+    if (paused && !wasPaused && !savedThisEmission) {
+      appShell.reportSaveResult(saves.saveActive(state));
+    }
+    wasPaused = paused;
   });
 
   document.addEventListener('visibilitychange', () => {
@@ -104,7 +115,10 @@ async function bootstrap(): Promise<void> {
     }
   });
 
-  window.addEventListener('beforeunload', () => game.destroy(true));
+  window.addEventListener('beforeunload', () => {
+    saves.saveActive(store.getState());
+    game.destroy(true);
+  });
 }
 
 void bootstrap();

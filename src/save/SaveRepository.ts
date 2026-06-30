@@ -85,6 +85,20 @@ export class SaveRepository {
     return this.getSlotSummaries().find((slot) => slot.status === 'empty')?.slotId ?? null;
   }
 
+  getMostRecentValidSlot(): SaveSlotSummary | null {
+    return (
+      this.getSlotSummaries()
+        .filter(
+          (slot): slot is SaveSlotSummary & { savedAt: string } =>
+            slot.status === 'valid' && slot.savedAt !== null,
+        )
+        .sort(
+          (left, right) =>
+            Date.parse(right.savedAt) - Date.parse(left.savedAt) || left.slotId - right.slotId,
+        )[0] ?? null
+    );
+  }
+
   saveToSlot(slotId: SaveSlotId, state: Readonly<GameState>): SaveResult {
     if (state.phase === 'title') return { ok: false, reason: 'not_playing' };
     const record: SaveSlotRecordV1 = {
