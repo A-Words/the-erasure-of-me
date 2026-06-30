@@ -28,6 +28,7 @@ import {
   DOT_ALPHA_MIN,
   DOT_ALPHA_MAX,
 } from '../../game/presentation/breathing';
+import { resolveRainPresentation } from '../../game/presentation/rainMotion';
 
 interface EntityView {
   definition: WorldEntity;
@@ -109,6 +110,8 @@ export class GameScene extends Phaser.Scene {
   private lifeResolvedTarget = -1;
   private lifeEraVeils: Phaser.GameObjects.Rectangle[] = [];
   private lifeEraVeilTargets: number[] = [];
+  private rainOverlays: Phaser.GameObjects.Image[] = [];
+  private rainMotionElapsedMs = 0;
 
   constructor(store: GameStore) {
     super('GameScene');
@@ -192,6 +195,7 @@ export class GameScene extends Phaser.Scene {
       this.xiulanActor = null;
       this.holdWarmth = null;
       this.holdHandActor = null;
+      this.rainOverlays = [];
       this.playerActionTimer?.remove(false);
       this.playerActionTimer = null;
       this.input.setDefaultCursor('default');
@@ -200,6 +204,7 @@ export class GameScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     const state = this.bridge.getSnapshot();
+    this.updateRain(state, delta);
     const action = state.phase === 'playing' ? this.currentMovementAction() : null;
     if (!action && state.player.moving) this.bridge.send({ type: 'STOP_MOVING' });
     this.updateEntityBreathing(state, time);
@@ -275,6 +280,7 @@ export class GameScene extends Phaser.Scene {
     this.updateHoldHand(state);
     this.updateEntityVisibility(state);
     this.updateLifeVisualState(state);
+    this.updateRain(state, 0);
     if (motionPreferenceChanged) {
       for (const view of this.entityViews) {
         if (view.hover) this.setEntityHover(view, true);
@@ -293,6 +299,8 @@ export class GameScene extends Phaser.Scene {
     this.lifeEraVeilTargets = [];
     this.lifeResolvedBackdrop = null;
     this.lifeResolvedTarget = -1;
+    this.rainOverlays = [];
+    this.rainMotionElapsedMs = 0;
     this.xiulanReachStarted = false;
     this.playerAction = null;
     this.playerActionVersion += 1;
@@ -312,11 +320,13 @@ export class GameScene extends Phaser.Scene {
         .image(map.width / 2, map.height / 2, 'environment.rain.puddle_reflection_overlay')
         .setDisplaySize(map.width, map.height)
         .setDepth(4);
-      this.add
-        .image(map.width / 2, map.height / 2, 'environment.rain.rain_overlay')
-        .setDisplaySize(map.width, map.height)
-        .setDepth(8)
-        .setAlpha(state.settings.reducedMotion ? 0.5 : 0.68);
+      this.rainOverlays = [0, -map.height].map((offsetY) =>
+        this.add
+          .image(map.width / 2, map.height / 2 + offsetY, 'environment.rain.rain_overlay')
+          .setDisplaySize(map.width, map.height)
+          .setDepth(8),
+      );
+      this.updateRain(state, 0);
     }
 
     // Parse Tiled JSON into pure data structures. Falls back to code constants
@@ -433,6 +443,22 @@ export class GameScene extends Phaser.Scene {
         .setDisplaySize(width, height)
         .setDepth(worldDepth(overlay.sortY));
     }
+  }
+
+  private updateRain(state: Readonly<GameState>, deltaMs: number): void {
+    if (this.rainOverlays.length !== 2 || state.chapterId !== 'rain') return;
+    const reducedMotion = state.settings.reducedMotion;
+    if (!reducedMotion) this.rainMotionElapsedMs += Math.max(0, deltaMs);
+    const frame = resolveRainPresentation(this.rainMotionElapsedMs, reducedMotion);
+    const map = chapterMaps.rain;
+    this.rainOverlays[0]
+      .setPosition(map.width / 2, map.height / 2 + frame.offsetY)
+      .setAlpha(frame.alpha)
+      .setVisible(true);
+    this.rainOverlays[1]
+      .setPosition(map.width / 2, map.height / 2 - map.height + frame.offsetY)
+      .setAlpha(frame.alpha)
+      .setVisible(!reducedMotion);
   }
 
   private createLifeBackdropDetails(state: Readonly<GameState>): void {

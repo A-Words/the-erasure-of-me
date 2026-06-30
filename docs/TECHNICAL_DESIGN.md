@@ -346,7 +346,7 @@ type InputAction =
 - `visual_props` 用 `entityId` 显式绑定 `interactables` 中的实体；`visual_furniture` 用 `collisionId` 显式绑定 `collision` 中的脚印矩形。
 - 运行时通过 `src/game/content/tiledMapLoader.ts` 适配层解析 Tiled JSON；`scripts/validate_tiled_maps.mjs` 校验这些层存在、引用图片存在、稳定 ID 无重复且 `entityId` / `collisionId` 指向真实对象。
 
-Rain Station 的环境表现拆为底图、地面积水反光层和雨线层：Tiled `background` 仍只指向底图编辑参照，GameScene 在运行时从 manifest 叠加 `environment.rain.puddle_reflection_overlay` 与 `environment.rain.rain_overlay`，再渲染 `visual_props`。天气叠层不改变坐标、碰撞、谜题状态或 Tiled tile object 锚点。
+Rain Station 的环境表现拆为底图、地面积水反光层和雨线层：Tiled `background` 仍只指向底图编辑参照，GameScene 在运行时从 manifest 叠加 `environment.rain.puddle_reflection_overlay` 与 `environment.rain.rain_overlay`，再渲染 `visual_props`。雨线使用两张普通 Image 上下衔接，按累计时间进行帧率无关的下落循环；减少动态效果时只保留一张静态雨线并降低透明度。天气叠层不改变坐标、碰撞、谜题状态或 Tiled tile object 锚点。
 
 #### 6.2.2 Tiled 内容适配层（tiledMapLoader）
 

@@ -133,6 +133,40 @@ function setupConsoleCapture(page: Page): ConsoleCapture {
   return capture;
 }
 
+async function canvasSampleColorCount(page: Page): Promise<number> {
+  return page.locator('canvas').evaluate((element) => {
+    const canvas = element as HTMLCanvasElement;
+    const context = canvas.getContext('2d');
+    if (!context) return 0;
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    const colors = new Set<string>();
+    const stride = Math.max(4, Math.floor((canvas.width * canvas.height) / 256) * 4);
+    for (let offset = 0; offset < pixels.length; offset += stride) {
+      colors.add(`${pixels[offset]},${pixels[offset + 1]},${pixels[offset + 2]}`);
+    }
+    return colors.size;
+  });
+}
+
+async function canvasBlackOrTransparentRatio(page: Page): Promise<number> {
+  return page.locator('canvas').evaluate((element) => {
+    const canvas = element as HTMLCanvasElement;
+    const context = canvas.getContext('2d');
+    if (!context) return 1;
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    let artifactPixels = 0;
+    for (let offset = 0; offset < pixels.length; offset += 4) {
+      if (
+        pixels[offset + 3] < 250 ||
+        (pixels[offset] < 5 && pixels[offset + 1] < 5 && pixels[offset + 2] < 5)
+      ) {
+        artifactPixels += 1;
+      }
+    }
+    return artifactPixels / (pixels.length / 4);
+  });
+}
+
 /** Boot the game from a fresh state (home chapter). */
 async function bootFreshGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1366, height: 768 });
@@ -218,6 +252,64 @@ test('tiled map smoke: rain renders, player in bounds, no errors', async ({ page
   const capture = setupConsoleCapture(page);
   await bootIntoChapter(page, 'rain');
   await assertChapterRenders(page, 'rain', capture);
+});
+
+test('rain weather moves continuously and respects reduced motion', async ({ page }, testInfo) => {
+  const capture = setupConsoleCapture(page);
+  await bootIntoChapter(page, 'rain');
+  await assertChapterRenders(page, 'rain', capture);
+  await expect.poll(() => canvasSampleColorCount(page)).toBeGreaterThan(16);
+
+  const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
+  const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
+  const rainOnlyClip = {
+    x: Math.round(bounds!.x + bounds!.width * 0.45),
+    y: Math.round(bounds!.y + bounds!.height * 0.08),
+    width: Math.round(bounds!.width * 0.18),
+    height: Math.round(bounds!.height * 0.16),
+  };
+
+  const movingFrameA = await page.screenshot({
+    path: testInfo.outputPath('rain-moving-frame-a.png'),
+    clip: rainOnlyClip,
+  });
+  await page.waitForTimeout(180);
+  const movingFrameB = await page.screenshot({
+    path: testInfo.outputPath('rain-moving-frame-b.png'),
+    clip: rainOnlyClip,
+  });
+  expect(movingFrameA.equals(movingFrameB)).toBe(false);
+  await page.screenshot({
+    path: testInfo.outputPath('rain-standard-scene.png'),
+    animations: 'allow',
+  });
+
+  await canvas.press('Escape');
+  const reducedMotion = page.getByLabel('减少动态效果');
+  await reducedMotion.focus();
+  await page.keyboard.press('Space');
+  await expect(reducedMotion).toBeChecked();
+  await page.getByRole('button', { name: '继续' }).click();
+  await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
+  await page.waitForTimeout(50);
+
+  const staticFrameA = await page.screenshot({
+    path: testInfo.outputPath('rain-reduced-motion-frame-a.png'),
+    clip: rainOnlyClip,
+  });
+  await page.waitForTimeout(180);
+  const staticFrameB = await page.screenshot({
+    path: testInfo.outputPath('rain-reduced-motion-frame-b.png'),
+    clip: rainOnlyClip,
+  });
+  expect(staticFrameA.equals(staticFrameB)).toBe(true);
+  await expect.poll(() => canvasBlackOrTransparentRatio(page)).toBeLessThan(0.01);
+  await page.screenshot({
+    path: testInfo.outputPath('rain-reduced-motion-scene.png'),
+    animations: 'allow',
+  });
+  expect(capture.errors).toEqual([]);
 });
 
 test('tiled map smoke: life renders, player in bounds, no errors', async ({ page }) => {
