@@ -121,7 +121,10 @@ function isReached(state: Readonly<GameState>, entity: WorldEntity): boolean {
   if (entity.id === 'entity.rain.red_umbrella') {
     return state.memories.includes('memory.rain.umbrella');
   }
-  return entity.kind === 'exit' ? state.checkpointId.includes('complete') : false;
+  if (entity.id === 'entity.life.exit') {
+    return state.memories.includes('memory.life.ordinary_days');
+  }
+  return false;
 }
 
 function symbolFor(entity: WorldEntity): MapLandmark['symbol'] {

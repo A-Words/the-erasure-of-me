@@ -91,6 +91,9 @@ export class SaveRepository {
       parsed.hintLevel ??= 0;
       parsed.holdProgress ??= 0;
       parsed.mapWashSeconds = 0;
+      parsed.rainMapClosedAtX = Number.isFinite(parsed.rainMapClosedAtX)
+        ? parsed.rainMapClosedAtX
+        : null;
       parsed.playTimeSeconds ??= 0;
       return parsed;
     } catch {

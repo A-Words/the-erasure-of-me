@@ -57,6 +57,7 @@ export function createInitialState(mode: GameMode = 'standard'): GameState {
     activeMemoryId: null,
     holdProgress: 0,
     mapWashSeconds: 0,
+    rainMapClosedAtX: null,
     hintSeconds: 0,
     hintLevel: 0,
     playTimeSeconds: 0,

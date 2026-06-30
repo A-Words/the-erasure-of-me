@@ -124,7 +124,10 @@ export class GameStore {
         const closingMap = this.state.chapterId === 'rain' && this.state.modal === 'map';
         this.state.modal = null;
         this.state.holdProgress = 0;
-        if (closingMap) addUnique(this.state.flags, 'flag.rain.map_closed');
+        if (closingMap) {
+          addUnique(this.state.flags, 'flag.rain.map_closed');
+          this.state.rainMapClosedAtX = this.state.player.x;
+        }
         break;
       }
       case 'SETTINGS':
@@ -263,11 +266,14 @@ export class GameStore {
       this.state.chapterId === 'rain' &&
       includes(this.state.flags, 'flag.rain.map_closed') &&
       !includes(this.state.flags, 'degradation.d1.started') &&
-      this.state.player.x > chapterMaps.rain.spawn.x + 128
+      direction === 'right' &&
+      this.state.rainMapClosedAtX !== null &&
+      this.state.player.x - this.state.rainMapClosedAtX > 128
     ) {
       addUnique(this.state.flags, 'degradation.d1.started');
       this.state.message = '有些路名看不清了。钟声还在。';
       this.state.mapWashSeconds = 1.2;
+      this.state.rainMapClosedAtX = null;
       this.state.player.moving = false;
     }
   }
@@ -653,6 +659,7 @@ export class GameStore {
     this.state.message = null;
     this.state.activeMemoryId = null;
     this.state.mapWashSeconds = 0;
+    this.state.rainMapClosedAtX = null;
     this.state.hintSeconds = 0;
     this.state.hintLevel = 0;
     if (chapterId === 'rain') {

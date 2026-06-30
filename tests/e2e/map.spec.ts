@@ -98,7 +98,7 @@ test('shows the washed rain map while retaining reliable markers', async ({ page
   await mapButton.click();
   await expect(page.locator('.map-drawing.expanded')).toHaveClass(/full/);
   await page.keyboard.press('q');
-  await page.evaluate(() => {
+  const washedSave = await page.evaluate(() => {
     const key = 'erasure.save.v1';
     const state = JSON.parse(localStorage.getItem(key) ?? 'null');
     if (!state) throw new Error('Expected the rain save to exist');
@@ -110,7 +110,11 @@ test('shows the washed rain map while retaining reliable markers', async ({ page
         'degradation.d1.started',
       ]),
     ];
-    localStorage.setItem(key, JSON.stringify(state));
+    return JSON.stringify(state);
+  });
+  await page.addInitScript(({ key, save }) => localStorage.setItem(key, save), {
+    key: 'erasure.save.v1',
+    save: washedSave,
   });
   await page.reload();
   await page.getByRole('button', { name: '从最近的安全位置继续' }).click();

@@ -84,10 +84,12 @@ describe('SaveRepository', () => {
     const state = createInitialState();
     state.phase = 'playing';
     state.mapWashSeconds = 1.2;
+    state.rainMapClosedAtX = 512;
 
     repository.save(state);
 
     expect(repository.load()?.mapWashSeconds).toBe(0);
+    expect(repository.load()?.rainMapClosedAtX).toBe(512);
   });
 
   it('clears progress and settings only after the all-data operation', () => {

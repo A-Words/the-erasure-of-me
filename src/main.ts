@@ -59,6 +59,7 @@ async function bootstrap(): Promise<void> {
       memories: state.memories,
       flags: state.flags,
       puzzles: state.puzzles,
+      rainMapClosedAtX: state.rainMapClosedAtX,
       mode: state.mode,
       settings: state.settings,
     });

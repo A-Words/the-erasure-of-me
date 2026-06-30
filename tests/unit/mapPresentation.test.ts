@@ -51,6 +51,25 @@ describe('map presentation', () => {
     expect(visibleIds).toContain('entity.rain.red_umbrella');
   });
 
+  it('marks the Shared Life exit reached only after the player interacts with it', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'life';
+    state.degradationStage = 'D2';
+    state.checkpointId = 'checkpoint.life.complete';
+
+    const beforeInteraction = createMapPresentation(state).landmarks.find(
+      (landmark) => landmark.id === 'entity.life.exit',
+    );
+    expect(beforeInteraction?.reached).toBe(false);
+
+    state.memories.push('memory.life.ordinary_days');
+    const afterInteraction = createMapPresentation(state).landmarks.find(
+      (landmark) => landmark.id === 'entity.life.exit',
+    );
+    expect(afterInteraction?.reached).toBe(true);
+  });
+
   it('hides the gameplay map during D4', () => {
     const state = createInitialState();
     state.phase = 'playing';
