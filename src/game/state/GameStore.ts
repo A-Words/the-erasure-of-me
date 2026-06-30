@@ -10,6 +10,7 @@ import type {
   WorldDirection,
 } from './GameState';
 import { createInitialState, normalizeSettings } from './initialState';
+import { getMapMode } from '../presentation/mapPresentation';
 
 type Listener = (state: Readonly<GameState>) => void;
 
@@ -113,6 +114,7 @@ export class GameStore {
         this.advanceDialogue();
         break;
       case 'OPEN_MODAL':
+        if (command.modal === 'map' && getMapMode(this.state) === 'hidden') break;
         this.state.modal = command.modal;
         if (this.state.chapterId === 'rain' && command.modal === 'map') {
           addUnique(this.state.flags, 'flag.rain.map_opened');

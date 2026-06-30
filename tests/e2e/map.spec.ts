@@ -37,6 +37,32 @@ async function loadRain(page: Page): Promise<void> {
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'rain');
 }
 
+async function loadEnding(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const key = 'erasure.save.v1';
+    const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+    if (!state) throw new Error('Expected a save after starting the game');
+    Object.assign(state, {
+      phase: 'playing',
+      chapterId: 'ending',
+      checkpointId: 'checkpoint.ending.start',
+      degradationStage: 'D4',
+      objective: '走近秀兰',
+      player: { x: 920, y: 430, facing: 'down', moving: false },
+      flags: [],
+      modal: null,
+      dialogue: [],
+      dialogueIndex: 0,
+      activeMemoryId: null,
+      message: null,
+    });
+    localStorage.setItem(key, JSON.stringify(state));
+  });
+  await page.reload();
+  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+  await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'ending');
+}
+
 test('shows a live keyboard-accessible map and freezes movement while open', async ({
   page,
 }, testInfo) => {
@@ -101,4 +127,19 @@ test('shows the washed rain map while retaining reliable markers', async ({ page
     path: testInfo.outputPath('map-rain-washed.png'),
     animations: 'disabled',
   });
+});
+
+test('keeps the map closed via keyboard when the map mode is hidden in D4', async ({ page }) => {
+  await startGame(page);
+  await loadEnding(page);
+  const app = page.locator('#app');
+  await expect(app).toHaveAttribute('data-map-mode', 'hidden');
+
+  // The HUD map button is not rendered once the map is fully hidden.
+  await expect(page.getByRole('button', { name: /地图/ })).toHaveCount(0);
+
+  // The keyboard shortcut must be blocked too, not just the button.
+  await page.keyboard.press('m');
+  await expect(page.getByRole('heading', { name: /尾声 · 面还是热的/ })).toHaveCount(0);
+  await expect(app).toHaveAttribute('data-map-mode', 'hidden');
 });

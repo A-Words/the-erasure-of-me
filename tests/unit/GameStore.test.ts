@@ -194,4 +194,16 @@ describe('GameStore', () => {
     expect(store.getState().holdProgress).toBe(1);
     expect(store.getState().flags).toContain('ending.completed');
   });
+
+  it('ignores opening the map while it is fully hidden in D4', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'ending';
+    state.degradationStage = 'D4';
+    const store = new GameStore(state);
+
+    store.dispatch({ type: 'OPEN_MODAL', modal: 'map' });
+
+    expect(store.getState().modal).toBeNull();
+  });
 });
