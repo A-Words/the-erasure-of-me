@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff9df" stop-opacity=".28"/>
+      <stop offset=".58" stop-color="#fff2bf" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#ffe8a6" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="patch" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#fffce9" stop-opacity=".56"/>
+      <stop offset="1" stop-color="#ffeab0" stop-opacity=".28"/>
+    </linearGradient>
+    <radialGradient id="room-glow">
+      <stop offset="0" stop-color="#f7dca8" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#f7dca8" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft-beam" x="-20%" y="-20%" width="140%" height="160%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <filter id="soft-patch" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="7"/>
+    </filter>
+    <filter id="soft-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2.4"/>
+    </filter>
+    <filter id="soft-room" x="-20%" y="-40%" width="140%" height="180%">
+      <feGaussianBlur stdDeviation="28"/>
+    </filter>
+  </defs>
+
+  <!-- The direct window light stays separate from the neutral architectural base. -->
+  <path d="M960 58h126l104 292H842z" fill="url(#beam)" filter="url(#soft-beam)"/>
+  <path d="M934 136h132l94 186H888z" fill="url(#patch)" filter="url(#soft-patch)"/>
+
+  <!-- Window-frame shadow projected only inside the kitchen patch. -->
+  <g fill="#6a5849" fill-opacity=".14" filter="url(#soft-shadow)">
+    <path d="M994 137h10l65 184h-14z"/>
+    <path d="M935 205h166l7 13H942z"/>
+  </g>
+
+  <!-- Restrained bounced morning light connects the rooms without flattening them. -->
+  <g fill="url(#room-glow)" filter="url(#soft-room)">
+    <ellipse cx="670" cy="252" rx="270" ry="122"/>
+    <ellipse cx="282" cy="230" rx="205" ry="112" opacity=".62"/>
+    <ellipse cx="778" cy="570" rx="340" ry="110" opacity=".52"/>
+  </g>
+
+  <g fill="#fff6cf" fill-opacity=".12" filter="url(#soft-patch)">
+    <ellipse cx="1130" cy="306" rx="54" ry="18"/>
+    <ellipse cx="915" cy="328" rx="40" ry="12"/>
+  </g>
+</svg>

@@ -46,6 +46,9 @@ export const homeVisualSizes = {
     bedsideRug: 160,
     slippers: 34,
     kitchenClutter: 64,
+    coffeeRug: 230,
+    entryMat: 100,
+    wallClock: 44,
   },
   props: {
     bedsidePhoto: 36,
@@ -134,6 +137,9 @@ export const homeDecorLayout: readonly HomeDecorPlacement[] = [
   { frame: 0, x: 170, y: 282, size: homeVisualSizes.decor.bedsideRug, sortY: 32 },
   { frame: 1, x: 286, y: 310, size: homeVisualSizes.decor.slippers, sortY: 34 },
   { frame: 2, x: 1082, y: 118, size: homeVisualSizes.decor.kitchenClutter, sortY: 230 },
+  { frame: 3, x: 700, y: 540, size: homeVisualSizes.decor.coffeeRug, sortY: 30 },
+  { frame: 4, x: 1180, y: 618, size: homeVisualSizes.decor.entryMat, sortY: 30 },
+  { frame: 5, x: 760, y: 65, size: homeVisualSizes.decor.wallClock, sortY: 18 },
 ] as const;
 
 export const homeWalkBounds: MovementBounds = {
