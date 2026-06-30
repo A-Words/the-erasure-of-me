@@ -450,6 +450,15 @@ describe('parseTiledMap with real map.home_ending.json', () => {
     expect(content.visualProps).toHaveLength(1);
     expect(content.visualProps[0].entityId).toBe('entity.ending.xiulan');
   });
+
+  it('reuses the home furniture registration and adds the epilogue anchors', () => {
+    const content = parseTiledMap(mapId, loadMapJson(mapId), entities);
+    expect(content.visualFurniture).toHaveLength(8);
+    expect(content.visualDecor.map((decor) => decor.assetKey)).toEqual(
+      expect.arrayContaining(['prop.ending.noodle_tray', 'prop.ending.red_umbrella_faded']),
+    );
+    expect(content.collisionRects.length).toBeGreaterThan(10);
+  });
 });
 
 describe('TiledCollisionProvider with multi-map data', () => {

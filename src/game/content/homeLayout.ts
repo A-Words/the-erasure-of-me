@@ -14,7 +14,9 @@ export interface HomeArchitectureOverlay {
   key:
     | 'environment.home.partition_overlay'
     | 'environment.home.crosswall_overlay'
-    | 'environment.home.frontwall_overlay';
+    | 'environment.home.frontwall_overlay'
+    | 'environment.ending.crosswall_overlay'
+    | 'environment.ending.frontwall_overlay';
   sortY: number;
 }
 
@@ -164,6 +166,11 @@ export const homeCollisionObstacles: readonly AxisAlignedRect[] = [
 export const homeArchitectureOverlays: readonly HomeArchitectureOverlay[] = [
   { key: 'environment.home.crosswall_overlay', sortY: 398 },
   { key: 'environment.home.frontwall_overlay', sortY: 698 },
+] as const;
+
+export const endingArchitectureOverlays: readonly HomeArchitectureOverlay[] = [
+  { key: 'environment.ending.crosswall_overlay', sortY: 398 },
+  { key: 'environment.ending.frontwall_overlay', sortY: 698 },
 ] as const;
 
 export const homeEntitySortY: Readonly<Record<string, number>> = {

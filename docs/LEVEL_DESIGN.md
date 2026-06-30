@@ -66,6 +66,8 @@
 
 `scripts/validate_tiled_maps.mjs` Check 7 强制校验上述规则。替换 placeholder 为正式资产时，在 Tiled 中为对象分配 gid 并移除 placeholder/status/replacement 属性。
 
+由 Phaser 在运行时选择动画纹理的角色锚点允许不分配 gid，但必须使用 `status=actor-bound` 并绑定真实 `entityId`；这类对象不是待替换占位图。例如尾声的 `visual.ending.xiulan` 由 `character.xiulan_old.reach_hand.right` 提供正式动画。
+
 ### 2.5 通用交互距离
 
 - 正面交互：角色锚点距离物件锚点不超过 96 像素；
@@ -490,6 +492,8 @@
 - 退化阶段：D4
 - 出生点：spawn.ending.hall = (25, 13)，朝左
 - 林秀兰出生点：spawn.ending.xiulan = (30, 14)，朝左
+
+视觉层复用 `map.home` 的七件家具、三件生活装饰、轴对齐墙体碰撞和建筑遮挡层；只保留秀兰交互锚点。茶几上放置 `prop.ending.noodle_tray`，右下玄关放置 `prop.ending.red_umbrella_faded`，二者均为非交互 decor，不改变导航或长按判定。尾声背景使用 `environment.ending.background` v02，墙体注册与 home v10 保持一致。
 
 ### 8.2 流程
 

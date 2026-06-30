@@ -228,6 +228,7 @@ stateDiagram-v2
 #### EndingScene
 
 - 负责尾声固定构图、林秀兰入场、长按牵手表现；
+- 复用 home v10 的建筑壳层、家具/装饰图集、碰撞矩形和遮挡层；尾声专属背景仅改变低频光色，热面托盘与褪色红伞由 `map.home_ending` 的 `visual_decor` 放置；
 - 牵手命令仍由 GameStore 判断；
 - 演出完成后激活 DOM 科普页。
 
@@ -387,9 +388,9 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 | map.rain_station | ✓ v02 + overlays | ✓ (entityId, 正式 prop tileset) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.shared_life | ✓ v02 | ✓ (entityId, v02 props atlas；exit 由背景表现) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.return_corridor | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
-| map.home_ending | ✓ | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| map.home_ending | ✓ v02 | ✓ (entityId, actor-bound) | ✓ (collisionId) | ✓ | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 
-非 home 地图中，rain_station 已为车票、2/4/5 石板、红伞招牌和钟表铺前红伞分配正式 tileset，其中钟表铺前红伞继续使用 `prop_red_umbrella_closed`；Shared Life 的照片、空相册、三件生活物件和三处放置槽使用 v02 `prop_life_shared_life_atlas` tileset。`entity.life.exit` 的正式走廊已经绘入 v02 背景，地图中只保留逻辑 `interactables` hotspot，不再创建无图像 visual_props。return_corridor 与 home_ending 仍保留无 gid 的 visual_props placeholder。
+非 home 地图中，rain_station 已为车票、2/4/5 石板、红伞招牌和钟表铺前红伞分配正式 tileset，其中钟表铺前红伞继续使用 `prop_red_umbrella_closed`；Shared Life 的照片、空相册、三件生活物件和三处放置槽使用 v02 `prop_life_shared_life_atlas` tileset。`entity.life.exit` 的正式走廊已经绘入 v02 背景，地图中只保留逻辑 `interactables` hotspot，不再创建无图像 visual_props。return_corridor 仍保留无 gid 的 visual_props placeholder；home_ending 的秀兰对象改为 `actor-bound`，正式动画由 Scene 绑定，家具、装饰和碰撞均复用 home 注册。
 
 **Placeholder 对象规范：**
 
@@ -406,6 +407,8 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 | `visual_reference` | `true` | 编辑参照层标记 |
 
 有 gid 的正式 tile object 不得标记 `placeholder=true`。`scripts/validate_tiled_maps.mjs` Check 7 强制校验上述规则。后续替换 placeholder 为正式资产时，只需在 Tiled 中为对象分配 gid 并移除 placeholder/status/replacement 属性即可。
+
+若无 gid 对象由运行时动画资产提供正式视觉，可使用 `status=actor-bound`；此时必须有指向真实 interactable 的 `entityId`，且不得再携带 placeholder/replacement。校验脚本将 actor-bound 与未完成占位对象分开验证。
 
 **运行时冒烟测试：**
 
