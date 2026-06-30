@@ -284,7 +284,6 @@ export class AppShell {
     return `<div class="map-panel-heading"><div><p class="eyebrow">当前空间</p><h2 class="${map.mode === 'washed' ? 'washed-text' : ''}">${map.title}</h2></div><p class="map-status">${status}</p></div>${this.mapSvg(map)}<ul class="map-legend" aria-label="地图标记">${landmarks}</ul>`;
   }
 
-
   private mapSvg(map: MapPresentation): string {
     const paths = map.paths
       .map(
