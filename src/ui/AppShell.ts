@@ -3,7 +3,12 @@ import { nearestAvailableEntity } from '../game/content/entitySelectors';
 import { assetUrl } from '../game/assets/manifest';
 import { normalizeSettings } from '../game/state/initialState';
 import { isBreathingActive } from '../game/presentation/breathing';
-import { createMapPresentation, type MapLandmark } from '../game/presentation/mapPresentation';
+import {
+  createMapPresentation,
+  type MapLandmark,
+  type MapMode,
+  type MapPresentation,
+} from '../game/presentation/mapPresentation';
 import type {
   AccessibilitySettings,
   GameState,
@@ -113,7 +118,8 @@ export class AppShell {
           : null;
     }
     this.lastModal = state.modal;
-    const mapMode = createMapPresentation(state).mode;
+    const map = createMapPresentation(state);
+    const mapMode = map.mode;
     const app = document.querySelector<HTMLElement>('#app');
     if (app) {
       app.dataset.phase = state.phase;
@@ -152,8 +158,8 @@ export class AppShell {
     });
     if (signature === this.signature) return;
     this.signature = signature;
-    this.renderHud(state);
-    this.renderPanel(state);
+    this.renderHud(state, mapMode);
+    this.renderPanel(state, map);
     this.renderSystem(state);
     this.bindEvents(state);
     if (closingModal) {
@@ -168,13 +174,12 @@ export class AppShell {
     }
   }
 
-  private renderHud(state: Readonly<GameState>): void {
+  private renderHud(state: Readonly<GameState>, mapMode: MapMode): void {
     if (state.phase !== 'playing') {
       this.hud.innerHTML = '';
       return;
     }
     const d4 = state.degradationStage === 'D4';
-    const mapMode = createMapPresentation(state).mode;
     const nearbyEntity = this.nearbyEntity(state);
     this.hud.innerHTML = `
       <section class="objective-chip ${d4 ? 'hud-faded' : ''}" aria-label="当前目标">
@@ -214,7 +219,7 @@ export class AppShell {
     return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button><button data-debug-memory="life.move">memory-move</button><button data-debug-memory="life.osmanthus">memory-osmanthus</button><button data-debug-memory="life.cassette">memory-cassette</button><button data-debug-memory="ending.hand">memory-hand</button></div></aside>`;
   }
 
-  private renderPanel(state: Readonly<GameState>): void {
+  private renderPanel(state: Readonly<GameState>, map: MapPresentation): void {
     if (!state.modal || state.modal === 'pause') {
       this.panel.innerHTML = '';
       return;
@@ -225,7 +230,7 @@ export class AppShell {
         : state.modal === 'journal'
           ? this.journalPanel(state)
           : state.modal === 'map'
-            ? this.mapPanel(state)
+            ? this.mapPanel(map)
             : this.photoPanel(state);
     this.panel.innerHTML = `<div class="scrim"><section class="paper-panel ${state.modal}-panel" role="dialog" aria-modal="true">${content}<button class="secondary" data-close>关闭 <kbd>Q</kbd></button></section></div>`;
   }
@@ -264,8 +269,7 @@ export class AppShell {
     return `<h2>秀兰的日记</h2><div class="journal-pages">${pages}</div>`;
   }
 
-  private mapPanel(state: Readonly<GameState>): string {
-    const map = createMapPresentation(state);
+  private mapPanel(map: MapPresentation): string {
     const landmarks = map.landmarks
       .filter((entity) => entity.visible)
       .map(
@@ -277,29 +281,26 @@ export class AppShell {
       map.mode === 'washed'
         ? '水渍遮住了未停留区域。当前位置、已到达的站牌、红伞和钟声方向仍然清楚。'
         : '道路、房间名称和地标仍然清楚。';
-    return `<div class="map-panel-heading"><div><p class="eyebrow">当前空间</p><h2 class="${map.mode === 'washed' ? 'washed-text' : ''}">${map.title}</h2></div><p class="map-status">${status}</p></div>${this.mapSvg(state, false)}<ul class="map-legend" aria-label="地图标记">${landmarks}</ul>`;
+    return `<div class="map-panel-heading"><div><p class="eyebrow">当前空间</p><h2 class="${map.mode === 'washed' ? 'washed-text' : ''}">${map.title}</h2></div><p class="map-status">${status}</p></div>${this.mapSvg(map)}<ul class="map-legend" aria-label="地图标记">${landmarks}</ul>`;
   }
 
 
-  private mapSvg(state: Readonly<GameState>, compact: boolean): string {
-    const map = createMapPresentation(state);
+  private mapSvg(map: MapPresentation): string {
     const paths = map.paths
       .map(
         (path) =>
           `<path class="map-route ${path.secondary ? 'secondary' : ''}" data-map-path="${path.id}" d="${path.d}" />`,
       )
       .join('');
-    const labels = compact
-      ? ''
-      : map.labels
-          .map(
-            (label) =>
-              `<text class="map-place-label" x="${label.x}" y="${label.y}" text-anchor="middle">${label.text}</text>`,
-          )
-          .join('');
+    const labels = map.labels
+      .map(
+        (label) =>
+          `<text class="map-place-label" x="${label.x}" y="${label.y}" text-anchor="middle">${label.text}</text>`,
+      )
+      .join('');
     const landmarks = map.landmarks
       .filter((landmark) => landmark.visible)
-      .map((landmark) => this.mapLandmark(landmark, compact))
+      .map((landmark) => this.mapLandmark(landmark))
       .join('');
     const soundCue = map.soundCue
       ? `<g class="map-sound-cue" transform="translate(${map.soundCue.x} ${map.soundCue.y})" aria-label="${map.soundCue.label}"><path d="M-34 18Q0-18 34 18M-22 28Q0 4 22 28M-8 36Q0 28 8 36" /></g>`
@@ -308,17 +309,17 @@ export class AppShell {
       map.mode === 'washed'
         ? '<g class="map-water-stains" aria-hidden="true"><ellipse cx="410" cy="205" rx="285" ry="135"/><ellipse cx="805" cy="505" rx="360" ry="175"/></g>'
         : '';
-    return `<svg class="map-drawing ${compact ? 'compact' : 'expanded'} ${map.mode}" viewBox="0 0 ${map.width} ${map.height}" ${compact ? 'aria-hidden="true"' : `role="img" aria-label="${map.title}，你在地图上标为蓝色圆点"`}><title>${map.title}</title><rect class="map-paper" x="10" y="10" width="${map.width - 20}" height="${map.height - 20}" rx="22"/>${paths}${labels}${wash}${landmarks}${soundCue}<g class="map-player" transform="translate(${map.player.x} ${map.player.y})"><circle r="${compact ? 31 : 24}"/><circle class="map-player-core" r="${compact ? 12 : 9}"/></g></svg>`;
+    return `<svg class="map-drawing expanded ${map.mode}" viewBox="0 0 ${map.width} ${map.height}" role="img" aria-label="${map.title}，你在地图上标为蓝色圆点"><title>${map.title}</title><rect class="map-paper" x="10" y="10" width="${map.width - 20}" height="${map.height - 20}" rx="22"/>${paths}${labels}${wash}${landmarks}${soundCue}<g class="map-player" transform="translate(${map.player.x} ${map.player.y})"><circle r="24"/><circle class="map-player-core" r="9"/></g></svg>`;
   }
 
-  private mapLandmark(landmark: MapLandmark, compact: boolean): string {
+  private mapLandmark(landmark: MapLandmark): string {
     const className = `map-landmark ${landmark.symbol} ${landmark.reached ? 'reached' : ''}`;
     if (landmark.symbol === 'umbrella') {
       return `<text class="${className}" x="${landmark.x}" y="${landmark.y}" text-anchor="middle" aria-label="${landmark.label}">☂</text>`;
     }
     if (landmark.symbol === 'station') {
       const number = landmark.id.match(/stone_(\d+)/)?.[1] ?? '';
-      return `<g class="${className}" transform="translate(${landmark.x} ${landmark.y})" aria-label="${landmark.label}"><circle r="${compact ? 25 : 19}"/><text y="9" text-anchor="middle">${number}</text></g>`;
+      return `<g class="${className}" transform="translate(${landmark.x} ${landmark.y})" aria-label="${landmark.label}"><circle r="19"/><text y="9" text-anchor="middle">${number}</text></g>`;
     }
     return `<path class="${className}" aria-label="${landmark.label}" d="M${landmark.x} ${landmark.y - 24}l24 24-24 24-24-24Z"/>`;
   }
