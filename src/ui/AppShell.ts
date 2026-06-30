@@ -3,6 +3,12 @@ import { nearestAvailableEntity } from '../game/content/entitySelectors';
 import { assetUrl } from '../game/assets/manifest';
 import { normalizeSettings } from '../game/state/initialState';
 import { isBreathingActive } from '../game/presentation/breathing';
+import {
+  createMapPresentation,
+  type MapLandmark,
+  type MapMode,
+  type MapPresentation,
+} from '../game/presentation/mapPresentation';
 import type {
   AccessibilitySettings,
   GameState,
@@ -52,6 +58,9 @@ export class AppShell {
   private signature = '';
   private photoOrder: string[] = [];
   private confirmingClearData = false;
+  private lastModal: ModalId = null;
+  private modalReturnFocus: HTMLElement | null = null;
+  private modalReturnFocusSelector: string | null = null;
   private readonly debugEnabled =
     import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === '1';
 
@@ -77,6 +86,16 @@ export class AppShell {
   private readonly protectDomKeyboardInput = (event: KeyboardEvent): void => {
     const target = event.target;
     if (
+      event.type === 'keydown' &&
+      this.store.getState().modal &&
+      ['q', 'Q', 'Backspace', 'Escape'].includes(event.key)
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.store.dispatch({ type: 'CLOSE_MODAL' });
+      return;
+    }
+    if (
       target instanceof HTMLButtonElement ||
       target instanceof HTMLInputElement ||
       target instanceof HTMLSelectElement ||
@@ -87,6 +106,20 @@ export class AppShell {
   };
 
   private render(state: Readonly<GameState>): void {
+    const previousModal = this.lastModal;
+    const openingModal = !previousModal && state.modal;
+    const closingModal = previousModal && !state.modal;
+    if (openingModal && document.activeElement instanceof HTMLElement) {
+      this.modalReturnFocus = document.activeElement;
+      this.modalReturnFocusSelector = document.activeElement.dataset.open
+        ? `[data-open="${document.activeElement.dataset.open}"]`
+        : document.activeElement instanceof HTMLCanvasElement
+          ? 'canvas[aria-label="可操作游戏画面"]'
+          : null;
+    }
+    this.lastModal = state.modal;
+    const map = createMapPresentation(state);
+    const mapMode = map.mode;
     const app = document.querySelector<HTMLElement>('#app');
     if (app) {
       app.dataset.phase = state.phase;
@@ -96,6 +129,7 @@ export class AppShell {
       app.dataset.playerY = String(Math.round(state.player.y));
       app.dataset.holdProgress = String(Math.round(state.holdProgress * 100));
       app.dataset.breathingActive = String(isBreathingActive(state));
+      app.dataset.mapMode = mapMode;
     }
     document.documentElement.dataset.font = state.settings.fontSize;
     document.documentElement.dataset.contrast = String(state.settings.highContrast);
@@ -119,23 +153,33 @@ export class AppShell {
       dialogue: state.dialogue,
       dialogueIndex: state.dialogueIndex,
       hold: Math.round(state.holdProgress * 20),
+      mapPlayer: [Math.round(state.player.x / 16), Math.round(state.player.y / 16)],
       nearbyEntity: nearbyEntity?.id ?? null,
     });
     if (signature === this.signature) return;
     this.signature = signature;
-    this.renderHud(state);
-    this.renderPanel(state);
+    this.renderHud(state, mapMode);
+    this.renderPanel(state, map);
     this.renderSystem(state);
     this.bindEvents(state);
+    if (closingModal) {
+      const returnFocus = this.modalReturnFocusSelector
+        ? document.querySelector<HTMLElement>(this.modalReturnFocusSelector)
+        : this.modalReturnFocus?.isConnected
+          ? this.modalReturnFocus
+          : null;
+      requestAnimationFrame(() => returnFocus?.focus({ preventScroll: true }));
+      this.modalReturnFocus = null;
+      this.modalReturnFocusSelector = null;
+    }
   }
 
-  private renderHud(state: Readonly<GameState>): void {
+  private renderHud(state: Readonly<GameState>, mapMode: MapMode): void {
     if (state.phase !== 'playing') {
       this.hud.innerHTML = '';
       return;
     }
     const d4 = state.degradationStage === 'D4';
-    const washed = state.degradationStage === 'D1';
     const nearbyEntity = this.nearbyEntity(state);
     this.hud.innerHTML = `
       <section class="objective-chip ${d4 ? 'hud-faded' : ''}" aria-label="当前目标">
@@ -149,7 +193,7 @@ export class AppShell {
       <nav class="hud-actions ${d4 ? 'hud-faded' : ''}" aria-label="游戏工具">
         <button data-open="inventory">背包 <kbd>I</kbd></button>
         <button data-open="journal">日记 <kbd>J</kbd></button>
-        <button data-open="map" class="${washed ? 'washed' : ''}">地图 <kbd>M</kbd></button>
+        ${mapMode === 'hidden' ? '' : '<button data-open="map">地图 <kbd>M</kbd></button>'}
       </nav>
       ${nearbyEntity ? `<button class="interaction-prompt" data-interact="${nearbyEntity.id}" aria-label="与${nearbyEntity.label}交互"><kbd>E</kbd><span>${nearbyEntity.label}</span><span class="touch-action">交互</span></button>` : ''}
       ${state.message && state.holdProgress === 0 ? `<button class="toast" data-clear-message aria-label="关闭提示">${state.message}</button>` : ''}
@@ -175,7 +219,7 @@ export class AppShell {
     return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button><button data-debug-memory="life.move">memory-move</button><button data-debug-memory="life.osmanthus">memory-osmanthus</button><button data-debug-memory="life.cassette">memory-cassette</button><button data-debug-memory="ending.hand">memory-hand</button></div></aside>`;
   }
 
-  private renderPanel(state: Readonly<GameState>): void {
+  private renderPanel(state: Readonly<GameState>, map: MapPresentation): void {
     if (!state.modal || state.modal === 'pause') {
       this.panel.innerHTML = '';
       return;
@@ -186,9 +230,9 @@ export class AppShell {
         : state.modal === 'journal'
           ? this.journalPanel(state)
           : state.modal === 'map'
-            ? this.mapPanel(state)
+            ? this.mapPanel(map)
             : this.photoPanel(state);
-    this.panel.innerHTML = `<div class="scrim"><section class="paper-panel" role="dialog" aria-modal="true">${content}<button class="secondary" data-close>关闭 <kbd>Q</kbd></button></section></div>`;
+    this.panel.innerHTML = `<div class="scrim"><section class="paper-panel ${state.modal}-panel" role="dialog" aria-modal="true">${content}<button class="secondary" data-close>关闭 <kbd>Q</kbd></button></section></div>`;
   }
 
   private inventoryPanel(state: Readonly<GameState>): string {
@@ -225,13 +269,64 @@ export class AppShell {
     return `<h2>秀兰的日记</h2><div class="journal-pages">${pages}</div>`;
   }
 
-  private mapPanel(state: Readonly<GameState>): string {
-    const map = chapterMaps[state.chapterId];
-    const landmarks = map.entities
-      .filter((entity) => entity.color || entity.kind === 'exit')
-      .map((entity) => `<li>${entity.color === 0xb54949 ? '☂' : '◇'} ${entity.label}</li>`)
+  private mapPanel(map: MapPresentation): string {
+    const landmarks = map.landmarks
+      .filter((entity) => entity.visible)
+      .map(
+        (entity) =>
+          `<li>${this.landmarkSymbol(entity)} <span>${entity.label}</span>${entity.reached ? '<small>已到达</small>' : ''}</li>`,
+      )
       .join('');
-    return `<h2 class="${state.degradationStage === 'D1' ? 'washed-text' : ''}">${map.title}</h2><div class="map-sketch ${state.degradationStage === 'D1' ? 'washed-map' : ''}" aria-label="示意地图"><span>你在这里</span><i></i><i></i><i></i><b>☂</b></div><ul>${landmarks}</ul>`;
+    const status =
+      map.mode === 'washed'
+        ? '水渍遮住了未停留区域。当前位置、已到达的站牌、红伞和钟声方向仍然清楚。'
+        : '道路、房间名称和地标仍然清楚。';
+    return `<div class="map-panel-heading"><div><p class="eyebrow">当前空间</p><h2 class="${map.mode === 'washed' ? 'washed-text' : ''}">${map.title}</h2></div><p class="map-status">${status}</p></div>${this.mapSvg(map)}<ul class="map-legend" aria-label="地图标记">${landmarks}</ul>`;
+  }
+
+  private mapSvg(map: MapPresentation): string {
+    const paths = map.paths
+      .map(
+        (path) =>
+          `<path class="map-route ${path.secondary ? 'secondary' : ''}" data-map-path="${path.id}" d="${path.d}" />`,
+      )
+      .join('');
+    const labels = map.labels
+      .map(
+        (label) =>
+          `<text class="map-place-label" x="${label.x}" y="${label.y}" text-anchor="middle">${label.text}</text>`,
+      )
+      .join('');
+    const landmarks = map.landmarks
+      .filter((landmark) => landmark.visible)
+      .map((landmark) => this.mapLandmark(landmark))
+      .join('');
+    const soundCue = map.soundCue
+      ? `<g class="map-sound-cue" transform="translate(${map.soundCue.x} ${map.soundCue.y})" aria-label="${map.soundCue.label}"><path d="M-34 18Q0-18 34 18M-22 28Q0 4 22 28M-8 36Q0 28 8 36" /></g>`
+      : '';
+    const wash =
+      map.mode === 'washed'
+        ? '<g class="map-water-stains" aria-hidden="true"><ellipse cx="410" cy="205" rx="285" ry="135"/><ellipse cx="805" cy="505" rx="360" ry="175"/></g>'
+        : '';
+    return `<svg class="map-drawing expanded ${map.mode}" viewBox="0 0 ${map.width} ${map.height}" role="img" aria-label="${map.title}，你在地图上标为蓝色圆点"><title>${map.title}</title><rect class="map-paper" x="10" y="10" width="${map.width - 20}" height="${map.height - 20}" rx="22"/>${paths}${labels}${wash}${landmarks}${soundCue}<g class="map-player" transform="translate(${map.player.x} ${map.player.y})"><circle r="24"/><circle class="map-player-core" r="9"/></g></svg>`;
+  }
+
+  private mapLandmark(landmark: MapLandmark): string {
+    const className = `map-landmark ${landmark.symbol} ${landmark.reached ? 'reached' : ''}`;
+    if (landmark.symbol === 'umbrella') {
+      return `<text class="${className}" x="${landmark.x}" y="${landmark.y}" text-anchor="middle" aria-label="${landmark.label}">☂</text>`;
+    }
+    if (landmark.symbol === 'station') {
+      const number = landmark.id.match(/stone_(\d+)/)?.[1] ?? '';
+      return `<g class="${className}" transform="translate(${landmark.x} ${landmark.y})" aria-label="${landmark.label}"><circle r="19"/><text y="9" text-anchor="middle">${number}</text></g>`;
+    }
+    return `<path class="${className}" aria-label="${landmark.label}" d="M${landmark.x} ${landmark.y - 24}l24 24-24 24-24-24Z"/>`;
+  }
+
+  private landmarkSymbol(landmark: MapLandmark): string {
+    if (landmark.symbol === 'umbrella') return '<span aria-hidden="true">☂</span>';
+    if (landmark.symbol === 'station') return '<span aria-hidden="true">●</span>';
+    return '<span aria-hidden="true">◇</span>';
   }
 
   private photoPanel(state: Readonly<GameState>): string {
@@ -369,12 +464,13 @@ export class AppShell {
       }),
     );
     document.querySelectorAll<HTMLElement>('[data-open]').forEach((button) =>
-      button.addEventListener('click', () =>
+      button.addEventListener('click', () => {
+        button.focus({ preventScroll: true });
         this.store.dispatch({
           type: 'OPEN_MODAL',
           modal: button.dataset.open as Exclude<ModalId, null>,
-        }),
-      ),
+        });
+      }),
     );
     document
       .querySelectorAll<HTMLElement>('[data-interact]')

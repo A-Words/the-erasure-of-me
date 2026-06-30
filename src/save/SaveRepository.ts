@@ -22,6 +22,7 @@ export class SaveRepository {
     snapshot.dialogueIndex = 0;
     snapshot.activeMemoryId = null;
     snapshot.player.moving = false;
+    snapshot.mapWashSeconds = 0;
     localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(state.settings));
   }
@@ -89,6 +90,10 @@ export class SaveRepository {
       parsed.hintSeconds ??= 0;
       parsed.hintLevel ??= 0;
       parsed.holdProgress ??= 0;
+      parsed.mapWashSeconds = 0;
+      parsed.rainMapClosedAtX = Number.isFinite(parsed.rainMapClosedAtX)
+        ? parsed.rainMapClosedAtX
+        : null;
       parsed.playTimeSeconds ??= 0;
       return parsed;
     } catch {
