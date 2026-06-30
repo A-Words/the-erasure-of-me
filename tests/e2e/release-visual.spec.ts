@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
 
 type ChapterId = 'home' | 'rain' | 'life' | 'return' | 'ending';
 
@@ -50,7 +51,7 @@ async function createSave(page: Page): Promise<void> {
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await startNewGame(page);
   for (let index = 0; index < 2; index += 1)
     await page.getByRole('button', { name: '继续对白' }).click();
   await expect
@@ -64,6 +65,7 @@ async function loadChapter(
   patch: Record<string, unknown> = {},
 ): Promise<void> {
   const authored = chapterState[chapterId];
+  await returnToTitle(page);
   await page.evaluate(
     ({ chapterId, authored, patch }) => {
       const key = 'erasure.save.slot.1.v1';
@@ -95,7 +97,7 @@ async function loadChapter(
     { chapterId, authored, patch },
   );
   await page.reload();
-  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+  await continueLatestGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', chapterId);
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await expect(page.locator('canvas')).toBeVisible();
@@ -214,6 +216,7 @@ for (const viewport of [
     await capture(page, testInfo, 'low-stimulation-settings');
     await page.getByRole('button', { name: '继续' }).click();
 
+    await returnToTitle(page);
     await page.evaluate(() => {
       const key = 'erasure.save.slot.1.v1';
       const record = JSON.parse(localStorage.getItem(key) ?? 'null');
@@ -224,7 +227,7 @@ for (const viewport of [
       localStorage.setItem('erasure.settings.v1', JSON.stringify(state.settings));
     });
     await page.reload();
-    await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+    await continueLatestGame(page);
     const canvas = page.locator('canvas');
     await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
     await canvas.press('e', { delay: 100 });

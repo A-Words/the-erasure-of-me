@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
 
 let browserErrors: string[];
 
@@ -25,7 +26,7 @@ async function activateWithKeyboard(locator: Locator): Promise<void> {
 }
 
 async function startGameWithKeyboard(page: Page): Promise<void> {
-  await activateWithKeyboard(page.getByRole('button', { name: /标准模式/ }));
+  await startNewGame(page, { keyboard: true });
 }
 
 async function finishOpeningDialogue(page: Page): Promise<void> {
@@ -94,6 +95,7 @@ test('exposes content warning, objectives, settings, guide sources and credits s
   await expect(page.getByRole('region', { name: '当前目标' })).toContainText('找到钥匙');
   await expect(page.getByRole('region', { name: '当前信息状态' })).toContainText('D0');
 
+  await returnToTitle(page);
   await page.evaluate(() => {
     const key = 'erasure.save.slot.1.v1';
     const record = JSON.parse(localStorage.getItem(key) ?? 'null');
@@ -118,7 +120,7 @@ test('exposes content warning, objectives, settings, guide sources and credits s
     localStorage.setItem('erasure.settings.v1', JSON.stringify(state.settings));
   });
   await page.reload();
-  await activateWithKeyboard(page.getByRole('button', { name: '从最近的安全位置继续' }));
+  await continueLatestGame(page, true);
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
   await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
   await canvas.press('e', { delay: 100 });
@@ -139,6 +141,7 @@ test('exposes content warning, objectives, settings, guide sources and credits s
 test('retains shape and texture labels under forced colors', async ({ page }, testInfo) => {
   await startGameWithKeyboard(page);
   await finishOpeningDialogue(page);
+  await returnToTitle(page);
   await page.evaluate(() => {
     const key = 'erasure.save.slot.1.v1';
     const record = JSON.parse(localStorage.getItem(key) ?? 'null');
@@ -162,7 +165,7 @@ test('retains shape and texture labels under forced colors', async ({ page }, te
   });
   await page.reload();
   await page.emulateMedia({ forcedColors: 'active' });
-  await activateWithKeyboard(page.getByRole('button', { name: '从最近的安全位置继续' }));
+  await continueLatestGame(page, true);
   await activateWithKeyboard(page.getByRole('button', { name: /背包/ }));
 
   await expect(page.getByLabel('木梳 · 条纹')).toContainText('条纹');

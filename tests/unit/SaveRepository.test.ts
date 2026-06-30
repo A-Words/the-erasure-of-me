@@ -70,6 +70,19 @@ describe('SaveRepository', () => {
     expect(repository.getFirstEmptySlot()).toBe(3);
   });
 
+  it('selects the most recently saved valid slot and ignores damaged data', () => {
+    let now = new Date('2026-06-29T08:00:00.000Z');
+    const repository = new SaveRepository(storage, () => now);
+    const state = createInitialState();
+    state.phase = 'playing';
+    repository.saveToSlot(1, state);
+    storage.setItem(saveSlotKey(2), '{broken-json');
+    now = new Date('2026-06-30T08:00:00.000Z');
+    repository.saveToSlot(3, state);
+
+    expect(repository.getMostRecentValidSlot()).toMatchObject({ slotId: 3, status: 'valid' });
+  });
+
   it('saves through the active slot and removes transient view state', () => {
     const repository = new SaveRepository(storage);
     const state = createInitialState();
