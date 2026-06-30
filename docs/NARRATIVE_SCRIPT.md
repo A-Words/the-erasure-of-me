@@ -549,17 +549,33 @@
 
 返回标题
 
-### system.save.complete
-
-已保存 · 存档 {slotId}
-
 ### system.save.auto
 
-已自动保存 · 存档 {slotId}
+已自动保存 · 记忆片段 {fragmentNumber}
 
-### system.save.action
+### system.menu.continue
 
-立即保存
+继续游戏
+
+### system.menu.start
+
+开始游戏
+
+### system.menu.memories
+
+读取记忆
+
+### system.menu.settings
+
+设置
+
+### system.memory.empty
+
+空白的记忆
+
+### system.memory.invalid
+
+模糊的记忆
 
 ### system.save.failed
 
@@ -567,19 +583,25 @@
 
 ### system.save.recovered
 
-从最近的安全位置继续
+读取
 
 ### system.save.corrupt
 
-存档无法读取。其他槽位与全局设置不受影响。
+这段记忆已经模糊。其他记忆片段与全局设置不受影响。
 
 ### system.save.overwrite
 
-三个槽位都已占用。覆盖后原进度无法恢复。
+要覆盖「记忆片段 {fragmentNumber}」并从头开始吗？
+
+这个记忆片段中已有的进度将被新的故事替代。
+
+### system.save.start_empty
+
+要从这个空白的记忆片段开始吗？
 
 ### system.save.delete
 
-这个槽位的游戏进度将被永久删除，全局无障碍与音量设置会保留。
+这段游戏进度将被永久删除，全局无障碍与音量设置会保留。
 
 ### system.browser.pause
 
