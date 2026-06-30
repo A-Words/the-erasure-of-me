@@ -206,8 +206,11 @@ export class GameScene extends Phaser.Scene {
     this.updateEntityBreathing(state, time);
     if (state.phase !== 'playing') return;
     this.tickAccumulator += delta / 1000;
-    const tickInterval = state.mapWashSeconds > 0 ? 0.1 : 1;
-    if (this.tickAccumulator >= tickInterval) {
+    // GameStore.tick early-returns during modal/dialogue; skip the no-op
+    // dispatch and discard accumulated time so it is not replayed on resume.
+    if (state.modal || state.dialogue.length > 0) {
+      this.tickAccumulator = 0;
+    } else if (this.tickAccumulator >= (state.mapWashSeconds > 0 ? 0.1 : 1)) {
       this.bridge.send({ type: 'TICK', deltaSeconds: this.tickAccumulator });
       this.tickAccumulator = 0;
     }
