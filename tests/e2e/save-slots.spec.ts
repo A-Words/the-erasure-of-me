@@ -38,6 +38,13 @@ async function returnToTitle(page: Page): Promise<void> {
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
 }
 
+async function expectButtonGroupGap(page: Page, selector: string): Promise<void> {
+  const gap = await page
+    .locator(selector)
+    .evaluate((element) => Number.parseFloat(getComputedStyle(element).gap));
+  expect(gap).toBeGreaterThan(0);
+}
+
 test('shows four compact home actions and disables continue without a valid memory', async ({
   page,
 }) => {
@@ -51,6 +58,8 @@ test('shows four compact home actions and disables continue without a valid memo
 
   await menu.getByRole('button', { name: /设置/ }).click();
   await expect(page.getByRole('heading', { name: '声音与无障碍' })).toBeVisible();
+  await expect(page.locator('.settings-section')).toHaveCount(2);
+  await expect(page.getByRole('group', { name: '音量混音' })).toBeVisible();
   await expect(page.getByLabel('减少动态效果')).toBeVisible();
   await page.getByRole('button', { name: '返回首页' }).click();
   await expect(menu).toBeVisible();
@@ -62,6 +71,7 @@ test('starts through mode, memory, and the empty-fragment confirmation', async (
   await page.getByRole('button', { name: /记忆片段 01.*空白的记忆/ }).click();
   const dialog = page.getByRole('dialog', { name: '要从这个空白的记忆片段开始吗？' });
   await expect(dialog).toBeVisible();
+  await expectButtonGroupGap(page, '.save-dialog .confirm-row');
   await dialog.getByRole('button', { name: '开始' }).click();
 
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'playing');
@@ -106,6 +116,7 @@ test('continues the most recent memory and only replaces the selected fragment',
     name: '要覆盖「记忆片段 01」并从头开始吗？',
   });
   await expect(dialog).toContainText('这个记忆片段中已有的进度将被新的故事替代。');
+  await expectButtonGroupGap(page, '.save-dialog .confirm-row');
   await dialog.getByRole('button', { name: '覆盖并开始' }).click();
   await expect
     .poll(() => page.evaluate((key) => localStorage.getItem(key), slotKey(2)))
@@ -134,10 +145,22 @@ test('reads, labels, and deletes memories with keyboard controls on a narrow vie
   await deleteButton.press('Enter');
   const confirm = page.getByRole('button', { name: '确认删除' });
   await expect(confirm).toBeFocused();
+  await expectButtonGroupGap(page, '.save-dialog .confirm-row');
   await confirm.press('Enter');
   await expect(page.getByText('空白的记忆')).toHaveCount(2);
 
-  await page.locator('.memory-fragment.valid').getByRole('button', { name: '读取' }).click();
+  const valid = page.locator('.memory-fragment.valid');
+  const readButton = valid.getByRole('button', { name: '读取' });
+  const validDeleteButton = valid.getByRole('button', { name: '删除' });
+  const [readBox, deleteBox] = await Promise.all([
+    readButton.boundingBox(),
+    validDeleteButton.boundingBox(),
+  ]);
+  expect(readBox).not.toBeNull();
+  expect(deleteBox).not.toBeNull();
+  expect(Math.abs(readBox!.width - deleteBox!.width)).toBeLessThanOrEqual(1);
+  expect(Math.abs(readBox!.height - deleteBox!.height)).toBeLessThanOrEqual(1);
+  await readButton.click();
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'playing');
   const width = await page.evaluate(() => ({
     body: document.body.scrollWidth,

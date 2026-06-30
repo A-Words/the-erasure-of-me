@@ -359,9 +359,9 @@ export class AppShell {
       .map((slot) => {
         const actions =
           slot.status === 'valid'
-            ? `<div><button class="continue" data-continue-slot="${slot.slotId}">读取</button><button class="secondary" data-delete-slot="${slot.slotId}">删除</button></div>`
+            ? `<div class="memory-fragment-actions"><button class="continue" data-continue-slot="${slot.slotId}">读取</button><button class="secondary" data-delete-slot="${slot.slotId}">删除</button></div>`
             : slot.status === 'invalid'
-              ? `<div><button class="secondary" data-delete-slot="${slot.slotId}">删除</button></div>`
+              ? `<div class="memory-fragment-actions single"><button class="secondary" data-delete-slot="${slot.slotId}">删除</button></div>`
               : '';
         return `<article class="memory-fragment ${slot.status}">${this.memoryFragmentSummary(slot)}${actions}</article>`;
       })
@@ -370,7 +370,7 @@ export class AppShell {
   }
 
   private titleSettingsScreen(settings: AccessibilitySettings): string {
-    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><p class="eyebrow">设置</p><h1 id="title-settings-title">声音与无障碍</h1><fieldset><legend>全局设置</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label></fieldset><button class="secondary" data-title-view="home">返回首页</button></div></section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><p class="eyebrow">设置</p><h1 id="title-settings-title">声音与无障碍</h1><div class="settings-grid"><fieldset class="settings-section settings-audio"><legend>声音</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}</fieldset><fieldset class="settings-section settings-accessibility"><legend>显示与操作</legend><div class="settings-toggle-list">${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}</div><div class="settings-select-list"><label><span>文字大小</span><select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label><span>牵手操作</span><select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label></div></fieldset></div><button class="secondary" data-title-view="home">返回首页</button></div></section>`;
   }
 
   private memoryFragmentSummary(slot: SaveSlotSummary): string {

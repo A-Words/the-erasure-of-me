@@ -623,30 +623,99 @@ kbd {
   color: #d3c8ba;
   font-size: 0.72em;
 }
-.memory-fragment > div {
+.memory-fragment-actions {
   display: flex;
   gap: 0.45rem;
+  width: 10.5rem;
 }
-.memory-fragment button {
+.memory-fragment-actions.single {
+  width: 5.05rem;
+}
+.memory-fragment-actions button {
+  display: inline-grid;
+  flex: 1 1 0;
+  place-items: center;
+  min-width: 0;
+  min-height: 2.7rem;
+  margin: 0;
   color: var(--warm-white);
   background: transparent;
   border-color: rgba(247, 243, 232, 0.42);
 }
-.title-settings fieldset {
+.title-settings {
+  width: min(56rem, 94vw);
+  max-height: none;
+  overflow: visible;
+  gap: 0.85rem;
+}
+.settings-grid {
   display: grid;
-  gap: 0.7rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 1rem;
+  align-items: stretch;
+}
+.settings-section {
+  min-width: 0;
+  margin: 0;
   padding: 1rem;
   border: 1px solid rgba(247, 243, 232, 0.28);
+  border-radius: 0.65rem;
+  background: rgba(247, 243, 232, 0.045);
 }
-.title-settings fieldset > label:not(.toggle) {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+.settings-section legend {
+  padding: 0 0.4rem;
+  color: #ead8c9;
+  font-weight: 700;
+}
+.settings-audio > .toggle {
+  margin-bottom: 0.8rem;
+  padding: 0.2rem;
+}
+.settings-toggle-list,
+.settings-select-list {
+  display: grid;
+  gap: 0.45rem;
+}
+.settings-toggle-list .toggle,
+.settings-select-list label {
+  min-height: 2.7rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.45rem;
+  background: rgba(247, 243, 232, 0.055);
+}
+.settings-select-list {
+  margin-top: 0.65rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(247, 243, 232, 0.18);
+}
+.settings-select-list label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.8rem;
+  align-items: center;
+}
+.settings-select-list select {
+  min-width: 8.25rem;
+  padding: 0.38rem 0.55rem;
+  color: var(--warm-white);
+  border: 1px solid rgba(247, 243, 232, 0.34);
+  border-radius: 0.35rem;
+  background: #2a2724;
 }
 .title-settings .audio-mixer {
-  color: var(--ink);
+  color: var(--warm-white);
+  border-color: rgba(247, 243, 232, 0.2);
+  background: rgba(247, 243, 232, 0.055);
+}
+.title-settings .audio-mixer input {
+  accent-color: var(--anchor);
+}
+.title-settings .audio-mixer output {
+  color: #d3c8ba;
 }
 .title-panel > .secondary {
+  width: 100%;
+  margin-top: 0.15rem;
   color: var(--warm-white);
   border-color: rgba(247, 243, 232, 0.42);
 }
@@ -738,6 +807,18 @@ kbd {
 .save-dialog {
   display: grid;
   gap: 1rem;
+}
+.confirm-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: stretch;
+  margin-top: 0.25rem;
+}
+.confirm-row button {
+  flex: 1 1 9rem;
+  min-height: 2.8rem;
+  margin: 0;
 }
 .save-management-scrim {
   z-index: 10;
@@ -872,6 +953,18 @@ html[data-motion='reduced'] *::after {
   }
   .memory-fragment {
     grid-template-columns: 1fr;
+  }
+  .memory-fragment-actions {
+    width: 100%;
+  }
+  .memory-fragment-actions.single {
+    width: min(8rem, 100%);
+  }
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  .title-settings {
+    width: min(48rem, 94vw);
   }
   .content-note {
     flex-direction: column;
