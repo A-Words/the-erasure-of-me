@@ -79,6 +79,17 @@ describe('SaveRepository', () => {
     expect(repository.load()?.player).toEqual({ x: 310, y: 302, facing: 'down', moving: false });
   });
 
+  it('does not persist the transient map-wash movement lock', () => {
+    const repository = new SaveRepository();
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.mapWashSeconds = 1.2;
+
+    repository.save(state);
+
+    expect(repository.load()?.mapWashSeconds).toBe(0);
+  });
+
   it('clears progress and settings only after the all-data operation', () => {
     const repository = new SaveRepository();
     const state = createInitialState();

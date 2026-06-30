@@ -205,7 +205,7 @@ export class GameScene extends Phaser.Scene {
     this.updateEntityBreathing(state, time);
     if (state.phase !== 'playing') return;
     this.tickAccumulator += delta / 1000;
-    if (this.tickAccumulator >= 1) {
+    if (this.tickAccumulator >= 0.1) {
       this.bridge.send({ type: 'TICK', deltaSeconds: this.tickAccumulator });
       this.tickAccumulator = 0;
     }

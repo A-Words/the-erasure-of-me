@@ -327,60 +327,162 @@ kbd {
 .journal-pages h3 {
   font-family: 'Noto Serif SC', 'SimSun', serif;
 }
-.map-sketch {
-  position: relative;
-  height: 15rem;
-  margin: 1rem 0;
+.mini-map {
+  position: absolute;
+  top: 4.4rem;
+  right: 1.3rem;
+  width: min(12rem, 18vw);
+  min-width: 8.5rem;
+  padding: 0.35rem;
   overflow: hidden;
-  border: 2px solid var(--ink);
-  background: #d5cbb6;
+  color: var(--ink);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  border: 1px solid rgba(47, 43, 40, 0.55);
+  border-radius: 0.3rem 0.9rem 0.3rem 0.65rem;
+  box-shadow: 0 8px 28px rgba(20, 15, 10, 0.22);
+  cursor: pointer;
 }
-.map-sketch::before,
-.map-sketch::after {
-  content: '';
-  position: absolute;
-  background: var(--ink);
-  opacity: 0.6;
+.mini-map > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.18rem 0.3rem 0.05rem;
+  font-size: 0.7em;
 }
-.map-sketch::before {
-  width: 80%;
-  height: 0.2rem;
-  left: 10%;
-  top: 48%;
-  transform: rotate(-12deg);
+.map-panel {
+  width: min(58rem, 94vw);
 }
-.map-sketch::after {
-  width: 0.2rem;
-  height: 75%;
-  left: 58%;
-  top: 10%;
-  transform: rotate(20deg);
+.map-panel > [data-close] {
+  position: sticky;
+  bottom: 0;
+  background: var(--paper);
 }
-.map-sketch span {
-  position: absolute;
-  left: 12%;
-  bottom: 18%;
-  z-index: 2;
-  padding: 0.2rem 0.4rem;
-  color: var(--warm-white);
-  background: var(--focus);
+.map-panel-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
 }
-.map-sketch b {
-  position: absolute;
-  right: 12%;
-  top: 14%;
-  z-index: 2;
+.map-panel-heading h2,
+.map-panel-heading p {
+  margin-bottom: 0;
+}
+.map-status {
+  max-width: 28rem;
+  font-size: 0.82em;
+}
+.map-drawing {
+  display: block;
+  width: 100%;
+  color: var(--ink);
+}
+.map-drawing.expanded {
+  max-height: 52vh;
+  margin: 1rem 0;
+}
+.map-paper {
+  fill: #d5cbb6;
+  stroke: currentColor;
+  stroke-width: 8;
+}
+.map-route {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 18;
+  vector-effect: non-scaling-stroke;
+}
+.map-route.secondary {
+  stroke-width: 10;
+  opacity: 0.55;
+}
+.map-drawing.washed .map-route {
+  opacity: 0.28;
+  filter: blur(3px);
+}
+.map-drawing.washed .map-route.secondary {
+  opacity: 0.08;
+}
+.map-place-label {
+  fill: currentColor;
+  font:
+    34px 'Noto Serif SC',
+    'SimSun',
+    serif;
+}
+.map-water-stains {
+  fill: var(--rain);
+  opacity: 0.4;
+}
+.map-landmark {
+  fill: var(--ink);
+  stroke: var(--paper);
+  stroke-width: 7;
+  paint-order: stroke fill;
+}
+.map-landmark.umbrella {
+  fill: var(--anchor);
+  font-size: 70px;
+}
+.map-landmark.station circle {
+  fill: var(--paper);
+  stroke: var(--ink);
+}
+.map-landmark.station text {
+  fill: var(--ink);
+  stroke: none;
+  font:
+    700 25px system-ui,
+    sans-serif;
+}
+.map-landmark.reached circle {
+  fill: #d0bd79;
+}
+.map-sound-cue {
+  fill: none;
+  stroke: var(--focus);
+  stroke-linecap: round;
+  stroke-width: 12;
+}
+.map-player circle:first-child {
+  fill: var(--focus);
+  stroke: var(--warm-white);
+  stroke-width: 7;
+}
+.map-player-core {
+  fill: var(--warm-white);
+}
+.map-drawing.compact .map-route {
+  stroke-width: 6;
+}
+.map-drawing.compact .map-route.secondary {
+  stroke-width: 3;
+}
+.map-drawing.compact .map-landmark.umbrella {
+  font-size: 92px;
+}
+.map-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.35rem 1rem;
+  padding: 0;
+  list-style: none;
+}
+.map-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-bottom: 1px dashed rgba(47, 43, 40, 0.25);
+}
+.map-legend li > span:first-child {
+  width: 1.4rem;
   color: var(--anchor);
-  font-size: 2.8rem;
+  text-align: center;
 }
-.washed-map {
-  background-image:
-    radial-gradient(circle at 35% 30%, rgba(99, 124, 135, 0.48), transparent 26%),
-    radial-gradient(circle at 75% 62%, rgba(99, 124, 135, 0.6), transparent 34%);
-}
-.washed-map::before {
-  filter: blur(5px);
-  opacity: 0.3;
+.map-legend small {
+  margin-left: auto;
+  opacity: 0.66;
 }
 .washed-text {
   color: rgba(47, 43, 40, 0.62);
@@ -715,6 +817,18 @@ html[data-motion='reduced'] *::after {
     right: 1rem;
     bottom: 1rem;
   }
+  .mini-map {
+    top: 1rem;
+    right: 1rem;
+    width: 8rem;
+    min-width: 0;
+  }
+  .map-panel-heading {
+    display: block;
+  }
+  .map-drawing.expanded {
+    max-height: 42vh;
+  }
   .hud-actions {
     left: 1rem;
     transform: none;
@@ -740,5 +854,22 @@ html[data-motion='reduced'] *::after {
   }
   .title-art {
     margin-top: 1rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .map-paper,
+  .map-landmark.station circle,
+  .map-landmark.reached circle {
+    fill: Canvas;
+  }
+  .map-route,
+  .map-landmark,
+  .map-sound-cue,
+  .map-player circle:first-child {
+    stroke: CanvasText;
+  }
+  .map-water-stains {
+    fill: GrayText;
   }
 }

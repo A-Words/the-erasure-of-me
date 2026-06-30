@@ -527,6 +527,9 @@ interface DegradationConfig {
 ### 9.2 状态规则
 
 - 任一 panel-layer 或 system-layer 模态面板打开时，ModalGate 阻断移动。
+- `src/game/presentation/mapPresentation.ts` 由 `GameState` 和章节内容派生地图路径、房间名、玩家位置、地标可见性与 D1 模式；DOM/SVG 只负责渲染，不持有地图进度。
+- D0 在右上显示不超过视口宽度 18% 的可展开小地图；M 或指针打开同一份派生数据的完整地图。关闭面板后焦点返回原触发控件，Q、Backspace 和 Esc 均可关闭，面板打开期间角色移动保持冻结。
+- 雨站第一次打开地图时保持完整路线；关闭后向右离开出生点超过两格，领域状态写入一次性 `degradation.d1.started`，并以不写入存档的 `mapWashSeconds` 冻结移动 1.2 秒。D1 视图隐藏未到达站牌与区域文字，但始终保留玩家、已到站牌、红伞及钟声方向。
 - 字幕不抢占焦点。
 - objective-chip 默认四秒后收起。
 - HUD 总覆盖面积不超过 20%。

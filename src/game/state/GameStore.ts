@@ -114,11 +114,17 @@ export class GameStore {
         break;
       case 'OPEN_MODAL':
         this.state.modal = command.modal;
+        if (this.state.chapterId === 'rain' && command.modal === 'map') {
+          addUnique(this.state.flags, 'flag.rain.map_opened');
+        }
         break;
-      case 'CLOSE_MODAL':
+      case 'CLOSE_MODAL': {
+        const closingMap = this.state.chapterId === 'rain' && this.state.modal === 'map';
         this.state.modal = null;
         this.state.holdProgress = 0;
+        if (closingMap) addUnique(this.state.flags, 'flag.rain.map_closed');
         break;
+      }
       case 'SETTINGS':
         this.state.settings = normalizeSettings({
           ...this.state.settings,
@@ -225,6 +231,7 @@ export class GameStore {
       this.state.phase !== 'playing' ||
       this.state.modal ||
       this.state.dialogue.length > 0 ||
+      this.state.mapWashSeconds > 0 ||
       (this.state.chapterId === 'return' &&
         !includes(this.state.flags, 'flag.return.mapping_learned'))
     ) {
@@ -250,6 +257,17 @@ export class GameStore {
     this.state.player.y = next.y;
     this.state.player.facing = direction;
     this.state.player.moving = true;
+    if (
+      this.state.chapterId === 'rain' &&
+      includes(this.state.flags, 'flag.rain.map_closed') &&
+      !includes(this.state.flags, 'degradation.d1.started') &&
+      this.state.player.x > chapterMaps.rain.spawn.x + 128
+    ) {
+      addUnique(this.state.flags, 'degradation.d1.started');
+      this.state.message = '有些路名看不清了。钟声还在。';
+      this.state.mapWashSeconds = 1.2;
+      this.state.player.moving = false;
+    }
   }
 
   private setDialogue(lines: string[], activeMemoryId: MemoryIllustrationId | null = null): void {
@@ -320,6 +338,10 @@ export class GameStore {
   private tick(deltaSeconds: number): void {
     if (this.state.phase !== 'playing' || this.state.modal || this.state.dialogue.length > 0)
       return;
+    if (this.state.mapWashSeconds > 0) {
+      this.state.mapWashSeconds = Math.max(0, this.state.mapWashSeconds - deltaSeconds);
+      this.state.player.moving = false;
+    }
     this.state.playTimeSeconds += deltaSeconds;
     if (this.state.chapterId === 'ending') return;
     this.state.hintSeconds += deltaSeconds;
@@ -628,6 +650,7 @@ export class GameStore {
     this.state.modal = null;
     this.state.message = null;
     this.state.activeMemoryId = null;
+    this.state.mapWashSeconds = 0;
     this.state.hintSeconds = 0;
     this.state.hintLevel = 0;
     if (chapterId === 'rain') {

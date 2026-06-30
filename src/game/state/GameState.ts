@@ -62,6 +62,7 @@ export interface GameState {
   dialogueIndex: number;
   activeMemoryId: MemoryIllustrationId | null;
   holdProgress: number;
+  mapWashSeconds: number;
   hintSeconds: number;
   hintLevel: 0 | 1 | 2 | 3;
   playTimeSeconds: number;
