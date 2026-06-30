@@ -42,12 +42,11 @@ test('shows a live keyboard-accessible map and freezes movement while open', asy
 }, testInfo) => {
   await startGame(page);
   const app = page.locator('#app');
-  const miniMap = page.getByRole('button', { name: /打开地图/ });
-  await expect(miniMap).toBeVisible();
-  await expect(miniMap.locator('.map-player')).toHaveAttribute('transform', /translate\(310 302\)/);
+  const mapButton = page.getByRole('button', { name: /地图/ });
+  await expect(mapButton).toBeVisible();
 
-  await miniMap.click();
-  await expect(page.getByRole('heading', { name: '第一章 · 清晨的家' })).toBeVisible();
+  await mapButton.click();
+  await expect(page.getByRole('heading', { name: /第一章 · 清晨的家/ })).toBeVisible();
   await expect(page.getByRole('img', { name: /蓝色圆点/ })).toBeVisible();
   await expect(page.getByText('卧室')).toBeVisible();
   await page.screenshot({
@@ -59,18 +58,18 @@ test('shows a live keyboard-accessible map and freezes movement while open', asy
   await page.keyboard.press('ArrowRight');
   await expect(app).toHaveAttribute('data-player-x', before ?? '');
   await page.keyboard.press('q');
-  await expect(page.getByRole('heading', { name: '第一章 · 清晨的家' })).not.toBeVisible();
-  await expect(miniMap).toBeFocused();
+  await expect(page.getByRole('heading', { name: /第一章 · 清晨的家/ })).not.toBeVisible();
+  await expect(mapButton).toBeFocused();
 });
 
 test('shows the washed rain map while retaining reliable markers', async ({ page }, testInfo) => {
   await startGame(page);
   await loadRain(page);
   const app = page.locator('#app');
-  const miniMap = page.getByRole('button', { name: /打开地图/ });
+  const mapButton = page.getByRole('button', { name: /地图/ });
 
   await expect(app).toHaveAttribute('data-map-mode', 'full');
-  await miniMap.click();
+  await mapButton.click();
   await expect(page.locator('.map-drawing.expanded')).toHaveClass(/full/);
   await page.keyboard.press('q');
   await page.evaluate(() => {
@@ -91,7 +90,7 @@ test('shows the washed rain map while retaining reliable markers', async ({ page
   await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
   await expect(app).toHaveAttribute('data-map-mode', 'washed', { timeout: 3000 });
 
-  await miniMap.click();
+  await mapButton.click();
   const expanded = page.locator('.map-drawing.expanded');
   await expect(expanded).toHaveClass(/washed/);
   await expect(expanded.locator('.map-landmark.station')).toHaveCount(1);

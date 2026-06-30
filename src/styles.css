@@ -327,28 +327,6 @@ kbd {
 .journal-pages h3 {
   font-family: 'Noto Serif SC', 'SimSun', serif;
 }
-.mini-map {
-  position: absolute;
-  top: 4.4rem;
-  right: 1.3rem;
-  width: min(12rem, 18vw);
-  min-width: 8.5rem;
-  padding: 0.35rem;
-  overflow: hidden;
-  color: var(--ink);
-  background: color-mix(in srgb, var(--paper) 92%, transparent);
-  border: 1px solid rgba(47, 43, 40, 0.55);
-  border-radius: 0.3rem 0.9rem 0.3rem 0.65rem;
-  box-shadow: 0 8px 28px rgba(20, 15, 10, 0.22);
-  cursor: pointer;
-}
-.mini-map > span {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.18rem 0.3rem 0.05rem;
-  font-size: 0.7em;
-}
 .map-panel {
   width: min(58rem, 94vw);
 }
@@ -452,15 +430,6 @@ kbd {
 }
 .map-player-core {
   fill: var(--warm-white);
-}
-.map-drawing.compact .map-route {
-  stroke-width: 6;
-}
-.map-drawing.compact .map-route.secondary {
-  stroke-width: 3;
-}
-.map-drawing.compact .map-landmark.umbrella {
-  font-size: 92px;
 }
 .map-legend {
   display: grid;
@@ -816,12 +785,6 @@ html[data-motion='reduced'] *::after {
     top: auto;
     right: 1rem;
     bottom: 1rem;
-  }
-  .mini-map {
-    top: 1rem;
-    right: 1rem;
-    width: 8rem;
-    min-width: 0;
   }
   .map-panel-heading {
     display: block;

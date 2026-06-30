@@ -188,8 +188,8 @@ export class AppShell {
       <nav class="hud-actions ${d4 ? 'hud-faded' : ''}" aria-label="游戏工具">
         <button data-open="inventory">背包 <kbd>I</kbd></button>
         <button data-open="journal">日记 <kbd>J</kbd></button>
+        ${mapMode === 'hidden' ? '' : '<button data-open="map">地图 <kbd>M</kbd></button>'}
       </nav>
-      ${mapMode === 'hidden' ? '' : this.miniMap(state)}
       ${nearbyEntity ? `<button class="interaction-prompt" data-interact="${nearbyEntity.id}" aria-label="与${nearbyEntity.label}交互"><kbd>E</kbd><span>${nearbyEntity.label}</span><span class="touch-action">交互</span></button>` : ''}
       ${state.message && state.holdProgress === 0 ? `<button class="toast" data-clear-message aria-label="关闭提示">${state.message}</button>` : ''}
       ${state.holdProgress > 0 ? `<div class="hold-progress-a11y" role="progressbar" aria-label="掌心逐渐变暖" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(state.holdProgress * 100)}"></div>` : ''}
@@ -280,10 +280,6 @@ export class AppShell {
     return `<div class="map-panel-heading"><div><p class="eyebrow">当前空间</p><h2 class="${map.mode === 'washed' ? 'washed-text' : ''}">${map.title}</h2></div><p class="map-status">${status}</p></div>${this.mapSvg(state, false)}<ul class="map-legend" aria-label="地图标记">${landmarks}</ul>`;
   }
 
-  private miniMap(state: Readonly<GameState>): string {
-    const map = createMapPresentation(state);
-    return `<button class="mini-map ${map.mode === 'washed' ? 'washed-map' : ''}" data-open="map" aria-label="打开地图；当前位置横坐标 ${Math.round(map.player.x)}，纵坐标 ${Math.round(map.player.y)}">${this.mapSvg(state, true)}<span>地图 <kbd>M</kbd></span></button>`;
-  }
 
   private mapSvg(state: Readonly<GameState>, compact: boolean): string {
     const map = createMapPresentation(state);
