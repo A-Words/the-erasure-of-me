@@ -138,6 +138,20 @@ function shouldInclude(entity: WorldEntity): boolean {
 export function createMapPresentation(state: Readonly<GameState>): MapPresentation {
   const map = chapterMaps[state.chapterId];
   const mode = getMapMode(state);
+  if (mode === 'hidden') {
+    return {
+      mode,
+      chapterId: state.chapterId,
+      title: map.title,
+      width: map.width,
+      height: map.height,
+      player: { x: state.player.x, y: state.player.y },
+      paths: [],
+      labels: [],
+      landmarks: [],
+      soundCue: null,
+    };
+  }
   const landmarks = map.entities.filter(shouldInclude).map((entity): MapLandmark => {
     const symbol = symbolFor(entity);
     const reached = isReached(state, entity);

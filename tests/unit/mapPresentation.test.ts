@@ -59,4 +59,22 @@ describe('map presentation', () => {
 
     expect(getMapMode(state)).toBe('hidden');
   });
+
+  it('returns an empty presentation when the map mode is hidden', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'ending';
+    state.degradationStage = 'D4';
+
+    const map = createMapPresentation(state);
+
+    expect(map.mode).toBe('hidden');
+    expect(map.paths).toEqual([]);
+    expect(map.labels).toEqual([]);
+    expect(map.landmarks).toEqual([]);
+    expect(map.soundCue).toBeNull();
+    // Shape stays intact so callers can still read title/dimensions/player.
+    expect(map.title).toBe('尾声 · 面还是热的');
+    expect(map.player).toEqual({ x: state.player.x, y: state.player.y });
+  });
 });
