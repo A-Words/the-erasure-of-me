@@ -242,11 +242,11 @@
       "name": "navigation",
       "objects": [
         {
-          "height": 1160,
+          "height": 600,
           "id": 1,
           "name": "spawn.return.training",
           "type": "spawn",
-          "width": 2194,
+          "width": 1170,
           "x": 55,
           "y": 75
         }
@@ -267,7 +267,7 @@
           "id": 10,
           "name": "collision.return.wall_outer_top",
           "type": "wall",
-          "width": 2304,
+          "width": 1280,
           "x": 0,
           "y": 0
         },
@@ -276,12 +276,12 @@
           "id": 11,
           "name": "collision.return.wall_outer_bottom",
           "type": "wall",
-          "width": 2304,
+          "width": 1280,
           "x": 0,
-          "y": 1235
+          "y": 675
         },
         {
-          "height": 1280,
+          "height": 720,
           "id": 12,
           "name": "collision.return.wall_outer_left",
           "type": "wall",
@@ -290,12 +290,12 @@
           "y": 0
         },
         {
-          "height": 1280,
+          "height": 720,
           "id": 13,
           "name": "collision.return.wall_outer_right",
           "type": "wall",
           "width": 55,
-          "x": 2249,
+          "x": 1225,
           "y": 0
         }
       ],
