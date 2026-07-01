@@ -674,23 +674,15 @@ interface PuzzleState {
   payload: Record<string, string | number | boolean | string[]>;
 }
 
-interface SaveDataV1 {
-  saveVersion: 1;
-  chapterId: 'home' | 'rain' | 'life' | 'return' | 'ending';
-  checkpointId: string;
-  degradationStageId: DegradationStage['id'];
-  inventoryItemIds: string[];
-  memoryFragmentIds: string[];
-  puzzleStates: PuzzleState[];
-  playTimeSeconds: number;
-}
-
+// 存档槽位存储清理后的 GameState（schemaVersion: 1）。完整字段以
+// src/game/state/GameState.ts 与 docs/TECHNICAL_DESIGN.md 12.1 为准；
+// 迁移、测试与恢复逻辑共用同一 GameState 载荷，不使用独立的瘦身存档结构。
 type SaveSlotId = 1 | 2 | 3;
 
 interface SaveSlotRecordV1 {
   formatVersion: 1;
   savedAt: string;
-  state: SaveDataV1;
+  state: GameState;
 }
 ~~~
 
