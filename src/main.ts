@@ -70,8 +70,9 @@ async function bootstrap(): Promise<void> {
     }
     const settingsSignature = JSON.stringify(state.settings);
     if (settingsSignature !== lastSettingsSignature) {
-      lastSettingsSignature = settingsSignature;
-      if (!saves.saveSettings(state.settings)) {
+      if (saves.saveSettings(state.settings)) {
+        lastSettingsSignature = settingsSignature;
+      } else {
         appShell.reportSaveResult({ ok: false, reason: 'storage_error' });
       }
     }
