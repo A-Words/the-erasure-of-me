@@ -314,6 +314,12 @@ export class AppShell {
     return `<section class="memory-cutscene ending-hand" aria-label="志远主动握住秀兰的手"><img src="${assetUrl('memory.ending.hand.illustration')}" alt="志远从左侧主动把手覆在秀兰停下等待的掌心上，背景里放着仍然温热的面">${dialogue}</section>`;
   }
 
+  private titleSaveNotice(): string {
+    return this.saveNotice
+      ? `<p class="title-save-notice" role="status" aria-live="polite">${this.saveNotice}</p>`
+      : '';
+  }
+
   private titleScreen(state: Readonly<GameState>): string {
     if (this.titleView === 'mode') return this.modeScreen();
     if (this.titleView === 'new_game_memories') return this.newGameMemoriesScreen();
@@ -333,13 +339,13 @@ export class AppShell {
         <button class="title-menu-card" data-title-view="memories"><strong>读取记忆</strong><span>查看、读取或整理三个记忆片段</span></button>
         <button class="title-menu-card" data-title-view="settings"><strong>设置</strong><span>声音、字幕与无障碍选项</span></button>
       </nav>
-      ${this.saveNotice ? `<p class="title-save-notice" role="status" aria-live="polite">${this.saveNotice}</p>` : ''}
+      ${this.titleSaveNotice()}
       <p class="controls">纯键盘可完成 · WASD / 方向键移动 · E 交互 · Esc 暂停</p>
     </section>`;
   }
 
   private modeScreen(): string {
-    return `<section class="title-screen title-subpage" aria-labelledby="mode-title"><div class="title-panel"><p class="eyebrow">开始游戏</p><h1 id="mode-title">选择体验方式</h1><p>体验方式可以在暂停菜单中随时调整，不会重置进度。</p><div class="mode-grid"><button class="mode-card primary" data-select-mode="standard"><strong>标准模式</strong><span>固定、可学习的方向错位与完整退化表现</span></button><button class="mode-card" data-select-mode="low_stimulation"><strong>低扰动模式</strong><span>保留标准方向，降低模糊、漂移和动态</span></button></div><button class="secondary" data-title-view="home">返回</button></div></section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="mode-title"><div class="title-panel"><p class="eyebrow">开始游戏</p><h1 id="mode-title">选择体验方式</h1><p>体验方式可以在暂停菜单中随时调整，不会重置进度。</p><div class="mode-grid"><button class="mode-card primary" data-select-mode="standard"><strong>标准模式</strong><span>固定、可学习的方向错位与完整退化表现</span></button><button class="mode-card" data-select-mode="low_stimulation"><strong>低扰动模式</strong><span>保留标准方向，降低模糊、漂移和动态</span></button></div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private newGameMemoriesScreen(): string {
@@ -350,7 +356,7 @@ export class AppShell {
           `<button class="memory-fragment selectable" data-select-start-slot="${slot.slotId}">${this.memoryFragmentSummary(slot)}</button>`,
       )
       .join('');
-    return `<section class="title-screen title-subpage" aria-labelledby="new-memory-title"><div class="title-panel"><p class="eyebrow">开始游戏 · ${this.pendingNewMode === 'low_stimulation' ? '低扰动模式' : '标准模式'}</p><h1 id="new-memory-title">选择一个记忆片段</h1><p>故事会自动保存在选中的片段中。</p><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="mode">返回</button></div></section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="new-memory-title"><div class="title-panel"><p class="eyebrow">开始游戏 · ${this.pendingNewMode === 'low_stimulation' ? '低扰动模式' : '标准模式'}</p><h1 id="new-memory-title">选择一个记忆片段</h1><p>故事会自动保存在选中的片段中。</p><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="mode">返回</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private memoriesScreen(): string {
@@ -366,11 +372,11 @@ export class AppShell {
         return `<article class="memory-fragment ${slot.status}">${this.memoryFragmentSummary(slot)}${actions}</article>`;
       })
       .join('');
-    return `<section class="title-screen title-subpage" aria-labelledby="memories-title"><div class="title-panel"><p class="eyebrow">读取记忆</p><h1 id="memories-title">记忆片段</h1><p>每个片段保存一段独立的游戏进度。</p><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="home">返回首页</button></div></section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="memories-title"><div class="title-panel"><p class="eyebrow">读取记忆</p><h1 id="memories-title">记忆片段</h1><p>每个片段保存一段独立的游戏进度。</p><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="home">返回首页</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private titleSettingsScreen(settings: AccessibilitySettings): string {
-    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><p class="eyebrow">设置</p><h1 id="title-settings-title">声音与无障碍</h1><div class="settings-grid"><fieldset class="settings-section settings-audio"><legend>声音</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}</fieldset><fieldset class="settings-section settings-accessibility"><legend>显示与操作</legend><div class="settings-toggle-list">${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}</div><div class="settings-select-list"><label><span>文字大小</span><select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label><span>牵手操作</span><select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label></div></fieldset></div><button class="secondary" data-title-view="home">返回首页</button></div></section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><p class="eyebrow">设置</p><h1 id="title-settings-title">声音与无障碍</h1><div class="settings-grid"><fieldset class="settings-section settings-audio"><legend>声音</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}</fieldset><fieldset class="settings-section settings-accessibility"><legend>显示与操作</legend><div class="settings-toggle-list">${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}</div><div class="settings-select-list"><label><span>文字大小</span><select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label><span>牵手操作</span><select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label></div></fieldset></div><button class="secondary" data-title-view="home">返回首页</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private memoryFragmentSummary(slot: SaveSlotSummary): string {

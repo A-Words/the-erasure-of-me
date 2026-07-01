@@ -133,7 +133,7 @@ test('reads, labels, and deletes memories with keyboard controls on a narrow vie
   await page.evaluate((key) => localStorage.setItem(key, '{broken-json'), slotKey(2));
   await page.getByRole('button', { name: /读取记忆/ }).click();
 
-  await expect(page.getByText('记忆片段 01')).toBeVisible();
+  await expect(page.getByText('记忆片段 01', { exact: true })).toBeVisible();
   await expect(page.getByText(/第一章 · 清晨的家/)).toBeVisible();
   await expect(page.getByText(/\d{4}\/\d{2}\/\d{2}.*\d{2}:\d{2}/)).toBeVisible();
   await expect(page.getByText('模糊的记忆')).toBeVisible();
