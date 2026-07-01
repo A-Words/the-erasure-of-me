@@ -136,21 +136,43 @@ describe('SaveRepository', () => {
     expect(storage.getItem(saveSlotKey(2))).toBe('{broken-json');
   });
 
-  it('recovers invalid coordinates to the authored chapter spawn', () => {
+  it('recovers invalid coordinates to the authored checkpoint spawn', () => {
     const repository = new SaveRepository(storage);
     const state = createInitialState();
     state.phase = 'playing';
+    state.chapterId = 'rain';
+    state.checkpointId = 'checkpoint.rain.sequence';
     state.player.x = 99999;
     state.player.y = -10;
     repository.saveToSlot(1, state);
 
     expect(repository.loadSlot(1)?.player).toEqual({
-      x: 310,
-      y: 302,
-      facing: 'down',
+      x: 720,
+      y: 310,
+      facing: 'up',
       moving: false,
     });
   });
+
+  it.each(['checkpoint.rain.unknown', 'checkpoint.home.key'])(
+    'falls back to the current chapter spawn for unavailable checkpoint %s',
+    (checkpointId) => {
+      const repository = new SaveRepository(storage);
+      const state = createInitialState();
+      state.phase = 'playing';
+      state.chapterId = 'rain';
+      state.checkpointId = checkpointId;
+      state.player.x = Number.NaN;
+      repository.saveToSlot(1, state);
+
+      expect(repository.loadSlot(1)?.player).toEqual({
+        x: 100,
+        y: 600,
+        facing: 'down',
+        moving: false,
+      });
+    },
+  );
 
   it('does not claim success or replace a slot when storage rejects the write', () => {
     const repository = new SaveRepository(new ThrowingStorage());

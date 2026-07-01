@@ -623,7 +623,7 @@ interface AssetManifestEntry {
 - 槽位容器使用显式 formatVersion，领域状态使用 schemaVersion；
 - 解析后检查 chapterId、checkpointId 和 puzzle IDs；
 - 未知字段忽略，缺失必需字段触发迁移或回退；
-- 坐标无效时恢复到 checkpoint 的安全出生点；
+- 坐标无效时通过 `src/game/content/maps.ts` 的 `checkpointSpawns` 恢复到当前章节 checkpoint 的安全出生点；未知或跨章节 checkpoint 才回退到章节默认出生点；
 - 单槽损坏时不覆盖原字符串、不阻塞其他槽，并在对应槽卡显示可理解的恢复说明；
 - 无障碍与音量设置使用独立键保存，并在 Phaser 和 AppShell 初始化前恢复；
 - 首页只展示“继续游戏、开始游戏、读取记忆、设置”；没有有效片段时“继续游戏”使用原生 disabled；

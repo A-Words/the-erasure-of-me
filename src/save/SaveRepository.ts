@@ -5,7 +5,7 @@ import type {
   GameState,
 } from '../game/state/GameState';
 import { normalizeSettings } from '../game/state/initialState';
-import { chapterMaps } from '../game/content/maps';
+import { chapterMaps, getCheckpointSpawn } from '../game/content/maps';
 
 const LEGACY_SAVE_KEY = 'erasure.save.v1';
 const SETTINGS_KEY = 'erasure.settings.v1';
@@ -248,7 +248,9 @@ export class SaveRepository {
       parsed.player.y < 0 ||
       parsed.player.y > map.height
     ) {
-      parsed.player = { ...map.spawn, facing: 'down', moving: false };
+      parsed.player =
+        getCheckpointSpawn(parsed.checkpointId, parsed.chapterId) ??
+        ({ ...map.spawn, facing: 'down', moving: false } satisfies GameState['player']);
     }
     parsed.phase = 'playing';
     parsed.modal = null;

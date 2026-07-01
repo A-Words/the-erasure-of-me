@@ -517,23 +517,26 @@
 
 ## 9. 全局检查点表
 
-| ID | 恢复位置 | 恢复内容 |
-| --- | --- | --- |
-| checkpoint.home.start | spawn.home.bed | D0、无物品 |
-| checkpoint.home.journal | 客厅日记旁 | 日记页已解锁 |
-| checkpoint.home.key | 玄关 | 钥匙与日记 |
-| checkpoint.rain.start | 旧站台 | D1 触发前 |
-| checkpoint.rain.sequence | 5 号石板后 | 站牌谜题完成 |
-| checkpoint.rain.complete | 钟表铺门口 | 初遇记忆完成 |
-| checkpoint.life.start | 房间中心 | D2 触发前 |
-| checkpoint.life.photos | 相册桌前 | 照片排序完成 |
-| checkpoint.life.complete | 出口前 | 物件全部归位 |
-| checkpoint.return.training | 训练区出口 | D3 教学完成 |
-| checkpoint.return.junction_1 | 路口二入口 | 路口一完成 |
-| checkpoint.return.junction_2 | 路口三入口 | 路口二完成 |
-| checkpoint.return.junction_3 | 家门长廊 | 路口三完成 |
-| checkpoint.return.complete | 家门 | 尾声待加载 |
-| checkpoint.ending.start | 现实走廊 | D4 |
+| ID | 安全坐标 | 朝向 | 恢复位置 | 恢复内容 |
+| --- | --- | --- | --- | --- |
+| checkpoint.home.start | (310, 302) | 下 | 床边 | D0、无物品 |
+| checkpoint.home.journal | (610, 350) | 上 | 客厅日记旁 | 日记页已解锁 |
+| checkpoint.home.key | (1100, 620) | 上 | 玄关 | 钥匙与日记 |
+| checkpoint.rain.start | (100, 600) | 右 | 旧站台 | D1 触发前 |
+| checkpoint.rain.sequence | (720, 310) | 上 | 5 号石板后 | 站牌谜题完成 |
+| checkpoint.rain.complete | (1120, 160) | 上 | 钟表铺门口 | 初遇记忆完成 |
+| checkpoint.life.start | (640, 590) | 上 | 房间中心 | D2 触发前 |
+| checkpoint.life.photos | (640, 590) | 上 | 相册桌前 | 照片排序完成 |
+| checkpoint.life.complete | (700, 120) | 上 | 出口前 | 物件全部归位 |
+| checkpoint.return.training | (640, 360) | 右 | 训练区出口 | D3 教学完成 |
+| checkpoint.return.junction_1 | (640, 360) | 上 | 路口二入口 | 路口一完成 |
+| checkpoint.return.junction_2 | (640, 360) | 上 | 路口三入口 | 路口二完成 |
+| checkpoint.return.junction_3 | (640, 360) | 上 | 家门长廊 | 路口三完成 |
+| checkpoint.return.complete | (640, 120) | 上 | 家门 | 尾声待加载 |
+| checkpoint.ending.start | (920, 430) | 左 | 现实走廊 | D4 |
+| checkpoint.ending.complete | (760, 430) | 左 | 秀兰身旁 | 牵手完成 |
+
+运行时安全坐标的唯一事实来源为 `src/game/content/maps.ts` 的 `checkpointSpawns`；本表用于关卡审阅，修改任一坐标时必须同步更新并通过存档恢复测试。
 
 ## 10. 灰盒制作顺序
 

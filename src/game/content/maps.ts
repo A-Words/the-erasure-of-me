@@ -1,4 +1,4 @@
-import type { ChapterId } from '../state/GameState';
+import type { ChapterId, PlayerState } from '../state/GameState';
 
 export interface WorldEntity {
   id: string;
@@ -19,6 +19,13 @@ export interface ChapterMap {
   spawn: { x: number; y: number };
   palette: { floor: number; wall: number; accent: number };
   entities: WorldEntity[];
+}
+
+export interface CheckpointSpawn {
+  chapterId: ChapterId;
+  x: number;
+  y: number;
+  facing: PlayerState['facing'];
 }
 
 export const chapterMaps: Record<ChapterId, ChapterMap> = {
@@ -153,6 +160,56 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
     ],
   },
 };
+
+export const checkpointSpawns: Readonly<Record<string, CheckpointSpawn>> = {
+  'checkpoint.home.start': {
+    chapterId: 'home',
+    ...chapterMaps.home.spawn,
+    facing: 'down',
+  },
+  'checkpoint.home.journal': { chapterId: 'home', x: 610, y: 350, facing: 'up' },
+  'checkpoint.home.key': { chapterId: 'home', x: 1100, y: 620, facing: 'up' },
+  'checkpoint.rain.start': {
+    chapterId: 'rain',
+    ...chapterMaps.rain.spawn,
+    facing: 'right',
+  },
+  'checkpoint.rain.sequence': { chapterId: 'rain', x: 720, y: 310, facing: 'up' },
+  'checkpoint.rain.complete': { chapterId: 'rain', x: 1120, y: 160, facing: 'up' },
+  'checkpoint.life.start': {
+    chapterId: 'life',
+    ...chapterMaps.life.spawn,
+    facing: 'up',
+  },
+  'checkpoint.life.photos': { chapterId: 'life', x: 640, y: 590, facing: 'up' },
+  'checkpoint.life.complete': { chapterId: 'life', x: 700, y: 120, facing: 'up' },
+  'checkpoint.return.training': {
+    chapterId: 'return',
+    ...chapterMaps.return.spawn,
+    facing: 'right',
+  },
+  'checkpoint.return.junction_1': { chapterId: 'return', x: 640, y: 360, facing: 'up' },
+  'checkpoint.return.junction_2': { chapterId: 'return', x: 640, y: 360, facing: 'up' },
+  'checkpoint.return.junction_3': { chapterId: 'return', x: 640, y: 360, facing: 'up' },
+  'checkpoint.return.complete': { chapterId: 'return', x: 640, y: 120, facing: 'up' },
+  'checkpoint.ending.start': {
+    chapterId: 'ending',
+    ...chapterMaps.ending.spawn,
+    facing: 'left',
+  },
+  'checkpoint.ending.complete': { chapterId: 'ending', x: 760, y: 430, facing: 'left' },
+};
+
+export function getCheckpointSpawn(checkpointId: string, chapterId: ChapterId): PlayerState | null {
+  const checkpoint = checkpointSpawns[checkpointId];
+  if (!checkpoint || checkpoint.chapterId !== chapterId) return null;
+  return {
+    x: checkpoint.x,
+    y: checkpoint.y,
+    facing: checkpoint.facing,
+    moving: false,
+  };
+}
 
 export const itemLabels: Record<string, string> = {
   'item.home.journal': '红线日记',
