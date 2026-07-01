@@ -125,7 +125,7 @@ test('continues the most recent memory and only replaces the selected fragment',
 
 test('reads, labels, and deletes memories with keyboard controls on a narrow viewport', async ({
   page,
-}) => {
+}, testInfo) => {
   await page.setViewportSize({ width: 520, height: 720 });
   await startNewGame(page);
   await finishOpeningDialogue(page);
@@ -138,6 +138,12 @@ test('reads, labels, and deletes memories with keyboard controls on a narrow vie
   await expect(page.getByText(/\d{4}\/\d{2}\/\d{2}.*\d{2}:\d{2}/)).toBeVisible();
   await expect(page.getByText('模糊的记忆')).toBeVisible();
   await expect(page.getByText('空白的记忆')).toBeVisible();
+
+  await expect(page.locator('.title-screen .memory-fragment-list')).toBeVisible();
+  await page.screenshot({
+    path: testInfo.outputPath('save-slots-narrow-memory-list.png'),
+    animations: 'disabled',
+  });
 
   const damaged = page.locator('.memory-fragment.invalid');
   const deleteButton = damaged.getByRole('button', { name: '删除' });
