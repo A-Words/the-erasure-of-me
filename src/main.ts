@@ -19,6 +19,7 @@ function progressSignature(state: Readonly<GameState>): string {
     flags: state.flags,
     puzzles: state.puzzles,
     mode: state.mode,
+    rainMapClosedAtX: state.rainMapClosedAtX,
   });
 }
 
