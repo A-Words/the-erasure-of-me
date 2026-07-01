@@ -1,4 +1,4 @@
-import type { Locator, Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 
 async function activate(locator: Locator, keyboard: boolean): Promise<void> {
   if (keyboard) {
@@ -33,4 +33,5 @@ export async function returnToTitle(page: Page): Promise<void> {
   if ((await page.locator('#app').getAttribute('data-phase')) === 'title') return;
   await page.evaluate(() => window.dispatchEvent(new Event('blur')));
   await page.getByRole('button', { name: '返回标题' }).click();
+  await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
 }
