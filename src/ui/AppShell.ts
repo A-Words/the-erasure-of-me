@@ -629,15 +629,15 @@ export class AppShell {
     );
     document.querySelectorAll<HTMLElement>('[data-confirm-clear]').forEach((button) =>
       button.addEventListener('click', () => {
-        this.confirmingClearData = false;
-        this.store.dispatch({ type: 'RETURN_TITLE' });
-        this.store.dispatch({ type: 'SETTINGS', patch: normalizeSettings() });
         if (!this.saves.clearAll()) {
           this.saveNotice = '无法清除全部本地数据，请检查浏览器存储权限。';
           this.signature = '';
           this.render(this.store.getState());
           return;
         }
+        this.confirmingClearData = false;
+        this.store.dispatch({ type: 'RETURN_TITLE' });
+        this.store.dispatch({ type: 'SETTINGS', patch: normalizeSettings() });
         this.saveNotice = '已清除全部本地数据';
         this.signature = '';
         this.render(this.store.getState());
