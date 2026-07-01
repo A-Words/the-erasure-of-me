@@ -8,6 +8,23 @@ function clearDialogue(store: GameStore): void {
 }
 
 describe('GameStore', () => {
+  it('keeps current global settings when replacing progress from a save', () => {
+    const current = createInitialState();
+    current.settings.fontSize = 'large';
+    current.settings.muted = true;
+    const saved = createInitialState('low_stimulation');
+    saved.phase = 'playing';
+    saved.settings.fontSize = 'normal';
+    saved.settings.muted = false;
+    const store = new GameStore(current);
+
+    store.replaceFromSave(saved);
+
+    expect(store.getState().phase).toBe('playing');
+    expect(store.getState().mode).toBe('low_stimulation');
+    expect(store.getState().settings).toMatchObject({ fontSize: 'large', muted: true });
+  });
+
   it('blocks movement under a modal', () => {
     const store = new GameStore(createInitialState());
     store.dispatch({ type: 'NEW_GAME', mode: 'standard' });
@@ -16,6 +33,42 @@ describe('GameStore', () => {
     store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
     store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 1 });
     expect(store.getState().player.x).toBe(before);
+  });
+
+  it('washes the rain map only after it was opened, closed and left behind', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'rain';
+    state.degradationStage = 'D1';
+    state.player = { x: 500, y: 600, facing: 'right', moving: false };
+    const store = new GameStore(state);
+
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+    expect(store.getState().flags).not.toContain('degradation.d1.started');
+
+    store.dispatch({ type: 'OPEN_MODAL', modal: 'map' });
+    expect(store.getState().flags).toContain('flag.rain.map_opened');
+    store.dispatch({ type: 'CLOSE_MODAL' });
+    expect(store.getState().flags).toContain('flag.rain.map_closed');
+    expect(store.getState().rainMapClosedAtX).toBe(509);
+
+    store.dispatch({ type: 'MOVE', direction: 'left', deltaSeconds: 0.05 });
+    expect(store.getState().flags).not.toContain('degradation.d1.started');
+    for (let step = 0; step < 15; step += 1) {
+      store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+    }
+    expect(store.getState().flags).not.toContain('degradation.d1.started');
+
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+    expect(store.getState().flags).toContain('degradation.d1.started');
+    expect(store.getState().message).toBe('有些路名看不清了。钟声还在。');
+    expect(store.getState().rainMapClosedAtX).toBeNull();
+    const lockedX = store.getState().player.x;
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+    expect(store.getState().player.x).toBe(lockedX);
+    store.dispatch({ type: 'TICK', deltaSeconds: 1.2 });
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+    expect(store.getState().player.x).toBeGreaterThan(lockedX);
   });
 
   it('stops movement without changing the last position or facing', () => {
@@ -166,5 +219,17 @@ describe('GameStore', () => {
     store.dispatch({ type: 'HOLD', deltaSeconds: 1.5 });
     expect(store.getState().holdProgress).toBe(1);
     expect(store.getState().flags).toContain('ending.completed');
+  });
+
+  it('ignores opening the map while it is fully hidden in D4', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'ending';
+    state.degradationStage = 'D4';
+    const store = new GameStore(state);
+
+    store.dispatch({ type: 'OPEN_MODAL', modal: 'map' });
+
+    expect(store.getState().modal).toBeNull();
   });
 });

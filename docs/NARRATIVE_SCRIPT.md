@@ -549,17 +549,59 @@
 
 返回标题
 
-### system.save.complete
+### system.save.auto
 
-已保存
+已自动保存 · 记忆片段 {fragmentNumber}
+
+### system.menu.continue
+
+继续游戏
+
+### system.menu.start
+
+开始游戏
+
+### system.menu.memories
+
+读取记忆
+
+### system.menu.settings
+
+设置
+
+### system.memory.empty
+
+空白的记忆
+
+### system.memory.invalid
+
+这个片段无法读取。删除后可重新开始，其他片段不受影响。
+
+### system.save.failed
+
+无法写入本地存档，请检查浏览器存储空间与隐私设置。
 
 ### system.save.recovered
 
-已从最近的安全位置继续
+读取
 
 ### system.save.corrupt
 
-存档无法读取。设置已保留。你可以清除损坏存档后重新开始。
+这段记忆已经模糊。其他记忆片段与全局设置不受影响。
+
+### system.save.overwrite
+
+要覆盖「记忆片段 {fragmentNumber}」并从头开始吗？
+
+这个记忆片段中已有的进度将被新的故事替代。
+
+### system.save.start_empty
+
+要从这个空白的记忆片段开始吗？
+
+### system.save.delete
+
+这段游戏进度将被永久删除，全局无障碍与音量设置会保留。
 
 ### system.browser.pause
 

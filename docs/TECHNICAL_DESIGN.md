@@ -346,7 +346,7 @@ type InputAction =
 - `visual_props` 用 `entityId` 显式绑定 `interactables` 中的实体；`visual_furniture` 用 `collisionId` 显式绑定 `collision` 中的脚印矩形。
 - 运行时通过 `src/game/content/tiledMapLoader.ts` 适配层解析 Tiled JSON；`scripts/validate_tiled_maps.mjs` 校验这些层存在、引用图片存在、稳定 ID 无重复且 `entityId` / `collisionId` 指向真实对象。
 
-Rain Station 的环境表现拆为底图、地面积水反光层和雨线层：Tiled `background` 仍只指向底图编辑参照，GameScene 在运行时从 manifest 叠加 `environment.rain.puddle_reflection_overlay` 与 `environment.rain.rain_overlay`，再渲染 `visual_props`。天气叠层不改变坐标、碰撞、谜题状态或 Tiled tile object 锚点。
+Rain Station 的环境表现拆为底图、地面积水反光层和雨线层：Tiled `background` 仍只指向底图编辑参照，GameScene 在运行时从 manifest 叠加 `environment.rain.puddle_reflection_overlay` 与 `environment.rain.rain_overlay`，再渲染 `visual_props`。雨线使用两张普通 Image 上下衔接，按累计时间进行帧率无关的下落循环；减少动态效果时只保留一张静态雨线并降低透明度。天气叠层不改变坐标、碰撞、谜题状态或 Tiled tile object 锚点。
 
 #### 6.2.2 Tiled 内容适配层（tiledMapLoader）
 
@@ -527,6 +527,9 @@ interface DegradationConfig {
 ### 9.2 状态规则
 
 - 任一 panel-layer 或 system-layer 模态面板打开时，ModalGate 阻断移动。
+- `src/game/presentation/mapPresentation.ts` 由 `GameState` 和章节内容派生地图路径、房间名、玩家位置、地标可见性与 D1 模式；DOM/SVG 只负责渲染，不持有地图进度。
+- HUD 操作栏提供背包 / 日记 / 地图三个文字按钮，M 或指针打开同一份派生数据的完整地图弹窗；D4 下地图完全消失（按钮不渲染、`OPEN_MODAL: map` 与 M 键均被 `getMapMode === 'hidden'` 守卫忽略）。关闭面板后焦点返回原触发控件，Q、Backspace 和 Esc 均可关闭，面板打开期间角色移动保持冻结。
+- 雨站第一次打开地图时保持完整路线；关闭后以可存档的 `rainMapClosedAtX` 记录当前位置，仅当玩家从该位置净向右移动超过两格时，领域状态才写入一次性 `degradation.d1.started`，并以不写入存档的 `mapWashSeconds` 冻结移动 1.2 秒。D1 视图隐藏未到达站牌与区域文字，但始终保留玩家、已到站牌、红伞及钟声方向。
 - 字幕不抢占焦点。
 - objective-chip 默认四秒后收起。
 - HUD 总覆盖面积不超过 20%。
@@ -600,11 +603,13 @@ interface AssetManifestEntry {
 
 ## 12. 存档
 
-### 12.1 键
+### 12.1 键与槽位封装
 
-- erasure.save.v1：自动存档；
+- erasure.save.slot.1.v1、erasure.save.slot.2.v1、erasure.save.slot.3.v1：三个独立进度槽；
 - erasure.settings.v1：无障碍与音频设置；
 - erasure.consent.v1：测试遥测同意状态。
+
+每个槽存储 `SaveSlotRecordV1`，包含容器 `formatVersion`、ISO 8601 `savedAt` 和清理后的 `GameState`。UI 统一称其为“记忆片段”。当前片段只保存在运行时：开始新游戏或读取记忆时先激活片段，之后所有自动保存均写入该片段。旧 `erasure.save.v1` 不迁移也不展示，确认“清除全部本地数据”时删除。
 
 ### 12.2 写入时机
 
@@ -612,18 +617,24 @@ interface AssetManifestEntry {
 - 主谜题完成；
 - 第四章每个路口通过；
 - 尾声开始；
-- 设置改变后防抖写入。
+- 体验模式改变；
+- 进入暂停或返回标题；
+- 页面切到后台或关闭前。
+
+领域进展按签名变化自动保存；离开类触发额外保存当前位置，但不增加周期性或逐帧写入。读取记忆本身不视为新保存。无障碍与音量设置独立写入全局设置键，不改变片段保存时间。
 
 ### 12.3 校验与迁移
 
-- 使用显式 schemaVersion；
+- 槽位容器使用显式 formatVersion，领域状态使用 schemaVersion；
 - 解析后检查 chapterId、checkpointId 和 puzzle IDs；
 - 未知字段忽略，缺失必需字段触发迁移或回退；
-- 坐标无效时恢复到 checkpoint 的安全出生点；
-- 损坏存档不覆盖原字符串，并在标题页显示可理解的恢复说明。
+- 坐标无效时通过 `src/game/content/maps.ts` 的 `checkpointSpawns` 恢复到当前章节 checkpoint 的安全出生点；未知或跨章节 checkpoint 才回退到章节默认出生点；
+- 单槽损坏时不覆盖原字符串、不阻塞其他槽，并在对应槽卡显示可理解的恢复说明；
 - 无障碍与音量设置使用独立键保存，并在 Phaser 和 AppShell 初始化前恢复；
-- 标题页区分可继续与损坏存档，损坏存档只能在二次确认后清除；
-- 暂停设置提供二次确认的“清除本地数据”，同时删除进度与设置并回到标题。
+- 首页只展示“继续游戏、开始游戏、读取记忆、设置”；没有有效片段时“继续游戏”使用原生 disabled；
+- “继续游戏”通过 `savedAt` 读取最近有效片段；“读取记忆”页面展示三个片段的章节与保存时间并承担读取、删除和损坏提示；
+- 新游戏按“模式 → 片段 → 确认”进入；覆盖、单片段删除及“清除全部本地数据”必须二次确认；后者同时删除三个槽、旧单槽键与设置并回到标题；
+- localStorage 写入失败时保留旧槽内容，并通过 DOM `aria-live` 状态反馈失败，不得显示成功文案。
 
 ## 13. 测试策略
 
@@ -633,7 +644,7 @@ interface AssetManifestEntry {
 - PuzzleSystem 的排序、序列、放置和路线判定；
 - HintSystem 的计时暂停与升级；
 - DegradationSystem 的阶段切换和安全层不变量；
-- SaveData 的序列化、迁移和损坏回退；
+- 三片段 SaveData 的隔离、最新片段选择、瞬态清理、损坏回退和存储异常；
 - NarrativeSystem 的条件触发与一次性对白。
 
 ### 13.2 集成测试
@@ -654,9 +665,10 @@ Playwright 覆盖：
 4. D2 背包标签状态；
 5. D3 标准与低扰动两条路线；
 6. 暂停、失焦与恢复；
-7. 自动存档刷新恢复；
-8. 尾声长按与科普页；
-9. 1024×576、1366×768、1920×1080 截图。
+7. 首页四入口、模式后选择片段、继续最新片段、选择性覆盖和单片段删除；
+8. 暂停、返回标题、切后台与关闭前自动保存，以及损坏片段隔离和窄视口键盘操作；
+9. 尾声长按与科普页；
+10. 1024×576、1366×768、1920×1080 截图。
 
 Canvas 状态不能只做 DOM 断言，代表性阶段必须保存截图并人工复核。
 

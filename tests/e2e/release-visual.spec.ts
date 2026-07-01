@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
 
 type ChapterId = 'home' | 'rain' | 'life' | 'return' | 'ending';
 
@@ -50,11 +51,11 @@ async function createSave(page: Page): Promise<void> {
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await startNewGame(page);
   for (let index = 0; index < 2; index += 1)
     await page.getByRole('button', { name: '继续对白' }).click();
   await expect
-    .poll(() => page.evaluate(() => localStorage.getItem('erasure.save.v1')))
+    .poll(() => page.evaluate(() => localStorage.getItem('erasure.save.slot.1.v1')))
     .not.toBeNull();
 }
 
@@ -64,10 +65,12 @@ async function loadChapter(
   patch: Record<string, unknown> = {},
 ): Promise<void> {
   const authored = chapterState[chapterId];
+  await returnToTitle(page);
   await page.evaluate(
     ({ chapterId, authored, patch }) => {
-      const key = 'erasure.save.v1';
-      const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const key = 'erasure.save.slot.1.v1';
+      const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const state = record?.state;
       if (!state) throw new Error('Release screenshot seed save is missing');
       Object.assign(state, {
         phase: 'playing',
@@ -86,12 +89,15 @@ async function loadChapter(
       });
       if (patch.puzzles) state.puzzles = { ...state.puzzles, ...patch.puzzles };
       if (patch.settings) state.settings = { ...state.settings, ...patch.settings };
-      localStorage.setItem(key, JSON.stringify(state));
+      localStorage.setItem(key, JSON.stringify(record));
+      if (patch.settings) {
+        localStorage.setItem('erasure.settings.v1', JSON.stringify(state.settings));
+      }
     },
     { chapterId, authored, patch },
   );
   await page.reload();
-  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+  await continueLatestGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', chapterId);
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await expect(page.locator('canvas')).toBeVisible();
@@ -210,15 +216,18 @@ for (const viewport of [
     await capture(page, testInfo, 'low-stimulation-settings');
     await page.getByRole('button', { name: '继续' }).click();
 
+    await returnToTitle(page);
     await page.evaluate(() => {
-      const key = 'erasure.save.v1';
-      const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const key = 'erasure.save.slot.1.v1';
+      const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const state = record?.state;
       state.settings.holdMode = 'single';
       state.flags = ['ending.dialogue_started', 'ending.ready_to_hold'];
-      localStorage.setItem(key, JSON.stringify(state));
+      localStorage.setItem(key, JSON.stringify(record));
+      localStorage.setItem('erasure.settings.v1', JSON.stringify(state.settings));
     });
     await page.reload();
-    await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+    await continueLatestGame(page);
     const canvas = page.locator('canvas');
     await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
     await canvas.press('e', { delay: 100 });

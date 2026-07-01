@@ -1,20 +1,23 @@
 import { expect, test } from '@playwright/test';
+import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
 
 async function setSavedPlayer(page: import('@playwright/test').Page, x: number, y: number) {
+  await returnToTitle(page);
   await page.evaluate(
     ({ x, y }) => {
-      const key = 'erasure.save.v1';
-      const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const key = 'erasure.save.slot.1.v1';
+      const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const state = record?.state;
       if (!state) throw new Error('Expected a home save before moving the player');
       state.player = { x, y, facing: 'down', moving: false };
       state.dialogue = [];
       state.modal = null;
-      localStorage.setItem(key, JSON.stringify(state));
+      localStorage.setItem(key, JSON.stringify(record));
     },
     { x, y },
   );
   await page.reload();
-  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+  await continueLatestGame(page);
   const app = page.locator('#app');
   await expect(app).toHaveAttribute('data-chapter', 'home');
   await expect(app).toHaveAttribute('data-player-x', String(x));
@@ -43,7 +46,7 @@ test('renders the layered home and blocks the player at the bed footprint', asyn
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await startNewGame(page);
   await page.getByRole('button', { name: '继续对白' }).click();
   await page.getByRole('button', { name: '继续对白' }).click();
 

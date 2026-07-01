@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { continueLatestGame, startNewGame } from './helpers/game-navigation';
 
 let browserErrors: string[];
 
@@ -29,7 +30,7 @@ test('boots, starts, moves by keyboard, pauses and keeps accessibility stable', 
   await expect(page.getByRole('heading', { name: '记忆的缝隙' })).toBeVisible();
   await expect(page.getByText('许志远是虚构人物')).toBeVisible();
 
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await startNewGame(page);
   await page.getByRole('button', { name: '继续对白' }).click();
   await page.getByRole('button', { name: '继续对白' }).click();
 
@@ -51,7 +52,7 @@ test('boots, starts, moves by keyboard, pauses and keeps accessibility stable', 
 });
 
 test('animates observation while held and uses a static reduced-motion pose', async ({ page }) => {
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await startNewGame(page);
   await page.getByRole('button', { name: '继续对白' }).click();
   await page.getByRole('button', { name: '继续对白' }).click();
 
@@ -88,7 +89,7 @@ test('animates observation while held and uses a static reduced-motion pose', as
 test('shows a restrained nearby interaction prompt and keeps reduced-motion hover static', async ({
   page,
 }, testInfo) => {
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await startNewGame(page);
   await page.getByRole('button', { name: '继续对白' }).click();
   await page.getByRole('button', { name: '继续对白' }).click();
 
@@ -129,20 +130,20 @@ test('shows a restrained nearby interaction prompt and keeps reduced-motion hove
 });
 
 test('offers a safe checkpoint continuation after refresh', async ({ page }) => {
-  await page.getByRole('button', { name: /低扰动模式/ }).click();
+  await startNewGame(page, { mode: 'low_stimulation' });
   await expect(page.locator('#app')).toHaveAttribute('data-checkpoint', 'checkpoint.home.start');
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.reload();
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
-  await expect(page.getByRole('button', { name: '从最近的安全位置继续' })).toBeVisible();
-  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+  await expect(page.getByRole('button', { name: '继续游戏' })).toBeEnabled();
+  await continueLatestGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'home');
 });
 
 test('places a stable pause layer over active dialogue when the window loses focus', async ({
   page,
 }) => {
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await startNewGame(page);
   await expect(page.getByRole('button', { name: '继续对白' })).toBeVisible();
   await page.evaluate(() => window.dispatchEvent(new Event('blur')));
   await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
@@ -151,7 +152,7 @@ test('places a stable pause layer over active dialogue when the window loses foc
 });
 
 test('does not expose the development debug layer in a production build', async ({ page }) => {
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await startNewGame(page);
   await page.getByRole('button', { name: '继续对白' }).click();
   await page.getByRole('button', { name: '继续对白' }).click();
   await expect(page.getByLabel('开发调试层')).toHaveCount(0);
