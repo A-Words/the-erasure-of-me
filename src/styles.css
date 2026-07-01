@@ -938,6 +938,11 @@ html[data-motion='reduced'] *::after {
     right: 1rem;
     bottom: 1rem;
   }
+  .save-notice {
+    top: 1rem;
+    right: 1rem;
+    bottom: auto;
+  }
   .hud-actions {
     left: 1rem;
     transform: none;
