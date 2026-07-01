@@ -20,6 +20,7 @@ describe('GameStore', () => {
 
     store.replaceFromSave(saved);
 
+    expect(store.getState().phase).toBe('playing');
     expect(store.getState().mode).toBe('low_stimulation');
     expect(store.getState().settings).toMatchObject({ fontSize: 'large', muted: true });
   });
