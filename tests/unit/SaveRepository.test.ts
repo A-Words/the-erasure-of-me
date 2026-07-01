@@ -174,6 +174,19 @@ describe('SaveRepository', () => {
     },
   );
 
+  it('does not persist the transient map-wash movement lock', () => {
+    const repository = new SaveRepository(storage);
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.mapWashSeconds = 1.2;
+    state.rainMapClosedAtX = 512;
+
+    repository.saveToSlot(1, state);
+
+    expect(repository.loadSlot(1)?.mapWashSeconds).toBe(0);
+    expect(repository.loadSlot(1)?.rainMapClosedAtX).toBe(512);
+  });
+
   it('does not claim success or replace a slot when storage rejects the write', () => {
     const repository = new SaveRepository(new ThrowingStorage());
     const state = createInitialState();

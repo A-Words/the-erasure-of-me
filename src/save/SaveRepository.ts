@@ -187,6 +187,7 @@ export class SaveRepository {
     snapshot.dialogueIndex = 0;
     snapshot.activeMemoryId = null;
     snapshot.holdProgress = 0;
+    snapshot.mapWashSeconds = 0;
     snapshot.player.moving = false;
     return snapshot;
   }
@@ -262,6 +263,10 @@ export class SaveRepository {
     parsed.hintSeconds ??= 0;
     parsed.hintLevel ??= 0;
     parsed.holdProgress = 0;
+    parsed.mapWashSeconds = 0;
+    parsed.rainMapClosedAtX = Number.isFinite(parsed.rainMapClosedAtX)
+      ? parsed.rainMapClosedAtX
+      : null;
     parsed.playTimeSeconds ??= 0;
     return parsed;
   }

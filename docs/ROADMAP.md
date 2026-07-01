@@ -31,6 +31,8 @@
 
 > 2026-06-29 状态：M0.1 已完成；M0.2 的 GameStore、SceneBridge、InputMapper、DOM 暂停门控、输入测试、Tiled 对象层运行时加载和三个 localStorage 进度槽均已完成。
 
+> 2026-06-30 状态：HOME-03 的状态派生小地图、完整地图、键盘关闭与焦点恢复已完成；RAIN-02 的首次完整路线、一次性水渍触发和可靠标记保留已接入单元及浏览器测试。
+
 ### M0.1 工程初始化
 
 - 创建 Vite TypeScript 工程；

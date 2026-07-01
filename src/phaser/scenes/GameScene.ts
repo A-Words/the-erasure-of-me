@@ -16,6 +16,7 @@ import {
   type VisualPlacement,
 } from '../../game/content/tiledMapLoader';
 import { mapMovement } from '../../game/input/InputMapper';
+import { getMapMode } from '../../game/presentation/mapPresentation';
 import type { InputAction } from '../../game/input/actions';
 import type { GameState } from '../../game/state/GameState';
 import type { GameStore } from '../../game/state/GameStore';
@@ -205,7 +206,11 @@ export class GameScene extends Phaser.Scene {
     this.updateEntityBreathing(state, time);
     if (state.phase !== 'playing') return;
     this.tickAccumulator += delta / 1000;
-    if (this.tickAccumulator >= 1) {
+    // GameStore.tick early-returns during modal/dialogue; skip the no-op
+    // dispatch and discard accumulated time so it is not replayed on resume.
+    if (state.modal || state.dialogue.length > 0) {
+      this.tickAccumulator = 0;
+    } else if (this.tickAccumulator >= (state.mapWashSeconds > 0 ? 0.1 : 1)) {
       this.bridge.send({ type: 'TICK', deltaSeconds: this.tickAccumulator });
       this.tickAccumulator = 0;
     }
@@ -255,6 +260,7 @@ export class GameScene extends Phaser.Scene {
   private toggleModal(modal: 'inventory' | 'journal' | 'map' | 'pause'): void {
     const state = this.bridge.getSnapshot();
     if (state.phase !== 'playing' || state.dialogue.length > 0) return;
+    if (modal === 'map' && getMapMode(state) === 'hidden') return;
     this.bridge.send(
       state.modal === modal ? { type: 'CLOSE_MODAL' } : { type: 'OPEN_MODAL', modal },
     );
