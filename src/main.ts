@@ -1,7 +1,7 @@
 import './styles.css';
 import { createGame } from './phaser/config';
 import { GameStore } from './game/state/GameStore';
-import { createInitialState } from './game/state/initialState';
+import { createInitialState, normalizeSettings } from './game/state/initialState';
 import { SaveRepository } from './save/SaveRepository';
 import { AppShell } from './ui/AppShell';
 import { AudioManager } from './phaser/audio/AudioManager';
@@ -52,14 +52,19 @@ async function bootstrap(): Promise<void> {
   game.canvas.tabIndex = 0;
   game.canvas.setAttribute('aria-label', '可操作游戏画面');
   game.canvas.addEventListener('pointerdown', () => game.canvas.focus());
-  const appShell = new AppShell(store, saves);
+  let lastSettingsSignature = '';
+  const appShell = new AppShell(store, saves, {
+    onSettingsCleared: () => {
+      // clearAll() 已删除设置键；把基线对齐到默认设置，使随后的 SETTINGS 分派不再写回该键。
+      lastSettingsSignature = JSON.stringify(normalizeSettings());
+    },
+  });
   const unlockAudio = () => void audio.unlock();
   window.addEventListener('pointerdown', unlockAudio);
   window.addEventListener('keydown', unlockAudio);
 
   let lastSaveSignature = '';
   let lastActiveSlot: SaveSlotId | null = null;
-  let lastSettingsSignature = '';
   let lastAudioMessage = '';
   let wasPaused = false;
   store.subscribe((state) => {

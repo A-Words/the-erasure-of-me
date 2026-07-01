@@ -73,12 +73,14 @@ export class AppShell {
   private lastModal: ModalId = null;
   private modalReturnFocus: HTMLElement | null = null;
   private modalReturnFocusSelector: string | null = null;
+  private titleDialogReturnFocusSelector: string | null = null;
   private readonly debugEnabled =
     import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === '1';
 
   constructor(
     private readonly store: GameStore,
     private readonly saves: SaveRepository,
+    private readonly options?: { onSettingsCleared?: () => void },
   ) {
     if (!this.hud || !this.panel || !this.system)
       throw new Error('App shell containers are missing');
@@ -195,6 +197,15 @@ export class AppShell {
       this.modalReturnFocus = null;
       this.modalReturnFocusSelector = null;
     }
+  }
+
+  private restoreTitleDialogFocus(): void {
+    const selector = this.titleDialogReturnFocusSelector;
+    this.titleDialogReturnFocusSelector = null;
+    if (!selector) return;
+    requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>(selector)?.focus({ preventScroll: true });
+    });
   }
 
   private renderHud(state: Readonly<GameState>, mapMode: MapMode): void {
@@ -479,7 +490,7 @@ export class AppShell {
     if (slot.status === 'empty')
       return `<span><strong>${label}</strong><small>空白的记忆</small></span>`;
     if (slot.status === 'invalid')
-      return `<span><strong>${label}</strong><small>模糊的记忆</small></span>`;
+      return `<span><strong>${label}</strong><small>这个片段无法读取。删除后可重新开始，其他片段不受影响。</small></span>`;
     const chapter = slot.chapterId ? chapterMaps[slot.chapterId].title : '未知章节';
     return `<span><strong>${label}</strong><small>${chapter}</small><time datetime="${slot.savedAt}">${this.formatSavedAt(slot.savedAt)}</time></span>`;
   }
@@ -626,6 +637,7 @@ export class AppShell {
     document.querySelectorAll<HTMLElement>('[data-select-start-slot]').forEach((button) =>
       button.addEventListener('click', () => {
         this.confirmingStartSlot = Number(button.dataset.selectStartSlot) as SaveSlotId;
+        this.titleDialogReturnFocusSelector = `[data-select-start-slot="${button.dataset.selectStartSlot}"]`;
         this.signature = '';
         this.render(state);
       }),
@@ -634,6 +646,7 @@ export class AppShell {
       button.addEventListener('click', () => {
         if (!this.pendingNewMode || !this.confirmingStartSlot) return;
         const slotId = this.confirmingStartSlot;
+        this.titleDialogReturnFocusSelector = null;
         this.beginNewGame(
           slotId,
           this.pendingNewMode,
@@ -658,6 +671,7 @@ export class AppShell {
       button.addEventListener('click', () => {
         this.confirmingDeleteSlot = Number(button.dataset.deleteSlot) as SaveSlotId;
         this.pendingNewMode = null;
+        this.titleDialogReturnFocusSelector = `[data-delete-slot="${button.dataset.deleteSlot}"]`;
         this.signature = '';
         this.render(state);
       }),
@@ -669,6 +683,7 @@ export class AppShell {
           ? `记忆片段 ${this.fragmentNumber(slotId)} 已重新留白`
           : `无法删除记忆片段 ${this.fragmentNumber(slotId)}，请检查浏览器存储权限。`;
         this.confirmingDeleteSlot = null;
+        this.titleDialogReturnFocusSelector = null;
         this.signature = '';
         this.render(state);
       }),
@@ -679,6 +694,7 @@ export class AppShell {
         this.confirmingDeleteSlot = null;
         this.signature = '';
         this.render(state);
+        this.restoreTitleDialogFocus();
       }),
     );
     document.querySelectorAll<HTMLElement>('[data-open]').forEach((button) =>
@@ -717,6 +733,7 @@ export class AppShell {
     document.querySelectorAll<HTMLElement>('[data-request-clear]').forEach((button) =>
       button.addEventListener('click', () => {
         this.confirmingClearData = true;
+        this.titleDialogReturnFocusSelector = '[data-request-clear]';
         this.signature = '';
         this.render(state);
       }),
@@ -727,6 +744,7 @@ export class AppShell {
         this.titleView = 'home';
         this.signature = '';
         this.render(state);
+        this.restoreTitleDialogFocus();
       }),
     );
     document.querySelectorAll<HTMLElement>('[data-confirm-clear]').forEach((button) =>
@@ -738,8 +756,12 @@ export class AppShell {
           return;
         }
         this.confirmingClearData = false;
-        this.store.dispatch({ type: 'RETURN_TITLE' });
+        this.titleDialogReturnFocusSelector = null;
+        // 先同步设置持久化基线，再用 SETTINGS 把内存设置重置为默认值，
+        // 这样随后的分派不会把 clearAll() 刚删除的设置键写回本地存储。
+        this.options?.onSettingsCleared?.();
         this.store.dispatch({ type: 'SETTINGS', patch: normalizeSettings() });
+        this.store.dispatch({ type: 'RETURN_TITLE' });
         this.saveNotice = '已清除全部本地数据';
         this.signature = '';
         this.render(this.store.getState());

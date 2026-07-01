@@ -3,15 +3,21 @@ import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-
 
 const SAVE_KEY = 'erasure.save.slot.1.v1';
 
+async function activateWithKeyboard(locator: ReturnType<Page['locator']>): Promise<void> {
+  await locator.focus();
+  await locator.press('Enter');
+}
+
 async function startGame(page: Page): Promise<void> {
   await page.goto('/');
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await startNewGame(page);
-  await page.getByRole('button', { name: '继续对白' }).click();
-  await page.getByRole('button', { name: '继续对白' }).click();
+  await startNewGame(page, { keyboard: true });
+  const advance = page.getByRole('button', { name: '继续对白' });
+  await activateWithKeyboard(advance);
+  await activateWithKeyboard(advance);
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
 }
 
@@ -79,7 +85,7 @@ test('shows a live keyboard-accessible map and freezes movement while open', asy
   const mapButton = page.getByRole('button', { name: /地图/ });
   await expect(mapButton).toBeVisible();
 
-  await mapButton.click();
+  await activateWithKeyboard(mapButton);
   await expect(page.getByRole('heading', { name: /第一章 · 清晨的家/ })).toBeVisible();
   await expect(page.getByRole('img', { name: /蓝色圆点/ })).toBeVisible();
   await expect(page.getByText('卧室')).toBeVisible();

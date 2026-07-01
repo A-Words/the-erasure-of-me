@@ -136,7 +136,7 @@ test('reads, labels, and deletes memories with keyboard controls on a narrow vie
   await expect(page.getByText('记忆片段 01', { exact: true })).toBeVisible();
   await expect(page.getByText(/第一章 · 清晨的家/)).toBeVisible();
   await expect(page.getByText(/\d{4}\/\d{2}\/\d{2}.*\d{2}:\d{2}/)).toBeVisible();
-  await expect(page.getByText('模糊的记忆')).toBeVisible();
+  await expect(page.getByText('这个片段无法读取')).toBeVisible();
   await expect(page.getByText('空白的记忆')).toBeVisible();
 
   await expect(page.locator('.title-screen .memory-fragment-list')).toBeVisible();
@@ -215,6 +215,11 @@ test('clears all memories, global settings, and the ignored legacy save after co
   await finishOpeningDialogue(page);
   await page.evaluate(() => localStorage.setItem('erasure.save.v1', '{legacy-save}'));
   await page.locator('canvas').press('Escape');
+  // 自定义全局设置，使清除前的设置签名区别于默认值；否则无法检验清除流程是否回写设置键。
+  await page.getByLabel('高对比度').check();
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('erasure.settings.v1')))
+    .toContain('"highContrast":true');
   await page.getByRole('button', { name: '清除本地数据' }).click();
   await page.getByRole('button', { name: '确认清除本地数据' }).click();
 
@@ -227,4 +232,24 @@ test('clears all memories, global settings, and the ignored legacy save after co
     legacy: localStorage.getItem('erasure.save.v1'),
   }));
   expect(remaining).toEqual({ slots: [null, null, null], settings: null, legacy: null });
+});
+
+test('returns focus to the trigger after canceling a title confirmation by keyboard', async ({
+  page,
+}) => {
+  await startNewGame(page);
+  await finishOpeningDialogue(page);
+  await returnToTitle(page);
+
+  await page.getByRole('button', { name: '开始游戏' }).click();
+  await page.getByRole('button', { name: /标准模式/ }).click();
+  const fragment = page.getByRole('button', { name: /记忆片段 01/ });
+  await fragment.focus();
+  await fragment.press('Enter');
+
+  const cancel = page.locator('.save-dialog').getByRole('button', { name: '返回' });
+  await cancel.focus();
+  await cancel.press('Enter');
+
+  await expect(fragment).toBeFocused();
 });

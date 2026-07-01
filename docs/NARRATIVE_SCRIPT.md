@@ -575,7 +575,7 @@
 
 ### system.memory.invalid
 
-模糊的记忆
+这个片段无法读取。删除后可重新开始，其他片段不受影响。
 
 ### system.save.failed
 
