@@ -449,8 +449,12 @@ export class GameScene extends Phaser.Scene {
     if (this.rainOverlays.length !== 2 || state.chapterId !== 'rain') return;
     const reducedMotion = state.settings.reducedMotion;
     if (!reducedMotion) this.rainMotionElapsedMs += Math.max(0, deltaMs);
-    const frame = resolveRainPresentation(this.rainMotionElapsedMs, reducedMotion);
     const map = chapterMaps.rain;
+    const frame = resolveRainPresentation(
+      this.rainMotionElapsedMs,
+      reducedMotion,
+      map.height,
+    );
     this.rainOverlays[0]
       .setPosition(map.width / 2, map.height / 2 + frame.offsetY)
       .setAlpha(frame.alpha)
