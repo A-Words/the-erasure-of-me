@@ -517,6 +517,23 @@ describe('TiledCollisionProvider with multi-map data', () => {
     ).toEqual({ x: 270, y: 430 });
   });
 
+  it('keeps the Return Corridor walk bounds inside the 1280x720 logical map', async () => {
+    const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
+    const provider = new TiledCollisionProvider({
+      'map.home': loadMapJson('map.home'),
+      'map.rain_station': loadMapJson('map.rain_station'),
+      'map.shared_life': loadMapJson('map.shared_life'),
+      'map.return_corridor': loadMapJson('map.return_corridor'),
+      'map.home_ending': loadMapJson('map.home_ending'),
+    });
+    const returnData = provider.getCollisionData('return');
+
+    expect(returnData.walkBounds.minX).toBeGreaterThanOrEqual(0);
+    expect(returnData.walkBounds.maxX).toBeLessThanOrEqual(1280);
+    expect(returnData.walkBounds.minY).toBeGreaterThanOrEqual(0);
+    expect(returnData.walkBounds.maxY).toBeLessThanOrEqual(720);
+  });
+
   it('throws when a chapter is missing Tiled collision data', async () => {
     const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
     expect(() => new TiledCollisionProvider({})).toThrow(

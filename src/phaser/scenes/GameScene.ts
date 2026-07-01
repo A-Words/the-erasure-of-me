@@ -29,6 +29,7 @@ import {
   DOT_ALPHA_MIN,
   DOT_ALPHA_MAX,
 } from '../../game/presentation/breathing';
+import { resolveReturnCues, type ReturnCueKind } from '../../game/presentation/returnCues';
 import { resolveRainPresentation } from '../../game/presentation/rainMotion';
 
 interface EntityView {
@@ -78,6 +79,21 @@ const homePropVisuals: Record<
 
 const worldDepth = (sortY: number): number => 100 + sortY;
 const overlayDepth = 2000;
+
+const returnClueFrames: Record<ReturnCueKind, number> = {
+  arrow: 0,
+  umbrella: 1,
+  footprints: 2,
+  curtain: 3,
+  door: 4,
+};
+
+const returnClueAngles: Record<string, number> = {
+  'route.up': 0,
+  'route.right': 90,
+  'route.down': 180,
+  'route.left': -90,
+};
 
 const lifeSlotPlacedFrames: Record<
   string,
@@ -286,6 +302,7 @@ export class GameScene extends Phaser.Scene {
     this.updateHoldHand(state);
     this.updateEntityVisibility(state);
     this.updateLifeVisualState(state);
+    this.updateReturnVisualState(state);
     this.updateRain(state, 0);
     if (motionPreferenceChanged) {
       for (const view of this.entityViews) {
@@ -529,6 +546,27 @@ export class GameScene extends Phaser.Scene {
         duration: state.settings.reducedMotion ? 140 : lifeCompleted ? 680 : 420,
         ease: 'Sine.easeInOut',
       });
+    }
+  }
+
+  private updateReturnVisualState(state: Readonly<GameState>): void {
+    if (state.chapterId !== 'return') return;
+    const cues = resolveReturnCues({
+      returnJunction: state.puzzles.returnJunction,
+      returnPrefixLength: state.puzzles.returnPrefix?.length,
+      routeLoops: state.puzzles.routeLoops,
+    });
+    const cuesByEntityId = new Map(cues.map((cue) => [`route.${cue.direction}`, cue]));
+
+    for (const view of this.entityViews) {
+      if (!view.definition.id.startsWith('route.') || !view.actor) continue;
+      const cue = cuesByEntityId.get(view.definition.id);
+      view.actor.setVisible(Boolean(cue));
+      if (!cue) continue;
+      view.actor
+        .setTexture('prop.return.clues.atlas', returnClueFrames[cue.kind])
+        .setAngle(returnClueAngles[view.definition.id] ?? 0)
+        .setAlpha(cue.alpha);
     }
   }
 

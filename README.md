@@ -55,11 +55,15 @@ npm run assets:prepare:home-environment
 npm run assets:prepare:life-environment
 npm run assets:prepare:life-props
 npm run assets:pack:life-props
+npm run assets:prepare:return-environment
+npm run assets:render:return-props
 npm run assets:render:home-overlays
 npm run assets:render:environments
 ~~~
 
 `assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景。
+
+`assets:prepare:return-environment` 将第四章 ImageGen 高分辨率原稿裁切为 1280×720 运行时底图；`assets:render:return-props` 从原创 SVG 导出箭头、伞柄影、脚印、窗帘和家门五帧透明图集。
 
 首次运行浏览器端到端测试前，需要安装 Playwright 浏览器；Edge 项目还需要系统已安装 Microsoft Edge：
 

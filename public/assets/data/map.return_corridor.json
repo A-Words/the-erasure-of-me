@@ -5,7 +5,7 @@
   "layers": [
     {
       "id": 3,
-      "image": "../environments/environment_return_v01.png",
+      "image": "../environments/environment_return_v02.png",
       "name": "background",
       "offsetx": 0,
       "offsety": 0,
@@ -34,14 +34,15 @@
       "name": "visual_props",
       "objects": [
         {
-          "height": 60,
+          "gid": 1,
+          "height": 96,
           "id": 6,
           "name": "visual.return.route_up",
           "properties": [
             {
               "name": "size",
               "type": "int",
-              "value": 60
+              "value": 96
             },
             {
               "name": "sortY",
@@ -57,39 +58,25 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "向上出口箭头视觉图"
             }
           ],
           "rotation": 0,
           "type": "prop",
           "visible": true,
-          "width": 60,
-          "x": 610,
-          "y": 120
+          "width": 96,
+          "x": 592,
+          "y": 138
         },
         {
-          "height": 60,
+          "gid": 1,
+          "height": 96,
           "id": 7,
           "name": "visual.return.route_right",
           "properties": [
             {
               "name": "size",
               "type": "int",
-              "value": 60
+              "value": 96
             },
             {
               "name": "sortY",
@@ -105,39 +92,25 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "向右出口箭头视觉图"
             }
           ],
           "rotation": 0,
           "type": "prop",
           "visible": true,
-          "width": 60,
-          "x": 1130,
-          "y": 390
+          "width": 96,
+          "x": 1112,
+          "y": 408
         },
         {
-          "height": 60,
+          "gid": 1,
+          "height": 96,
           "id": 8,
           "name": "visual.return.route_down",
           "properties": [
             {
               "name": "size",
               "type": "int",
-              "value": 60
+              "value": 96
             },
             {
               "name": "sortY",
@@ -153,39 +126,25 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "向下出口箭头视觉图"
             }
           ],
           "rotation": 0,
           "type": "prop",
           "visible": true,
-          "width": 60,
-          "x": 610,
-          "y": 660
+          "width": 96,
+          "x": 592,
+          "y": 678
         },
         {
-          "height": 60,
+          "gid": 1,
+          "height": 96,
           "id": 9,
           "name": "visual.return.route_left",
           "properties": [
             {
               "name": "size",
               "type": "int",
-              "value": 60
+              "value": 96
             },
             {
               "name": "sortY",
@@ -201,29 +160,14 @@
               "name": "visual_reference",
               "type": "bool",
               "value": true
-            },
-            {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "status",
-              "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "向左出口箭头视觉图"
             }
           ],
           "rotation": 0,
           "type": "prop",
           "visible": true,
-          "width": 60,
-          "x": 90,
-          "y": 390
+          "width": 96,
+          "x": 72,
+          "y": 408
         }
       ],
       "opacity": 1,
@@ -298,11 +242,11 @@
       "name": "navigation",
       "objects": [
         {
-          "height": 1160,
+          "height": 600,
           "id": 1,
           "name": "spawn.return.training",
           "type": "spawn",
-          "width": 2194,
+          "width": 1170,
           "x": 55,
           "y": 75
         }
@@ -323,7 +267,7 @@
           "id": 10,
           "name": "collision.return.wall_outer_top",
           "type": "wall",
-          "width": 2304,
+          "width": 1280,
           "x": 0,
           "y": 0
         },
@@ -332,12 +276,12 @@
           "id": 11,
           "name": "collision.return.wall_outer_bottom",
           "type": "wall",
-          "width": 2304,
+          "width": 1280,
           "x": 0,
-          "y": 1235
+          "y": 675
         },
         {
-          "height": 1280,
+          "height": 720,
           "id": 12,
           "name": "collision.return.wall_outer_left",
           "type": "wall",
@@ -346,12 +290,12 @@
           "y": 0
         },
         {
-          "height": 1280,
+          "height": 720,
           "id": 13,
           "name": "collision.return.wall_outer_right",
           "type": "wall",
           "width": 55,
-          "x": 2249,
+          "x": 1225,
           "y": 0
         }
       ],
@@ -368,7 +312,21 @@
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
   "tileheight": 64,
-  "tilesets": [],
+  "tilesets": [
+    {
+      "columns": 5,
+      "firstgid": 1,
+      "image": "../props/prop_return_clues_atlas_v01_5x128x128.png",
+      "imageheight": 128,
+      "imagewidth": 640,
+      "margin": 0,
+      "name": "prop_return_clues_atlas",
+      "spacing": 0,
+      "tilecount": 5,
+      "tileheight": 128,
+      "tilewidth": 128
+    }
+  ],
   "tilewidth": 64,
   "type": "map",
   "version": "1.10",
