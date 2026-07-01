@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { assetManifest } from '../../game/assets/manifest';
 import { isEntityAvailable } from '../../game/content/entitySelectors';
 import {
+  endingArchitectureOverlays,
   homeArchitectureOverlays,
   homeDecorLayout,
   homeEntitySortY,
@@ -396,6 +397,9 @@ export class GameScene extends Phaser.Scene {
           .setDisplaySize(furniture.size, furniture.size)
           .setDepth(worldDepth(furniture.sortY));
       }
+      if (state.chapterId === 'ending') {
+        this.createHomeArchitectureOverlays(map.width, map.height, endingArchitectureOverlays);
+      }
     }
 
     const visualPropsByEntityId = this.indexVisualPropsByEntityId(tiledContent?.visualProps ?? []);
@@ -432,8 +436,12 @@ export class GameScene extends Phaser.Scene {
     this.updatePlayerPose(state);
   }
 
-  private createHomeArchitectureOverlays(width: number, height: number): void {
-    for (const overlay of homeArchitectureOverlays) {
+  private createHomeArchitectureOverlays(
+    width: number,
+    height: number,
+    overlays = homeArchitectureOverlays,
+  ): void {
+    for (const overlay of overlays) {
       this.add
         .image(width / 2, height / 2, overlay.key)
         .setDisplaySize(width, height)

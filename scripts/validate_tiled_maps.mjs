@@ -42,6 +42,8 @@ const VALID_TILESET_NAMES = new Set([
   'prop_home_glasses_case',
   'prop_home_blue_key_bowl',
   'prop_red_umbrella_closed',
+  'prop_ending_noodle_tray',
+  'prop_ending_red_umbrella_faded',
   'prop_life_shared_life_atlas',
   'prop_rain_ticket',
   'prop_rain_stone_2',
@@ -247,13 +249,26 @@ function validateMap(mapId) {
           );
         }
       } else {
-        // Placeholder object (no gid): must have placeholder=true,
-        // status=visual-placeholder, and a non-empty replacement string.
+        // Objects without a gid are either unresolved placeholders or runtime
+        // actors whose texture is selected by Phaser (for example Xiulan).
+        const statusProp = props.find((p) => p.name === 'status');
+        const entityIdProp = props.find((p) => p.name === 'entityId');
+        if (statusProp?.value === 'actor-bound') {
+          if (
+            !entityIdProp ||
+            typeof entityIdProp.value !== 'string' ||
+            entityIdProp.value.length === 0
+          ) {
+            errors.push(`Visual object "${obj.name}" is actor-bound but has no entityId binding`);
+          }
+          continue;
+        }
+
+        // Unresolved placeholder: require explicit replacement metadata.
         const placeholderProp = props.find((p) => p.name === 'placeholder');
         if (!placeholderProp || placeholderProp.value !== true) {
           errors.push(`Visual object "${obj.name}" has no gid but is missing placeholder=true`);
         }
-        const statusProp = props.find((p) => p.name === 'status');
         if (!statusProp || statusProp.value !== 'visual-placeholder') {
           errors.push(
             `Visual object "${obj.name}" has no gid but status is not "visual-placeholder"`,
@@ -270,7 +285,6 @@ function validateMap(mapId) {
           );
         }
         // Placeholder must still have entityId pointing to a real interactable
-        const entityIdProp = props.find((p) => p.name === 'entityId');
         if (
           !entityIdProp ||
           typeof entityIdProp.value !== 'string' ||

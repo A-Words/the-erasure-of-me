@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-项目已建立 Phaser 工程，并进入可运行垂直切片阶段。当前版本包含标题与内容提示、五个场景、D0–D4 退化、标准/低扰动模式、四类谜题、DOM HUD 与系统菜单、自动存档、尾声和科普页。五章环境候选、第三章“三扇同源窗”正式背景与透明道具图集、许志远四方向呼吸待机、行走/停止、观察、拾取与牵手、秀兰等待伸手、红伞、五幅核心记忆插图、五章 Web Audio 声场与四路混音已经接入；真人关键语音与外部审核仍需按路线图收尾。
+项目已建立 Phaser 工程，并进入可运行垂直切片阶段。当前版本包含标题与内容提示、五个场景、D0–D4 退化、标准/低扰动模式、四类谜题、DOM HUD 与系统菜单、自动存档、尾声和科普页。五章环境候选、第三章“三扇同源窗”正式背景与透明道具图集、尾声现实住宅/热面托盘/褪色红伞、许志远四方向呼吸待机、行走/停止、观察、拾取与牵手、秀兰等待伸手、五幅核心记忆插图、五章 Web Audio 声场与四路混音已经接入；真人关键语音与外部审核仍需按路线图收尾。
 
 - 目标体验：20–30 分钟垂直切片
 - 技术基线：Phaser 3 + TypeScript + Vite
@@ -53,13 +53,14 @@ npm run release:package:internal
 npm run release:package -- <PASS 汇总报告路径>
 npm run assets:prepare:home-environment
 npm run assets:prepare:life-environment
+npm run assets:prepare:ending
 npm run assets:prepare:life-props
 npm run assets:pack:life-props
 npm run assets:render:home-overlays
 npm run assets:render:environments
 ~~~
 
-`assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景。
+`assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景。`assets:prepare:ending` 会从已批准的住宅壳层派生碰撞注册不变的尾声明亮态，规范化热面托盘和褪色红伞，并重建 `map.home_ending` 的正式视觉参照层。
 
 首次运行浏览器端到端测试前，需要安装 Playwright 浏览器；Edge 项目还需要系统已安装 Microsoft Edge：
 

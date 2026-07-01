@@ -118,7 +118,21 @@ export const assetManifest = [
   {
     key: 'environment.ending.background',
     type: 'image',
-    url: 'assets/environments/environment_ending_v01.png',
+    url: 'assets/environments/environment_ending_v02.png',
+    chapter: 'ending',
+    preload: true,
+  },
+  {
+    key: 'environment.ending.crosswall_overlay',
+    type: 'image',
+    url: 'assets/environments/environment_ending_crosswall_overlay_v01.png',
+    chapter: 'ending',
+    preload: true,
+  },
+  {
+    key: 'environment.ending.frontwall_overlay',
+    type: 'image',
+    url: 'assets/environments/environment_ending_frontwall_overlay_v01.png',
     chapter: 'ending',
     preload: true,
   },
@@ -219,6 +233,20 @@ export const assetManifest = [
     key: 'prop.red_umbrella.closed',
     type: 'image',
     url: 'assets/props/prop_red_umbrella_closed_v01.png',
+    preload: true,
+  },
+  {
+    key: 'prop.ending.noodle_tray',
+    type: 'image',
+    url: 'assets/props/prop_ending_noodle_tray_v01.png',
+    chapter: 'ending',
+    preload: true,
+  },
+  {
+    key: 'prop.ending.red_umbrella_faded',
+    type: 'image',
+    url: 'assets/props/prop_ending_red_umbrella_faded_v01.png',
+    chapter: 'ending',
     preload: true,
   },
   {
