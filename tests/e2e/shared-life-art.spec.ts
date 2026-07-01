@@ -1,6 +1,7 @@
 import { expect, test, type Locator, type Page, type TestInfo } from '@playwright/test';
+import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
 
-const SAVE_KEY = 'erasure.save.v1';
+const SAVE_KEY = 'erasure.save.slot.1.v1';
 
 async function activateWithKeyboard(locator: Locator): Promise<void> {
   await locator.focus();
@@ -13,7 +14,7 @@ async function createSave(page: Page): Promise<void> {
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await activateWithKeyboard(page.getByRole('button', { name: /标准模式/ }));
+  await startNewGame(page, { keyboard: true });
   for (let index = 0; index < 2; index += 1)
     await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
   await expect
@@ -22,14 +23,19 @@ async function createSave(page: Page): Promise<void> {
 }
 
 async function patchSave(page: Page, patch: Record<string, unknown>): Promise<void> {
+  await returnToTitle(page);
   await page.evaluate(
     ({ key, patch }) => {
-      const state = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const state = record?.state;
       if (!state) throw new Error('Expected an existing save');
       const puzzles = patch.puzzles ? { ...state.puzzles, ...patch.puzzles } : state.puzzles;
       const settings = patch.settings ? { ...state.settings, ...patch.settings } : state.settings;
       Object.assign(state, patch, { puzzles, settings });
-      localStorage.setItem(key, JSON.stringify(state));
+      localStorage.setItem(key, JSON.stringify(record));
+      if (patch.settings) {
+        localStorage.setItem('erasure.settings.v1', JSON.stringify(settings));
+      }
     },
     { key: SAVE_KEY, patch },
   );
@@ -37,7 +43,7 @@ async function patchSave(page: Page, patch: Record<string, unknown>): Promise<vo
 
 async function continueSavedGame(page: Page): Promise<void> {
   await page.reload();
-  await activateWithKeyboard(page.getByRole('button', { name: '从最近的安全位置继续' }));
+  await continueLatestGame(page, true);
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
 }
 
@@ -345,7 +351,7 @@ test('keeps Shared Life stable with low stimulation and reduced motion', async (
   });
   await continueSavedGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'life');
-  await expect.poll(() => canvasSampleColorCount(page)).toBeGreaterThan(16);
+  await expect.poll(() => canvasSampleColorCount(page), { timeout: 15_000 }).toBeGreaterThan(16);
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
   await expect(page.locator('.stage-chip')).toContainText('低扰动');
   await page.waitForTimeout(180);

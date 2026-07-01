@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { continueLatestGame, startNewGame } from './helpers/game-navigation';
 
 /**
  * Lightweight runtime smoke tests for all 5 Tiled maps.
@@ -142,7 +143,7 @@ async function bootFreshGame(page: Page): Promise<void> {
   await page.waitForLoadState('networkidle');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByRole('button', { name: /标准模式/ }).click();
+  await startNewGame(page);
   // Home chapter opens with two dialogue lines
   await page.getByRole('button', { name: '继续对白' }).click();
   await page.getByRole('button', { name: '继续对白' }).click();
@@ -158,13 +159,15 @@ async function bootIntoChapter(page: Page, chapterId: string): Promise<void> {
   // Inject save before reload so the game picks it up
   await page.evaluate(
     ({ save }) => {
-      localStorage.setItem('erasure.save.v1', JSON.stringify(save));
+      localStorage.setItem(
+        'erasure.save.slot.1.v1',
+        JSON.stringify({ formatVersion: 1, savedAt: new Date().toISOString(), state: save }),
+      );
     },
     { save: buildChapterSave(chapterId) },
   );
   await page.reload();
-  // "从最近的安全位置继续" appears when a valid save exists
-  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+  await continueLatestGame(page);
 }
 
 /** Verify the chapter renders correctly: canvas visible, chapterId matches, no errors or fallbacks. */
@@ -255,12 +258,15 @@ test('tiled map smoke: sequential chapter saves do not corrupt state', async ({ 
     await page.evaluate(() => localStorage.clear());
     await page.evaluate(
       ({ save }) => {
-        localStorage.setItem('erasure.save.v1', JSON.stringify(save));
+        localStorage.setItem(
+          'erasure.save.slot.1.v1',
+          JSON.stringify({ formatVersion: 1, savedAt: new Date().toISOString(), state: save }),
+        );
       },
       { save: buildChapterSave(chapterId) },
     );
     await page.reload();
-    await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+    await continueLatestGame(page);
 
     const app = page.locator('#app');
     await expect(app).toHaveAttribute('data-chapter', chapterId, { timeout: 10_000 });

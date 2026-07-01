@@ -75,7 +75,9 @@ export class GameStore {
   }
 
   replaceFromSave(state: GameState): void {
+    const settings = this.state.settings;
     this.state = structuredClone(state);
+    this.state.settings = settings;
     this.emit();
   }
 

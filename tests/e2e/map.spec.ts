@@ -1,65 +1,79 @@
 import { expect, test, type Page } from '@playwright/test';
+import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
+
+const SAVE_KEY = 'erasure.save.slot.1.v1';
+
+async function activateWithKeyboard(locator: ReturnType<Page['locator']>): Promise<void> {
+  await locator.focus();
+  await locator.press('Enter');
+}
 
 async function startGame(page: Page): Promise<void> {
   await page.goto('/');
+  await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
-  await page.getByRole('button', { name: /标准模式/ }).click();
-  await page.getByRole('button', { name: '继续对白' }).click();
-  await page.getByRole('button', { name: '继续对白' }).click();
+  await startNewGame(page, { keyboard: true });
+  const advance = page.getByRole('button', { name: '继续对白' });
+  await activateWithKeyboard(advance);
+  await activateWithKeyboard(advance);
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
 }
 
-async function loadRain(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const key = 'erasure.save.v1';
-    const state = JSON.parse(localStorage.getItem(key) ?? 'null');
-    if (!state) throw new Error('Expected a save after starting the game');
-    Object.assign(state, {
-      phase: 'playing',
-      chapterId: 'rain',
-      checkpointId: 'checkpoint.rain.start',
-      degradationStage: 'D1',
-      objective: '按 2 → 4 → 5 踩亮石板，再跟随红伞',
-      player: { x: 228, y: 600, facing: 'right', moving: false },
-      flags: [],
-      modal: null,
-      dialogue: [],
-      dialogueIndex: 0,
-      activeMemoryId: null,
-      message: null,
-    });
-    state.puzzles.stationSequence = [2];
-    localStorage.setItem(key, JSON.stringify(state));
-  });
+async function patchSave(page: Page, patch: Record<string, unknown>): Promise<void> {
+  await returnToTitle(page);
+  await page.evaluate(
+    ({ key, patch }) => {
+      const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+      const state = record?.state;
+      if (!state) throw new Error('Expected a save after starting the game');
+      const puzzles = patch.puzzles ? { ...state.puzzles, ...patch.puzzles } : state.puzzles;
+      Object.assign(state, patch, { puzzles });
+      localStorage.setItem(key, JSON.stringify(record));
+    },
+    { key: SAVE_KEY, patch },
+  );
   await page.reload();
-  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+  await continueLatestGame(page);
+}
+
+async function loadRain(page: Page): Promise<void> {
+  await patchSave(page, {
+    phase: 'playing',
+    chapterId: 'rain',
+    checkpointId: 'checkpoint.rain.start',
+    degradationStage: 'D1',
+    objective: '按 2 → 4 → 5 踩亮石板，再跟随红伞',
+    player: { x: 228, y: 600, facing: 'right', moving: false },
+    flags: [],
+    puzzles: { stationSequence: [2] },
+    modal: null,
+    dialogue: [],
+    dialogueIndex: 0,
+    activeMemoryId: null,
+    message: null,
+    rainMapClosedAtX: null,
+    mapWashSeconds: 0,
+  });
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'rain');
 }
 
 async function loadEnding(page: Page): Promise<void> {
-  await page.evaluate(() => {
-    const key = 'erasure.save.v1';
-    const state = JSON.parse(localStorage.getItem(key) ?? 'null');
-    if (!state) throw new Error('Expected a save after starting the game');
-    Object.assign(state, {
-      phase: 'playing',
-      chapterId: 'ending',
-      checkpointId: 'checkpoint.ending.start',
-      degradationStage: 'D4',
-      objective: '走近秀兰',
-      player: { x: 920, y: 430, facing: 'down', moving: false },
-      flags: [],
-      modal: null,
-      dialogue: [],
-      dialogueIndex: 0,
-      activeMemoryId: null,
-      message: null,
-    });
-    localStorage.setItem(key, JSON.stringify(state));
+  await patchSave(page, {
+    phase: 'playing',
+    chapterId: 'ending',
+    checkpointId: 'checkpoint.ending.start',
+    degradationStage: 'D4',
+    objective: '走近秀兰',
+    player: { x: 920, y: 430, facing: 'down', moving: false },
+    flags: [],
+    modal: null,
+    dialogue: [],
+    dialogueIndex: 0,
+    activeMemoryId: null,
+    message: null,
   });
-  await page.reload();
-  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'ending');
 }
 
@@ -71,7 +85,7 @@ test('shows a live keyboard-accessible map and freezes movement while open', asy
   const mapButton = page.getByRole('button', { name: /地图/ });
   await expect(mapButton).toBeVisible();
 
-  await mapButton.click();
+  await activateWithKeyboard(mapButton);
   await expect(page.getByRole('heading', { name: /第一章 · 清晨的家/ })).toBeVisible();
   await expect(page.getByRole('img', { name: /蓝色圆点/ })).toBeVisible();
   await expect(page.getByText('卧室')).toBeVisible();
@@ -98,26 +112,39 @@ test('shows the washed rain map while retaining reliable markers', async ({ page
   await mapButton.click();
   await expect(page.locator('.map-drawing.expanded')).toHaveClass(/full/);
   await page.keyboard.press('q');
-  const washedSave = await page.evaluate(() => {
-    const key = 'erasure.save.v1';
-    const state = JSON.parse(localStorage.getItem(key) ?? 'null');
-    if (!state) throw new Error('Expected the rain save to exist');
-    state.flags = [
+
+  // Closing the map establishes the wash trigger origin and must save immediately.
+  await expect
+    .poll(() =>
+      page.evaluate((key) => {
+        const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+        return record?.state?.rainMapClosedAtX;
+      }, SAVE_KEY),
+    )
+    .toBe(228);
+
+  const washedSave = await page.evaluate((key) => {
+    const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+    if (!record?.state) throw new Error('Expected the rain save to exist');
+    record.state.flags = [
       ...new Set([
-        ...state.flags,
+        ...record.state.flags,
         'flag.rain.map_opened',
         'flag.rain.map_closed',
         'degradation.d1.started',
       ]),
     ];
-    return JSON.stringify(state);
-  });
-  await page.addInitScript(({ key, save }) => localStorage.setItem(key, save), {
-    key: 'erasure.save.v1',
-    save: washedSave,
-  });
+    record.state.rainMapClosedAtX = null;
+    return JSON.stringify(record);
+  }, SAVE_KEY);
+  await page.addInitScript(
+    ({ key, save }) => {
+      localStorage.setItem(key, save);
+    },
+    { key: SAVE_KEY, save: washedSave },
+  );
   await page.reload();
-  await page.getByRole('button', { name: '从最近的安全位置继续' }).click();
+  await continueLatestGame(page);
   await expect(app).toHaveAttribute('data-map-mode', 'washed', { timeout: 3000 });
 
   await mapButton.click();
