@@ -75,8 +75,8 @@ export class SaveRepository {
   }
 
   getSlotSummary(slotId: SaveSlotId): SaveSlotSummary {
-    const raw = this.storage.getItem(saveSlotKey(slotId));
-    if (!raw) return emptySummary(slotId);
+    const raw = this.safeGetItem(saveSlotKey(slotId));
+    if (raw === null) return emptySummary(slotId);
     const record = this.parseRecord(raw);
     return record ? this.summaryFromRecord(slotId, record) : invalidSummary(slotId);
   }
@@ -120,8 +120,8 @@ export class SaveRepository {
   }
 
   loadSlot(slotId: SaveSlotId, settings?: AccessibilitySettings): GameState | null {
-    const raw = this.storage.getItem(saveSlotKey(slotId));
-    if (!raw) return null;
+    const raw = this.safeGetItem(saveSlotKey(slotId));
+    if (raw === null) return null;
     const state = this.parseRecord(raw)?.state ?? null;
     if (!state) return null;
     if (settings) state.settings = normalizeSettings(settings);
@@ -139,8 +139,8 @@ export class SaveRepository {
   }
 
   loadSettings(): AccessibilitySettings | null {
-    const raw = this.storage.getItem(SETTINGS_KEY);
-    if (!raw) return null;
+    const raw = this.safeGetItem(SETTINGS_KEY);
+    if (raw === null) return null;
     try {
       const parsed: unknown = JSON.parse(raw);
       if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
@@ -168,6 +168,14 @@ export class SaveRepository {
       return true;
     } catch {
       return false;
+    }
+  }
+
+  private safeGetItem(key: string): string | null {
+    try {
+      return this.storage.getItem(key);
+    } catch {
+      return null;
     }
   }
 
