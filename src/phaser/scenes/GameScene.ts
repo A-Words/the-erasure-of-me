@@ -352,8 +352,8 @@ export class GameScene extends Phaser.Scene {
       this.updateRain(state, 0);
     }
 
-    // Parse Tiled JSON into pure data structures. Falls back to code constants
-    // if the Tiled map lacks visual layers (e.g. non-home chapters).
+    // Parse Tiled JSON into pure data structures. Home decor/furniture has a
+    // code fallback below; non-home chapters render their Tiled visual data.
     const tiledRawData = this.cache.json.get(`${map.id}.raw`);
     let tiledContent: TiledMapContent | null = null;
     if (tiledRawData) {
@@ -473,11 +473,7 @@ export class GameScene extends Phaser.Scene {
     const reducedMotion = state.settings.reducedMotion;
     if (!reducedMotion) this.rainMotionElapsedMs += Math.max(0, deltaMs);
     const map = chapterMaps.rain;
-    const frame = resolveRainPresentation(
-      this.rainMotionElapsedMs,
-      reducedMotion,
-      map.height,
-    );
+    const frame = resolveRainPresentation(this.rainMotionElapsedMs, reducedMotion, map.height);
     this.rainOverlays[0]
       .setPosition(map.width / 2, map.height / 2 + frame.offsetY)
       .setAlpha(frame.alpha)

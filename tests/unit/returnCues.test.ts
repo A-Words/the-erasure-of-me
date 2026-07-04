@@ -34,4 +34,19 @@ describe('resolveReturnCues', () => {
       { direction: 'up', kind: 'arrow', alpha: 0.42 },
     ]);
   });
+
+  it('clamps corrupted negative junction and prefix values to safe stages', () => {
+    expect(
+      resolveReturnCues({ returnJunction: -1, returnPrefixLength: -2, routeLoops: 0 }),
+    ).toEqual([
+      { direction: 'right', kind: 'arrow', alpha: 0.9 },
+      { direction: 'up', kind: 'arrow', alpha: 0.42 },
+    ]);
+    expect(resolveReturnCues({ returnJunction: 2, returnPrefixLength: -1, routeLoops: 0 })).toEqual(
+      [
+        { direction: 'up', kind: 'curtain', alpha: 0.9 },
+        { direction: 'left', kind: 'umbrella', alpha: 0.42 },
+      ],
+    );
+  });
 });

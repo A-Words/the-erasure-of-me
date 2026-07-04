@@ -366,8 +366,8 @@ Rain Station 的环境表现拆为底图、地面积水反光层和雨线层：T
 
 | 数据 | Tiled 驱动 | 代码 fallback |
 | --- | --- | --- |
-| 家具视觉位置/帧/尺寸 | `visual_furniture` 层 | `homeLayout.ts:homeFurnitureLayout` |
-| 装饰视觉位置/帧/尺寸 | `visual_decor` 层 | `homeLayout.ts:homeDecorLayout` |
+| 家具视觉位置/帧/尺寸 | `visual_furniture` 层 | 仅 home：`homeLayout.ts:homeFurnitureLayout` |
+| 装饰视觉位置/帧/尺寸 | `visual_decor` 层 | 仅 home：`homeLayout.ts:homeDecorLayout` |
 | 道具视觉位置/尺寸 | `visual_props` 层（通过 entityId 绑定实体） | `maps.ts:chapterMaps.home.entities` |
 | 交互物坐标/kind | `interactables` 层 | `maps.ts:chapterMaps.home.entities` |
 | 实体深度排序 sortY | `visual_props` 层 sortY 属性 | `homeLayout.ts:homeEntitySortY` |
@@ -377,7 +377,7 @@ Rain Station 的环境表现拆为底图、地面积水反光层和雨线层：T
 | 角色缩放 | 代码常量 | `homeLayout.ts:homeVisualSizes.characterScale` |
 | 道具视觉映射 | 代码常量 | `GameScene.ts:homePropVisuals` |
 
-GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 通过纯数据依赖注入接收碰撞数据：`main.ts` 在启动时 fetch 全部 5 张地图 JSON，通过 `TiledCollisionProvider` 解析为 `AxisAlignedRect[]` 和 `MovementBounds`，注入 GameStore 构造函数。GameStore 不再直接导入 `homeLayout.ts` 的碰撞常量；`CodeCollisionProvider` 作为测试 fallback 仍使用代码常量。
+GameScene 优先使用 Tiled 适配层数据；只有 home 章节的 `visual_furniture` / `visual_decor` 缺失或解析失败时，才回退到 `homeLayout.ts` 中的住宅视觉代码常量，其他章节继续使用各自的 Tiled 视觉数据。GameStore 通过纯数据依赖注入接收碰撞数据：`main.ts` 在启动时 fetch 全部 5 张地图 JSON，通过 `TiledCollisionProvider` 解析为 `AxisAlignedRect[]` 和 `MovementBounds`，注入 GameStore 构造函数。GameStore 不再直接导入 `homeLayout.ts` 的碰撞常量；`CodeCollisionProvider` 作为测试 fallback 仍使用代码常量。
 
 **5 张地图迁移状态：**
 

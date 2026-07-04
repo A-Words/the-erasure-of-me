@@ -54,7 +54,7 @@
 
 `visual_props` 通过 `entityId` 绑定 `interactables` 层实体，例如 `visual.home.key_bowl` 绑定 `entity.home.key_bowl`。`visual_furniture` 通过 `collisionId` 绑定 `collision` 层脚印矩形，例如 `visual.home.sofa` 绑定 `collision.home.sofa`。Tiled tile object 使用左下角坐标；适配层转换为 Phaser Image 的中心坐标，关卡作者不需要在 Tiled 中手动抵消偏移。
 
-如果 Tiled JSON 缺少 visual\_\* 层或解析失败，GameScene 自动回退到 `homeLayout.ts` 代码常量。GameStore 的碰撞和行走边界通过 `CollisionDataProvider` 注入；生产入口使用 `TiledCollisionProvider`，`CodeCollisionProvider` 仅作为测试或明确 fallback 使用。
+GameScene 只在 home 章节的 `visual_decor` 或 `visual_furniture` 无法从 Tiled 取得时，回退到 `homeLayout.ts` 中的 `homeDecorLayout` / `homeFurnitureLayout` 代码常量；其他章节继续使用各自的 Tiled 数据，不共享这套住宅视觉 fallback。GameStore 的碰撞和行走边界通过 `CollisionDataProvider` 注入；生产入口使用 `TiledCollisionProvider`，`CodeCollisionProvider` 仅作为测试或明确 fallback 使用。
 
 ### 2.4 Placeholder visual_props 规范
 
@@ -462,7 +462,7 @@
 
 三级提示示例：“先朝伞柄指向的方向走。方向键和脚步的关系已经转过一圈。”
 
-第四章线索由 `prop.return.clues.atlas` 的正式 Tiled visual_props 承载，谜题状态仍是唯一真值。当前步骤使用 0.9 alpha，后续步骤使用 0.42 alpha；第一次错路只把当前标记提升到 1，第二次错路把当前标记替换为脚印。第一路口显示右、上两枚箭头；第二路口显示下箭头与右侧伞柄影；第三路口按当前前缀显示上方窗帘、左侧伞柄影、上方窗帘。静音时第三路口仍保留同一窗帘和伞柄视觉，不改变路线答案。三路口完成后隐藏其余出口 visual_props，只在上方显示现实家门。
+第四章线索由 `prop.return.clues.atlas` 的正式 Tiled visual_props 承载，谜题状态仍是唯一真值。当前步骤使用 0.9 alpha，后续步骤使用 0.42 alpha；第一次错路只把当前标记提升到 1，第二次错路把当前标记替换为脚印。第一路口显示右、上两枚箭头；第二路口显示下箭头与右侧伞柄影；第三路口按当前前缀同时显示上方窗帘与左侧伞柄影；路线第三步再次使用上方窗帘作为阶段提示，但不会同时显示重复窗帘。静音时第三路口仍保留同一窗帘和伞柄视觉，不改变路线答案。三路口完成后隐藏其余出口 visual_props，只在上方显示现实家门。
 
 ### 7.7 章节完成
 

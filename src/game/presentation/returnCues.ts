@@ -15,6 +15,10 @@ interface ReturnCueState {
 }
 
 const cuePlans: ReadonlyArray<ReadonlyArray<Omit<ReturnCue, 'alpha'>>> = [
+  // cuePlans entries are ordered by prefixLength stage. resolveReturnCues()
+  // starts at the current stage, makes the first remaining cue primary, and
+  // dims later cues. Repeated entries intentionally model a direction that
+  // becomes relevant again after an intermediate step.
   [
     { direction: 'right', kind: 'arrow' },
     { direction: 'up', kind: 'arrow' },
@@ -31,8 +35,8 @@ const cuePlans: ReadonlyArray<ReadonlyArray<Omit<ReturnCue, 'alpha'>>> = [
 ];
 
 export function resolveReturnCues(state: ReturnCueState): ReturnCue[] {
-  const junction = state.returnJunction ?? 0;
-  const prefixLength = state.returnPrefixLength ?? 0;
+  const junction = Math.max(0, state.returnJunction ?? 0);
+  const prefixLength = Math.max(0, state.returnPrefixLength ?? 0);
   const routeLoops = state.routeLoops ?? 0;
 
   if (junction >= cuePlans.length) {
@@ -45,6 +49,9 @@ export function resolveReturnCues(state: ReturnCueState): ReturnCue[] {
 
   for (let index = step; index < plan.length; index += 1) {
     const cue = plan[index];
+    // The Map keeps simultaneous cues unique by direction. For example, the
+    // third plan's repeated up/curtain entry narrows the later stage without
+    // showing two identical curtain cues at once.
     if (visible.has(cue.direction)) continue;
     const primary = index === step;
     visible.set(cue.direction, {
