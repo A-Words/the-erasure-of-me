@@ -1,6 +1,6 @@
 # 《记忆的缝隙》资产登记台账
 
-> 最近更新：2026-06-28
+> 最近更新：2026-07-12
 > 规则来源：ART_BIBLE.md 第 8、9 节
 
 本表记录进入仓库的美术与音频资产。只有来源、许可证、锚点和审核状态完整的资产才能标记为 `shipped`。
@@ -13,7 +13,7 @@
 | character.xu_old.walk.down | 项目团队 | assets-source/art/characters/character_xu_old_walk_down_v01_chromakey.png | public/assets/characters/character_xu_old_walk_down_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向下待机种子 |
 | character.xu_old.walk.up | 项目团队 | assets-source/art/characters/character_xu_old_walk_up_v01_chromakey.png | public/assets/characters/character_xu_old_walk_up_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向上待机种子 |
 | character.xu_old.walk.right | 项目团队 | assets-source/art/characters/character_xu_old_walk_right_v01_chromakey.png | public/assets/characters/character_xu_old_walk_right_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；左向由同一条带镜像，松键恢复领域朝向锚点 |
-| character.xu_old.observe.down | 项目团队 | assets-source/art/characters/character_xu_old_observe_down_v01_chromakey.png | public/assets/characters/character_xu_old_observe_down_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；按住 Shift 时由收拢姿态进入安静观察 |
+| character.xu_old.observe.down | 项目团队 | assets-source/art/characters/character_xu_old_observe_down_v01_chromakey.png | public/assets/characters/character_xu_old_observe_down_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；按住 Shift 时由收拢姿态进入“静静留意” |
 | character.xu_old.observe.up | 项目团队 | assets-source/art/characters/character_xu_old_observe_up_v01_chromakey.png | public/assets/characters/character_xu_old_observe_up_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；严格后背视角，不通过面部表达认知状态 |
 | character.xu_old.observe.right | 项目团队 | assets-source/art/characters/character_xu_old_observe_right_v01_chromakey.png | public/assets/characters/character_xu_old_observe_right_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；左向镜像；减少动态固定为开放手掌注意姿态 |
 | character.xu_old.pickup.down | 项目团队 | assets-source/art/characters/character_xu_old_pickup_down_v01_chromakey.png | public/assets/characters/character_xu_old_pickup_down_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-23 | 6×64×96；底部中心锚点；8 FPS 单次播放；上下朝向共用；不绘制特定道具 |
@@ -27,9 +27,9 @@
 | prop.home.red_thread_journal | 项目团队 | assets-source/art/props/prop_home_red_thread_journal_v01_chromakey.png | public/assets/props/prop_home_red_thread_journal_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 44×44；米色布封面、线装边与红线书签；独立拾取素材 |
 | prop.home.blue_key_bowl | 项目团队 | assets-source/art/props/prop_home_blue_key_bowl_v01_chromakey.png | public/assets/props/prop_home_blue_key_bowl_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 32×32，置于玄关桌面；低饱和蓝碗、两道金色修补线与两把旧钥匙 |
 | prop.home.glasses_case | 项目团队 | assets-source/art/props/prop_home_glasses_case_v01_chromakey.png | public/assets/props/prop_home_glasses_case_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 38×38；旧棕布硬盒与红胶布角标；不显示眼镜 |
-| prop.life.photo.move_1979 | 项目团队 | assets-source/art/props/prop_life_photo_move_1979_v02_chromakey.png | public/assets/props/prop_life_photo_move_1979_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 0；运行时显示 44×44；新家、纸箱和空房构成年代线索，不包含生成式年份文字 |
-| prop.life.photo.osmanthus_1992 | 项目团队 | assets-source/art/props/prop_life_photo_osmanthus_1992_v02_chromakey.png | public/assets/props/prop_life_photo_osmanthus_1992_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 1；运行时显示 44×44；桂花、同源窗和身高刻度构成年代线索，不包含生成式年份文字 |
-| prop.life.photo.anniversary_2001 | 项目团队 | assets-source/art/props/prop_life_photo_anniversary_2001_v02_chromakey.png | public/assets/props/prop_life_photo_anniversary_2001_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 2；运行时显示 44×44；银色双环、蛋糕和人物年龄构成年代线索，不包含生成式年份文字 |
+| prop.life.photo.move_1979 | 项目团队 | assets-source/art/props/prop_life_photo_move_1979_v02_chromakey.png | public/assets/props/prop_life_photo_move_1979_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 0，并由 DOM 相册卡复用原图；世界内显示 44×44；新家、纸箱和空房构成年代线索，不包含生成式年份文字 |
+| prop.life.photo.osmanthus_1992 | 项目团队 | assets-source/art/props/prop_life_photo_osmanthus_1992_v02_chromakey.png | public/assets/props/prop_life_photo_osmanthus_1992_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 1，并由 DOM 相册卡复用原图；世界内显示 44×44；桂花、同源窗和身高刻度构成年代线索，不包含生成式年份文字 |
+| prop.life.photo.anniversary_2001 | 项目团队 | assets-source/art/props/prop_life_photo_anniversary_2001_v02_chromakey.png | public/assets/props/prop_life_photo_anniversary_2001_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 2，并由 DOM 相册卡复用原图；世界内显示 44×44；银色双环、蛋糕和人物年龄构成年代线索，不包含生成式年份文字 |
 | prop.life.album | 项目团队 | assets-source/art/props/prop_life_album_v01_chromakey.png | public/assets/props/prop_life_album_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 3；运行时显示 44×44；打开的空相册，三格照片位 |
 | prop.life.wood_comb | 项目团队 | assets-source/art/props/prop_life_wood_comb_v01_chromakey.png | public/assets/props/prop_life_wood_comb_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 4；运行时显示 44×44；木梳、密齿、修补裂缝和条纹凹槽 |
 | prop.life.enamel_cup | 项目团队 | assets-source/art/props/prop_life_enamel_cup_v01_chromakey.png | public/assets/props/prop_life_enamel_cup_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 5；运行时显示 44×44；搪瓷杯、桂花图案、圆点纹理和磨损杯底 |
@@ -73,13 +73,13 @@
 | environment.rain.rain_overlay | 项目团队 | scripts/prepare_rain_environment_overlays.py | public/assets/environments/environment_rain_rain_overlay_v01.png | 项目程序化透明叠层；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 透明 PNG；雨线层，运行时叠在雨站底图上、props 下方；减少动态效果时降低透明度 |
 | environment.life.background | 项目团队 | assets-source/art/environments/environment_life_v02_generated.png | public/assets/environments/environment_life_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查与 Playwright 三视口验收 | 2026-06-28 | 1280×720；同一家庭在 1979/1992/2001 同时显影；三扇窗严格复用相同外框、四格、插销与右下磕痕；右侧餐桌收小并提高夜景暗部可读性；不烘焙拾取物或年份文字 |
 | environment.life.resolved | 项目团队 | assets-source/art/environments/environment_life_resolved_v01_generated.png | public/assets/environments/environment_life_resolved_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查、淡变中点与 Playwright 完成态验收 | 2026-06-28 | 1280×720；与 Shared Life v02 墙体、走廊、中央桌及固定家具注册对齐；只保留中间成熟桂花窗，移除左右时间窗、纸箱、年代接缝及停电宴席，统一为同向晨光和日常圆桌；不承担谜题真值 |
-| environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v01.svg | public/assets/environments/environment_return_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；重复十字长廊、四向地砖箭头与暗红伞痕 |
-| environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v01.svg | public/assets/environments/environment_ending_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；回到现实清晨、暖白留白、桌上两碗热面 |
+| environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v02_generated.png | public/assets/environments/environment_return_v02.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 1672×941 原稿；1280×720 WebP 质量 90 导出；“缝隙长廊”复用家中木地板、雨站湿石板与共同生活花砖；底图不烘焙箭头、伞影、波纹或脚印；待外部美术审核 |
+| environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v02_generated.png | public/assets/environments/environment_ending_v02.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 1672×941 原稿；1280×720 WebP 质量 90 导出；温暖清晨、开放中央构图、桌上两碗面与右墙褪色红伞；待外部美术与敏感性审核 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | Codex 静态数据同步；本轮未跑自动化测试 | 2026-06-25 | Tiled 对象层提供出生区、稳定 ID 与 17 个家具/墙体碰撞矩形；v10 扩大上方开口并拆分左下竖墙以恢复储物间通道；右侧门洞只保留室内侧 hotspot，不要求走入门槛；门 hotspot 位于 `(1225, 560)` |
 | map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | Codex validate:maps | 2026-06-26 | Tiled 对象层提供 2→4→5、伞标与出口；visual_props 已为车票、石板、红伞招牌和钟表铺红伞分配正式 gid |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps` 与 Chromium 完整流程 | 2026-06-27 | Tiled 对象层提供照片、物件和三槽位；visual_props 使用 v02 图集；1280×720 导航/碰撞与正式背景对齐；已移除 exit visual-placeholder |
-| map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供四向出口；背景箭头与世界方向一致 |
-| map.home_ending | 项目团队 | public/assets/data/map.home_ending.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供秀兰锚点；正式尾声背景和 D4 构图已接入 |
+| map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供四向出口且逻辑路线、检查点、碰撞与 D3 不变；v02 底图不含答案，箭头、伞影、哼唱波纹与脚印由状态派生 |
+| map.home_ending | 项目团队 | public/assets/data/map.home_ending.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供秀兰锚点且几何与触发不变；v02 温暖清晨背景按原 D4 构图接入 |
 | audio.theme.red_umbrella | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创音序与合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 钢琴感旋律、和声、持续音与钟雨节奏四层；随 D0–D4 逐层收束 |
 | audio.ambience.home | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 室内低噪、钟表提示；视觉目标与提示不依赖声音 |
 | audio.ambience.rain | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 带通雨噪与三声钟；石板、积水波纹和伞标提供视觉替代 |
@@ -204,15 +204,15 @@
 
 ### environment.*.background
 
-- 制作方式：home v10、rain v02 和 Shared Life v02 使用项目定制 ImageGen 原稿，经 `scripts/prepare_environment_asset.py` 裁切导出；Shared Life 另以 `precise-object-edit` 生成注册一致的 `environment.life.resolved` 收束态；return、ending 使用项目原创 SVG 渲染。所有背景统一固定 1280×720、低饱和色板、轻微纸张颗粒和章节专属构图。
+- 制作方式：home v10、rain v02、Shared Life v02、return v02 和 ending v02 使用项目定制 OpenAI ImageGen 原稿，并经 `scripts/prepare_environment_asset.py` 裁切导出为 1280×720 运行时背景；Shared Life 另以 `precise-object-edit` 生成注册一致的 `environment.life.resolved` 收束态。return/ending v02 的 1672×941 原稿与 1280×720 导出文件按表内路径归档。所有背景保持低饱和色板、轻微纸张颗粒和章节专属构图。
 - 运行时结构：背景只承担世界表现；出生点、交互对象和稳定 ID 继续来自对应 Tiled JSON 对象层，碰撞与玩法状态未写入图片。
 - 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站 2/4/5 石板、车票与红伞招牌，以及 Shared Life 的照片、生活物件与槽位均由独立 visual_props 资产承载。
-- 当前结论：五章候选背景已导出并接入 manifest；rain v02 的底图/天气叠层与 Shared Life v02 的三年代/收束态均完成浏览器检查，关键道具与 Tiled 坐标无阻塞遮挡。外部美术审核前保持 `review`。
+- 当前结论：五章候选背景均有运行时导出；rain v02 的底图/天气叠层与 Shared Life v02 的三年代/收束态已有浏览器检查记录。return/ending v02 是本轮新增候选，不能沿用 v01 或其他章节的 reviewer/approvedAt；外部美术与敏感性审核前保持 `review`，不得据此宣称发布就绪。
 
 ### audio.theme.* / audio.ambience.*
 
 - 制作方式：运行时 Web Audio 合成，不包含外部录音或第三方采样；音序、滤波、包络与混音参数保存在 `AudioManager.ts`。
 - 主题退化：D0 保留四层，D1 保留旋律但降低环境高频，D2 移除主旋律，D3 仅保留和声与持续音，D4 改为 voice 总线上的不完整三音哼唱。
-- 环境与提示：五章使用独立滤波与声场强度；所有导航声、状态声和对白信息均有视觉或字幕替代。
+- 环境与提示：五章使用独立滤波与声场强度；有效进展另使用恰好三音、约 0.34–0.9 秒、level 0.034–0.048 的 sfx/voice 锚点，不占用后期已经收束的 music 层；所有导航声、进展声、状态声和对白信息均有视觉或字幕替代。
 - 混音与安全：music、ambience、voice、sfx 四路独立音量；全局静音即时生效；页面失焦挂起 AudioContext，恢复后由用户操作继续。
 - 当前结论：四路混音布局、独立调节、旧设置迁移、章节 profile、静音视觉替代和失焦暂停均通过自动化与浏览器功能检查；真人关键语音仍属于 AUDIO-03 外部录制工作。
