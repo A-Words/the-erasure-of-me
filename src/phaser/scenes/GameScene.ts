@@ -97,6 +97,8 @@ const lifeSlotPlacedFrames: Record<
 
 export class GameScene extends Phaser.Scene {
   private readonly bridge: SceneBridge;
+  private readonly collisionDebugEnabled =
+    import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === '1';
   private player!: Phaser.GameObjects.Container;
   private playerActor: Phaser.GameObjects.Sprite | null = null;
   private xiulanActor: Phaser.GameObjects.Sprite | null = null;
@@ -547,6 +549,7 @@ export class GameScene extends Phaser.Scene {
       }
     }
     this.tiledContent = tiledContent;
+    if (this.collisionDebugEnabled && tiledContent) this.createCollisionDebugOverlay(tiledContent);
 
     if (state.chapterId === 'home') {
       this.add
@@ -651,6 +654,31 @@ export class GameScene extends Phaser.Scene {
         .image(width / 2, height / 2, overlay.key)
         .setDisplaySize(width, height)
         .setDepth(worldDepth(overlay.sortY));
+    }
+  }
+
+  private createCollisionDebugOverlay(content: TiledMapContent): void {
+    const graphics = this.add.graphics().setDepth(overlayDepth + 20);
+    const walkArea = content.spawns[0];
+    if (walkArea) {
+      graphics.lineStyle(3, 0x63e6be, 0.95);
+      graphics.strokeRect(walkArea.x, walkArea.y, walkArea.width, walkArea.height);
+    }
+
+    graphics.fillStyle(0xff5c70, 0.2);
+    graphics.lineStyle(2, 0xff5c70, 0.95);
+    for (const obstacle of content.collisionRects) {
+      graphics.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      graphics.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      this.add
+        .text(obstacle.x + 4, obstacle.y + 4, obstacle.name.replace(/^collision\./, ''), {
+          color: '#fff4f5',
+          fontFamily: 'monospace',
+          fontSize: '10px',
+          backgroundColor: 'rgba(74, 10, 20, 0.72)',
+          padding: { x: 3, y: 2 },
+        })
+        .setDepth(overlayDepth + 21);
     }
   }
 

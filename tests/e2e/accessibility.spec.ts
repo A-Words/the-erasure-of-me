@@ -107,7 +107,7 @@ test('exposes content warning, objectives, settings, guide sources and credits s
       checkpointId: 'checkpoint.ending.start',
       degradationStage: 'D4',
       objective: '握住她的手',
-      player: { x: 920, y: 430, facing: 'left', moving: false },
+      player: { x: 920, y: 480, facing: 'left', moving: false },
       flags: ['ending.dialogue_started', 'ending.ready_to_hold'],
       dialogue: [],
       dialogueIndex: 0,

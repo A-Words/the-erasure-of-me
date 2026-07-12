@@ -371,13 +371,13 @@
       "name": "navigation",
       "objects": [
         {
-          "height": 1416,
+          "height": 656,
           "id": 1,
           "name": "spawn.rain.platform",
           "type": "spawn",
-          "width": 2706,
-          "x": 55,
-          "y": 75
+          "width": 1216,
+          "x": 32,
+          "y": 32
         }
       ],
       "opacity": 1,
@@ -392,40 +392,130 @@
       "name": "collision",
       "objects": [
         {
-          "height": 75,
+          "height": 32,
           "id": 20,
           "name": "collision.rain.wall_outer_top",
           "type": "wall",
-          "width": 2816,
+          "width": 1280,
           "x": 0,
           "y": 0
         },
         {
-          "height": 45,
+          "height": 32,
           "id": 21,
           "name": "collision.rain.wall_outer_bottom",
           "type": "wall",
-          "width": 2816,
+          "width": 1280,
           "x": 0,
-          "y": 1491
+          "y": 688
         },
         {
-          "height": 1536,
+          "height": 720,
           "id": 22,
           "name": "collision.rain.wall_outer_left",
           "type": "wall",
-          "width": 55,
+          "width": 32,
           "x": 0,
           "y": 0
         },
         {
-          "height": 1536,
+          "height": 720,
           "id": 23,
           "name": "collision.rain.wall_outer_right",
           "type": "wall",
-          "width": 55,
-          "x": 2761,
+          "width": 32,
+          "x": 1248,
           "y": 0
+        },
+        {
+          "height": 270,
+          "id": 24,
+          "name": "collision.rain.left_station_building",
+          "type": "building",
+          "width": 310,
+          "x": 40,
+          "y": 190
+        },
+        {
+          "height": 250,
+          "id": 25,
+          "name": "collision.rain.waiting_shelter",
+          "type": "building",
+          "width": 390,
+          "x": 255,
+          "y": 75
+        },
+        {
+          "height": 215,
+          "id": 26,
+          "name": "collision.rain.clock_shop",
+          "type": "building",
+          "width": 430,
+          "x": 850,
+          "y": 0
+        },
+        {
+          "height": 190,
+          "id": 27,
+          "name": "collision.rain.back_left",
+          "type": "terrain",
+          "width": 255,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 105,
+          "id": 28,
+          "name": "collision.rain.back_center",
+          "type": "terrain",
+          "width": 205,
+          "x": 645,
+          "y": 0
+        },
+        {
+          "height": 65,
+          "id": 29,
+          "name": "collision.rain.water_step_1",
+          "type": "terrain",
+          "width": 260,
+          "x": 0,
+          "y": 655
+        },
+        {
+          "height": 120,
+          "id": 30,
+          "name": "collision.rain.water_step_2",
+          "type": "terrain",
+          "width": 260,
+          "x": 260,
+          "y": 600
+        },
+        {
+          "height": 175,
+          "id": 31,
+          "name": "collision.rain.water_step_3",
+          "type": "terrain",
+          "width": 260,
+          "x": 520,
+          "y": 545
+        },
+        {
+          "height": 230,
+          "id": 32,
+          "name": "collision.rain.water_step_4",
+          "type": "terrain",
+          "width": 260,
+          "x": 780,
+          "y": 490
+        },
+        {
+          "height": 285,
+          "id": 33,
+          "name": "collision.rain.water_step_5",
+          "type": "terrain",
+          "width": 240,
+          "x": 1040,
+          "y": 435
         }
       ],
       "opacity": 1,
@@ -436,7 +526,7 @@
     }
   ],
   "nextlayerid": 7,
-  "nextobjectid": 24,
+  "nextobjectid": 34,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

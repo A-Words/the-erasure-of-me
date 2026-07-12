@@ -55,7 +55,7 @@ const CHAPTER_DATA: Record<string, ChapterConfig> = {
     stage: 'D4',
     checkpoint: 'checkpoint.ending.start',
     objective: '走近秀兰',
-    spawn: { x: 920, y: 430 },
+    spawn: { x: 920, y: 480 },
   },
 };
 
@@ -381,6 +381,29 @@ test('tiled map smoke: ending renders, player in bounds, no errors', async ({ pa
   const capture = setupConsoleCapture(page);
   await bootIntoChapter(page, 'ending');
   await assertChapterRenders(page, 'ending', capture);
+});
+
+test('solid scenery blocks movement at the visible footprint', async ({ page }, testInfo) => {
+  const capture = setupConsoleCapture(page);
+  const app = page.locator('#app');
+  const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
+
+  await bootIntoChapter(page, 'rain', {
+    player: { x: 180, y: 470, facing: 'up', moving: false },
+  });
+  await canvas.focus();
+  await canvas.press('ArrowUp');
+  await expect(app).toHaveAttribute('data-player-y', '470');
+  await canvas.screenshot({ path: testInfo.outputPath('rain-station-building-collision.png') });
+
+  await bootIntoChapter(page, 'ending', {
+    player: { x: 700, y: 510, facing: 'down', moving: false },
+  });
+  await canvas.focus();
+  await canvas.press('ArrowDown');
+  await expect(app).toHaveAttribute('data-player-y', '510');
+  await canvas.screenshot({ path: testInfo.outputPath('ending-table-collision.png') });
+  expect(capture.errors).toEqual([]);
 });
 
 // ---------------------------------------------------------------------------

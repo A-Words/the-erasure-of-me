@@ -41,7 +41,7 @@ const chapterState: Record<
     stage: 'D4',
     checkpoint: 'checkpoint.ending.start',
     objective: '走近秀兰',
-    player: { x: 920, y: 430, facing: 'left' },
+    player: { x: 920, y: 480, facing: 'left' },
   },
 };
 

@@ -66,7 +66,7 @@ async function loadEnding(page: Page): Promise<void> {
     checkpointId: 'checkpoint.ending.start',
     degradationStage: 'D4',
     objective: '走近秀兰',
-    player: { x: 920, y: 430, facing: 'down', moving: false },
+    player: { x: 920, y: 480, facing: 'down', moving: false },
     flags: [],
     modal: null,
     dialogue: [],

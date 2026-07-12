@@ -467,21 +467,21 @@ describe('TiledCollisionProvider with multi-map data', () => {
     const homeData = provider.getCollisionData('home');
     expect(homeData.obstacles.length).toBeGreaterThan(10);
 
-    // Non-home chapters should now have border wall collision obstacles
+    // Non-home chapters include both the outer bounds and visible solid geometry.
     const rainData = provider.getCollisionData('rain');
-    expect(rainData.obstacles.length).toBeGreaterThan(0);
+    expect(rainData.obstacles).toHaveLength(14);
 
     const lifeData = provider.getCollisionData('life');
-    expect(lifeData.obstacles.length).toBeGreaterThan(0);
+    expect(lifeData.obstacles).toHaveLength(11);
 
     const returnData = provider.getCollisionData('return');
-    expect(returnData.obstacles.length).toBeGreaterThan(0);
+    expect(returnData.obstacles).toHaveLength(8);
 
     const endingData = provider.getCollisionData('ending');
-    expect(endingData.obstacles.length).toBeGreaterThan(0);
+    expect(endingData.obstacles).toHaveLength(13);
   });
 
-  it('does not use home collision data for non-home chapters', async () => {
+  it('keeps every single-screen chapter inside the visible 1280 by 720 canvas', async () => {
     const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
     const provider = new TiledCollisionProvider({
       'map.home': loadMapJson('map.home'),
@@ -491,11 +491,89 @@ describe('TiledCollisionProvider with multi-map data', () => {
       'map.home_ending': loadMapJson('map.home_ending'),
     });
 
-    const homeData = provider.getCollisionData('home');
-    const rainData = provider.getCollisionData('rain');
+    const expectedBounds = { minX: 32, maxX: 1248, minY: 32, maxY: 688 };
+    expect(provider.getCollisionData('rain').walkBounds).toEqual(expectedBounds);
+    expect(provider.getCollisionData('life').walkBounds).toEqual(expectedBounds);
+    expect(provider.getCollisionData('return').walkBounds).toEqual(expectedBounds);
+    expect(provider.getCollisionData('ending').walkBounds).toEqual(expectedBounds);
+  });
 
-    // Rain walk bounds should not be the same as home walk bounds
-    expect(rainData.walkBounds).not.toEqual(homeData.walkBounds);
+  it('places every chapter spawn inside walk bounds and outside solid geometry', async () => {
+    const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
+    const provider = new TiledCollisionProvider({
+      'map.home': loadMapJson('map.home'),
+      'map.rain_station': loadMapJson('map.rain_station'),
+      'map.shared_life': loadMapJson('map.shared_life'),
+      'map.return_corridor': loadMapJson('map.return_corridor'),
+      'map.home_ending': loadMapJson('map.home_ending'),
+    });
+
+    for (const chapterId of Object.keys(chapterMaps) as Array<keyof typeof chapterMaps>) {
+      const spawn = chapterMaps[chapterId].spawn;
+      const { walkBounds, obstacles } = provider.getCollisionData(chapterId);
+      expect(spawn.x).toBeGreaterThanOrEqual(walkBounds.minX);
+      expect(spawn.x).toBeLessThanOrEqual(walkBounds.maxX);
+      expect(spawn.y).toBeGreaterThanOrEqual(walkBounds.minY);
+      expect(spawn.y).toBeLessThanOrEqual(walkBounds.maxY);
+      expect(
+        obstacles.some(
+          (obstacle) =>
+            spawn.x + 16 > obstacle.x &&
+            spawn.x - 16 < obstacle.x + obstacle.width &&
+            spawn.y + 10 > obstacle.y &&
+            spawn.y - 10 < obstacle.y + obstacle.height,
+        ),
+        `${chapterId} spawn overlaps a solid collision rectangle`,
+      ).toBe(false);
+    }
+  });
+
+  it('blocks solid scenery while preserving authored corridors', async () => {
+    const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
+    const provider = new TiledCollisionProvider({
+      'map.home': loadMapJson('map.home'),
+      'map.rain_station': loadMapJson('map.rain_station'),
+      'map.shared_life': loadMapJson('map.shared_life'),
+      'map.return_corridor': loadMapJson('map.return_corridor'),
+      'map.home_ending': loadMapJson('map.home_ending'),
+    });
+    const rain = provider.getCollisionData('rain');
+    const returnCorridor = provider.getCollisionData('return');
+    const ending = provider.getCollisionData('ending');
+
+    expect(
+      moveWithCollisions({ x: 180, y: 560 }, { x: 0, y: -200 }, rain.walkBounds, rain.obstacles),
+    ).toEqual({ x: 180, y: 470 });
+    expect(
+      moveWithCollisions({ x: 680, y: 500 }, { x: 0, y: 100 }, rain.walkBounds, rain.obstacles),
+    ).toEqual({ x: 680, y: 535 });
+    expect(
+      moveWithCollisions(
+        { x: 400, y: 360 },
+        { x: 0, y: -200 },
+        returnCorridor.walkBounds,
+        returnCorridor.obstacles,
+      ),
+    ).toEqual({ x: 400, y: 255 });
+    expect(
+      moveWithCollisions(
+        { x: 640, y: 360 },
+        { x: 0, y: -200 },
+        returnCorridor.walkBounds,
+        returnCorridor.obstacles,
+      ),
+    ).toEqual({ x: 640, y: 160 });
+    expect(
+      moveWithCollisions({ x: 700, y: 500 }, { x: 0, y: 100 }, ending.walkBounds, ending.obstacles),
+    ).toEqual({ x: 700, y: 510 });
+    expect(
+      moveWithCollisions(
+        { x: 920, y: 480 },
+        { x: 0, y: -100 },
+        ending.walkBounds,
+        ending.obstacles,
+      ),
+    ).toEqual({ x: 920, y: 420 });
   });
 
   it('keeps the Shared Life window route and boxes-to-dresser passage walkable', async () => {
