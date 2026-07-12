@@ -1,6 +1,7 @@
 import { chapterMaps } from '../content/maps';
 import type { CollisionDataProvider } from '../content/collisionProvider';
 import { CodeCollisionProvider } from '../content/collisionProvider';
+import { returnRouteAnswers } from '../content/returnRoute';
 import { moveWithCollisions } from '../simulation/collision';
 import type {
   ChapterId,
@@ -36,12 +37,6 @@ const chapterConfig: Record<
   },
   ending: { stage: 'D4', checkpoint: 'checkpoint.ending.start', objective: '走近秀兰' },
 };
-
-const routeAnswers: WorldDirection[][] = [
-  ['right', 'up'],
-  ['down', 'right'],
-  ['up', 'left', 'up'],
-];
 
 const slotItems: Record<string, string> = {
   'slot.life.dresser': 'item.life.wood_comb',
@@ -570,12 +565,12 @@ export class GameStore {
     if (!includes(this.state.flags, 'flag.return.mapping_learned')) return;
     const direction = entityId.replace('route.', '') as WorldDirection;
     if (!['up', 'down', 'left', 'right'].includes(direction)) return;
-    if (this.state.puzzles.returnJunction >= routeAnswers.length) {
+    if (this.state.puzzles.returnJunction >= returnRouteAnswers.length) {
       if (direction === 'up') this.enterChapter('ending');
       else this.state.message = '门后有人在哼歌。它就在上方。';
       return;
     }
-    const answer = routeAnswers[this.state.puzzles.returnJunction];
+    const answer = returnRouteAnswers[this.state.puzzles.returnJunction];
     const expected = answer[this.state.puzzles.returnPrefix.length];
     if (direction === expected) {
       this.state.puzzles.returnPrefix.push(direction);
