@@ -173,7 +173,9 @@ async function bootFreshGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
-  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true', {
+    timeout: 15_000,
+  });
   await page.waitForLoadState('networkidle');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
@@ -184,13 +186,25 @@ async function bootFreshGame(page: Page): Promise<void> {
 }
 
 /** Boot the game and jump to a specific chapter via localStorage save injection. */
-async function bootIntoChapter(page: Page, chapterId: string): Promise<void> {
+async function bootIntoChapter(
+  page: Page,
+  chapterId: string,
+  patch: Record<string, unknown> = {},
+): Promise<void> {
   await page.setViewportSize({ width: 1366, height: 768 });
   await page.goto('/');
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
-  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true', {
+    timeout: 15_000,
+  });
   await page.evaluate(() => localStorage.clear());
   // Inject save before reload so the game picks it up
+  const save = buildChapterSave(chapterId);
+  const basePuzzles = save.puzzles as Record<string, unknown>;
+  Object.assign(save, patch);
+  if (patch.puzzles) {
+    save.puzzles = { ...basePuzzles, ...(patch.puzzles as Record<string, unknown>) };
+  }
   await page.evaluate(
     ({ save }) => {
       localStorage.setItem(
@@ -198,7 +212,7 @@ async function bootIntoChapter(page: Page, chapterId: string): Promise<void> {
         JSON.stringify({ formatVersion: 1, savedAt: new Date().toISOString(), state: save }),
       );
     },
-    { save: buildChapterSave(chapterId) },
+    { save },
   );
   await page.reload();
   await continueLatestGame(page);
@@ -325,6 +339,42 @@ test('tiled map smoke: return renders, player in bounds, no errors', async ({ pa
   const capture = setupConsoleCapture(page);
   await bootIntoChapter(page, 'return');
   await assertChapterRenders(page, 'return', capture);
+  const canvas = page.locator('canvas');
+  await expect(canvas).toHaveAttribute('data-return-clue', 'floor_arrow');
+  await expect(canvas).toHaveAttribute('data-return-direction', 'right');
+  await expect(canvas).toHaveAttribute('data-return-footprints', 'false');
+});
+
+test('a wrong return route briefly reveals a familiar-room echo and ignores movement', async ({
+  page,
+}) => {
+  const capture = setupConsoleCapture(page);
+  await bootIntoChapter(page, 'return', {
+    flags: ['degradation.d3.started', 'flag.return.mapping_learned'],
+    player: { x: 120, y: 360, facing: 'left', moving: false },
+  });
+  await assertChapterRenders(page, 'return', capture);
+
+  const app = page.locator('#app');
+  const canvas = page.locator('canvas');
+  await page.getByRole('button', { name: '与向左的出口交互' }).click();
+  await expect(canvas).toHaveAttribute('data-wrong-turn-echo', 'true');
+  const lockedPosition = {
+    x: await app.getAttribute('data-player-x'),
+    y: await app.getAttribute('data-player-y'),
+  };
+  await canvas.press('ArrowRight');
+  await expect(app).toHaveAttribute('data-player-x', lockedPosition.x ?? '');
+  await expect(app).toHaveAttribute('data-player-y', lockedPosition.y ?? '');
+  await expect(canvas).toHaveAttribute('data-wrong-turn-echo', 'false', { timeout: 3_000 });
+  await canvas.press('ArrowRight');
+  await expect
+    .poll(async () => ({
+      x: await app.getAttribute('data-player-x'),
+      y: await app.getAttribute('data-player-y'),
+    }))
+    .not.toEqual(lockedPosition);
+  expect(capture.errors).toEqual([]);
 });
 
 test('tiled map smoke: ending renders, player in bounds, no errors', async ({ page }) => {

@@ -30,6 +30,13 @@ import {
   DOT_ALPHA_MAX,
 } from '../../game/presentation/breathing';
 import { resolveRainPresentation } from '../../game/presentation/rainMotion';
+import {
+  createPresentationSnapshot,
+  diffPresentationSnapshots,
+  type PresentationEvent,
+  type PresentationSnapshot,
+} from '../../game/presentation/presentationEvents';
+import { PresentationDirector, type WorldResponse } from '../presentation/PresentationDirector';
 
 interface EntityView {
   definition: WorldEntity;
@@ -113,6 +120,14 @@ export class GameScene extends Phaser.Scene {
   private lifeEraVeilTargets: number[] = [];
   private rainOverlays: Phaser.GameObjects.Image[] = [];
   private rainMotionElapsedMs = 0;
+  private presentation!: PresentationDirector;
+  private sceneReadyVersion = 0;
+  private previousPresentationSnapshot: Readonly<PresentationSnapshot> | null = null;
+  private pendingWorldResponses: WorldResponse[] = [];
+  private lastReturnRouteLoops = 0;
+  private presentationLockUntil = 0;
+  private wrongTurnEchoVersion = 0;
+  private wrongTurnWallTimer: number | null = null;
 
   constructor(store: GameStore) {
     super('GameScene');
@@ -121,6 +136,15 @@ export class GameScene extends Phaser.Scene {
 
   preload(): void {
     this.game.canvas.dataset.sceneReady = 'false';
+    this.game.canvas.dataset.sceneReadyStage = 'preloading';
+    this.game.canvas.dataset.preloadProgress = '0';
+    this.load.on(Phaser.Loader.Events.PROGRESS, (progress: number) => {
+      this.game.canvas.dataset.preloadProgress = String(Math.round(progress * 100));
+    });
+    this.load.once(Phaser.Loader.Events.COMPLETE, () => {
+      if (this.renderedChapter === null) this.game.canvas.dataset.sceneReadyStage = 'loaded';
+      this.game.canvas.dataset.preloadProgress = '100';
+    });
     for (const asset of assetManifest) {
       if (!asset.preload) continue;
       if (asset.type === 'tilemap') {
@@ -133,6 +157,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    this.game.canvas.dataset.sceneReadyStage = 'creating';
     const keyboard = this.input.keyboard;
     if (!keyboard) throw new Error('Keyboard input is unavailable');
     this.keys = keyboard.addKeys({
@@ -164,6 +189,8 @@ export class GameScene extends Phaser.Scene {
     this.keys.map.on('down', () => this.toggleModal('map'));
     this.keys.pause.on('down', () => this.toggleModal('pause'));
     this.keys.cancel.on('down', () => this.bridge.send({ type: 'CLOSE_MODAL' }));
+    this.keys.observe.on('down', () => this.beginObservation());
+    this.keys.observe.on('up', () => this.endObservation());
     this.createPlayerAnimations();
     const movementKeys: Array<[string, InputAction]> = [
       ['up', 'move_up'],
@@ -177,21 +204,36 @@ export class GameScene extends Phaser.Scene {
     ];
     for (const [keyName, action] of movementKeys) {
       this.keys[keyName].on('down', () => {
+        this.endObservation();
+        if (this.isPresentationLocked()) return;
         const state = this.bridge.getSnapshot();
         const direction = mapMovement(action, state.degradationStage, state.mode);
         if (direction) this.bridge.send({ type: 'MOVE', direction, deltaSeconds: 0.1 });
       });
     }
 
+    this.presentation = new PresentationDirector(this);
     this.unsubscribe = this.bridge.subscribe((state) => this.syncState(state));
-    this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
-      this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
-        this.game.canvas.dataset.sceneReady = 'true';
-      });
-    });
+    // The immediate subscribe callback runs while Phaser is still inside
+    // Scene.create(), when game.isRunning can still be false. All renderer
+    // dependencies now exist, so replay the authoritative snapshot explicitly
+    // instead of waiting for another store mutation.
+    this.syncState(this.bridge.getSnapshot(), true);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.sceneReadyVersion += 1;
       delete this.game.canvas.dataset.sceneReady;
+      delete this.game.canvas.dataset.observationActive;
       this.unsubscribe?.();
+      this.clearWrongTurnEcho();
+      delete this.game.canvas.dataset.wrongTurnEcho;
+      this.presentation.destroyChapter();
+      this.renderedChapter = null;
+      this.previousPresentationSnapshot = null;
+      this.pendingWorldResponses = [];
+      this.lastReturnRouteLoops = 0;
+      this.presentationLockUntil = 0;
+      this.tiledContent = null;
+      this.tickAccumulator = 0;
       this.playerActor = null;
       this.xiulanActor = null;
       this.holdWarmth = null;
@@ -205,8 +247,17 @@ export class GameScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     const state = this.bridge.getSnapshot();
+    const cameraFadeRunning = String(this.cameras.main.fadeEffect.isRunning);
+    if (this.game.canvas.dataset.cameraFadeRunning !== cameraFadeRunning) {
+      this.game.canvas.dataset.cameraFadeRunning = cameraFadeRunning;
+    }
+    this.presentation.update(time, state);
     this.updateRain(state, delta);
-    const action = state.phase === 'playing' ? this.currentMovementAction() : null;
+    const action =
+      state.phase === 'playing' && !this.isPresentationLocked()
+        ? this.currentMovementAction()
+        : null;
+    if (action && this.presentation.isObserving) this.endObservation();
     if (!action && state.player.moving) this.bridge.send({ type: 'STOP_MOVING' });
     this.updateEntityBreathing(state, time);
     if (state.phase !== 'playing') return;
@@ -230,6 +281,85 @@ export class GameScene extends Phaser.Scene {
     this.updatePlayerPose(latestState);
   }
 
+  private beginObservation(): void {
+    const state = this.bridge.getSnapshot();
+    if (!this.player || this.isPresentationLocked()) return;
+    this.presentation.beginObservation(
+      state,
+      { x: this.player.x, y: this.player.y },
+      this.entityViews.filter((view) => view.container.visible).map((view) => view.definition),
+      this.time.now,
+    );
+    this.game.canvas.dataset.observationActive = String(this.presentation.isObserving);
+    this.updateRain(state, 0);
+  }
+
+  private endObservation(): void {
+    if (!this.presentation?.isObserving) return;
+    this.presentation.endObservation();
+    this.game.canvas.dataset.observationActive = 'false';
+    this.updateRain(this.bridge.getSnapshot(), 0);
+  }
+
+  private scheduleSceneReady(arrivalDurationMs: number): void {
+    const version = this.sceneReadyVersion;
+    let fadeComplete = arrivalDurationMs <= 0;
+    let renderedFramesAfterFade = 0;
+    let fadeFallbackTimer: number | null = null;
+    const cleanup = () => {
+      this.game.events.off(Phaser.Core.Events.POST_RENDER, onPostRender);
+      this.cameras.main.off(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, onFadeComplete);
+      if (fadeFallbackTimer !== null) window.clearTimeout(fadeFallbackTimer);
+      fadeFallbackTimer = null;
+    };
+    const markReady = () => {
+      if (version !== this.sceneReadyVersion || !this.sys.isActive()) {
+        cleanup();
+        return;
+      }
+      if (!fadeComplete || renderedFramesAfterFade < 2) return;
+      cleanup();
+      this.game.canvas.dataset.sceneReady = 'true';
+      this.game.canvas.dataset.sceneReadyStage = 'ready';
+    };
+    const onFadeComplete = () => {
+      if (fadeComplete) return;
+      fadeComplete = true;
+      renderedFramesAfterFade = 0;
+      this.game.canvas.dataset.sceneReadyStage = 'fade-complete';
+    };
+    const onPostRender = () => {
+      if (version !== this.sceneReadyVersion || !this.sys.isActive()) {
+        cleanup();
+        return;
+      }
+      if (fadeComplete) renderedFramesAfterFade += 1;
+      this.game.canvas.dataset.sceneReadyStage = fadeComplete
+        ? `frame-${renderedFramesAfterFade}`
+        : 'fading';
+      markReady();
+    };
+    if (!fadeComplete) {
+      this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_IN_COMPLETE, onFadeComplete);
+      fadeFallbackTimer = window.setTimeout(
+        () => {
+          if (version !== this.sceneReadyVersion || fadeComplete) return;
+          this.cameras.main.resetFX();
+          onFadeComplete();
+        },
+        Math.max(400, arrivalDurationMs * 2),
+      );
+    }
+    this.game.events.on(Phaser.Core.Events.POST_RENDER, onPostRender);
+  }
+
+  private invalidateSceneReady(): void {
+    this.sceneReadyVersion += 1;
+    this.game.canvas.dataset.sceneReady = 'false';
+    this.game.canvas.dataset.sceneReadyStage = 'invalidated';
+    this.game.canvas.dataset.sceneReadyVersion = String(this.sceneReadyVersion);
+  }
+
   private currentMovementAction(): InputAction | null {
     if (this.keys.up.isDown || this.keys.upAlt.isDown) return 'move_up';
     if (this.keys.down.isDown || this.keys.downAlt.isDown) return 'move_down';
@@ -238,9 +368,22 @@ export class GameScene extends Phaser.Scene {
     return null;
   }
 
+  private isPresentationLocked(): boolean {
+    return performance.now() < this.presentationLockUntil;
+  }
+
+  private clearWrongTurnEcho(): void {
+    this.wrongTurnEchoVersion += 1;
+    if (this.wrongTurnWallTimer !== null) window.clearTimeout(this.wrongTurnWallTimer);
+    this.wrongTurnWallTimer = null;
+    this.presentation?.finishWrongTurnEcho();
+    this.presentationLockUntil = 0;
+    this.game.canvas.dataset.wrongTurnEcho = 'false';
+  }
+
   private confirmDown(): void {
     const state = this.bridge.getSnapshot();
-    if (state.phase !== 'playing') return;
+    if (state.phase !== 'playing' || this.isPresentationLocked()) return;
     if (state.dialogue.length > 0) {
       this.bridge.send({ type: 'ADVANCE_DIALOGUE' });
       return;
@@ -266,17 +409,44 @@ export class GameScene extends Phaser.Scene {
     const state = this.bridge.getSnapshot();
     if (state.phase !== 'playing' || state.dialogue.length > 0) return;
     if (modal === 'map' && getMapMode(state) === 'hidden') return;
+    this.endObservation();
     this.bridge.send(
       state.modal === modal ? { type: 'CLOSE_MODAL' } : { type: 'OPEN_MODAL', modal },
     );
   }
 
-  private syncState(state: Readonly<GameState>): void {
-    if (!this.sys.isActive() || !this.game.isRunning) return;
+  private syncState(state: Readonly<GameState>, allowDuringCreate = false): void {
+    if (!allowDuringCreate && (!this.sys.isActive() || !this.game.isRunning)) return;
+    const previousSnapshot = this.previousPresentationSnapshot;
+    const presentationSnapshot = createPresentationSnapshot(state);
+    const presentationEvents = diffPresentationSnapshots(previousSnapshot, presentationSnapshot);
+    this.previousPresentationSnapshot = presentationSnapshot;
+    const wrongTurnEntered =
+      previousSnapshot?.phase === 'playing' &&
+      previousSnapshot.chapterId === 'return' &&
+      state.phase === 'playing' &&
+      state.chapterId === 'return' &&
+      state.puzzles.routeLoops > this.lastReturnRouteLoops;
+    this.lastReturnRouteLoops = state.chapterId === 'return' ? state.puzzles.routeLoops : 0;
+    const reenteringRenderedChapter =
+      previousSnapshot !== null &&
+      previousSnapshot.phase !== 'playing' &&
+      state.phase === 'playing' &&
+      this.renderedChapter === state.chapterId;
+    if (reenteringRenderedChapter) this.invalidateSceneReady();
     const motionPreferenceChanged = this.reducedMotion !== state.settings.reducedMotion;
     this.reducedMotion = state.settings.reducedMotion;
-    if (this.renderedChapter !== state.chapterId) this.buildChapter(state);
+    const chapterChanged = this.renderedChapter !== state.chapterId;
+    if (chapterChanged) this.buildChapter(state);
     if (!this.player || !this.playerActor) return;
+    if (
+      state.phase !== 'playing' ||
+      state.modal ||
+      state.dialogue.length > 0 ||
+      state.player.moving
+    ) {
+      this.endObservation();
+    }
     this.player.setPosition(state.player.x, state.player.y);
     this.player.setDepth(worldDepth(state.player.y));
     this.player.setAlpha(state.phase === 'playing' ? 1 : 0.22);
@@ -287,6 +457,28 @@ export class GameScene extends Phaser.Scene {
     this.updateEntityVisibility(state);
     this.updateLifeVisualState(state);
     this.updateRain(state, 0);
+    this.presentation.sync(state, this.time.now);
+    if (wrongTurnEntered) {
+      const duration = this.presentation.playWrongTurnEcho(
+        state.puzzles.returnJunction,
+        state.settings.reducedMotion,
+      );
+      this.presentationLockUntil = Math.max(
+        this.presentationLockUntil,
+        performance.now() + duration,
+      );
+      this.game.canvas.dataset.wrongTurnEcho = 'true';
+      const echoVersion = ++this.wrongTurnEchoVersion;
+      if (this.wrongTurnWallTimer !== null) window.clearTimeout(this.wrongTurnWallTimer);
+      this.wrongTurnWallTimer = window.setTimeout(() => {
+        if (echoVersion !== this.wrongTurnEchoVersion) return;
+        this.wrongTurnWallTimer = null;
+        this.presentation.finishWrongTurnEcho();
+        this.game.canvas.dataset.wrongTurnEcho = 'false';
+      }, duration);
+    }
+    this.presentWorldResponses(presentationEvents, state);
+    if (reenteringRenderedChapter && !chapterChanged) this.scheduleSceneReady(0);
     if (motionPreferenceChanged) {
       for (const view of this.entityViews) {
         if (view.hover) this.setEntityHover(view, true);
@@ -295,6 +487,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildChapter(state: Readonly<GameState>): void {
+    this.invalidateSceneReady();
+    this.clearWrongTurnEcho();
+    this.game.canvas.dataset.observationActive = 'false';
+    this.game.canvas.dataset.wrongTurnEcho = 'false';
+    this.presentation.destroyChapter();
     this.children.removeAll(true);
     this.entityViews = [];
     this.playerActor = null;
@@ -312,6 +509,9 @@ export class GameScene extends Phaser.Scene {
     this.playerActionVersion += 1;
     this.playerActionTimer?.remove(false);
     this.playerActionTimer = null;
+    this.pendingWorldResponses = [];
+    this.presentationLockUntil = 0;
+    this.lastReturnRouteLoops = state.chapterId === 'return' ? state.puzzles.routeLoops : 0;
     const map = chapterMaps[state.chapterId];
     this.renderedChapter = state.chapterId;
     this.cameras.main.setBackgroundColor(map.palette.wall);
@@ -440,6 +640,9 @@ export class GameScene extends Phaser.Scene {
     this.player.setScale(state.chapterId === 'home' ? homeVisualSizes.characterScale : 1);
     this.player.setDepth(worldDepth(state.player.y));
     this.updatePlayerPose(state);
+    const arrivalDuration = this.presentation.buildChapter(state);
+    this.presentation.sync(state, this.time.now);
+    this.scheduleSceneReady(arrivalDuration);
   }
 
   private createHomeArchitectureOverlays(width: number, height: number): void {
@@ -456,18 +659,14 @@ export class GameScene extends Phaser.Scene {
     const reducedMotion = state.settings.reducedMotion;
     if (!reducedMotion) this.rainMotionElapsedMs += Math.max(0, deltaMs);
     const map = chapterMaps.rain;
-    const frame = resolveRainPresentation(
-      this.rainMotionElapsedMs,
-      reducedMotion,
-      map.height,
-    );
+    const frame = resolveRainPresentation(this.rainMotionElapsedMs, reducedMotion, map.height);
     this.rainOverlays[0]
       .setPosition(map.width / 2, map.height / 2 + frame.offsetY)
-      .setAlpha(frame.alpha)
+      .setAlpha(frame.alpha * (this.presentation.isObserving ? 0.52 : 1))
       .setVisible(true);
     this.rainOverlays[1]
       .setPosition(map.width / 2, map.height / 2 - map.height + frame.offsetY)
-      .setAlpha(frame.alpha)
+      .setAlpha(frame.alpha * (this.presentation.isObserving ? 0.52 : 1))
       .setVisible(!reducedMotion);
   }
 
@@ -530,6 +729,84 @@ export class GameScene extends Phaser.Scene {
         ease: 'Sine.easeInOut',
       });
     }
+  }
+
+  private presentWorldResponses(
+    events: readonly PresentationEvent[],
+    state: Readonly<GameState>,
+  ): void {
+    if (state.phase !== 'playing') {
+      this.pendingWorldResponses = [];
+      return;
+    }
+    const responses = events
+      .map((event) => this.worldResponseFor(event, state))
+      .filter((response): response is WorldResponse => response !== null);
+    if (state.activeMemoryId) {
+      this.pendingWorldResponses.push(...responses);
+      return;
+    }
+    const visibleResponses = [...this.pendingWorldResponses, ...responses];
+    this.pendingWorldResponses = [];
+    for (const response of visibleResponses) {
+      this.presentation.playWorldResponse(response, state.settings.reducedMotion);
+    }
+  }
+
+  private worldResponseFor(
+    event: PresentationEvent,
+    state: Readonly<GameState>,
+  ): WorldResponse | null {
+    if (event.type === 'rain_stone_progress') {
+      const stone = [2, 4, 5][event.step - 1];
+      const entity = this.entityViews.find(
+        (view) => view.definition.id === `entity.rain.stone_${stone}`,
+      )?.definition;
+      return entity ? { x: entity.x, y: entity.y, color: 0xaac8d0, major: event.step === 3 } : null;
+    }
+    if (event.type === 'rain_sign_progress') {
+      const entityId =
+        event.step === 1 ? 'entity.rain.umbrella_sign_a' : 'entity.rain.umbrella_sign_b';
+      const entity = this.entityViews.find((view) => view.definition.id === entityId)?.definition;
+      return entity ? { x: entity.x, y: entity.y, color: 0xb54949 } : null;
+    }
+    if (event.type === 'life_object_restored') {
+      const slotForItem: Record<string, string> = {
+        'item.life.wood_comb': 'slot.life.dresser',
+        'item.life.enamel_cup': 'slot.life.windowsill',
+        'item.life.cassette': 'slot.life.radio',
+      };
+      const slot = this.entityViews.find(
+        (view) => view.definition.id === slotForItem[event.itemId],
+      )?.definition;
+      return slot
+        ? { x: slot.x, y: slot.y, color: 0xd0bd79, major: event.restoredCount === 3 }
+        : null;
+    }
+    if (event.type === 'return_prefix_progress') {
+      const exit = this.entityViews.find(
+        (view) => view.definition.id === `route.${event.direction}`,
+      )?.definition;
+      return exit ? { x: exit.x, y: exit.y, color: 0xd9d0bd } : null;
+    }
+    if (event.type === 'return_junction_completed') {
+      return { x: 640, y: 360, color: event.junction === 3 ? 0xb54949 : 0xd9d0bd, major: true };
+    }
+    if (event.type === 'memory_added') {
+      return { x: state.player.x, y: state.player.y - 24, color: 0xb54949, major: true };
+    }
+    if (event.type === 'ending_handshake_completed') {
+      const xiulan = this.entityViews.find(
+        (view) => view.definition.id === 'entity.ending.xiulan',
+      )?.definition;
+      return {
+        x: xiulan?.x ?? state.player.x,
+        y: (xiulan?.y ?? state.player.y) - 36,
+        color: 0xe8c7a4,
+        major: true,
+      };
+    }
+    return null;
   }
 
   private indexVisualPropsByEntityId(
@@ -620,7 +897,7 @@ export class GameScene extends Phaser.Scene {
       state.phase === 'playing' &&
       !state.modal &&
       state.dialogue.length === 0 &&
-      this.keys.observe.isDown
+      this.presentation.isObserving
     ) {
       const observeKey = `character.xu_old.observe.${direction}`;
       if (state.settings.reducedMotion) {

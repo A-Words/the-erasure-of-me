@@ -35,7 +35,10 @@ def main() -> None:
     cropped = center_crop_to_ratio(source, args.width, args.height)
     prepared = cropped.resize((args.width, args.height), Image.Resampling.LANCZOS)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    prepared.save(args.output, format="PNG", optimize=True)
+    if args.output.suffix.lower() == ".webp":
+        prepared.save(args.output, format="WEBP", quality=90, method=6)
+    else:
+        prepared.save(args.output, format="PNG", optimize=True)
     print(f"Wrote {args.output} at {prepared.size}")
 
 
