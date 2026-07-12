@@ -72,6 +72,8 @@ async function loadChapter(
       const record = JSON.parse(localStorage.getItem(key) ?? 'null');
       const state = record?.state;
       if (!state) throw new Error('Release screenshot seed save is missing');
+      const puzzles = state.puzzles;
+      const settings = state.settings;
       Object.assign(state, {
         phase: 'playing',
         chapterId,
@@ -87,8 +89,8 @@ async function loadChapter(
         message: null,
         ...patch,
       });
-      if (patch.puzzles) state.puzzles = { ...state.puzzles, ...patch.puzzles };
-      if (patch.settings) state.settings = { ...state.settings, ...patch.settings };
+      if (patch.puzzles) state.puzzles = { ...puzzles, ...patch.puzzles };
+      if (patch.settings) state.settings = { ...settings, ...patch.settings };
       localStorage.setItem(key, JSON.stringify(record));
       if (patch.settings) {
         localStorage.setItem('erasure.settings.v1', JSON.stringify(state.settings));
@@ -101,11 +103,38 @@ async function loadChapter(
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', chapterId);
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await expect(page.locator('canvas')).toBeVisible();
+  await expect.poll(() => canvasSampleColorCount(page)).toBeGreaterThan(16);
   await page.waitForTimeout(120);
+}
+
+async function canvasSampleColorCount(page: Page): Promise<number> {
+  return page.locator('canvas').evaluate((element) => {
+    const canvas = element as HTMLCanvasElement;
+    const context = canvas.getContext('2d');
+    if (!context) return 0;
+    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
+    const colors = new Set<number>();
+    const gridColumns = 24;
+    const gridRows = 14;
+    for (let row = 0; row < gridRows; row += 1) {
+      const y = Math.min(canvas.height - 1, Math.floor(((row + 0.5) * canvas.height) / gridRows));
+      for (let column = 0; column < gridColumns; column += 1) {
+        const x = Math.min(
+          canvas.width - 1,
+          Math.floor(((column + 0.5) * canvas.width) / gridColumns),
+        );
+        const offset = (y * canvas.width + x) * 4;
+        colors.add((pixels[offset] << 16) | (pixels[offset + 1] << 8) | pixels[offset + 2]);
+      }
+    }
+    return colors.size;
+  });
 }
 
 async function capture(page: Page, testInfo: TestInfo, name: string): Promise<void> {
   await expect(page.getByRole('main')).toBeVisible();
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
+  await expect.poll(() => canvasSampleColorCount(page)).toBeGreaterThan(16);
   await page.screenshot({
     path: testInfo.outputPath(`release-${name}.png`),
     fullPage: true,
@@ -123,10 +152,17 @@ for (const viewport of [
   }, testInfo) => {
     const browserErrors: string[] = [];
     page.on('console', (message) => {
-      if (message.type() === 'error') browserErrors.push(message.text());
+      if (message.type() === 'error') {
+        browserErrors.push(message.text());
+      }
     });
-    page.on('pageerror', (error) => browserErrors.push(error.stack ?? error.message));
+    page.on('pageerror', (error) => {
+      browserErrors.push(error.stack ?? error.message);
+    });
     await page.setViewportSize(viewport);
+    await page.goto('/');
+    await expect(page.getByRole('heading', { name: '记忆的缝隙' })).toBeVisible();
+    await capture(page, testInfo, 'title');
     await createSave(page);
 
     const performanceSample = await page.evaluate(
@@ -172,6 +208,11 @@ for (const viewport of [
       puzzles: { stationSequence: [2, 4], rainSigns: ['shape.circle', 'texture.ribbed'] },
     });
     await capture(page, testInfo, 'd1-rain');
+    await page.locator('canvas').focus();
+    await page.keyboard.down('Shift');
+    await expect(page.locator('canvas')).toHaveAttribute('data-observation-active', 'true');
+    await capture(page, testInfo, 'd1-observation');
+    await page.keyboard.up('Shift');
 
     await loadChapter(page, 'life', {
       inventory: ['item.life.wood_comb', 'item.life.enamel_cup', 'item.life.cassette'],
@@ -184,6 +225,17 @@ for (const viewport of [
     await page.keyboard.up('i');
     await expect(page.getByRole('heading', { name: '背包' })).toBeVisible();
     await capture(page, testInfo, 'd2-inventory');
+    await page.getByRole('button', { name: /关闭/ }).click();
+
+    await loadChapter(page, 'life', {
+      player: { x: 625, y: 500, facing: 'up', moving: false },
+      inventory: ['item.photo.1979', 'item.photo.1992', 'item.photo.2001'],
+      flags: ['degradation.d2.started'],
+      puzzles: { photoOrder: ['photo.2001', 'photo.1979', 'photo.1992'] },
+    });
+    await page.getByRole('button', { name: '与空着三格的相册交互' }).click();
+    await expect(page.getByRole('heading', { name: '把照片放回时间里' })).toBeVisible();
+    await capture(page, testInfo, 'd2-photo-album');
     await page.getByRole('button', { name: /关闭/ }).click();
 
     await loadChapter(page, 'return', {
