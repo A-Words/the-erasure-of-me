@@ -247,19 +247,37 @@ function validateMap(mapId) {
           );
         }
       } else {
-        // Placeholder object (no gid): must have placeholder=true,
-        // status=visual-placeholder, and a non-empty replacement string.
+        // Objects without a gid are either unresolved placeholders or runtime
+        // actors whose texture is selected by Phaser (for example Xiulan).
+        const statusProp = props.find((p) => p.name === 'status');
+        const entityIdProp = props.find((p) => p.name === 'entityId');
         const placeholderProp = props.find((p) => p.name === 'placeholder');
+        const replacementProp = props.find((p) => p.name === 'replacement');
+        if (statusProp?.value === 'actor-bound') {
+          if (
+            !entityIdProp ||
+            typeof entityIdProp.value !== 'string' ||
+            entityIdProp.value.length === 0
+          ) {
+            errors.push(`Visual object "${obj.name}" is actor-bound but has no entityId binding`);
+          }
+          if (placeholderProp || replacementProp) {
+            errors.push(
+              `Visual object "${obj.name}" is actor-bound but still has placeholder metadata`,
+            );
+          }
+          continue;
+        }
+
+        // Unresolved placeholder: require explicit replacement metadata.
         if (!placeholderProp || placeholderProp.value !== true) {
           errors.push(`Visual object "${obj.name}" has no gid but is missing placeholder=true`);
         }
-        const statusProp = props.find((p) => p.name === 'status');
         if (!statusProp || statusProp.value !== 'visual-placeholder') {
           errors.push(
             `Visual object "${obj.name}" has no gid but status is not "visual-placeholder"`,
           );
         }
-        const replacementProp = props.find((p) => p.name === 'replacement');
         if (
           !replacementProp ||
           typeof replacementProp.value !== 'string' ||
@@ -270,7 +288,6 @@ function validateMap(mapId) {
           );
         }
         // Placeholder must still have entityId pointing to a real interactable
-        const entityIdProp = props.find((p) => p.name === 'entityId');
         if (
           !entityIdProp ||
           typeof entityIdProp.value !== 'string' ||

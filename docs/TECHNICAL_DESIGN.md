@@ -392,13 +392,13 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 | map.rain_station | ✓ v02 + overlays | ✓ (entityId, 正式 prop tileset) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.shared_life | ✓ v02 | ✓ (entityId, v02 props atlas；exit 由背景表现) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 | map.return_corridor | ✓ v02 | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
-| map.home_ending | ✓ v02 | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| map.home_ending | ✓ v02 | ✓ (entityId, actor-bound) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 
 五张正式地图的运行时碰撞均以 `chapterMaps` 的 1280×720 逻辑画布为准。单屏章节的 `navigation` 不使用 Tiled 文档的格网像素尺寸推导边界；雨站额外阻挡站房、候车亭、钟表铺、后景和临水站台边缘，回家长廊阻挡十字路口四角墙体，尾声阻挡隔墙与家具脚印。交互物可以位于实体物件表面，但其 125 像素交互环必须与可行走区域相交。
 
 开发环境以 `?debug=1` 启动时，GameScene 会把 Tiled `navigation` 画成绿色边框，并把稳定 ID 对应的 `collision` 矩形画成半透明红色调试层。该层只读取已经解析的纯数据，不修改 GameStore、角色位置、碰撞结果或存档，生产构建不会启用。
 
-非 home 地图中，rain_station 已为车票、2/4/5 石板、红伞招牌和钟表铺前红伞分配正式 tileset，其中钟表铺前红伞继续使用 `prop_red_umbrella_closed`；Shared Life 的照片、空相册、三件生活物件和三处放置槽使用 v02 `prop_life_shared_life_atlas` tileset。`entity.life.exit` 的正式走廊已经绘入 v02 背景，地图中只保留逻辑 `interactables` hotspot，不再创建无图像 visual_props。return_corridor 与 home_ending 使用 v02 章节背景，路线、出生点、检查点和交互对象数据未随换景改变；碰撞对象则按正式 1280×720 背景补齐实体墙和家具脚印。现有无 gid visual_props placeholder 仍按本节规则保留。
+非 home 地图中，rain_station 已为车票、2/4/5 石板、红伞招牌和钟表铺前红伞分配正式 tileset，其中钟表铺前红伞继续使用 `prop_red_umbrella_closed`；Shared Life 的照片、空相册、三件生活物件和三处放置槽使用 v02 `prop_life_shared_life_atlas` tileset。`entity.life.exit` 的正式走廊已经绘入 v02 背景，地图中只保留逻辑 `interactables` hotspot，不再创建无图像 visual_props。return_corridor 与 home_ending 使用 v02 章节背景，路线、出生点、检查点和交互对象数据未随换景改变；碰撞对象则按正式 1280×720 背景补齐实体墙和家具脚印。return_corridor 的无 gid visual_props placeholder 仍按本节规则保留；home_ending 的秀兰对象标记为 `actor-bound`，正式动画由 Scene 在运行时绑定。
 
 `environment.return.background` 只绘制复用家、雨站和共同生活材质的空十字空间，不烘焙方向答案。`resolveReturnPresentation()` 从 `returnJunction`、`returnPrefix`、`routeLoops`、`hintLevel` 纯派生当前世界方向、线索类型、强度和脚印可见性：路口一使用地面箭头；路口二先用地面箭头、再用伞影；路口三使用哼唱波纹；完成三路口后才显示上方家门。提示脚印仅在错路至少两次或提示等级至少二级时出现。红伞线索只读取当前正确世界方向，不能由装饰层指向错误出口。
 
@@ -417,6 +417,8 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 | `visual_reference` | `true` | 编辑参照层标记 |
 
 有 gid 的正式 tile object 不得标记 `placeholder=true`。`scripts/validate_tiled_maps.mjs` Check 7 强制校验上述规则。后续替换 placeholder 为正式资产时，只需在 Tiled 中为对象分配 gid 并移除 placeholder/status/replacement 属性即可。
+
+若无 gid 对象由运行时动画资产提供正式视觉，可使用 `status=actor-bound`；此时必须有指向真实 interactable 的 `entityId`，且不得再携带 placeholder/replacement。校验脚本将 actor-bound 与未完成占位对象分开验证。
 
 **运行时冒烟测试：**
 

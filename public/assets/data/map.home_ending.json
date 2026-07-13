@@ -59,19 +59,9 @@
               "value": true
             },
             {
-              "name": "placeholder",
-              "type": "bool",
-              "value": true
-            },
-            {
               "name": "status",
               "type": "string",
-              "value": "visual-placeholder"
-            },
-            {
-              "name": "replacement",
-              "type": "string",
-              "value": "林秀兰角色锚点视觉图（旧绿开衫、短发、开放掌心等待姿态）"
+              "value": "actor-bound"
             }
           ],
           "rotation": 0,
