@@ -68,4 +68,36 @@ describe('validate_tiled_maps', () => {
     expect(result.stdout).toContain('[PASS] map.home_ending');
     expect(result.exitCode).toBe(0);
   });
+
+  it('keeps the rain waiting shelter collision closed to the top boundary', () => {
+    const rainMap = JSON.parse(
+      readFileSync(
+        resolve(process.cwd(), 'public', 'assets', 'data', 'map.rain_station.json'),
+        'utf-8',
+      ),
+    ) as {
+      layers: Array<{
+        name: string;
+        objects?: Array<{
+          name?: string;
+          x?: number;
+          y?: number;
+          width?: number;
+          height?: number;
+        }>;
+      }>;
+    };
+    const collision = rainMap.layers.find((layer) => layer.name === 'collision');
+    const roof = collision?.objects?.find(
+      (object) => object.name === 'collision.rain.waiting_shelter_roof',
+    );
+    const shelter = collision?.objects?.find(
+      (object) => object.name === 'collision.rain.waiting_shelter',
+    );
+
+    expect(roof).toMatchObject({ x: 255, y: 32, width: 390, height: 43 });
+    expect(roof?.x).toBe(shelter?.x);
+    expect(roof?.width).toBe(shelter?.width);
+    expect((roof?.y ?? 0) + (roof?.height ?? 0)).toBe(shelter?.y);
+  });
 });

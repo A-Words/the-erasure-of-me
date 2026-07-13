@@ -437,6 +437,15 @@
           "y": 190
         },
         {
+          "height": 43,
+          "id": 34,
+          "name": "collision.rain.waiting_shelter_roof",
+          "type": "building",
+          "width": 390,
+          "x": 255,
+          "y": 32
+        },
+        {
           "height": 250,
           "id": 25,
           "name": "collision.rain.waiting_shelter",
@@ -526,7 +535,7 @@
     }
   ],
   "nextlayerid": 7,
-  "nextobjectid": 34,
+  "nextobjectid": 35,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
