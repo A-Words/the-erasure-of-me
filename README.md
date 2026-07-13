@@ -63,7 +63,7 @@ npm run assets:render:home-overlays
 npm run assets:render:environments
 ~~~
 
-`assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景；`assets:prepare:return-environment` 与 `assets:prepare:ending-environment` 分别把两张 v02 ImageGen 原稿裁切导出为 1280×720 运行时 PNG。
+`assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景；`assets:prepare:return-environment` 与 `assets:prepare:ending-environment` 分别把两张 v02 ImageGen 原稿裁切导出为 1280×720 运行时 WebP。
 
 首次运行浏览器端到端测试前，需要安装 Playwright 浏览器；Edge 项目还需要系统已安装 Microsoft Edge：
 
