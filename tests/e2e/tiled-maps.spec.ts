@@ -364,6 +364,7 @@ test('a wrong return route briefly reveals a familiar-room echo and ignores move
     y: await app.getAttribute('data-player-y'),
   };
   await canvas.press('ArrowRight');
+  await page.waitForTimeout(100);
   await expect(app).toHaveAttribute('data-player-x', lockedPosition.x ?? '');
   await expect(app).toHaveAttribute('data-player-y', lockedPosition.y ?? '');
   await expect(canvas).toHaveAttribute('data-wrong-turn-echo', 'false', { timeout: 3_000 });
@@ -393,6 +394,7 @@ test('solid scenery blocks movement at the visible footprint', async ({ page }, 
   });
   await canvas.focus();
   await canvas.press('ArrowUp');
+  await page.waitForTimeout(100);
   await expect(app).toHaveAttribute('data-player-y', '470');
   await canvas.screenshot({ path: testInfo.outputPath('rain-station-building-collision.png') });
 
@@ -401,6 +403,7 @@ test('solid scenery blocks movement at the visible footprint', async ({ page }, 
   });
   await canvas.focus();
   await canvas.press('ArrowDown');
+  await page.waitForTimeout(100);
   await expect(app).toHaveAttribute('data-player-y', '510');
   await canvas.screenshot({ path: testInfo.outputPath('ending-table-collision.png') });
   expect(capture.errors).toEqual([]);

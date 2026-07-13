@@ -78,7 +78,7 @@
 | environment.life.resolved | 项目团队 | assets-source/art/environments/environment_life_resolved_v01_generated.png | public/assets/environments/environment_life_resolved_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查、淡变中点与 Playwright 完成态验收 | 2026-06-28 | 1280×720；与 Shared Life v02 墙体、走廊、中央桌及固定家具注册对齐；只保留中间成熟桂花窗，移除左右时间窗、纸箱、年代接缝及停电宴席，统一为同向晨光和日常圆桌；不承担谜题真值 |
 | environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v02_generated.png | public/assets/environments/environment_return_v02.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 1672×941 原稿；1280×720 WebP 质量 90 导出；“缝隙长廊”复用家中木地板、雨站湿石板与共同生活花砖；底图不烘焙箭头、伞影、波纹或脚印；待外部美术审核 |
 | environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v02_generated.png | public/assets/environments/environment_ending_v02.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 1672×941 原稿；1280×720 WebP 质量 90 导出；温暖清晨、开放中央构图、桌上两碗面与右墙褪色红伞；待外部美术与敏感性审核 |
-| map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | Codex 静态数据同步；本轮未跑自动化测试 | 2026-06-25 | Tiled 对象层提供出生区、稳定 ID 与 17 个家具/墙体碰撞矩形；v10 扩大上方开口并拆分左下竖墙以恢复储物间通道；右侧门洞只保留室内侧 hotspot，不要求走入门槛；门 hotspot 位于 `(1225, 560)` |
+| map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps`、碰撞单测与四浏览器首页/碰撞验收 | 2026-07-13 | Tiled 对象层提供出生区、稳定 ID 与 18 个家具/墙体碰撞矩形；背景使用 `environment_home_v11.png`；visual_decor 新增茶几地毯、玄关门垫和旧木钟，装饰图集扩为 gid 8–13，四件交互道具顺延为 gid 14–17；右侧门洞只保留室内侧 hotspot，坐标为 `(1225, 560)` |
 | map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps`、碰撞单测与浏览器通行验收 | 2026-07-13 | Tiled 对象层提供 2→4→5、伞标与出口；1280×720 导航边界；站房、候车亭、钟表铺、后景与临水站台边缘均有实体碰撞；visual_props 已分配正式 gid |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps` 与 Chromium 完整流程 | 2026-06-27 | Tiled 对象层提供照片、物件和三槽位；visual_props 使用 v02 图集；1280×720 导航/碰撞与正式背景对齐；已移除 exit visual-placeholder |
 | map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps`、碰撞单测与浏览器通行验收 | 2026-07-13 | 1280×720 导航边界；四向出口与中央十字走廊保持连通，四角墙体不可穿越；v02 底图不含答案，箭头、伞影、哼唱波纹与脚印由状态派生 |
@@ -163,7 +163,7 @@
 - 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 裁切并归一化到 128×128 透明画布。`map.rain_station` 通过独立 tileset gid 绑定 manifest key，Tiled 坐标保持 tile object 左下角锚点。
 - 当前结论：透明边缘、44px 车票/石板和 58px 招牌小尺寸预览通过；`npm run validate:maps` 通过。外部美术审核前保持 `review`。
 
-### furniture.home.* v01/v02/v03 / decor.home.* v01 / environment.home.background v11
+### `furniture.home.*` v01/v02/v03 / `decor.home.*` v01 / environment.home.background v11
 
 - 生成方式：既有家具和三件早期非交互装饰沿用 OpenAI ImageGen `stylized-concept` 素材；v11 建筑壳层使用 `precise-object-edit` 在 v10 正交结构上统一木地板、墙面颗粒、材质磨损和接触阴影，明确禁止移动墙体、开口、门窗与地面边界。茶几地毯、玄关门垫和旧木钟使用独立 `stylized-concept` 生成稿，并经色键流程转为透明装饰。
 - 视角约束：建筑壳层使用 30°～35° 轻斜俯视；家具可依据摆放关系采用少量水平转角，以落地面一致、空间关系合理为准。当前入户门不显示门板，门洞属于右侧墙体结构；玩家靠近门口 hotspot 后进入开门对白与章节过渡。
@@ -212,7 +212,7 @@
 - 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站 2/4/5 石板、车票与红伞招牌，以及 Shared Life 的照片、生活物件与槽位均由独立 visual_props 资产承载。
 - 当前结论：五章候选背景均有运行时导出；rain v02 的底图/天气叠层与 Shared Life v02 的三年代/收束态已有浏览器检查记录。return/ending v02 是本轮新增候选，不能沿用 v01 或其他章节的 reviewer/approvedAt；外部美术与敏感性审核前保持 `review`，不得据此宣称发布就绪。
 
-### audio.theme.* / audio.ambience.*
+### `audio.theme.*` / `audio.ambience.*`
 
 - 制作方式：运行时 Web Audio 合成，不包含外部录音或第三方采样；音序、滤波、包络与混音参数保存在 `AudioManager.ts`。
 - 主题退化：D0 保留四层，D1 保留旋律但降低环境高频，D2 移除主旋律，D3 仅保留和声与持续音，D4 改为 voice 总线上的不完整三音哼唱。

@@ -469,7 +469,7 @@ describe('TiledCollisionProvider with multi-map data', () => {
 
     // Non-home chapters include both the outer bounds and visible solid geometry.
     const rainData = provider.getCollisionData('rain');
-    expect(rainData.obstacles).toHaveLength(14);
+    expect(rainData.obstacles).toHaveLength(15);
 
     const lifeData = provider.getCollisionData('life');
     expect(lifeData.obstacles).toHaveLength(11);
