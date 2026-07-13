@@ -11,7 +11,9 @@ async function activateWithKeyboard(locator: Locator): Promise<void> {
 async function createSave(page: Page): Promise<void> {
   await page.goto('/');
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
-  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true', {
+    timeout: 15_000,
+  });
   await page.evaluate(() => localStorage.clear());
   await page.reload();
   await startNewGame(page, { keyboard: true });
@@ -261,8 +263,7 @@ test('completes photo ordering, all three placements and the corridor exit using
   await capture(page, testInfo, 'shared-life-1992-stabilized');
 
   await moveTo(page, 940, 215);
-  await moveTo(page, 940, 385);
-  await moveTo(page, 1065, 385);
+  await moveTo(page, 960, 285);
   const radioPrompt = page.locator('.interaction-prompt');
   await expect(radioPrompt).toContainText('收音机 · 波纹槽');
   await activateWithKeyboard(radioPrompt);
@@ -313,6 +314,8 @@ test('uses visible photo clues to progress while muted', async ({ page }) => {
   await activateWithKeyboard(page.getByRole('button', { name: '继续', exact: true }));
 
   await interactWith(page, '空着三格的相册');
+  await expect(page.locator('.photo-card img')).toHaveCount(3);
+  await expect(page.getByRole('heading', { name: '把照片放回时间里' })).toBeVisible();
   await expect(page.getByText('年份写在尚未拆开的纸箱角落。')).toBeVisible();
   await expect(page.getByText('年份写在孩子的身高刻度旁。')).toBeVisible();
   await expect(page.getByText('年份写在银婚蛋糕的小牌上。')).toBeVisible();

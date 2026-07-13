@@ -146,7 +146,7 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
     subtitle: '',
     width: 1280,
     height: 720,
-    spawn: { x: 920, y: 430 },
+    spawn: { x: 920, y: 480 },
     palette: { floor: 0xd8cbb8, wall: 0x8b7665, accent: 0xb54949 },
     entities: [
       {

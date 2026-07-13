@@ -11,7 +11,162 @@ export type SemanticAudioCue =
   | 'life_memory'
   | 'return_hum'
   | 'ending_warmth'
+  | 'rain_stone_1'
+  | 'rain_stone_2'
+  | 'rain_stone_3'
+  | 'rain_wayfinder'
+  | 'life_object_returned'
+  | 'return_path_step'
+  | 'return_junction'
+  | 'memory_recalled'
+  | 'ending_handshake'
   | 'soft_feedback';
+
+export type SemanticAudioNote = readonly [
+  frequency: number,
+  duration: number,
+  delay: number,
+  type: OscillatorType,
+];
+
+export interface SemanticAudioPattern {
+  readonly bus: AudioBus;
+  readonly level: number;
+  readonly notes: readonly SemanticAudioNote[];
+}
+
+const semanticAudioPatterns: Record<SemanticAudioCue, SemanticAudioPattern> = {
+  home_clock: { bus: 'ambience', level: 0.07, notes: [[440, 0.05, 0, 'sine']] },
+  rain_bell: {
+    bus: 'sfx',
+    level: 0.07,
+    notes: [
+      [659, 0.45, 0, 'sine'],
+      [659, 0.45, 0.55, 'sine'],
+      [784, 0.7, 1.1, 'sine'],
+    ],
+  },
+  life_memory: {
+    bus: 'music',
+    level: 0.07,
+    notes: [
+      [261.63, 0.8, 0, 'triangle'],
+      [329.63, 0.8, 0.08, 'triangle'],
+      [392, 0.8, 0.16, 'triangle'],
+    ],
+  },
+  return_hum: {
+    bus: 'voice',
+    level: 0.07,
+    notes: [
+      [196, 1.2, 0, 'sine'],
+      [220, 1.2, 0.25, 'sine'],
+    ],
+  },
+  ending_warmth: {
+    bus: 'voice',
+    level: 0.07,
+    notes: [
+      [220, 1.4, 0, 'sine'],
+      [246.94, 1.4, 0.22, 'sine'],
+    ],
+  },
+  rain_stone_1: {
+    bus: 'sfx',
+    level: 0.045,
+    notes: [
+      [146.83, 0.34, 0, 'sine'],
+      [523.25, 0.34, 0.08, 'sine'],
+      [659.25, 0.5, 0.19, 'sine'],
+    ],
+  },
+  rain_stone_2: {
+    bus: 'sfx',
+    level: 0.045,
+    notes: [
+      [146.83, 0.34, 0, 'sine'],
+      [587.33, 0.34, 0.08, 'sine'],
+      [698.46, 0.5, 0.19, 'sine'],
+    ],
+  },
+  rain_stone_3: {
+    bus: 'sfx',
+    level: 0.048,
+    notes: [
+      [146.83, 0.34, 0, 'sine'],
+      [659.25, 0.34, 0.08, 'sine'],
+      [783.99, 0.56, 0.19, 'sine'],
+    ],
+  },
+  rain_wayfinder: {
+    bus: 'sfx',
+    level: 0.042,
+    notes: [
+      [130.81, 0.36, 0, 'sine'],
+      [587.33, 0.4, 0.12, 'sine'],
+      [880, 0.62, 0.26, 'sine'],
+    ],
+  },
+  life_object_returned: {
+    bus: 'sfx',
+    level: 0.04,
+    notes: [
+      [130.81, 0.55, 0, 'sine'],
+      [261.63, 0.42, 0.1, 'triangle'],
+      [523.25, 0.7, 0.23, 'sine'],
+    ],
+  },
+  return_path_step: {
+    bus: 'sfx',
+    level: 0.034,
+    notes: [
+      [98, 0.4, 0, 'sine'],
+      [146.83, 0.42, 0.13, 'sine'],
+      [196, 0.55, 0.28, 'sine'],
+    ],
+  },
+  return_junction: {
+    bus: 'sfx',
+    level: 0.04,
+    notes: [
+      [98, 0.55, 0, 'sine'],
+      [164.81, 0.52, 0.12, 'sine'],
+      [246.94, 0.75, 0.26, 'sine'],
+    ],
+  },
+  memory_recalled: {
+    bus: 'sfx',
+    level: 0.04,
+    notes: [
+      [130.81, 0.55, 0, 'sine'],
+      [392, 0.6, 0.14, 'triangle'],
+      [659.25, 0.85, 0.3, 'sine'],
+    ],
+  },
+  ending_handshake: {
+    bus: 'voice',
+    level: 0.034,
+    notes: [
+      [98, 0.7, 0, 'sine'],
+      [146.83, 0.75, 0.16, 'sine'],
+      [220, 0.9, 0.36, 'sine'],
+    ],
+  },
+  soft_feedback: { bus: 'sfx', level: 0.07, notes: [[523.25, 0.12, 0, 'triangle']] },
+};
+
+export function resolveSemanticAudioPattern(cue: SemanticAudioCue): SemanticAudioPattern {
+  const pattern = semanticAudioPatterns[cue];
+  return Object.freeze({
+    bus: pattern.bus,
+    level: pattern.level,
+    notes: Object.freeze(
+      pattern.notes.map(([frequency, duration, delay, type]) =>
+        Object.freeze([frequency, duration, delay, type] as SemanticAudioNote),
+      ),
+    ),
+  });
+}
 
 export interface ChapterAudioProfile {
   stage: DegradationStage;
@@ -120,46 +275,9 @@ export class AudioManager {
 
   play(cue: SemanticAudioCue): void {
     if (!this.context || !this.master || this.settings?.muted) return;
-    const patterns: Record<
-      SemanticAudioCue,
-      { bus: AudioBus; notes: Array<[number, number, number, OscillatorType]> }
-    > = {
-      home_clock: { bus: 'ambience', notes: [[440, 0.05, 0, 'sine']] },
-      rain_bell: {
-        bus: 'sfx',
-        notes: [
-          [659, 0.45, 0, 'sine'],
-          [659, 0.45, 0.55, 'sine'],
-          [784, 0.7, 1.1, 'sine'],
-        ],
-      },
-      life_memory: {
-        bus: 'music',
-        notes: [
-          [261.63, 0.8, 0, 'triangle'],
-          [329.63, 0.8, 0.08, 'triangle'],
-          [392, 0.8, 0.16, 'triangle'],
-        ],
-      },
-      return_hum: {
-        bus: 'voice',
-        notes: [
-          [196, 1.2, 0, 'sine'],
-          [220, 1.2, 0.25, 'sine'],
-        ],
-      },
-      ending_warmth: {
-        bus: 'voice',
-        notes: [
-          [220, 1.4, 0, 'sine'],
-          [246.94, 1.4, 0.22, 'sine'],
-        ],
-      },
-      soft_feedback: { bus: 'sfx', notes: [[523.25, 0.12, 0, 'triangle']] },
-    };
-    const pattern = patterns[cue];
+    const pattern = resolveSemanticAudioPattern(cue);
     for (const [frequency, duration, delay, type] of pattern.notes) {
-      this.tone(pattern.bus, frequency, duration, delay, type, 0.07);
+      this.tone(pattern.bus, frequency, duration, delay, type, pattern.level);
     }
   }
 

@@ -62,23 +62,29 @@ test('animates observation while held and uses a static reduced-motion pose', as
 
   await canvas.focus();
   await page.keyboard.down('Shift');
+  await expect(canvas).toHaveAttribute('data-observation-active', 'true');
   await page.waitForTimeout(90);
   const standardFirst = await sampleCanvas();
   await expect
     .poll(async () => changed(standardFirst, await sampleCanvas()), { timeout: 4000 })
     .toBe(true);
+  await canvas.press('ArrowRight');
+  await expect(canvas).toHaveAttribute('data-observation-active', 'false');
   await page.keyboard.up('Shift');
+  await expect(canvas).toHaveAttribute('data-observation-active', 'false');
 
   await canvas.press('Escape');
   await page.getByLabel('减少动态效果').check();
   await page.getByRole('button', { name: '继续' }).click();
   await canvas.focus();
   await page.keyboard.down('Shift');
+  await expect(canvas).toHaveAttribute('data-observation-active', 'true');
   await page.waitForTimeout(90);
   const reducedFirst = await sampleCanvas();
   await page.waitForTimeout(320);
   const reducedSecond = await sampleCanvas();
   await page.keyboard.up('Shift');
+  await expect(canvas).toHaveAttribute('data-observation-active', 'false');
   await page.waitForTimeout(90);
   const reducedIdle = await sampleCanvas();
 

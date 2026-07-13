@@ -187,6 +187,31 @@ describe('SaveRepository', () => {
     expect(repository.loadSlot(1)?.rainMapClosedAtX).toBe(512);
   });
 
+  it('repairs partial puzzle progress from an older or interrupted save', () => {
+    const repository = new SaveRepository(storage);
+    const state = createInitialState();
+    state.phase = 'playing';
+    const record = {
+      formatVersion: 1,
+      savedAt: '2026-06-29T08:00:00.000Z',
+      state: {
+        ...state,
+        puzzles: { stationSequence: [2, 4], rainSigns: ['entity.rain.umbrella_sign_a'] },
+      },
+    };
+    storage.setItem(saveSlotKey(1), JSON.stringify(record));
+
+    expect(repository.loadSlot(1)?.puzzles).toEqual({
+      stationSequence: [2, 4],
+      rainSigns: ['entity.rain.umbrella_sign_a'],
+      photoOrder: ['photo.2001', 'photo.1979', 'photo.1992'],
+      placedObjects: [],
+      returnJunction: 0,
+      returnPrefix: [],
+      routeLoops: 0,
+    });
+  });
+
   it('does not claim success or replace a slot when storage rejects the write', () => {
     const repository = new SaveRepository(new ThrowingStorage());
     const state = createInitialState();

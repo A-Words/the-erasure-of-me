@@ -6,8 +6,43 @@ import { SaveRepository } from './save/SaveRepository';
 import { AppShell } from './ui/AppShell';
 import { AudioManager } from './phaser/audio/AudioManager';
 import { TiledCollisionProvider } from './game/content/collisionProvider';
+import {
+  createPresentationSnapshot,
+  diffPresentationSnapshots,
+} from './game/presentation/presentationEvents';
 import type { GameState } from './game/state/GameState';
+import type {
+  PresentationEvent,
+  PresentationSnapshot,
+  RainStoneStep,
+} from './game/presentation/presentationEvents';
+import type { SemanticAudioCue } from './phaser/audio/AudioManager';
 import type { SaveSlotId } from './save/SaveRepository';
+
+const rainStoneCues: Record<RainStoneStep, SemanticAudioCue> = {
+  1: 'rain_stone_1',
+  2: 'rain_stone_2',
+  3: 'rain_stone_3',
+};
+
+function audioCueForPresentationEvent(event: PresentationEvent): SemanticAudioCue {
+  switch (event.type) {
+    case 'rain_stone_progress':
+      return rainStoneCues[event.step];
+    case 'rain_sign_progress':
+      return 'rain_wayfinder';
+    case 'life_object_restored':
+      return 'life_object_returned';
+    case 'return_prefix_progress':
+      return 'return_path_step';
+    case 'return_junction_completed':
+      return 'return_junction';
+    case 'memory_added':
+      return 'memory_recalled';
+    case 'ending_handshake_completed':
+      return 'ending_handshake';
+  }
+}
 
 function progressSignature(state: Readonly<GameState>): string {
   return JSON.stringify({
@@ -65,13 +100,33 @@ async function bootstrap(): Promise<void> {
 
   let lastSaveSignature = '';
   let lastActiveSlot: SaveSlotId | null = null;
-  let lastAudioMessage = '';
+  let previousPresentationSnapshot: Readonly<PresentationSnapshot> | null = null;
+  let lastAudioMessage: string | null = null;
   let wasPaused = false;
   store.subscribe((state) => {
     audio.setSettings(state.settings);
     audio.setChapter(state.phase === 'playing' ? state.chapterId : null);
-    if (state.message && state.message !== lastAudioMessage) {
-      lastAudioMessage = state.message;
+
+    const previousSnapshot = previousPresentationSnapshot;
+    const presentationSnapshot = createPresentationSnapshot(state);
+    const presentationEvents = diffPresentationSnapshots(previousSnapshot, presentationSnapshot);
+    previousPresentationSnapshot = presentationSnapshot;
+    for (const event of presentationEvents) {
+      audio.play(audioCueForPresentationEvent(event));
+    }
+
+    const messageChanged = state.message !== lastAudioMessage;
+    lastAudioMessage = state.message;
+    const remainsInPlayingChapter =
+      previousSnapshot?.phase === 'playing' &&
+      state.phase === 'playing' &&
+      previousSnapshot.chapterId === state.chapterId;
+    if (
+      state.message &&
+      messageChanged &&
+      presentationEvents.length === 0 &&
+      remainsInPlayingChapter
+    ) {
       audio.play('soft_feedback');
     }
     const settingsSignature = JSON.stringify(state.settings);

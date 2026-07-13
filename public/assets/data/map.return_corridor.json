@@ -5,7 +5,7 @@
   "layers": [
     {
       "id": 3,
-      "image": "../environments/environment_return_v01.png",
+      "image": "../environments/environment_return_v02.webp",
       "name": "background",
       "offsetx": 0,
       "offsety": 0,
@@ -298,13 +298,13 @@
       "name": "navigation",
       "objects": [
         {
-          "height": 1160,
+          "height": 656,
           "id": 1,
           "name": "spawn.return.training",
           "type": "spawn",
-          "width": 2194,
-          "x": 55,
-          "y": 75
+          "width": 1216,
+          "x": 32,
+          "y": 32
         }
       ],
       "opacity": 1,
@@ -319,40 +319,76 @@
       "name": "collision",
       "objects": [
         {
-          "height": 75,
+          "height": 32,
           "id": 10,
           "name": "collision.return.wall_outer_top",
           "type": "wall",
-          "width": 2304,
+          "width": 1280,
           "x": 0,
           "y": 0
         },
         {
-          "height": 45,
+          "height": 32,
           "id": 11,
           "name": "collision.return.wall_outer_bottom",
           "type": "wall",
-          "width": 2304,
+          "width": 1280,
           "x": 0,
-          "y": 1235
+          "y": 688
         },
         {
-          "height": 1280,
+          "height": 720,
           "id": 12,
           "name": "collision.return.wall_outer_left",
           "type": "wall",
-          "width": 55,
+          "width": 32,
           "x": 0,
           "y": 0
         },
         {
-          "height": 1280,
+          "height": 720,
           "id": 13,
           "name": "collision.return.wall_outer_right",
           "type": "wall",
-          "width": 55,
-          "x": 2249,
+          "width": 32,
+          "x": 1248,
           "y": 0
+        },
+        {
+          "height": 245,
+          "id": 14,
+          "name": "collision.return.wall_upper_left",
+          "type": "wall",
+          "width": 510,
+          "x": 0,
+          "y": 0
+        },
+        {
+          "height": 245,
+          "id": 15,
+          "name": "collision.return.wall_upper_right",
+          "type": "wall",
+          "width": 510,
+          "x": 770,
+          "y": 0
+        },
+        {
+          "height": 215,
+          "id": 16,
+          "name": "collision.return.wall_lower_left",
+          "type": "wall",
+          "width": 500,
+          "x": 0,
+          "y": 505
+        },
+        {
+          "height": 215,
+          "id": 17,
+          "name": "collision.return.wall_lower_right",
+          "type": "wall",
+          "width": 510,
+          "x": 770,
+          "y": 505
         }
       ],
       "opacity": 1,
@@ -363,7 +399,7 @@
     }
   ],
   "nextlayerid": 7,
-  "nextobjectid": 14,
+  "nextobjectid": 18,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

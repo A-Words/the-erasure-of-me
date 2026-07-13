@@ -58,6 +58,18 @@ const photoClues: Record<PhotoId, string> = {
   'photo.2001': '年份写在银婚蛋糕的小牌上。',
 };
 
+const photoAssets = {
+  'photo.1979': 'prop.life.photo.move_1979',
+  'photo.1992': 'prop.life.photo.osmanthus_1992',
+  'photo.2001': 'prop.life.photo.anniversary_2001',
+} as const;
+
+const photoAlt: Record<PhotoId, string> = {
+  'photo.1979': '尚未拆完的搬家纸箱、空房和靠在一旁的红伞',
+  'photo.1992': '桂花窗台、孩子的身高刻度和一只旧搪瓷杯',
+  'photo.2001': '银婚蛋糕、银色双环与已经一起生活多年的两个人',
+};
+
 export class AppShell {
   private readonly hud = document.querySelector<HTMLDivElement>('#hud')!;
   private readonly panel = document.querySelector<HTMLDivElement>('#panel-layer')!;
@@ -149,6 +161,8 @@ export class AppShell {
     if (app) {
       app.dataset.phase = state.phase;
       app.dataset.chapter = state.chapterId;
+      app.dataset.stage = state.degradationStage;
+      app.dataset.mode = state.mode;
       app.dataset.checkpoint = state.checkpointId;
       app.dataset.playerX = String(Math.round(state.player.x));
       app.dataset.playerY = String(Math.round(state.player.y));
@@ -216,15 +230,22 @@ export class AppShell {
     const d4 = state.degradationStage === 'D4';
     const nearbyEntity = this.nearbyEntity(state);
     this.hud.innerHTML = `
-      <section class="objective-chip ${d4 ? 'hud-faded' : ''}" aria-label="当前目标">
-        <small>${chapterMaps[state.chapterId].title}</small>
-        <span>${state.objective}</span>
+      <section class="objective-chip hud-memory-layer ${d4 ? 'hud-memory-faded' : ''}" aria-label="当前目标">
+        <div class="objective-copy">
+          <small class="objective-chapter">${chapterMaps[state.chapterId].title}</small>
+          <span class="objective-text">${state.objective}</span>
+        </div>
+        <span class="observation-hint" aria-label="操作提示：按住 Shift 静静留意附近线索">
+          <kbd>Shift</kbd><span>静静留意</span>
+        </span>
       </section>
-      <section class="stage-chip ${d4 ? 'hud-faded' : ''}" aria-label="当前信息状态">
+      <section class="stage-chip hud-memory-layer ${d4 ? 'hud-memory-faded' : ''}" aria-label="当前信息状态">
         <span class="anchor-dot" aria-hidden="true"></span>
-        ${state.degradationStage} · ${state.mode === 'standard' ? '标准' : '低扰动'}
+        <span class="stage-code">${state.degradationStage}</span>
+        <span aria-hidden="true">·</span>
+        <span>${state.mode === 'standard' ? '标准' : '低扰动'}</span>
       </section>
-      <nav class="hud-actions ${d4 ? 'hud-faded' : ''}" aria-label="游戏工具">
+      <nav class="hud-actions" aria-label="游戏工具">
         <button data-open="inventory">背包 <kbd>I</kbd></button>
         <button data-open="journal">日记 <kbd>J</kbd></button>
         ${mapMode === 'hidden' ? '' : '<button data-open="map">地图 <kbd>M</kbd></button>'}
@@ -371,10 +392,14 @@ export class AppShell {
         const photoId = id in photoLabels ? (id as PhotoId) : null;
         const label = photoId ? photoLabels[photoId] : '未识别的照片';
         const clue = photoId ? photoClues[photoId] : '暂时无法辨认这张照片的线索。';
-        return `<li><span class="photo-clue-copy"><span>${index + 1}. ${label}</span><small>${clue}</small></span><span><button data-photo-up="${index}" aria-label="上移 ${label}">↑</button><button data-photo-down="${index}" aria-label="下移 ${label}">↓</button></span></li>`;
+        const [year, moment = '未命名片段'] = label.split(' · ');
+        const image = photoId
+          ? `<img src="${assetUrl(photoAssets[photoId])}" alt="${photoAlt[photoId]}">`
+          : '<span class="photo-placeholder" aria-hidden="true">?</span>';
+        return `<li class="photo-card" data-photo-position="${index + 1}"><span class="photo-position" aria-hidden="true"><small>第</small><strong>${index + 1}</strong><small>张</small></span><figure><span class="photo-mat">${image}</span><figcaption><strong>${year}</strong><span>${moment}</span><small>${clue}</small></figcaption></figure><span class="photo-controls" role="group" aria-label="调整 ${label} 的位置"><button data-photo-up="${index}" aria-label="上移 ${label}" ${index === 0 ? 'disabled' : ''}><span aria-hidden="true">←</span> 早一些</button><button data-photo-down="${index}" aria-label="下移 ${label}" ${index === this.photoOrder.length - 1 ? 'disabled' : ''}>晚一些 <span aria-hidden="true">→</span></button></span></li>`;
       })
       .join('');
-    return `<h2>把照片放回时间里</h2><p>年份、家具的新旧和桂花的高度都能提供线索。</p><ol class="photo-order">${rows}</ol><button class="primary" data-submit-photos>确认顺序</button>`;
+    return `<section class="photo-album" aria-labelledby="photo-album-title"><header><p class="album-kicker">共同生活 · 相册页 03</p><h2 id="photo-album-title">把照片放回时间里</h2><p>沿着年份、家具的新旧和桂花的高度，把三段普通日子接在一起。</p></header><ol class="photo-order">${rows}</ol><footer><span aria-hidden="true">从最早到最近</span><button class="primary" data-submit-photos aria-label="确认顺序">确认这条时间线</button></footer></section>`;
   }
 
   private renderSystem(state: Readonly<GameState>): void {
@@ -434,10 +459,12 @@ export class AppShell {
     const latest = this.saves.getMostRecentValidSlot();
     const latestChapter = latest?.chapterId ? chapterMaps[latest.chapterId].title : null;
     return `<section class="title-screen" aria-labelledby="game-title">
-      <div class="title-art" aria-hidden="true"><span>☂</span></div>
-      <p class="eyebrow">一段关于记忆、尊严与陪伴的故事</p>
-      <h1 id="game-title">记忆的缝隙</h1>
-      <p class="english-title">THE ERASURE OF ME</p>
+      <div class="title-emblem" aria-hidden="true"><div class="title-art"><span>☂</span></div><span class="emblem-seam"></span></div>
+      <header class="title-heading">
+        <p class="eyebrow">一段关于记忆、尊严与陪伴的故事</p>
+        <h1 id="game-title">记忆的缝隙</h1>
+        <p class="english-title">THE ERASURE OF ME</p>
+      </header>
       <aside class="content-note"><strong>内容提示</strong><span>本作涉及认知衰退、迷路与家庭照护。许志远是虚构人物，他的经历不代表所有阿尔茨海默病患者。你可以随时暂停、退出或启用低扰动模式。</span></aside>
       <nav class="title-menu" aria-label="主菜单">
         <button class="title-menu-card primary" data-continue-latest ${latest ? '' : 'disabled'}><strong>继续游戏</strong><span>${latest && latestChapter ? `记忆片段 ${this.fragmentNumber(latest.slotId)} · ${latestChapter}` : '还没有可以继续的记忆'}</span></button>
@@ -446,7 +473,7 @@ export class AppShell {
         <button class="title-menu-card" data-title-view="settings"><strong>设置</strong><span>声音、字幕与无障碍选项</span></button>
       </nav>
       ${this.titleSaveNotice()}
-      <p class="controls">纯键盘可完成 · WASD / 方向键移动 · E 交互 · Esc 暂停</p>
+      <p class="controls"><span>纯键盘可完成 · WASD / 方向键移动 · E 交互 · Esc 暂停</span><span class="observe-control"><kbd>Shift</kbd> 静静留意</span></p>
     </section>`;
   }
 

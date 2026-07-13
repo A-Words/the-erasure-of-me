@@ -5,7 +5,7 @@
   "layers": [
     {
       "id": 4,
-      "image": "../environments/environment_home_v10.png",
+      "image": "../environments/environment_home_v11.png",
       "name": "background",
       "offsetx": 0,
       "offsety": 0,
@@ -134,6 +134,108 @@
           "width": 64,
           "x": 1050,
           "y": 150
+        },
+        {
+          "gid": 11,
+          "height": 230,
+          "id": 44,
+          "name": "visual.home.coffee_rug",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeDecorLayout[3]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 230
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 30
+            }
+          ],
+          "rotation": 0,
+          "type": "decor",
+          "visible": true,
+          "width": 230,
+          "x": 585,
+          "y": 655
+        },
+        {
+          "gid": 12,
+          "height": 100,
+          "id": 45,
+          "name": "visual.home.entry_mat",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeDecorLayout[4]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 100
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 30
+            }
+          ],
+          "rotation": 0,
+          "type": "decor",
+          "visible": true,
+          "width": 100,
+          "x": 1130,
+          "y": 668
+        },
+        {
+          "gid": 13,
+          "height": 44,
+          "id": 46,
+          "name": "visual.home.wall_clock",
+          "properties": [
+            {
+              "name": "source",
+              "type": "string",
+              "value": "homeLayout.ts:homeDecorLayout[5]"
+            },
+            {
+              "name": "visual_reference",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "size",
+              "type": "int",
+              "value": 44
+            },
+            {
+              "name": "sortY",
+              "type": "int",
+              "value": 18
+            }
+          ],
+          "rotation": 0,
+          "type": "decor",
+          "visible": true,
+          "width": 44,
+          "x": 738,
+          "y": 87
         }
       ],
       "opacity": 1,
@@ -496,7 +598,7 @@
       "name": "visual_props",
       "objects": [
         {
-          "gid": 11,
+          "gid": 14,
           "height": 36,
           "id": 40,
           "name": "visual.home.bedside_photo",
@@ -535,7 +637,7 @@
           "y": 186
         },
         {
-          "gid": 12,
+          "gid": 15,
           "height": 44,
           "id": 41,
           "name": "visual.home.journal",
@@ -574,7 +676,7 @@
           "y": 304
         },
         {
-          "gid": 13,
+          "gid": 16,
           "height": 38,
           "id": 42,
           "name": "visual.home.glasses_case",
@@ -613,7 +715,7 @@
           "y": 529
         },
         {
-          "gid": 14,
+          "gid": 17,
           "height": 32,
           "id": 43,
           "name": "visual.home.key_bowl",
@@ -959,7 +1061,7 @@
     }
   ],
   "nextlayerid": 8,
-  "nextobjectid": 44,
+  "nextobjectid": 47,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
@@ -979,21 +1081,21 @@
       "tilewidth": 256
     },
     {
-      "columns": 3,
+      "columns": 6,
       "firstgid": 8,
-      "image": "../decor/decor_home_atlas_v01_3x256x256.png",
+      "image": "../decor/decor_home_atlas_v02_6x256x256.png",
       "imageheight": 256,
-      "imagewidth": 768,
+      "imagewidth": 1536,
       "margin": 0,
       "name": "decor_home_atlas",
       "spacing": 0,
-      "tilecount": 3,
+      "tilecount": 6,
       "tileheight": 256,
       "tilewidth": 256
     },
     {
       "columns": 1,
-      "firstgid": 11,
+      "firstgid": 14,
       "image": "../props/prop_home_bedside_photo_v01.png",
       "imageheight": 128,
       "imagewidth": 128,
@@ -1006,7 +1108,7 @@
     },
     {
       "columns": 1,
-      "firstgid": 12,
+      "firstgid": 15,
       "image": "../props/prop_home_red_thread_journal_v01.png",
       "imageheight": 128,
       "imagewidth": 128,
@@ -1019,7 +1121,7 @@
     },
     {
       "columns": 1,
-      "firstgid": 13,
+      "firstgid": 16,
       "image": "../props/prop_home_glasses_case_v01.png",
       "imageheight": 128,
       "imagewidth": 128,
@@ -1032,7 +1134,7 @@
     },
     {
       "columns": 1,
-      "firstgid": 14,
+      "firstgid": 17,
       "image": "../props/prop_home_blue_key_bowl_v01.png",
       "imageheight": 128,
       "imagewidth": 128,

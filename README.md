@@ -4,7 +4,7 @@
 
 ## 当前状态
 
-项目已建立 Phaser 工程，并进入可运行垂直切片阶段。当前版本包含标题与内容提示、五个场景、D0–D4 退化、标准/低扰动模式、四类谜题、DOM HUD 与系统菜单、三个独立“记忆片段”与全程自动保存、尾声和科普页。五章环境候选、第三章“三扇同源窗”正式背景与透明道具图集、许志远四方向呼吸待机、行走/停止、观察、拾取与牵手、秀兰等待伸手、红伞、五幅核心记忆插图、五章 Web Audio 声场与四路混音已经接入；真人关键语音与外部审核仍需按路线图收尾。
+项目已建立 Phaser 工程，并进入可运行垂直切片阶段。当前版本包含标题与内容提示、五个场景、D0–D4 退化、标准/低扰动模式、四类谜题、DOM HUD 与系统菜单、三个独立“记忆片段”与全程自动保存、尾声和科普页。五章环境候选、第一章统一材质与生活装饰层、第三章“三扇同源窗”正式背景与透明道具图集、许志远四方向呼吸待机、行走/停止、“静静留意”、拾取与牵手、秀兰等待伸手、红伞、五幅核心记忆插图、五章 Web Audio 声场与四路混音已经接入。当前视觉打磨还包括第四章 v02“缝隙长廊”、尾声 v02 温暖清晨，以及有效进展的克制场景回应与短三音锚点；这些变化只增强反馈和情绪，不改谜题答案、检查点、D3 映射或医学结尾事实。真人关键语音与外部审核仍需按路线图收尾。
 
 - 目标体验：20–30 分钟垂直切片
 - 技术基线：Phaser 3 + TypeScript + Vite
@@ -12,6 +12,8 @@
 - 目标平台：PC 网页端
 - 输入方式：键盘完整支持，鼠标作为可选输入
 - 当前语言：简体中文
+
+当前仍是内部候选，不是公开发布就绪版本。15 人首次试玩、医学专业审核、家属/照护者敏感性阅读、macOS Safari 实机兼容检查，以及项目许可证与资产权利收口均未完成；候选资产继续保持 `review`，不得用内部截图或自动化结果替代这些外部门槛。
 
 ## 文档导航
 
@@ -53,13 +55,15 @@ npm run release:package:internal
 npm run release:package -- <PASS 汇总报告路径>
 npm run assets:prepare:home-environment
 npm run assets:prepare:life-environment
+npm run assets:prepare:return-environment
+npm run assets:prepare:ending-environment
 npm run assets:prepare:life-props
 npm run assets:pack:life-props
 npm run assets:render:home-overlays
 npm run assets:render:environments
 ~~~
 
-`assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景。
+`assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景；`assets:prepare:return-environment` 与 `assets:prepare:ending-environment` 分别把两张 v02 ImageGen 原稿裁切导出为 1280×720 运行时 PNG。
 
 首次运行浏览器端到端测试前，需要安装 Playwright 浏览器；Edge 项目还需要系统已安装 Microsoft Edge：
 

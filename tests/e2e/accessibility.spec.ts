@@ -107,7 +107,7 @@ test('exposes content warning, objectives, settings, guide sources and credits s
       checkpointId: 'checkpoint.ending.start',
       degradationStage: 'D4',
       objective: '握住她的手',
-      player: { x: 920, y: 430, facing: 'left', moving: false },
+      player: { x: 920, y: 480, facing: 'left', moving: false },
       flags: ['ending.dialogue_started', 'ending.ready_to_hold'],
       dialogue: [],
       dialogueIndex: 0,
@@ -241,6 +241,10 @@ test('shows hover marker for spriteless interactables under reduced motion', asy
   await page.getByRole('button', { name: '继续' }).click();
   await expect(page.getByRole('heading', { name: '暂停' })).not.toBeVisible();
   await expect(app).toHaveAttribute('data-breathing-active', 'false');
+  // Let the post-modal frames settle, then assert the camera effect has ended
+  // before comparing the renderer's own pixels rather than CSS-scaled captures.
+  await page.waitForTimeout(200);
+  await expect(canvas).toHaveAttribute('data-camera-fade-running', 'false');
 
   const bounds = await canvas.boundingBox();
   expect(bounds).not.toBeNull();
@@ -255,16 +259,36 @@ test('shows hover marker for spriteless interactables under reduced motion', asy
     width: 50,
     height: 50,
   };
-  const resting = await page.screenshot({ clip, animations: 'disabled' });
+  const markerPixels = async () =>
+    Buffer.from(
+      await canvas.evaluate((element) => {
+        const gameCanvas = element as HTMLCanvasElement;
+        const context = gameCanvas.getContext('2d');
+        if (!context) return [];
+        return Array.from(context.getImageData(1200, 535, 50, 50).data);
+      }),
+    );
+  const resting = await markerPixels();
+  await page.screenshot({
+    clip,
+    path: testInfo.outputPath('dot-resting.png'),
+    animations: 'disabled',
+  });
   await page.mouse.move(doorScreenX, doorScreenY);
   await page.waitForTimeout(40);
-  const hovered = await page.screenshot({
+  const hovered = await markerPixels();
+  await page.screenshot({
     clip,
     path: testInfo.outputPath('dot-hover-marker.png'),
     animations: 'disabled',
   });
   await page.waitForTimeout(120);
-  const hoveredLater = await page.screenshot({ clip, animations: 'disabled' });
+  const hoveredLater = await markerPixels();
+  await page.screenshot({
+    clip,
+    path: testInfo.outputPath('dot-hover-marker-later.png'),
+    animations: 'disabled',
+  });
 
   expect(hovered.equals(resting)).toBe(false);
   expect(hoveredLater.equals(hovered)).toBe(true);

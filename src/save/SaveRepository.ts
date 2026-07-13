@@ -4,7 +4,7 @@ import type {
   GameMode,
   GameState,
 } from '../game/state/GameState';
-import { normalizeSettings } from '../game/state/initialState';
+import { createInitialState, normalizeSettings } from '../game/state/initialState';
 import { chapterMaps, getCheckpointSpawn } from '../game/content/maps';
 
 const LEGACY_SAVE_KEY = 'erasure.save.v1';
@@ -241,6 +241,34 @@ export class SaveRepository {
       return null;
     }
     const map = chapterMaps[parsed.chapterId];
+    const defaultPuzzles = createInitialState(parsed.mode).puzzles;
+    const savedPuzzles = parsed.puzzles as Partial<GameState['puzzles']>;
+    parsed.puzzles = {
+      stationSequence: Array.isArray(savedPuzzles.stationSequence)
+        ? savedPuzzles.stationSequence.filter((value): value is number => Number.isFinite(value))
+        : defaultPuzzles.stationSequence,
+      rainSigns: Array.isArray(savedPuzzles.rainSigns)
+        ? savedPuzzles.rainSigns.filter((value): value is string => typeof value === 'string')
+        : defaultPuzzles.rainSigns,
+      photoOrder: Array.isArray(savedPuzzles.photoOrder)
+        ? savedPuzzles.photoOrder.filter((value): value is string => typeof value === 'string')
+        : defaultPuzzles.photoOrder,
+      placedObjects: Array.isArray(savedPuzzles.placedObjects)
+        ? savedPuzzles.placedObjects.filter((value): value is string => typeof value === 'string')
+        : defaultPuzzles.placedObjects,
+      returnJunction: Number.isFinite(savedPuzzles.returnJunction)
+        ? Math.max(0, Math.min(3, Math.trunc(savedPuzzles.returnJunction as number)))
+        : defaultPuzzles.returnJunction,
+      returnPrefix: Array.isArray(savedPuzzles.returnPrefix)
+        ? savedPuzzles.returnPrefix.filter(
+            (value): value is GameState['puzzles']['returnPrefix'][number] =>
+              value === 'up' || value === 'down' || value === 'left' || value === 'right',
+          )
+        : defaultPuzzles.returnPrefix,
+      routeLoops: Number.isFinite(savedPuzzles.routeLoops)
+        ? Math.max(0, Math.trunc(savedPuzzles.routeLoops as number))
+        : defaultPuzzles.routeLoops,
+    };
     if (
       !Number.isFinite(parsed.player.x) ||
       !Number.isFinite(parsed.player.y) ||

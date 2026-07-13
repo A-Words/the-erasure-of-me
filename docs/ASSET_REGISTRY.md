@@ -1,6 +1,6 @@
 # 《记忆的缝隙》资产登记台账
 
-> 最近更新：2026-06-28
+> 最近更新：2026-07-12
 > 规则来源：ART_BIBLE.md 第 8、9 节
 
 本表记录进入仓库的美术与音频资产。只有来源、许可证、锚点和审核状态完整的资产才能标记为 `shipped`。
@@ -13,7 +13,7 @@
 | character.xu_old.walk.down | 项目团队 | assets-source/art/characters/character_xu_old_walk_down_v01_chromakey.png | public/assets/characters/character_xu_old_walk_down_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向下待机种子 |
 | character.xu_old.walk.up | 项目团队 | assets-source/art/characters/character_xu_old_walk_up_v01_chromakey.png | public/assets/characters/character_xu_old_walk_up_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；第一帧锁定向上待机种子 |
 | character.xu_old.walk.right | 项目团队 | assets-source/art/characters/character_xu_old_walk_right_v01_chromakey.png | public/assets/characters/character_xu_old_walk_right_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与浏览器验收 | 2026-06-22 | 6×64×96；底部中心锚点；8 FPS；左向由同一条带镜像，松键恢复领域朝向锚点 |
-| character.xu_old.observe.down | 项目团队 | assets-source/art/characters/character_xu_old_observe_down_v01_chromakey.png | public/assets/characters/character_xu_old_observe_down_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；按住 Shift 时由收拢姿态进入安静观察 |
+| character.xu_old.observe.down | 项目团队 | assets-source/art/characters/character_xu_old_observe_down_v01_chromakey.png | public/assets/characters/character_xu_old_observe_down_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；按住 Shift 时由收拢姿态进入“静静留意” |
 | character.xu_old.observe.up | 项目团队 | assets-source/art/characters/character_xu_old_observe_up_v01_chromakey.png | public/assets/characters/character_xu_old_observe_up_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；严格后背视角，不通过面部表达认知状态 |
 | character.xu_old.observe.right | 项目团队 | assets-source/art/characters/character_xu_old_observe_right_v01_chromakey.png | public/assets/characters/character_xu_old_observe_right_v01_4x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-22 | 4×64×96；底部中心锚点；6 FPS；左向镜像；减少动态固定为开放手掌注意姿态 |
 | character.xu_old.pickup.down | 项目团队 | assets-source/art/characters/character_xu_old_pickup_down_v01_chromakey.png | public/assets/characters/character_xu_old_pickup_down_v01_6x64x96.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 资产预览与 Playwright 验收 | 2026-06-23 | 6×64×96；底部中心锚点；8 FPS 单次播放；上下朝向共用；不绘制特定道具 |
@@ -27,9 +27,9 @@
 | prop.home.red_thread_journal | 项目团队 | assets-source/art/props/prop_home_red_thread_journal_v01_chromakey.png | public/assets/props/prop_home_red_thread_journal_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 44×44；米色布封面、线装边与红线书签；独立拾取素材 |
 | prop.home.blue_key_bowl | 项目团队 | assets-source/art/props/prop_home_blue_key_bowl_v01_chromakey.png | public/assets/props/prop_home_blue_key_bowl_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 32×32，置于玄关桌面；低饱和蓝碗、两道金色修补线与两把旧钥匙 |
 | prop.home.glasses_case | 项目团队 | assets-source/art/props/prop_home_glasses_case_v01_chromakey.png | public/assets/props/prop_home_glasses_case_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 128×128；运行时显示 38×38；旧棕布硬盒与红胶布角标；不显示眼镜 |
-| prop.life.photo.move_1979 | 项目团队 | assets-source/art/props/prop_life_photo_move_1979_v02_chromakey.png | public/assets/props/prop_life_photo_move_1979_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 0；运行时显示 44×44；新家、纸箱和空房构成年代线索，不包含生成式年份文字 |
-| prop.life.photo.osmanthus_1992 | 项目团队 | assets-source/art/props/prop_life_photo_osmanthus_1992_v02_chromakey.png | public/assets/props/prop_life_photo_osmanthus_1992_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 1；运行时显示 44×44；桂花、同源窗和身高刻度构成年代线索，不包含生成式年份文字 |
-| prop.life.photo.anniversary_2001 | 项目团队 | assets-source/art/props/prop_life_photo_anniversary_2001_v02_chromakey.png | public/assets/props/prop_life_photo_anniversary_2001_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 2；运行时显示 44×44；银色双环、蛋糕和人物年龄构成年代线索，不包含生成式年份文字 |
+| prop.life.photo.move_1979 | 项目团队 | assets-source/art/props/prop_life_photo_move_1979_v02_chromakey.png | public/assets/props/prop_life_photo_move_1979_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 0，并由 DOM 相册卡复用原图；世界内显示 44×44；新家、纸箱和空房构成年代线索，不包含生成式年份文字 |
+| prop.life.photo.osmanthus_1992 | 项目团队 | assets-source/art/props/prop_life_photo_osmanthus_1992_v02_chromakey.png | public/assets/props/prop_life_photo_osmanthus_1992_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 1，并由 DOM 相册卡复用原图；世界内显示 44×44；桂花、同源窗和身高刻度构成年代线索，不包含生成式年份文字 |
+| prop.life.photo.anniversary_2001 | 项目团队 | assets-source/art/props/prop_life_photo_anniversary_2001_v02_chromakey.png | public/assets/props/prop_life_photo_anniversary_2001_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘、图集与浏览器流程检查 | 2026-06-27 | 128×128；Shared Life v02 图集 frame 2，并由 DOM 相册卡复用原图；世界内显示 44×44；银色双环、蛋糕和人物年龄构成年代线索，不包含生成式年份文字 |
 | prop.life.album | 项目团队 | assets-source/art/props/prop_life_album_v01_chromakey.png | public/assets/props/prop_life_album_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 3；运行时显示 44×44；打开的空相册，三格照片位 |
 | prop.life.wood_comb | 项目团队 | assets-source/art/props/prop_life_wood_comb_v01_chromakey.png | public/assets/props/prop_life_wood_comb_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 4；运行时显示 44×44；木梳、密齿、修补裂缝和条纹凹槽 |
 | prop.life.enamel_cup | 项目团队 | assets-source/art/props/prop_life_enamel_cup_v01_chromakey.png | public/assets/props/prop_life_enamel_cup_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态图集检查 | 2026-06-26 | 128×128；Shared Life 图集 frame 5；运行时显示 44×44；搪瓷杯、桂花图案、圆点纹理和磨损杯底 |
@@ -47,7 +47,10 @@
 | decor.home.bedside_rug | 项目团队 | assets-source/art/decor/decor_home_bedside_rug_v01_chromakey.png | public/assets/decor/decor_home_bedside_rug_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 160×160；褪色砖红/米色条纹旧地毯；非交互地面装饰 |
 | decor.home.slippers | 项目团队 | assets-source/art/decor/decor_home_slippers_v01_chromakey.png | public/assets/decor/decor_home_slippers_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 34×34；整组有效宽度不超过角色身体；非交互地面装饰 |
 | decor.home.kitchen_clutter | 项目团队 | assets-source/art/decor/decor_home_kitchen_clutter_v01_chromakey.png | public/assets/decor/decor_home_kitchen_clutter_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 64×64；放在水槽与煤气炉之间，不覆盖炉头；非交互台面装饰 |
-| decor.home.atlas | 项目团队 | public/assets/decor/decor_home_* | public/assets/decor/decor_home_atlas_v01_3x256x256.png | 上述三件定制装饰的机械打包；无新增第三方素材 | review | Chromium 图集与场景截图检查 | 2026-06-24 | 3×256×256 横向图集；Scene 以 frame 选择装饰 |
+| decor.home.coffee_rug | 项目团队 | assets-source/art/decor/decor_home_coffee_rug_v01_chromakey.png | public/assets/decor/decor_home_coffee_rug_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 透明边缘、静态比例与 Chromium 场景截图检查 | 2026-06-30 | 256×256；运行时显示 230×230；低饱和米灰/蓝灰旧地毯；放在茶几下方，不加入碰撞 |
+| decor.home.entry_mat | 项目团队 | assets-source/art/decor/decor_home_entry_mat_v01_chromakey.png | public/assets/decor/decor_home_entry_mat_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 透明边缘、静态比例与 Chromium 场景截图检查 | 2026-06-30 | 256×256；运行时显示 100×100；右下玄关室内门垫；无文字、无路线标记、不加入碰撞 |
+| decor.home.wall_clock | 项目团队 | assets-source/art/decor/decor_home_wall_clock_v01_chromakey.png | public/assets/decor/decor_home_wall_clock_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 透明边缘、44px 轮廓与 Chromium 场景截图检查 | 2026-06-30 | 256×256；运行时显示 44×44；旧木圆钟使用刻度而非数字；客厅墙面非交互装饰 |
+| decor.home.atlas | 项目团队 | public/assets/decor/decor_home_* | public/assets/decor/decor_home_atlas_v02_6x256x256.png | 六件定制装饰的机械打包；无新增第三方素材 | review | Chromium 图集与场景截图检查 | 2026-06-30 | 6×256×256 横向图集；Scene 以 frame 选择装饰；新增茶几地毯、玄关门垫和旧木钟 |
 | furniture.home.double_bed | 项目团队 | assets-source/art/furniture/furniture_home_double_bed_v02_chromakey.png | public/assets/furniture/furniture_home_double_bed_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 225×225；正面居中、垂直约 35° 俯角的双人木床 |
 | furniture.home.side_table | 项目团队 | assets-source/art/furniture/furniture_home_side_table_v02_chromakey.png | public/assets/furniture/furniture_home_side_table_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；卧室运行时显示 64×64、客厅显示 58×58；正面居中木边桌 |
 | furniture.home.sofa | 项目团队 | assets-source/art/furniture/furniture_home_sofa_v03_chromakey.png | public/assets/furniture/furniture_home_sofa_v03.png | 用户外部生成并提供；提示词由 Codex 整理；公开使用权待核验 | review | Codex 色键、透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 205×205；垂直约 35° 斜俯视；两块靠背、短纵深坐垫、前沿底座与前脚清晰可见 |
@@ -55,7 +58,7 @@
 | furniture.home.kitchen_counter | 项目团队 | assets-source/art/furniture/furniture_home_kitchen_counter_v02_chromakey.png | public/assets/furniture/furniture_home_kitchen_counter_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 220×220；水槽与双灶台；仅垂直方向俯视 |
 | furniture.home.storage_cabinet | 项目团队 | assets-source/art/furniture/furniture_home_storage_cabinet_v02_chromakey.png | public/assets/furniture/furniture_home_storage_cabinet_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 160×160；低矮储物柜；仅垂直方向俯视 |
 | furniture.home.entry_console | 项目团队 | assets-source/art/furniture/furniture_home_entry_console_v02_chromakey.png | public/assets/furniture/furniture_home_entry_console_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 透明边缘与静态比例检查 | 2026-06-24 | 256×256；运行时显示 100×100，位于右下玄关地面左侧，蓝色钥匙碗放在桌面；窄玄关桌 |
-| furniture.home.front_door | 项目团队 | assets-source/art/furniture/furniture_home_front_door_v07.svg | public/assets/furniture/furniture_home_front_door_v07.png | 项目原创 SVG；无第三方素材 | superseded | 不进入 v10 运行时 | 2026-06-24 | 历史侧视门板候选；v10 出口只使用背景嵌墙门洞和 hotspot，家具 atlas 不再包含门板 |
+| furniture.home.front_door | 项目团队 | assets-source/art/furniture/furniture_home_front_door_v07.svg | public/assets/furniture/furniture_home_front_door_v07.png | 项目原创 SVG；无第三方素材 | superseded | 不进入 v11 运行时 | 2026-06-24 | 历史侧视门板候选；v11 出口只使用背景嵌墙门洞和 hotspot，家具 atlas 不再包含门板 |
 | furniture.home.atlas | 项目团队 | public/assets/furniture/furniture_home_* | public/assets/furniture/furniture_home_atlas_v08_7x256x256.png | 七件定制家具的机械打包；无新增第三方素材 | review | Codex 图集静态检查 | 2026-06-24 | 7×256×256 横向图集；frame 2 使用 sofa_v03；不包含门板；运行时尺寸统一来自 homeVisualSizes |
 | memory.rain.umbrella.illustration | 项目团队 | assets-source/art/memories/memory_rain_umbrella_v01.png | public/assets/memories/memory_rain_umbrella_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；雨站初遇对白期间显示；红伞为唯一高辨识暖色 |
 | memory.life.move.illustration | 项目团队 | assets-source/art/memories/memory_life_move_v01.png | public/assets/memories/memory_life_move_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1152×768 WebP；木梳归位后显示；纸箱、未装床架和背景红伞与脚本一致 |
@@ -64,22 +67,22 @@
 | memory.ending.hand.illustration | 项目团队 | assets-source/art/memories/memory_ending_hand_v01.png | public/assets/memories/memory_ending_hand_v01.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1024×512 WebP；完成牵手长按后显示；蓝灰袖主动覆上旧绿袖等待掌心 |
 | environment.home.layout_reference | 用户提供 | assets-source/art/references/environment_home_layout_reference_v01.png | 不进入运行时 | 用户提供的构图与质感参考；公开使用权待核验 | review | Codex 输入图检查 | 2026-06-24 | 1672×941；作为 v08 镜位、墙体厚度、窗户和材质参考 |
 | environment.home.orthogonal_layout_guide | 项目团队 | assets-source/art/references/environment_home_orthogonal_layout_guide_v02.svg | assets-source/art/references/environment_home_orthogonal_layout_guide_v02.png | 项目原创 SVG；无第三方素材 | review | Codex 静态查看 | 2026-06-25 | 1280×720；无蓝色标记的正交墙体布局参考；仅用于生成 v10，不进入运行时 |
-| environment.home.background | 项目团队 | assets-source/art/environments/environment_home_v10_generated.png | public/assets/environments/environment_home_v10.png | 用户外部调用 ImageGen 后提供；由 v08 质感与正交布局参考派生；公开使用权待核验 | review | Codex 1280×720 静态查看 | 2026-06-25 | 正交墙体边界；扩大上方通道；恢复左下储物间到中央走廊通道；右下玄关地面与嵌墙出口；仅中性环境光，不烘焙直射阳光 |
-| environment.home.sunlight_overlay | 项目团队 | assets-source/art/environments/environment_home_sunlight_overlay_v01.svg | public/assets/environments/environment_home_sunlight_overlay_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 透明通道与静态合成检查 | 2026-06-24 | 1280×720 透明 PNG；阳光束、透视亮斑、窗棂影子与反射光斑；运行时位于背景和家具之间 |
-| environment.home.crosswall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_crosswall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 中墙透明遮挡层，sortY=410 |
-| environment.home.frontwall_overlay | 项目团队 | environment_home_v10.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_frontwall_overlay_v01.png | 从项目背景机械提取；无新增素材 | review | Codex 透明通道静态查看 | 2026-06-25 | 前墙与左下竖墙段透明遮挡层，sortY=705 |
+| environment.home.background | 项目团队 | assets-source/art/environments/environment_home_v11_generated.png | public/assets/environments/environment_home_v11.png | 项目定制生成；OpenAI ImageGen；基于 v10 正交结构编辑；无第三方素材 | review | 1280×720 静态查看、地图校验与 Chromium 场景截图检查 | 2026-06-30 | 保留 v10 墙体、开口、四格窗和嵌墙出口注册；统一木地板尺度、墙面颗粒、材质磨损和接触阴影；仅中性环境光，不烘焙直射阳光 |
+| environment.home.sunlight_overlay | 项目团队 | assets-source/art/environments/environment_home_sunlight_overlay_v02.svg | public/assets/environments/environment_home_sunlight_overlay_v02.png | 项目原创 SVG；无第三方素材 | review | 透明通道、静态合成与 Chromium 场景截图检查 | 2026-06-30 | 1280×720 透明 PNG；降低厨房直射光强度，增加卧室、客厅和走廊的低透明度晨光反射；运行时位于背景和家具之间 |
+| environment.home.crosswall_overlay | 项目团队 | environment_home_v11.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_crosswall_overlay_v02.png | 从项目背景机械提取；无新增素材 | review | 透明通道与 Chromium 遮挡截图检查 | 2026-06-30 | 中墙透明遮挡层，sortY=410 |
+| environment.home.frontwall_overlay | 项目团队 | environment_home_v11.png + scripts/prepare_home_architecture_overlays.py | public/assets/environments/environment_home_frontwall_overlay_v02.png | 从项目背景机械提取；无新增素材 | review | 透明通道与 Chromium 遮挡截图检查 | 2026-06-30 | 前墙与左下竖墙段透明遮挡层，sortY=705 |
 | environment.rain.background | 项目团队 | assets-source/art/environments/environment_rain_base_v02_generated.png | public/assets/environments/environment_rain_base_v02.png | 项目定制生成；OpenAI ImageGen；参考 `memory_rain_umbrella_v01.png` 气氛；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 底图；轻俯视旧车站、售票亭、雨棚、湿石材站台和钟表铺立面；不烘焙雨线、车票、石板、红伞招牌或钟表铺红伞 |
 | environment.rain.puddle_reflection_overlay | 项目团队 | scripts/prepare_rain_environment_overlays.py | public/assets/environments/environment_rain_puddle_reflection_overlay_v01.png | 项目程序化透明叠层；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 透明 PNG；地面积水和轻反光层，运行时叠在雨站底图上、props 下方 |
 | environment.rain.rain_overlay | 项目团队 | scripts/prepare_rain_environment_overlays.py | public/assets/environments/environment_rain_rain_overlay_v01.png | 项目程序化透明叠层；无第三方素材 | review | Codex 静态合成检查 | 2026-06-27 | 1280×720 透明 PNG；雨线层，运行时叠在雨站底图上、props 下方；减少动态效果时降低透明度 |
 | environment.life.background | 项目团队 | assets-source/art/environments/environment_life_v02_generated.png | public/assets/environments/environment_life_v02.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查与 Playwright 三视口验收 | 2026-06-28 | 1280×720；同一家庭在 1979/1992/2001 同时显影；三扇窗严格复用相同外框、四格、插销与右下磕痕；右侧餐桌收小并提高夜景暗部可读性；不烘焙拾取物或年份文字 |
 | environment.life.resolved | 项目团队 | assets-source/art/environments/environment_life_resolved_v01_generated.png | public/assets/environments/environment_life_resolved_v01.png | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | Codex 静态检查、淡变中点与 Playwright 完成态验收 | 2026-06-28 | 1280×720；与 Shared Life v02 墙体、走廊、中央桌及固定家具注册对齐；只保留中间成熟桂花窗，移除左右时间窗、纸箱、年代接缝及停电宴席，统一为同向晨光和日常圆桌；不承担谜题真值 |
-| environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v01.svg | public/assets/environments/environment_return_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；重复十字长廊、四向地砖箭头与暗红伞痕 |
-| environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v01.svg | public/assets/environments/environment_ending_v01.png | 项目原创 SVG；无第三方素材 | review | Codex 浏览器验收 | 2026-06-22 | 1280×720；回到现实清晨、暖白留白、桌上两碗热面 |
+| environment.return.background | 项目团队 | assets-source/art/environments/environment_return_v02_generated.png | public/assets/environments/environment_return_v02.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 1672×941 原稿；1280×720 WebP 质量 90 导出；“缝隙长廊”复用家中木地板、雨站湿石板与共同生活花砖；底图不烘焙箭头、伞影、波纹或脚印；待外部美术审核 |
+| environment.ending.background | 项目团队 | assets-source/art/environments/environment_ending_v02_generated.png | public/assets/environments/environment_ending_v02.webp | 项目定制生成；OpenAI ImageGen；无第三方素材 | review | 待填写 | — | 1672×941 原稿；1280×720 WebP 质量 90 导出；温暖清晨、开放中央构图、桌上两碗面与右墙褪色红伞；待外部美术与敏感性审核 |
 | map.home | 项目团队 | public/assets/data/map.home.json | 同左 | 原创 Tiled 对象数据 | review | Codex 静态数据同步；本轮未跑自动化测试 | 2026-06-25 | Tiled 对象层提供出生区、稳定 ID 与 17 个家具/墙体碰撞矩形；v10 扩大上方开口并拆分左下竖墙以恢复储物间通道；右侧门洞只保留室内侧 hotspot，不要求走入门槛；门 hotspot 位于 `(1225, 560)` |
-| map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | Codex validate:maps | 2026-06-26 | Tiled 对象层提供 2→4→5、伞标与出口；visual_props 已为车票、石板、红伞招牌和钟表铺红伞分配正式 gid |
+| map.rain_station | 项目团队 | public/assets/data/map.rain_station.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps`、碰撞单测与浏览器通行验收 | 2026-07-13 | Tiled 对象层提供 2→4→5、伞标与出口；1280×720 导航边界；站房、候车亭、钟表铺、后景与临水站台边缘均有实体碰撞；visual_props 已分配正式 gid |
 | map.shared_life | 项目团队 | public/assets/data/map.shared_life.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps` 与 Chromium 完整流程 | 2026-06-27 | Tiled 对象层提供照片、物件和三槽位；visual_props 使用 v02 图集；1280×720 导航/碰撞与正式背景对齐；已移除 exit visual-placeholder |
-| map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供四向出口；背景箭头与世界方向一致 |
-| map.home_ending | 项目团队 | public/assets/data/map.home_ending.json | 同左 | 原创 Tiled 对象数据 | review | Codex 浏览器验收 | 2026-06-22 | Tiled 对象层提供秀兰锚点；正式尾声背景和 D4 构图已接入 |
+| map.return_corridor | 项目团队 | public/assets/data/map.return_corridor.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps`、碰撞单测与浏览器通行验收 | 2026-07-13 | 1280×720 导航边界；四向出口与中央十字走廊保持连通，四角墙体不可穿越；v02 底图不含答案，箭头、伞影、哼唱波纹与脚印由状态派生 |
+| map.home_ending | 项目团队 | public/assets/data/map.home_ending.json | 同左 | 原创 Tiled 对象数据 | review | `validate:maps`、碰撞单测与浏览器通行验收 | 2026-07-13 | 1280×720 导航边界；隔墙、窗下柜、厨房柜、边桌、植物和面桌具有实体脚印；秀兰交互路径保持连通 |
 | audio.theme.red_umbrella | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创音序与合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 钢琴感旋律、和声、持续音与钟雨节奏四层；随 D0–D4 逐层收束 |
 | audio.ambience.home | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 室内低噪、钟表提示；视觉目标与提示不依赖声音 |
 | audio.ambience.rain | 项目团队 | src/phaser/audio/AudioManager.ts | 运行时 Web Audio 合成 | 项目原创合成参数；无第三方采样 | review | Codex 浏览器功能验收 | 2026-06-22 | 带通雨噪与三声钟；石板、积水波纹和伞标提供视觉替代 |
@@ -160,15 +163,15 @@
 - 运行时处理：`remove_chroma_key.py` 生成透明原稿；`scripts/prepare_prop_asset.py` 裁切并归一化到 128×128 透明画布。`map.rain_station` 通过独立 tileset gid 绑定 manifest key，Tiled 坐标保持 tile object 左下角锚点。
 - 当前结论：透明边缘、44px 车票/石板和 58px 招牌小尺寸预览通过；`npm run validate:maps` 通过。外部美术审核前保持 `review`。
 
-### furniture.home.* v01/v02/v03 / decor.home.* v01 / environment.home.background v10
+### furniture.home.* v01/v02/v03 / decor.home.* v01 / environment.home.background v11
 
-- 生成方式：其余家具和三件非交互装饰沿用既有内置 OpenAI ImageGen `stylized-concept` 素材；sofa_v03 由用户在外部生成后提供，使用 Codex 整理的约 35° 斜俯视提示词。v10 建筑壳层由用户外部调用 ImageGen 后提供，使用 v08 质感和无蓝色正交布局参考重制，要求墙体平面边界保持水平或垂直，扩大卧室—客厅与客厅—厨房通道，恢复左下储物间通道，并在右下玄关建立嵌墙门洞、门框和门槛。
+- 生成方式：既有家具和三件早期非交互装饰沿用 OpenAI ImageGen `stylized-concept` 素材；v11 建筑壳层使用 `precise-object-edit` 在 v10 正交结构上统一木地板、墙面颗粒、材质磨损和接触阴影，明确禁止移动墙体、开口、门窗与地面边界。茶几地毯、玄关门垫和旧木钟使用独立 `stylized-concept` 生成稿，并经色键流程转为透明装饰。
 - 视角约束：建筑壳层使用 30°～35° 轻斜俯视；家具可依据摆放关系采用少量水平转角，以落地面一致、空间关系合理为准。当前入户门不显示门板，门洞属于右侧墙体结构；玩家靠近门口 hotspot 后进入开门对白与章节过渡。
-- 分层约束：背景只保留地板、墙体、门窗洞口和中性环境光；窗外阳光、窗棂影子和光斑使用独立透明 overlay。床、边桌、沙发、木桌、厨房台柜、储物柜、玄关桌和三件非交互装饰均为透明 PNG，由 Phaser 按坐标组合。照片、日记、眼镜盒和钥匙碗继续使用独立交互实体。
+- 分层约束：背景只保留地板、墙体、门窗洞口和中性环境光；窗外阳光、窗棂影子、光斑与跨房间的低透明度晨光反射使用独立透明 overlay。床、边桌、沙发、木桌、厨房台柜、储物柜、玄关桌和六件非交互装饰均为透明 PNG，由 Phaser 按坐标组合。照片、日记、眼镜盒和钥匙碗继续使用独立交互实体。
 - 运行时请求：七件独立运行时 PNG 机械打包为 `furniture.home.atlas` 横向图集，Scene 以 frame 选择家具；源文件、透明成品和稳定家具身份不合并。
 - 色键处理：普通木质家具使用纯 `#00ff00`，含旧绿色柜边的厨房台柜使用纯 `#ff00ff`；统一经 `remove_chroma_key.py` 软遮罩和去色溢出，再由 `prepare_prop_asset.py` 归一化到 256×256。
-- 装饰生成提示：`30–35 degree light-oblique top-down`、`restrained hand-painted gouache`、`warm lived-in 1990s Chinese apartment`、纯 `#00ff00` 色键背景；分别限制为旧条纹地毯、布拖鞋和厨房固定杂物组合，无文字、无发光、无关键交互道具。
-- 当前结论：v10 底图、右下玄关嵌墙出口、阳光/建筑 overlay 已完成资产渲染和 1280×720 静态查看；上方通道和左下通道已在 `homeLayout.ts` 与 Tiled `collision` 对象层同步。右侧门不再使用独立 `rightwall_overlay`，只从室内侧 hotspot 触发交互。按本轮用户要求尚未运行 `lint`、`test`、`build` 或 `test:e2e`，v10 的浏览器通行、遮挡排序和交互热区仍待下一轮自动化验证。参考图、外部生成沙发和外部生成 v10 底图的公开使用权及外部美术审核完成前保持 `review`。
+- 装饰生成提示：`30–35 degree light-oblique top-down`、`restrained hand-painted gouache`、`warm lived-in Chinese apartment`、纯色键背景；茶几地毯使用低饱和米灰/蓝灰织纹，玄关门垫禁止文字与路线图形，旧木钟只使用刻度和指针。全部装饰禁止发光、强投影和关键交互道具特征。
+- 当前结论：v11 底图、v02 晨光与建筑遮挡 overlay、v02 六帧装饰图集已完成资产渲染、地图校验、1280×720 静态查看、Chromium 分层/通行/遮挡/玄关热区截图检查和生产构建。右侧门继续只从室内侧 hotspot 触发交互；茶几地毯、玄关门垫和旧木钟不加入碰撞。外部美术审核完成前保持 `review`。
 
 ### memory.life.move.illustration
 
@@ -204,15 +207,15 @@
 
 ### environment.*.background
 
-- 制作方式：home v10、rain v02 和 Shared Life v02 使用项目定制 ImageGen 原稿，经 `scripts/prepare_environment_asset.py` 裁切导出；Shared Life 另以 `precise-object-edit` 生成注册一致的 `environment.life.resolved` 收束态；return、ending 使用项目原创 SVG 渲染。所有背景统一固定 1280×720、低饱和色板、轻微纸张颗粒和章节专属构图。
+- 制作方式：home v10、rain v02、Shared Life v02、return v02 和 ending v02 使用项目定制 OpenAI ImageGen 原稿，并经 `scripts/prepare_environment_asset.py` 裁切导出为 1280×720 运行时背景；Shared Life 另以 `precise-object-edit` 生成注册一致的 `environment.life.resolved` 收束态。return/ending v02 的 1672×941 原稿与 1280×720 导出文件按表内路径归档。所有背景保持低饱和色板、轻微纸张颗粒和章节专属构图。
 - 运行时结构：背景只承担世界表现；出生点、交互对象和稳定 ID 继续来自对应 Tiled JSON 对象层，碰撞与玩法状态未写入图片。
 - 可读性约束：中央主路径保持低噪点，每章暖色焦点不超过一个；雨站 2/4/5 石板、车票与红伞招牌，以及 Shared Life 的照片、生活物件与槽位均由独立 visual_props 资产承载。
-- 当前结论：五章候选背景已导出并接入 manifest；rain v02 的底图/天气叠层与 Shared Life v02 的三年代/收束态均完成浏览器检查，关键道具与 Tiled 坐标无阻塞遮挡。外部美术审核前保持 `review`。
+- 当前结论：五章候选背景均有运行时导出；rain v02 的底图/天气叠层与 Shared Life v02 的三年代/收束态已有浏览器检查记录。return/ending v02 是本轮新增候选，不能沿用 v01 或其他章节的 reviewer/approvedAt；外部美术与敏感性审核前保持 `review`，不得据此宣称发布就绪。
 
 ### audio.theme.* / audio.ambience.*
 
 - 制作方式：运行时 Web Audio 合成，不包含外部录音或第三方采样；音序、滤波、包络与混音参数保存在 `AudioManager.ts`。
 - 主题退化：D0 保留四层，D1 保留旋律但降低环境高频，D2 移除主旋律，D3 仅保留和声与持续音，D4 改为 voice 总线上的不完整三音哼唱。
-- 环境与提示：五章使用独立滤波与声场强度；所有导航声、状态声和对白信息均有视觉或字幕替代。
+- 环境与提示：五章使用独立滤波与声场强度；有效进展另使用恰好三音、约 0.34–0.9 秒、level 0.034–0.048 的 sfx/voice 锚点，不占用后期已经收束的 music 层；所有导航声、进展声、状态声和对白信息均有视觉或字幕替代。
 - 混音与安全：music、ambience、voice、sfx 四路独立音量；全局静音即时生效；页面失焦挂起 AudioContext，恢复后由用户操作继续。
 - 当前结论：四路混音布局、独立调节、旧设置迁移、章节 profile、静音视觉替代和失焦暂停均通过自动化与浏览器功能检查；真人关键语音仍属于 AUDIO-03 外部录制工作。
