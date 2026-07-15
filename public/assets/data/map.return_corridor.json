@@ -319,76 +319,76 @@
       "name": "collision",
       "objects": [
         {
-          "height": 32,
+          "height": 45,
           "id": 10,
           "name": "collision.return.wall_outer_top",
           "type": "wall",
-          "width": 1280,
+          "width": 1284,
           "x": 0,
           "y": 0
         },
         {
-          "height": 32,
+          "height": 46,
           "id": 11,
           "name": "collision.return.wall_outer_bottom",
           "type": "wall",
-          "width": 1280,
+          "width": 1283,
           "x": 0,
-          "y": 688
+          "y": 671
         },
         {
-          "height": 720,
+          "height": 717,
           "id": 12,
           "name": "collision.return.wall_outer_left",
           "type": "wall",
-          "width": 32,
+          "width": 72,
           "x": 0,
           "y": 0
         },
         {
-          "height": 720,
+          "height": 722,
           "id": 13,
           "name": "collision.return.wall_outer_right",
           "type": "wall",
-          "width": 32,
-          "x": 1248,
-          "y": 0
+          "width": 63,
+          "x": 1212.5,
+          "y": -1
         },
         {
-          "height": 245,
+          "height": 261,
           "id": 14,
           "name": "collision.return.wall_upper_left",
           "type": "wall",
-          "width": 510,
+          "width": 549,
           "x": 0,
           "y": 0
         },
         {
-          "height": 245,
+          "height": 271,
           "id": 15,
           "name": "collision.return.wall_upper_right",
           "type": "wall",
-          "width": 510,
-          "x": 770,
-          "y": 0
+          "width": 549,
+          "x": 731,
+          "y": -2.5
         },
         {
-          "height": 215,
+          "height": 244,
           "id": 16,
           "name": "collision.return.wall_lower_left",
           "type": "wall",
-          "width": 500,
-          "x": 0,
-          "y": 505
+          "width": 544,
+          "x": -1,
+          "y": 477
         },
         {
-          "height": 215,
+          "height": 239,
           "id": 17,
           "name": "collision.return.wall_lower_right",
           "type": "wall",
-          "width": 510,
-          "x": 770,
-          "y": 505
+          "width": 535,
+          "x": 729,
+          "y": 476.5
         }
       ],
       "opacity": 1,

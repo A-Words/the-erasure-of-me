@@ -80,7 +80,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 250
+              "value": 400
             },
             {
               "name": "entityId",
@@ -97,8 +97,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 478,
-          "y": 272,
+          "x": 463,
+          "y": 422,
           "gid": 2
         },
         {
@@ -165,7 +165,7 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 603,
+          "x": 559,
           "y": 487,
           "gid": 4
         },
@@ -216,7 +216,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 320
+              "value": 475
             },
             {
               "name": "entityId",
@@ -233,8 +233,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 588,
-          "y": 342,
+          "x": 671,
+          "y": 497,
           "gid": 6
         },
         {
@@ -284,7 +284,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 285
+              "value": 276
             },
             {
               "name": "entityId",
@@ -301,8 +301,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 313,
-          "y": 307,
+          "x": 315,
+          "y": 298,
           "gid": 8
         },
         {
@@ -318,7 +318,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 215
+              "value": 354
             },
             {
               "name": "entityId",
@@ -335,8 +335,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 563,
-          "y": 237,
+          "x": 506,
+          "y": 376,
           "gid": 9
         },
         {
@@ -352,7 +352,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 285
+              "value": 370
             },
             {
               "name": "entityId",
@@ -369,8 +369,8 @@
           "type": "prop",
           "visible": true,
           "width": 44,
-          "x": 1043,
-          "y": 307,
+          "x": 935,
+          "y": 392,
           "gid": 10
         }
       ],
@@ -412,8 +412,8 @@
           "name": "item.photo.osmanthus_1992",
           "type": "pickup",
           "width": 44,
-          "x": 500,
-          "y": 250
+          "x": 485,
+          "y": 400
         },
         {
           "height": 44,
@@ -430,7 +430,7 @@
           "name": "entity.life.album",
           "type": "puzzle",
           "width": 44,
-          "x": 625,
+          "x": 581,
           "y": 465
         },
         {
@@ -448,8 +448,8 @@
           "name": "item.life.enamel_cup",
           "type": "pickup",
           "width": 44,
-          "x": 610,
-          "y": 320
+          "x": 693,
+          "y": 475
         },
         {
           "height": 44,
@@ -466,8 +466,8 @@
           "name": "slot.life.dresser",
           "type": "slot",
           "width": 44,
-          "x": 335,
-          "y": 285
+          "x": 337,
+          "y": 276
         },
         {
           "height": 44,
@@ -475,8 +475,8 @@
           "name": "slot.life.windowsill",
           "type": "slot",
           "width": 44,
-          "x": 585,
-          "y": 215
+          "x": 528,
+          "y": 354
         },
         {
           "height": 44,
@@ -484,8 +484,8 @@
           "name": "slot.life.radio",
           "type": "slot",
           "width": 44,
-          "x": 1065,
-          "y": 285
+          "x": 957,
+          "y": 370
         },
         {
           "height": 60,
@@ -530,22 +530,22 @@
       "name": "collision",
       "objects": [
         {
-          "height": 32,
+          "height": 337,
           "id": 24,
           "name": "collision.life.wall_outer_top_left",
           "type": "wall",
-          "width": 620,
-          "x": 0,
-          "y": 0
+          "width": 639,
+          "x": 1.5,
+          "y": -1.5
         },
         {
-          "height": 32,
+          "height": 341,
           "id": 25,
           "name": "collision.life.wall_outer_top_right",
           "type": "wall",
-          "width": 500,
-          "x": 780,
-          "y": 0
+          "width": 473,
+          "x": 783.5,
+          "y": -0.5
         },
         {
           "height": 32,
@@ -580,53 +580,153 @@
           "name": "collision.life.album_table",
           "type": "furniture",
           "width": 180,
-          "x": 535,
-          "y": 455
+          "x": 542,
+          "y": 466
         },
         {
-          "height": 105,
+          "height": 104,
           "id": 30,
           "name": "collision.life.dresser",
           "type": "furniture",
-          "width": 90,
-          "x": 305,
-          "y": 260
+          "width": 97,
+          "x": 293,
+          "y": 258.5
         },
         {
-          "height": 115,
+          "height": 108,
           "id": 31,
           "name": "collision.life.radio_cabinet",
           "type": "furniture",
-          "width": 200,
-          "x": 980,
-          "y": 245
+          "width": 194,
+          "x": 994,
+          "y": 250
         },
         {
-          "height": 220,
+          "height": 189,
           "id": 32,
           "name": "collision.life.anniversary_table",
           "type": "furniture",
-          "width": 270,
-          "x": 960,
-          "y": 420
+          "width": 283,
+          "x": 899.5,
+          "y": 453.5
         },
         {
-          "height": 170,
+          "height": 160,
           "id": 33,
           "name": "collision.life.moving_boxes",
           "type": "furniture",
-          "width": 185,
-          "x": 55,
-          "y": 230
+          "width": 169,
+          "x": 62.5,
+          "y": 227
         },
         {
           "height": 210,
           "id": 34,
           "name": "collision.life.left_foreground_cabinet",
           "type": "furniture",
-          "width": 250,
-          "x": 0,
+          "width": 270,
+          "x": -10,
           "y": 470
+        },
+        {
+          "id": 35,
+          "name": "collision.shared_life.new_1",
+          "type": "wall",
+          "x": 801,
+          "y": 254.5,
+          "width": 66,
+          "height": 120,
+          "rotation": 0
+        },
+        {
+          "id": 36,
+          "name": "collision.shared_life.new_2",
+          "type": "wall",
+          "x": 1177.5,
+          "y": 0,
+          "width": 95,
+          "height": 544,
+          "rotation": 0
+        },
+        {
+          "id": 37,
+          "name": "collision.shared_life.new_3",
+          "type": "wall",
+          "x": 728.2710693345152,
+          "y": 101.01474270101852,
+          "width": 87,
+          "height": 252,
+          "rotation": 347
+        },
+        {
+          "id": 38,
+          "name": "collision.shared_life.new_4",
+          "type": "wall",
+          "x": 704.5,
+          "y": 1.5,
+          "width": 84,
+          "height": 149,
+          "rotation": 0
+        },
+        {
+          "id": 39,
+          "name": "collision.shared_life.new_5",
+          "type": "wall",
+          "x": 711,
+          "y": 144,
+          "width": 64,
+          "height": 73,
+          "rotation": 0
+        },
+        {
+          "id": 40,
+          "name": "collision.shared_life.new_6",
+          "type": "wall",
+          "x": 232,
+          "y": 533.5,
+          "width": 66,
+          "height": 159,
+          "rotation": 0
+        },
+        {
+          "id": 41,
+          "name": "collision.shared_life.new_7",
+          "type": "wall",
+          "x": 635,
+          "y": 0,
+          "width": 80,
+          "height": 132,
+          "rotation": 0
+        },
+        {
+          "id": 42,
+          "name": "collision.shared_life.new_8",
+          "type": "wall",
+          "x": 1031,
+          "y": 401,
+          "width": 158,
+          "height": 60,
+          "rotation": 0
+        },
+        {
+          "id": 43,
+          "name": "collision.shared_life.new_9",
+          "type": "wall",
+          "x": 954.9232930068562,
+          "y": 457.31600711208216,
+          "width": 94,
+          "height": 45,
+          "rotation": 323
+        },
+        {
+          "id": 44,
+          "name": "collision.shared_life.new_10",
+          "type": "wall",
+          "x": -18.082625689776556,
+          "y": 434.94421866983805,
+          "width": 102,
+          "height": 70,
+          "rotation": 310
         }
       ],
       "opacity": 1,
@@ -637,7 +737,7 @@
     }
   ],
   "nextlayerid": 7,
-  "nextobjectid": 35,
+  "nextobjectid": 45,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",

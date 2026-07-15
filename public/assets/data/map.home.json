@@ -168,74 +168,6 @@
           "width": 230,
           "x": 585,
           "y": 655
-        },
-        {
-          "gid": 12,
-          "height": 100,
-          "id": 45,
-          "name": "visual.home.entry_mat",
-          "properties": [
-            {
-              "name": "source",
-              "type": "string",
-              "value": "homeLayout.ts:homeDecorLayout[4]"
-            },
-            {
-              "name": "visual_reference",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "size",
-              "type": "int",
-              "value": 100
-            },
-            {
-              "name": "sortY",
-              "type": "int",
-              "value": 30
-            }
-          ],
-          "rotation": 0,
-          "type": "decor",
-          "visible": true,
-          "width": 100,
-          "x": 1130,
-          "y": 668
-        },
-        {
-          "gid": 13,
-          "height": 44,
-          "id": 46,
-          "name": "visual.home.wall_clock",
-          "properties": [
-            {
-              "name": "source",
-              "type": "string",
-              "value": "homeLayout.ts:homeDecorLayout[5]"
-            },
-            {
-              "name": "visual_reference",
-              "type": "bool",
-              "value": true
-            },
-            {
-              "name": "size",
-              "type": "int",
-              "value": 44
-            },
-            {
-              "name": "sortY",
-              "type": "int",
-              "value": 18
-            }
-          ],
-          "rotation": 0,
-          "type": "decor",
-          "visible": true,
-          "width": 44,
-          "x": 738,
-          "y": 87
         }
       ],
       "opacity": 1,
@@ -738,7 +670,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 577
+              "value": 587
             },
             {
               "name": "entityId",
@@ -751,7 +683,7 @@
           "visible": true,
           "width": 32,
           "x": 1064,
-          "y": 518
+          "y": 528
         }
       ],
       "opacity": 1,
@@ -853,7 +785,7 @@
           "type": "pickup",
           "width": 44,
           "x": 1080,
-          "y": 502,
+          "y": 512,
           "properties": [
             {
               "name": "label",

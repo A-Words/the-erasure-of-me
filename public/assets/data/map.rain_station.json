@@ -46,7 +46,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 560
+              "value": 580
             },
             {
               "name": "entityId",
@@ -64,7 +64,7 @@
           "visible": true,
           "width": 44,
           "x": 158,
-          "y": 582,
+          "y": 602,
           "gid": 1
         },
         {
@@ -114,7 +114,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 410
+              "value": 440
             },
             {
               "name": "entityId",
@@ -132,7 +132,7 @@
           "visible": true,
           "width": 44,
           "x": 488,
-          "y": 432,
+          "y": 462,
           "gid": 3
         },
         {
@@ -148,7 +148,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 310
+              "value": 370
             },
             {
               "name": "entityId",
@@ -166,7 +166,7 @@
           "visible": true,
           "width": 44,
           "x": 658,
-          "y": 332,
+          "y": 392,
           "gid": 4
         },
         {
@@ -182,7 +182,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 270
+              "value": 280
             },
             {
               "name": "entityId",
@@ -200,7 +200,7 @@
           "visible": true,
           "width": 58,
           "x": 791,
-          "y": 299,
+          "y": 309,
           "gid": 5
         },
         {
@@ -216,7 +216,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 180
+              "value": 226
             },
             {
               "name": "entityId",
@@ -233,8 +233,8 @@
           "type": "prop",
           "visible": true,
           "width": 58,
-          "x": 951,
-          "y": 209,
+          "x": 921,
+          "y": 255,
           "gid": 6
         },
         {
@@ -250,7 +250,7 @@
             {
               "name": "sortY",
               "type": "int",
-              "value": 120
+              "value": 180
             },
             {
               "name": "entityId",
@@ -267,8 +267,8 @@
           "type": "prop",
           "visible": true,
           "width": 58,
-          "x": 1111,
-          "y": 149,
+          "x": 1091,
+          "y": 209,
           "gid": 7
         }
       ],
@@ -302,7 +302,7 @@
           "type": "pickup",
           "width": 44,
           "x": 180,
-          "y": 560
+          "y": 580
         },
         {
           "height": 44,
@@ -320,7 +320,7 @@
           "type": "puzzle",
           "width": 44,
           "x": 510,
-          "y": 410
+          "y": 440
         },
         {
           "height": 44,
@@ -329,7 +329,7 @@
           "type": "puzzle",
           "width": 44,
           "x": 680,
-          "y": 310
+          "y": 370
         },
         {
           "height": 44,
@@ -338,7 +338,7 @@
           "type": "anchor",
           "width": 44,
           "x": 820,
-          "y": 270
+          "y": 280
         },
         {
           "height": 44,
@@ -346,8 +346,8 @@
           "name": "entity.rain.umbrella_sign_b",
           "type": "anchor",
           "width": 44,
-          "x": 980,
-          "y": 180
+          "x": 950,
+          "y": 226
         },
         {
           "height": 60,
@@ -355,8 +355,8 @@
           "name": "entity.rain.red_umbrella",
           "type": "exit",
           "width": 60,
-          "x": 1140,
-          "y": 120
+          "x": 1120,
+          "y": 180
         }
       ],
       "opacity": 1,
@@ -433,35 +433,39 @@
           "name": "collision.rain.left_station_building",
           "type": "building",
           "width": 310,
-          "x": 40,
-          "y": 190
+          "x": 61.26606241341199,
+          "y": 133.58657048910078,
+          "rotation": 30
         },
         {
-          "height": 43,
+          "height": 173,
           "id": 34,
           "name": "collision.rain.waiting_shelter_roof",
           "type": "building",
-          "width": 390,
-          "x": 255,
-          "y": 32
+          "width": 144,
+          "x": 134.57376611076165,
+          "y": 357.96502109280596,
+          "rotation": 340
         },
         {
           "height": 250,
           "id": 25,
           "name": "collision.rain.waiting_shelter",
           "type": "building",
-          "width": 390,
-          "x": 255,
-          "y": 75
+          "width": 365,
+          "x": 206.4426988102658,
+          "y": 204.12208765985528,
+          "rotation": 335
         },
         {
-          "height": 215,
+          "height": 300,
           "id": 26,
           "name": "collision.rain.clock_shop",
           "type": "building",
-          "width": 430,
-          "x": 850,
-          "y": 0
+          "width": 450,
+          "x": 893.3648329898326,
+          "y": -113.18730117863618,
+          "rotation": 18
         },
         {
           "height": 190,
@@ -469,8 +473,9 @@
           "name": "collision.rain.back_left",
           "type": "terrain",
           "width": 255,
-          "x": 0,
-          "y": 0
+          "x": -76.80356783177706,
+          "y": 350.679874476684,
+          "rotation": 338
         },
         {
           "height": 105,
@@ -478,53 +483,29 @@
           "name": "collision.rain.back_center",
           "type": "terrain",
           "width": 205,
-          "x": 645,
-          "y": 0
+          "x": 614.8969367433833,
+          "y": 94.77320591115193,
+          "rotation": 310
         },
         {
-          "height": 65,
+          "height": 400,
           "id": 29,
           "name": "collision.rain.water_step_1",
           "type": "terrain",
-          "width": 260,
-          "x": 0,
-          "y": 655
+          "width": 1000,
+          "x": 386.6986379579067,
+          "y": 716.7939450320999,
+          "rotation": 333
         },
         {
-          "height": 120,
-          "id": 30,
-          "name": "collision.rain.water_step_2",
-          "type": "terrain",
-          "width": 260,
-          "x": 260,
-          "y": 600
-        },
-        {
-          "height": 175,
-          "id": 31,
-          "name": "collision.rain.water_step_3",
-          "type": "terrain",
-          "width": 260,
-          "x": 520,
-          "y": 545
-        },
-        {
-          "height": 230,
-          "id": 32,
-          "name": "collision.rain.water_step_4",
-          "type": "terrain",
-          "width": 260,
-          "x": 780,
-          "y": 490
-        },
-        {
-          "height": 285,
-          "id": 33,
-          "name": "collision.rain.water_step_5",
-          "type": "terrain",
-          "width": 240,
-          "x": 1040,
-          "y": 435
+          "id": 35,
+          "name": "collision.rain_station.new_1",
+          "type": "wall",
+          "x": 546.1006535994247,
+          "y": 106.80642496536484,
+          "width": 106,
+          "height": 124,
+          "rotation": 330
         }
       ],
       "opacity": 1,
@@ -535,7 +516,7 @@
     }
   ],
   "nextlayerid": 7,
-  "nextobjectid": 35,
+  "nextobjectid": 36,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.11.2",
