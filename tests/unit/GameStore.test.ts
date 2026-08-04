@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { homeFurnitureLayout } from '../../src/game/content/homeLayout';
+import type { CollisionDataProvider } from '../../src/game/content/collisionProvider';
 import { GameStore } from '../../src/game/state/GameStore';
 import { createInitialState } from '../../src/game/state/initialState';
 
@@ -23,6 +24,23 @@ describe('GameStore', () => {
     expect(store.getState().phase).toBe('playing');
     expect(store.getState().mode).toBe('low_stimulation');
     expect(store.getState().settings).toMatchObject({ fontSize: 'large', muted: true });
+  });
+
+  it('recovers a saved player position that is embedded in edited collision', () => {
+    const saved = createInitialState();
+    saved.phase = 'playing';
+    saved.player = { x: 1100, y: 360, facing: 'up', moving: true };
+    const collisionProvider: CollisionDataProvider = {
+      getCollisionData: () => ({
+        walkBounds: { minX: 32, maxX: 1248, minY: 32, maxY: 688 },
+        obstacles: [{ x: 994, y: 250, width: 194, height: 108 }],
+      }),
+    };
+    const store = new GameStore(createInitialState(), collisionProvider);
+
+    store.replaceFromSave(saved);
+
+    expect(store.getState().player).toMatchObject({ x: 1100, y: 368, moving: false });
   });
 
   it('blocks movement under a modal', () => {

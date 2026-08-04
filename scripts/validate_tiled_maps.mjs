@@ -32,6 +32,14 @@ const MAP_FILES = {
 const REQUIRED_VISUAL_LAYERS_ALL = ['background', 'visual_props'];
 const REQUIRED_VISUAL_LAYERS_HOME = ['visual_furniture', 'visual_decor'];
 const LOGICAL_LAYERS = ['navigation', 'interactables', 'collision'];
+const COLLISION_PREFIXES = {
+  'map.home': 'collision.home.',
+  'map.rain_station': 'collision.rain.',
+  'map.shared_life': 'collision.life.',
+  'map.return_corridor': 'collision.return.',
+  'map.home_ending': 'collision.ending.',
+};
+const COLLISION_TYPES = new Set(['wall', 'furniture', 'building', 'terrain']);
 
 // Must match TILESET_ASSET_KEYS in src/game/content/tiledMapLoader.ts
 const VALID_TILESET_NAMES = new Set([
@@ -150,6 +158,46 @@ function validateMap(mapId) {
       errors.push(`Missing required logical layer: "${requiredLayer}"`);
     } else if (!layer.objects || layer.objects.length === 0) {
       errors.push(`Logical layer "${requiredLayer}" has no objects`);
+    }
+  }
+
+  // --- Check 3c: Collision objects must be finite rotated rectangles ---
+  const collisionLayer = layers.find(
+    (layer) => layer.name === 'collision' && layer.type === 'objectgroup',
+  );
+  for (const obj of collisionLayer?.objects ?? []) {
+    const label = obj.name ?? `object ${obj.id ?? '(unknown)'}`;
+    const expectedPrefix = COLLISION_PREFIXES[mapId];
+    if (
+      typeof obj.name !== 'string' ||
+      !obj.name.startsWith(expectedPrefix) ||
+      !/^collision\.[a-z]+\.[a-z][a-z0-9_]*$/.test(obj.name)
+    ) {
+      errors.push(`Collision "${label}" must use a stable semantic ID under "${expectedPrefix}"`);
+    }
+    const semanticSuffix =
+      typeof obj.name === 'string' ? obj.name.slice(expectedPrefix.length) : '';
+    if (/^(?:new(?:_.*)?|unnamed|temp|temporary|collision)$/.test(semanticSuffix)) {
+      errors.push(`Collision "${label}" still uses a temporary generated name`);
+    }
+    if (!COLLISION_TYPES.has(obj.type)) {
+      errors.push(`Collision "${label}" has unsupported semantic type "${obj.type ?? ''}"`);
+    }
+    for (const field of ['x', 'y', 'width', 'height']) {
+      if (typeof obj[field] !== 'number' || !Number.isFinite(obj[field])) {
+        errors.push(`Collision "${label}" has invalid ${field}`);
+      }
+    }
+    if (!(obj.width > 0) || !(obj.height > 0)) {
+      errors.push(`Collision "${label}" must have positive width and height`);
+    }
+    if (obj.rotation !== undefined && !Number.isFinite(obj.rotation)) {
+      errors.push(`Collision "${label}" has invalid rotation`);
+    }
+    if (obj.ellipse || obj.polygon || obj.polyline) {
+      errors.push(
+        `Collision "${label}" must be a rectangle; ellipse/polygon/polyline is unsupported`,
+      );
     }
   }
 

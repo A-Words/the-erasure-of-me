@@ -2,7 +2,7 @@ import { chapterMaps } from '../content/maps';
 import type { CollisionDataProvider } from '../content/collisionProvider';
 import { CodeCollisionProvider } from '../content/collisionProvider';
 import { returnRouteAnswers } from '../content/returnRoute';
-import { moveWithCollisions } from '../simulation/collision';
+import { findNearestWalkablePosition, moveWithCollisions } from '../simulation/collision';
 import type {
   ChapterId,
   GameCommand,
@@ -73,6 +73,7 @@ export class GameStore {
     const settings = this.state.settings;
     this.state = structuredClone(state);
     this.state.settings = settings;
+    this.recoverPlayerFromCollision();
     this.emit();
   }
 
@@ -226,6 +227,19 @@ export class GameStore {
 
   private emit(): void {
     for (const listener of this.listeners) listener(this.state);
+  }
+
+  private recoverPlayerFromCollision(): void {
+    const collisionData = this.collisionProvider.getCollisionData(this.state.chapterId);
+    const recovered = findNearestWalkablePosition(
+      this.state.player,
+      collisionData.walkBounds,
+      collisionData.obstacles,
+    );
+    if (!recovered) return;
+    this.state.player.x = recovered.x;
+    this.state.player.y = recovered.y;
+    this.state.player.moving = false;
   }
 
   private move(direction: WorldDirection, deltaSeconds: number): void {

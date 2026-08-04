@@ -143,6 +143,7 @@ function makeHomeMapFixture(): any {
             y: 221,
             width: 168,
             height: 61,
+            rotation: 15,
           },
           {
             id: 25,
@@ -219,6 +220,7 @@ describe('parseTiledMap', () => {
     expect(bed!.y).toBe(221);
     expect(bed!.width).toBe(168);
     expect(bed!.height).toBe(61);
+    expect(bed!.rotation).toBe(15);
     expect(bed!.type).toBe('furniture');
   });
 
@@ -321,11 +323,11 @@ describe('parseTiledMap', () => {
 });
 
 describe('extractCollisionObstacles', () => {
-  it('returns plain AxisAlignedRect array', () => {
+  it('returns plain collision rectangles including rotation', () => {
     const content = parseTiledMap('map.home', makeHomeMapFixture(), fallbackEntities);
     const obstacles = extractCollisionObstacles(content);
     expect(obstacles).toHaveLength(2);
-    expect(obstacles[0]).toEqual({ x: 86, y: 221, width: 168, height: 61 });
+    expect(obstacles[0]).toEqual({ x: 86, y: 221, width: 168, height: 61, rotation: 15 });
     expect(obstacles[0]).not.toHaveProperty('name');
     expect(obstacles[0]).not.toHaveProperty('type');
   });
@@ -424,12 +426,22 @@ describe('parseTiledMap with real map.rain_station.json', () => {
   });
 
   it('parses interactables from Tiled layer', () => {
-    const content = parseTiledMap(mapId, loadMapJson(mapId), entities);
+    const rawMap = loadMapJson(mapId) as {
+      layers: Array<{
+        name: string;
+        objects?: Array<{ name?: string; x: number; y: number }>;
+      }>;
+    };
+    const content = parseTiledMap(mapId, rawMap, entities);
     expect(content.interactables.length).toBe(7);
     const ticket = content.interactables.find((e) => e.id === 'entity.rain.ticket');
+    const authoredTicket = rawMap.layers
+      .find((layer) => layer.name === 'interactables')
+      ?.objects?.find((object) => object.name === 'entity.rain.ticket');
     expect(ticket).toBeDefined();
-    expect(ticket!.x).toBe(180);
-    expect(ticket!.y).toBe(560);
+    expect(authoredTicket).toBeDefined();
+    expect(ticket!.x).toBe(authoredTicket!.x);
+    expect(ticket!.y).toBe(authoredTicket!.y);
     expect(ticket!.kind).toBe('pickup');
   });
 
@@ -469,16 +481,16 @@ describe('TiledCollisionProvider with multi-map data', () => {
 
     // Non-home chapters include both the outer bounds and visible solid geometry.
     const rainData = provider.getCollisionData('rain');
-    expect(rainData.obstacles).toHaveLength(15);
+    expect(rainData.obstacles).toHaveLength(12);
 
     const lifeData = provider.getCollisionData('life');
-    expect(lifeData.obstacles).toHaveLength(11);
+    expect(lifeData.obstacles).toHaveLength(20);
 
     const returnData = provider.getCollisionData('return');
     expect(returnData.obstacles).toHaveLength(8);
 
     const endingData = provider.getCollisionData('ending');
-    expect(endingData.obstacles).toHaveLength(13);
+    expect(endingData.obstacles).toHaveLength(20);
   });
 
   it('keeps every single-screen chapter inside the visible 1280 by 720 canvas', async () => {
@@ -541,12 +553,22 @@ describe('TiledCollisionProvider with multi-map data', () => {
     const returnCorridor = provider.getCollisionData('return');
     const ending = provider.getCollisionData('ending');
 
-    expect(
-      moveWithCollisions({ x: 180, y: 560 }, { x: 0, y: -200 }, rain.walkBounds, rain.obstacles),
-    ).toEqual({ x: 180, y: 470 });
-    expect(
-      moveWithCollisions({ x: 680, y: 500 }, { x: 0, y: 100 }, rain.walkBounds, rain.obstacles),
-    ).toEqual({ x: 680, y: 535 });
+    const rainStationStop = moveWithCollisions(
+      { x: 180, y: 560 },
+      { x: 0, y: -200 },
+      rain.walkBounds,
+      rain.obstacles,
+    );
+    expect(rainStationStop.x).toBeCloseTo(180, 6);
+    expect(rainStationStop.y).toBeCloseTo(532.42, 2);
+    const rainWaterEdgeSlide = moveWithCollisions(
+      { x: 680, y: 500 },
+      { x: 0, y: 100 },
+      rain.walkBounds,
+      rain.obstacles,
+    );
+    expect(rainWaterEdgeSlide.x).toBeCloseTo(659.45, 2);
+    expect(rainWaterEdgeSlide.y).toBeCloseTo(559.67, 2);
     expect(
       moveWithCollisions(
         { x: 400, y: 360 },
@@ -554,7 +576,7 @@ describe('TiledCollisionProvider with multi-map data', () => {
         returnCorridor.walkBounds,
         returnCorridor.obstacles,
       ),
-    ).toEqual({ x: 400, y: 255 });
+    ).toEqual({ x: 400, y: 271 });
     expect(
       moveWithCollisions(
         { x: 640, y: 360 },
@@ -564,8 +586,8 @@ describe('TiledCollisionProvider with multi-map data', () => {
       ),
     ).toEqual({ x: 640, y: 160 });
     expect(
-      moveWithCollisions({ x: 700, y: 500 }, { x: 0, y: 100 }, ending.walkBounds, ending.obstacles),
-    ).toEqual({ x: 700, y: 510 });
+      moveWithCollisions({ x: 700, y: 450 }, { x: 0, y: 100 }, ending.walkBounds, ending.obstacles),
+    ).toEqual({ x: 700, y: 491 });
     expect(
       moveWithCollisions(
         { x: 920, y: 480 },
@@ -573,10 +595,10 @@ describe('TiledCollisionProvider with multi-map data', () => {
         ending.walkBounds,
         ending.obstacles,
       ),
-    ).toEqual({ x: 920, y: 420 });
+    ).toEqual({ x: 920, y: 459 });
   });
 
-  it('keeps the Shared Life window route and boxes-to-dresser passage walkable', async () => {
+  it('keeps the Shared Life window wall solid and boxes-to-dresser passage walkable', async () => {
     const { TiledCollisionProvider } = await import('../../src/game/content/collisionProvider');
     const provider = new TiledCollisionProvider({
       'map.home': loadMapJson('map.home'),
@@ -588,8 +610,8 @@ describe('TiledCollisionProvider with multi-map data', () => {
     const life = provider.getCollisionData('life');
 
     expect(
-      moveWithCollisions({ x: 500, y: 250 }, { x: 0, y: -20 }, life.walkBounds, life.obstacles),
-    ).toEqual({ x: 500, y: 230 });
+      moveWithCollisions({ x: 500, y: 400 }, { x: 0, y: -100 }, life.walkBounds, life.obstacles),
+    ).toEqual({ x: 500, y: 345.5 });
     expect(
       moveWithCollisions({ x: 270, y: 220 }, { x: 0, y: 210 }, life.walkBounds, life.obstacles),
     ).toEqual({ x: 270, y: 430 });

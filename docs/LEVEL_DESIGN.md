@@ -26,20 +26,20 @@
 
 ### 2.2 稳定 ID
 
-| 前缀 | 用途 | 示例 |
-| --- | --- | --- |
-| map. | 地图 | map.home |
-| spawn. | 出生点 | spawn.home.bed |
-| entity. | 可见实体 | entity.home.key_bowl |
-| interact. | 交互配置 | interact.home.key_bowl |
-| trigger. | 一次性或区域触发 | trigger.home.thunder |
-| puzzle. | 谜题 | puzzle.rain.station_sequence |
-| checkpoint. | 存档点 | checkpoint.home.journal |
-| dialogue. | 对白序列 | dialogue.home.wake |
-| journal. | 日记页 | journal.home.key |
-| memory. | 记忆碎片 | memory.rain.umbrella |
-| audio. | 声音 | audio.rain.clock_bell |
-| visual. | Tiled 可视化对象 | visual.home.bed |
+| 前缀        | 用途             | 示例                         |
+| ----------- | ---------------- | ---------------------------- |
+| map.        | 地图             | map.home                     |
+| spawn.      | 出生点           | spawn.home.bed               |
+| entity.     | 可见实体         | entity.home.key_bowl         |
+| interact.   | 交互配置         | interact.home.key_bowl       |
+| trigger.    | 一次性或区域触发 | trigger.home.thunder         |
+| puzzle.     | 谜题             | puzzle.rain.station_sequence |
+| checkpoint. | 存档点           | checkpoint.home.journal      |
+| dialogue.   | 对白序列         | dialogue.home.wake           |
+| journal.    | 日记页           | journal.home.key             |
+| memory.     | 记忆碎片         | memory.rain.umbrella         |
+| audio.      | 声音             | audio.rain.clock_bell        |
+| visual.     | Tiled 可视化对象 | visual.home.bed              |
 
 > `visual.` 前缀对象仅存在于 `visual_furniture`、`visual_decor`、`visual_props` 层中。它们可作为运行时视觉数据来源，但不进入存档、不决定谜题真值，也不得替代 `interactables`、`collision`、`navigation` 等逻辑层的稳定 ID。
 
@@ -48,13 +48,13 @@
 `src/game/content/tiledMapLoader.ts` 是 Tiled JSON 与游戏运行时之间的唯一适配层。GameScene 在切章时调用 `parseTiledMap()` 将 Tiled 对象层转换为纯 TypeScript 数据结构：
 
 - `interactables` → `WorldEntity[]`（坐标、kind、label）
-- `collision` → `NamedCollisionRect[]`（纯 `AxisAlignedRect`）
+- `collision` → `NamedCollisionRect[]`（纯 `CollisionRect`，可保留 Tiled 矩形的顺时针 `rotation`）
 - `visual_furniture` / `visual_decor` / `visual_props` → `VisualPlacement[]`（assetKey、frame、x/y、size、sortY、entityId、collisionId）
 - `navigation` → `SpawnPoint[]` 和 `MovementBounds`
 
 `visual_props` 通过 `entityId` 绑定 `interactables` 层实体，例如 `visual.home.key_bowl` 绑定 `entity.home.key_bowl`。`visual_furniture` 通过 `collisionId` 绑定 `collision` 层脚印矩形，例如 `visual.home.sofa` 绑定 `collision.home.sofa`。Tiled tile object 使用左下角坐标；适配层转换为 Phaser Image 的中心坐标，关卡作者不需要在 Tiled 中手动抵消偏移。
 
-如果 Tiled JSON 缺少 visual_\* 层或解析失败，GameScene 自动回退到 `homeLayout.ts` 代码常量。GameStore 的碰撞和行走边界通过 `CollisionDataProvider` 注入；生产入口使用 `TiledCollisionProvider`，`CodeCollisionProvider` 仅作为测试或明确 fallback 使用。
+如果 Tiled JSON 缺少 visual\_\* 层或解析失败，GameScene 自动回退到 `homeLayout.ts` 代码常量。GameStore 的碰撞和行走边界通过 `CollisionDataProvider` 注入；生产入口使用 `TiledCollisionProvider`，`CodeCollisionProvider` 仅作为测试或明确 fallback 使用。
 
 ### 2.4 Placeholder visual_props 规范
 
@@ -81,13 +81,13 @@
 
 ## 3. 流程总览
 
-| 章节 | 地图 | 目标时长 | 检查点数量 | 主谜题 |
-| --- | --- | --- | --- | --- |
-| 清晨的家 | map.home | 3–4 分钟 | 3 | 找到钥匙与日记 |
-| 雨中的初遇 | map.rain_station | 5–6 分钟 | 3 | 站牌序列、声音路线 |
-| 共同生活 | map.shared_life | 6–7 分钟 | 3 | 照片排序、物件归位 |
-| 回家的路 | map.return_corridor | 6–7 分钟 | 4 | 三段固定错位路线 |
-| 尾声 | map.home_ending | 2–3 分钟 | 1 | 长按牵手 |
+| 章节       | 地图                | 目标时长 | 检查点数量 | 主谜题             |
+| ---------- | ------------------- | -------- | ---------- | ------------------ |
+| 清晨的家   | map.home            | 3–4 分钟 | 3          | 找到钥匙与日记     |
+| 雨中的初遇 | map.rain_station    | 5–6 分钟 | 3          | 站牌序列、声音路线 |
+| 共同生活   | map.shared_life     | 6–7 分钟 | 3          | 照片排序、物件归位 |
+| 回家的路   | map.return_corridor | 6–7 分钟 | 4          | 三段固定错位路线   |
+| 尾声       | map.home_ending     | 2–3 分钟 | 1          | 长按牵手           |
 
 ## 4. 第一章：清晨的家
 
@@ -101,7 +101,7 @@
 
 ### 4.2 平面布局
 
-~~~text
+```text
 ┌──────────┬────────────┬────────┐
 │  卧室    │    客厅    │  厨房  │
 │ P  照片  │ 日记 眼镜盒│        │
@@ -110,7 +110,7 @@
 │储物间│       走廊           │玄关│
 │封闭  │                      │碗 门
 └──────┴──────────────────────┴───┘
-~~~
+```
 
 储物间仅作为背景，不可进入，防止首章探索范围膨胀。
 
@@ -124,29 +124,29 @@
 
 ### 4.3 关键坐标
 
-| 对象 | 坐标（逻辑像素）/区域 | ID |
-| --- | --- | --- |
-| 床边照片 | (300, 168) | entity.home.bedside_photo |
-| 日记 | (610, 282) | entity.home.journal |
-| 眼镜盒 | (700, 510) | entity.home.glasses_case |
-| 蓝色钥匙碗 | (1080, 502)，右下玄关桌面 | entity.home.key_bowl |
-| 玄关门 hotspot | (1225, 560)，钥匙碗右侧墙内侧 | entity.home.front_door |
-| 卧室相机区 | x1–10, y1–8 | camera.home.bedroom |
-| 客厅相机区 | x11–22, y1–10 | camera.home.living |
-| 厨房相机区 | x23–30, y1–8 | camera.home.kitchen |
-| 走廊相机区 | x11–30, y11–16 | camera.home.hall |
+| 对象           | 坐标（逻辑像素）/区域         | ID                        |
+| -------------- | ----------------------------- | ------------------------- |
+| 床边照片       | (300, 168)                    | entity.home.bedside_photo |
+| 日记           | (610, 282)                    | entity.home.journal       |
+| 眼镜盒         | (700, 510)                    | entity.home.glasses_case  |
+| 蓝色钥匙碗     | (1080, 512)，右下玄关桌面     | entity.home.key_bowl      |
+| 玄关门 hotspot | (1225, 560)，钥匙碗右侧墙内侧 | entity.home.front_door    |
+| 卧室相机区     | x1–10, y1–8                   | camera.home.bedroom       |
+| 客厅相机区     | x11–22, y1–10                 | camera.home.living        |
+| 厨房相机区     | x23–30, y1–8                  | camera.home.kitchen       |
+| 走廊相机区     | x11–30, y11–16                | camera.home.hall          |
 
 ### 4.4 流程节点
 
-| 顺序 | 条件 | 行为 | 状态变化 |
-| --- | --- | --- | --- |
-| 1 | 章节开始 | 播放起床对白与移动教学 | flag.home.awake |
-| 2 | 首次检查床边照片 | 教学观察和交互 | flag.tutorial.interact |
-| 3 | 首次离开卧室 | 提示 M 打开地图 | flag.tutorial.map |
-| 4 | 拾取眼镜盒或日记 | 教学 I 打开背包 | flag.tutorial.inventory |
-| 5 | 检查日记 | 解锁 journal.home.key | flag.home.read_key_note |
-| 6 | 拾取钥匙 | 写入 checkpoint.home.key | inventory.home_key |
-| 7 | 持有钥匙和日记时开门 | 雷声、切换第二章 | chapter.rain |
+| 顺序 | 条件                 | 行为                     | 状态变化                |
+| ---- | -------------------- | ------------------------ | ----------------------- |
+| 1    | 章节开始             | 播放起床对白与移动教学   | flag.home.awake         |
+| 2    | 首次检查床边照片     | 教学观察和交互           | flag.tutorial.interact  |
+| 3    | 首次离开卧室         | 提示 M 打开地图          | flag.tutorial.map       |
+| 4    | 拾取眼镜盒或日记     | 教学 I 打开背包          | flag.tutorial.inventory |
+| 5    | 检查日记             | 解锁 journal.home.key    | flag.home.read_key_note |
+| 6    | 拾取钥匙             | 写入 checkpoint.home.key | inventory.home_key      |
+| 7    | 持有钥匙和日记时开门 | 雷声、切换第二章         | chapter.rain            |
 
 玩家可以先取得钥匙再读日记；开门仍要求拾取日记，避免丢失后续核心功能。
 
@@ -158,11 +158,11 @@
 
 ### 4.6 提示升级
 
-| 无进展时间 | 表现 |
-| --- | --- |
-| 90 秒 | 蓝色钥匙碗出现两次柔和反光 |
-| 150 秒 | 日记入口发光，若已读日记则目标文字变为“看看玄关的小碗” |
-| 210 秒 | “静静留意”时显示从客厅到玄关的淡脚印 |
+| 无进展时间 | 表现                                                   |
+| ---------- | ------------------------------------------------------ |
+| 90 秒      | 蓝色钥匙碗出现两次柔和反光                             |
+| 150 秒     | 日记入口发光，若已读日记则目标文字变为“看看玄关的小碗” |
+| 210 秒     | “静静留意”时显示从客厅到玄关的淡脚印                   |
 
 无进展定义：未首次检查新物件、未拾取道具、未进入新房间。
 
@@ -186,7 +186,7 @@
 
 ### 5.2 平面布局
 
-~~~text
+```text
                          [钟表铺/红伞]
                               ▲
                     ⑤石板 ── 小巷
@@ -196,26 +196,26 @@
         售票亭 ─ ②石板
           ▲
       [旧站台 P]
-~~~
+```
 
 玩家可绕行，但正确站牌顺序会依次打开雨棚、小巷和钟表铺前的视觉通路。
 
 背景视觉采用 30°～35° 轻俯视旧车站空间，并参考 `memory_rain_umbrella_v01.png` 的钟表铺、旧站牌、湿石材和红伞记忆氛围：左下旧站台、售票亭、中央雨棚和右上钟表铺以可见檐口、墙面厚度、站台边缘和湿地反光建立空间纵深。底图保持雨天可读，不使用黑块或重暗角；雨线与地面积水反光拆为独立环境叠层。可交互车票、石板与红伞线索仍由独立 `visual_props` 提供。
 
-雨站运行时固定为 1280×720 单屏场景，`navigation` 范围为 x=32–1248、y=32–688。`collision` 除四侧外墙外，还覆盖左侧站房、候车亭、钟表铺与后景不可进入区域；候车亭在 y=32–75 另设顶部封边，使实体脚印从上边界连续闭合。站台临水斜边以五段阶梯式脚部碰撞近似，只阻挡角色脚底，不把视觉上的潮湿反光误判为整块实体。所有石板、车票、伞形路标和红伞均保留至少一条可到达交互环。
+雨站运行时固定为 1280×720 单屏场景，`navigation` 范围为 x=32–1248、y=32–688。`collision` 除四侧外墙外，还覆盖左侧站房、候车亭、钟表铺与后景不可进入区域；候车亭的屋顶、后墙和右侧支撑分别使用语义稳定的旋转矩形。站台临水斜边合并为单一 `collision.rain.platform_water_edge` 旋转地形碰撞，只阻挡角色脚底，不把潮湿反光误判为实体。所有石板、车票、伞形路标和红伞均保留至少一条可到达交互环。
 
 ### 5.3 关键对象
 
-| 对象 | 坐标 | ID |
-| --- | --- | --- |
-| 旧车票 | (6, 18) | entity.rain.ticket |
-| 2 号石板 | (10, 17) | entity.rain.stone_2 |
-| 4 号石板 | (17, 14) | entity.rain.stone_4 |
-| 5 号石板 | (24, 10) | entity.rain.stone_5 |
-| 钟楼声源 | (36, 2) | audio.rain.clock_bell |
-| 红伞招牌一 | (27, 8) | entity.rain.umbrella_sign_a |
-| 红伞招牌二 | (35, 6) | entity.rain.umbrella_sign_b |
-| 钟表铺红伞 | (39, 5) | entity.rain.red_umbrella |
+| 对象       | 逻辑坐标    | ID                          |
+| ---------- | ----------- | --------------------------- |
+| 旧车票     | (180, 580)  | entity.rain.ticket          |
+| 2 号石板   | (330, 520)  | entity.rain.stone_2         |
+| 4 号石板   | (510, 440)  | entity.rain.stone_4         |
+| 5 号石板   | (680, 370)  | entity.rain.stone_5         |
+| 钟楼声源   | (1150, 82)  | audio.rain.clock_bell       |
+| 红伞招牌一 | (820, 280)  | entity.rain.umbrella_sign_a |
+| 红伞招牌二 | (950, 226)  | entity.rain.umbrella_sign_b |
+| 钟表铺红伞 | (1120, 180) | entity.rain.red_umbrella    |
 
 上述对象均由 `map.rain_station` 的 `visual_props` tile object 提供正式视觉参照：车票、2/4/5 石板和两个红伞招牌使用 Rain Station 专属 `prop.rain.*` 资产，钟表铺前红伞复用 `prop.red_umbrella.closed`。Tiled 对象坐标保持左下角锚点，由 `tiledMapLoader` 在运行时转换为 Phaser 中心点。
 
@@ -240,9 +240,9 @@
 
 状态：
 
-~~~text
+```text
 [] → [2] → [2,4] → [2,4,5] → completed
-~~~
+```
 
 若当前前缀为 [2] 而玩家踩 5，状态保持 [2]。完成后钟表铺方向的雨幕减弱，并写入 checkpoint.rain.sequence。
 
@@ -258,10 +258,10 @@
 
 ### 5.7 提示升级
 
-| 谜题 | 等级 1 | 等级 2 | 等级 3 |
-| --- | --- | --- | --- |
-| 站牌 | 车票边缘发亮 | 下一个数字与圆点发亮 | 正确石板出现水面倒影 |
-| 声音路线 | 钟声视觉波纹增强 | 当前红伞招牌轻摆 | 地面积水连续显示方向 |
+| 谜题     | 等级 1           | 等级 2               | 等级 3               |
+| -------- | ---------------- | -------------------- | -------------------- |
+| 站牌     | 车票边缘发亮     | 下一个数字与圆点发亮 | 正确石板出现水面倒影 |
+| 声音路线 | 钟声视觉波纹增强 | 当前红伞招牌轻摆     | 地面积水连续显示方向 |
 
 ### 5.8 记忆与出口
 
@@ -293,7 +293,7 @@
 
 ### 6.2 布局
 
-~~~text
+```text
 ┌────────────────────────────────┐
 │ 1979 同源窗  1992 同源窗  走廊  2001 同源窗 │
 │ 纸箱/镜台     桂花窗台          收音机/纪念日晚餐 │
@@ -301,29 +301,29 @@
 │                 主通道                          │
 │                   P                             │
 └────────────────────────────────┘
-~~~
+```
 
 三个区域不是三间房，而是同一个家在三个时期的纸张叠影。三扇窗保持相同外框、四格比例、中央插销和右下磕痕；1979 木框较新，1992 有桂花、身高刻度和圆形杯印，2001 木框明显磨损并处于停电夜的柔暖光。场景不直接显示年份牌；准确年份只在可检查的照片线索中出现，玩家也可通过纸箱与新家具、桂花高度、晚餐与人物年龄判断顺序。相册桌位于视觉中心但留出左右绕行空间，上方中央走廊保持可达。
 
 ### 6.3 关键对象
 
-| 对象 | 坐标 | ID |
-| --- | --- | --- |
-| 搬家照片 | (140, 430) | item.photo.move_1979 |
-| 桂花照片 | (500, 250) | item.photo.osmanthus_1992 |
-| 银婚照片 | (885, 420) | item.photo.anniversary_2001 |
-| 相册桌 | (625, 465) | entity.life.album |
-| 木梳 | (320, 390) | item.life.wood_comb |
-| 搪瓷杯 | (610, 320) | item.life.enamel_cup |
-| 录音带 | (870, 570) | item.life.cassette |
-| 镜台放置槽 | (335, 285) | slot.life.dresser |
-| 窗台放置槽 | (585, 215) | slot.life.windowsill |
-| 收音机放置槽 | (1065, 285) | slot.life.radio |
-| 延长走廊出口 | (700, 70) | entity.life.exit |
+| 对象         | 坐标       | ID                          |
+| ------------ | ---------- | --------------------------- |
+| 搬家照片     | (140, 430) | item.photo.move_1979        |
+| 桂花照片     | (485, 400) | item.photo.osmanthus_1992   |
+| 银婚照片     | (885, 420) | item.photo.anniversary_2001 |
+| 相册桌       | (581, 465) | entity.life.album           |
+| 木梳         | (320, 390) | item.life.wood_comb         |
+| 搪瓷杯       | (693, 475) | item.life.enamel_cup        |
+| 录音带       | (870, 570) | item.life.cassette          |
+| 镜台放置槽   | (337, 276) | slot.life.dresser           |
+| 窗台放置槽   | (528, 354) | slot.life.windowsill        |
+| 收音机放置槽 | (957, 370) | slot.life.radio             |
+| 延长走廊出口 | (700, 70)  | entity.life.exit            |
 
 上述十个照片、相册、物件与槽位的 `visual_props` 已使用 v02 `prop_life_shared_life_atlas` Tiled tileset：frame 0–2 为不含生成式年份文字的三张照片，frame 3 为空相册，frame 4–6 为木梳、搪瓷杯、录音带，frame 7–9 为三处放置槽。所有对象保留 Tiled tile object 左下角锚点与 44×44 运行时尺寸；物件拾取后隐藏，归位后槽位实体切换到 frame 4–6。`entity.life.exit` 的正式视觉由 v02 背景中的延长走廊承担，因此不再保留伪造的 `visual_props` 占位对象。
 
-`collision` 层使用 1280×720 运行时边界，并为相册桌、镜台、收音机柜、纪念日晚餐桌、纸箱和左下前景柜建立脚印矩形；右侧餐桌脚印为 x=960–1230、y=420–640，与收小后的桌面一致，并在收音机柜下方留出可接近槽位的通道。纸箱与镜台脚印之间保留不少于一个角色脚部宽度的通道，顶部外墙在 x=620–780 留出走廊口。`navigation` 恢复区为 x=32–1248、y=32–688，玩家不会走出可见画布。
+`collision` 层使用 1280×720 运行时边界，并为相册桌、镜台、收音机柜、纪念日晚餐桌、纸箱、植物边桌和左下前景家具建立语义脚印。圆桌上沿保留左右两个旋转矩形，避免用大矩形封死可见空角；走廊深处两个重叠封边合并为 `collision.life.corridor_depth_barrier`，右侧斜墙与走廊柜仍独立。收音机柜下方保留可接近 `(957, 370)` 槽位的通道，纸箱与镜台之间不少于一个角色脚部宽度。`navigation` 恢复区为 x=32–1248、y=32–688；载入旧存档时若角色坐标因地图更新压入碰撞，会迁移到最近的安全脚点。
 
 表现层只读取既有领域状态：初始保留三段低透明度叠影；`puzzle.life.photo_order.completed` 后全部年代接缝先收束一次；`placedObjects` 中每增加一件物品，对应年代薄雾继续降低；三件全部归位后完整淡入 `environment.life.resolved`，短暂形成连贯的当代客厅印象，再由原有出口流程进入第四章。收束态保持所有碰撞对齐家具与走廊位置，只保留中间的成熟桂花窗，并移除左右时间窗、搬家纸箱、停电宴席和年代接缝。以上变化不新增进度字段，也不参与碰撞或谜题判断。
 
@@ -346,11 +346,11 @@
 
 冗余线索：
 
-| 照片 | 时间文字 | 非文字线索 |
-| --- | --- | --- |
-| 搬家 | 纸箱“1979” | 房间空、家具最新 |
+| 照片 | 时间文字       | 非文字线索                 |
+| ---- | -------------- | -------------------------- |
+| 搬家 | 纸箱“1979”     | 房间空、家具最新           |
 | 桂花 | 身高刻度“1992” | 桂花树已长高、出现孩子刻度 |
-| 银婚 | 蛋糕牌“2001” | 家具老化、两人鬓角变白 |
+| 银婚 | 蛋糕牌“2001”   | 家具老化、两人鬓角变白     |
 
 完成后写入 checkpoint.life.photos，并依次播放三张照片的环境转场。
 
@@ -363,11 +363,11 @@
 
 答案：
 
-| 物品 | 位置 | 主要线索 | 纹理 |
-| --- | --- | --- | --- |
-| item.life.wood_comb | slot.life.dresser | 镜台与照片轮廓 | 条纹 |
+| 物品                 | 位置                 | 主要线索           | 纹理 |
+| -------------------- | -------------------- | ------------------ | ---- |
+| item.life.wood_comb  | slot.life.dresser    | 镜台与照片轮廓     | 条纹 |
 | item.life.enamel_cup | slot.life.windowsill | 桂花图案与圆形水印 | 圆点 |
-| item.life.cassette | slot.life.radio | 收音机与相同哼唱 | 波纹 |
+| item.life.cassette   | slot.life.radio      | 收音机与相同哼唱   | 波纹 |
 
 每正确放置一件物品，解锁一个 6–8 秒生活切片。三件完成后解锁 memory.life.ordinary_days。
 
@@ -375,11 +375,11 @@
 
 提示时间从玩家第一次打开对应谜题面板开始。
 
-| 时间 | 照片排序 | 物件归位 |
-| --- | --- | --- |
-| 90 秒 | 空位显出年代轮廓 | 对应照片短暂呼吸式高亮 |
-| 150 秒 | 日记翻到年份页 | 放置槽显示匹配纹理 |
-| 210 秒 | 年份文字保持可读 | 正确槽位显示物件剪影 |
+| 时间   | 照片排序         | 物件归位               |
+| ------ | ---------------- | ---------------------- |
+| 90 秒  | 空位显出年代轮廓 | 对应照片短暂呼吸式高亮 |
+| 150 秒 | 日记翻到年份页   | 放置槽显示匹配纹理     |
+| 210 秒 | 年份文字保持可读 | 正确槽位显示物件剪影   |
 
 ### 6.8 完成与出口
 
@@ -411,10 +411,10 @@
 
 ### 7.2 空间结构
 
-~~~text
+```text
 [训练区] → [路口一：看见] → [路口二：记住] → [路口三：相信] → [家门]
                 ↺错路房间          ↺错路房间          ↺错路房间
-~~~
+```
 
 v02“缝隙长廊”以十字空间为稳定底板：中央与上下通道复用许家木地板和旧墙，左侧复用雨站湿石板，右侧复用共同生活章节的磨损花砖与墙面。底图不包含箭头、红伞方向、波纹或脚印答案；这些内容由运行时状态叠加。每个错路房间复用当前章节已经见过的物件组合，但停留不超过三秒，随后返回当前路口。
 
@@ -448,11 +448,11 @@ v02“缝隙长廊”以十字空间为稳定底板：中央与上下通道复�
 
 路线以世界方向定义，输入系统负责变换。
 
-| 路口 | 世界方向答案 | 标准模式物理输入 | 主要线索 | 通过检查点 |
-| --- | --- | --- | --- | --- |
-| 一 | 右 → 上 | 上 → 左 | 两枚完整地面箭头 | checkpoint.return.junction_1 |
-| 二 | 下 → 右 | 右 → 上 | 第一步地面箭头、第二步伞影 | checkpoint.return.junction_2 |
-| 三 | 上 → 左 → 上 | 左 → 下 → 左 | 三步哼唱波纹 | checkpoint.return.junction_3 |
+| 路口 | 世界方向答案 | 标准模式物理输入 | 主要线索                   | 通过检查点                   |
+| ---- | ------------ | ---------------- | -------------------------- | ---------------------------- |
+| 一   | 右 → 上      | 上 → 左          | 两枚完整地面箭头           | checkpoint.return.junction_1 |
+| 二   | 下 → 右      | 右 → 上          | 第一步地面箭头、第二步伞影 | checkpoint.return.junction_2 |
+| 三   | 上 → 左 → 上 | 左 → 下 → 左     | 三步哼唱波纹               | checkpoint.return.junction_3 |
 
 低扰动模式直接使用“世界方向答案”作为物理输入。
 
@@ -468,24 +468,24 @@ v02“缝隙长廊”以十字空间为稳定底板：中央与上下通道复�
 
 `returnJunction`、当前正确 `returnPrefix`、`routeLoops` 与 `hintLevel` 是第四章表现的唯一输入：
 
-| 状态 | 当前线索 |
-| --- | --- |
-| 路口一，第 0/1 步 | 指向下一正确世界方向的地面箭头 |
-| 路口二，第 0 步 | 指向“下”的地面箭头 |
-| 路口二，第 1 步 | 指向“右”的红伞柄影子 |
-| 路口三，第 0/1/2 步 | 分别指向“上 / 左 / 上”的哼唱波纹 |
-| `routeLoops >= 2` 或 `hintLevel >= 2` | 沿当前正确世界方向出现淡脚印 |
-| 三个路口全部完成 | 上方家门轮廓 |
+| 状态                                  | 当前线索                         |
+| ------------------------------------- | -------------------------------- |
+| 路口一，第 0/1 步                     | 指向下一正确世界方向的地面箭头   |
+| 路口二，第 0 步                       | 指向“下”的地面箭头               |
+| 路口二，第 1 步                       | 指向“右”的红伞柄影子             |
+| 路口三，第 0/1/2 步                   | 分别指向“上 / 左 / 上”的哼唱波纹 |
+| `routeLoops >= 2` 或 `hintLevel >= 2` | 沿当前正确世界方向出现淡脚印     |
+| 三个路口全部完成                      | 上方家门轮廓                     |
 
 线索强度按错路次数与提示等级中较高者逐级提升，但不改变方向。红伞和伞影永远只指向当前正确世界方向；错误出口不得出现红伞轮廓、红色反光或可被理解为安全锚点的伞形装饰。
 
 ### 7.6 错路与提示
 
-| 错路次数 | 表现 |
-| --- | --- |
-| 1 | 当前正确线索的强度提升 |
-| 2 | 正确世界方向出现淡脚印 |
-| 3 | 显示明确文字提示，不显示物理按键答案 |
+| 错路次数 | 表现                                 |
+| -------- | ------------------------------------ |
+| 1        | 当前正确线索的强度提升               |
+| 2        | 正确世界方向出现淡脚印               |
+| 3        | 显示明确文字提示，不显示物理按键答案 |
 
 三级提示示例：“先朝伞柄指向的方向走。方向键和脚步的关系已经转过一圈。”
 
@@ -520,7 +520,7 @@ v02“缝隙长廊”以十字空间为稳定底板：中央与上下通道复�
 
 尾声 v02 使用 `environment.ending.background`：温暖清晨从两侧窗户进入，中央行走与牵手构图区保持开放，圆桌固定放置两碗面，褪色红伞靠在右侧墙边。环境图不新增交互物、医疗符号或任务提示；Tiled 几何、出生点、秀兰锚点和触发区域均保持原值。
 
-尾声运行时固定为 1280×720，`navigation` 范围为 x=32–1248、y=32–688。`collision` 对齐两道上方隔墙、左右横墙、窗下柜、厨房柜、边桌、落地植物和中央面桌的落地脚印；角色仍可从右下出生点沿中央通道走近秀兰，但不能穿过墙体或站进家具底座。
+尾声运行时固定为 1280×720，`navigation` 范围为 x=32–1248、y=32–688。`collision` 对齐两道上方隔墙、左右横墙、窗下柜、厨房柜、左侧座椅、边桌、落地植物和中央面桌的落地脚印；圆桌使用桌体、上沿中央和左右两个 45° 上沿碰撞近似圆形轮廓，不合并成会封住空角的大矩形。角色仍可从右下出生点沿中央通道走近秀兰，但不能穿过墙体或站进家具底座。
 
 ### 8.2 流程
 
@@ -549,24 +549,24 @@ v02“缝隙长廊”以十字空间为稳定底板：中央与上下通道复�
 
 ## 9. 全局检查点表
 
-| ID | 安全坐标 | 朝向 | 恢复位置 | 恢复内容 |
-| --- | --- | --- | --- | --- |
-| checkpoint.home.start | (310, 302) | 下 | 床边 | D0、无物品 |
-| checkpoint.home.journal | (610, 350) | 上 | 客厅日记旁 | 日记页已解锁 |
-| checkpoint.home.key | (1100, 620) | 上 | 玄关 | 钥匙与日记 |
-| checkpoint.rain.start | (100, 600) | 右 | 旧站台 | D1 触发前 |
-| checkpoint.rain.sequence | (720, 310) | 上 | 5 号石板后 | 站牌谜题完成 |
-| checkpoint.rain.complete | (1120, 160) | 上 | 钟表铺门口 | 初遇记忆完成 |
-| checkpoint.life.start | (640, 590) | 上 | 房间中心 | D2 触发前 |
-| checkpoint.life.photos | (640, 590) | 上 | 相册桌前 | 照片排序完成 |
-| checkpoint.life.complete | (700, 120) | 上 | 出口前 | 物件全部归位 |
-| checkpoint.return.training | (640, 360) | 右 | 训练区出口 | D3 教学完成 |
-| checkpoint.return.junction_1 | (640, 360) | 上 | 路口二入口 | 路口一完成 |
-| checkpoint.return.junction_2 | (640, 360) | 上 | 路口三入口 | 路口二完成 |
-| checkpoint.return.junction_3 | (640, 360) | 上 | 家门长廊 | 路口三完成 |
-| checkpoint.return.complete | (640, 120) | 上 | 家门 | 尾声待加载 |
-| checkpoint.ending.start | (920, 480) | 左 | 现实走廊地面 | D4 |
-| checkpoint.ending.complete | (760, 430) | 左 | 秀兰身旁 | 牵手完成 |
+| ID                           | 安全坐标    | 朝向 | 恢复位置     | 恢复内容     |
+| ---------------------------- | ----------- | ---- | ------------ | ------------ |
+| checkpoint.home.start        | (310, 302)  | 下   | 床边         | D0、无物品   |
+| checkpoint.home.journal      | (610, 350)  | 上   | 客厅日记旁   | 日记页已解锁 |
+| checkpoint.home.key          | (1100, 620) | 上   | 玄关         | 钥匙与日记   |
+| checkpoint.rain.start        | (100, 600)  | 右   | 旧站台       | D1 触发前    |
+| checkpoint.rain.sequence     | (720, 310)  | 上   | 5 号石板后   | 站牌谜题完成 |
+| checkpoint.rain.complete     | (1090, 290) | 上   | 钟表铺门口   | 初遇记忆完成 |
+| checkpoint.life.start        | (640, 590)  | 上   | 房间中心     | D2 触发前    |
+| checkpoint.life.photos       | (640, 590)  | 上   | 相册桌前     | 照片排序完成 |
+| checkpoint.life.complete     | (680, 170)  | 上   | 出口前       | 物件全部归位 |
+| checkpoint.return.training   | (640, 360)  | 右   | 训练区出口   | D3 教学完成  |
+| checkpoint.return.junction_1 | (640, 360)  | 上   | 路口二入口   | 路口一完成   |
+| checkpoint.return.junction_2 | (640, 360)  | 上   | 路口三入口   | 路口二完成   |
+| checkpoint.return.junction_3 | (640, 360)  | 上   | 家门长廊     | 路口三完成   |
+| checkpoint.return.complete   | (640, 120)  | 上   | 家门         | 尾声待加载   |
+| checkpoint.ending.start      | (920, 480)  | 左   | 现实走廊地面 | D4           |
+| checkpoint.ending.complete   | (760, 430)  | 左   | 秀兰身旁     | 牵手完成     |
 
 运行时安全坐标的唯一事实来源为 `src/game/content/maps.ts` 的 `checkpointSpawns`；本表用于关卡审阅，修改任一坐标时必须同步更新并通过存档恢复测试。
 

@@ -56,7 +56,7 @@ async function enterLifeFromRain(page: Page): Promise<void> {
     chapterId: 'rain',
     checkpointId: 'checkpoint.rain.complete',
     degradationStage: 'D1',
-    player: { x: 1140, y: 120, facing: 'up', moving: false },
+    player: { x: 1090, y: 290, facing: 'up', moving: false },
     inventory: ['item.rain.ticket'],
     flags: ['degradation.d1.started'],
     puzzles: {
@@ -151,7 +151,7 @@ async function playerPosition(page: Page): Promise<{ x: number; y: number }> {
 async function moveTo(page: Page, x: number, y: number, tolerance = 9): Promise<void> {
   const canvas = page.locator('canvas');
   await canvas.focus();
-  for (let attempt = 0; attempt < 180; attempt += 1) {
+  for (let attempt = 0; attempt < 240; attempt += 1) {
     const current = await playerPosition(page);
     const deltaX = x - current.x;
     const deltaY = y - current.y;
@@ -161,7 +161,7 @@ async function moveTo(page: Page, x: number, y: number, tolerance = 9): Promise<
     } else {
       await page.keyboard.press(deltaY > 0 ? 'ArrowDown' : 'ArrowUp');
     }
-    await page.waitForTimeout(8);
+    await page.waitForTimeout(16);
   }
   throw new Error(
     `Could not move player to (${x}, ${y}); stopped at ${JSON.stringify(await playerPosition(page))}`,
@@ -208,14 +208,13 @@ test('completes photo ordering, all three placements and the corridor exit using
     await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
 
   await moveTo(page, 480, 590);
-  await moveTo(page, 500, 250);
+  await moveTo(page, 485, 400);
   await interactWith(page, '桂花窗台照片');
   await continueSavedGame(page);
 
-  await moveTo(page, 500, 200);
-  await moveTo(page, 270, 200);
+  await moveTo(page, 485, 430);
   await moveTo(page, 270, 430);
-  await moveTo(page, 150, 430);
+  await moveTo(page, 220, 430);
   await interactWith(page, '纸箱旁的照片');
   await continueSavedGame(page);
 
@@ -223,8 +222,7 @@ test('completes photo ordering, all three placements and the corridor exit using
   await interactWith(page, '银婚照片');
   await continueSavedGame(page);
 
-  await moveTo(page, 850, 465);
-  await moveTo(page, 740, 465);
+  await moveTo(page, 581, 440);
   await interactWith(page, '空着三格的相册');
   await capture(page, testInfo, 'shared-life-photo-clues');
 
@@ -234,36 +232,36 @@ test('completes photo ordering, all three placements and the corridor exit using
   await expect(page.locator('#app')).toHaveAttribute('data-checkpoint', 'checkpoint.life.photos');
   await capture(page, testInfo, 'shared-life-photos-ordered');
 
-  await moveTo(page, 740, 570);
-  await moveTo(page, 320, 570);
+  await moveTo(page, 500, 440);
+  await moveTo(page, 320, 440);
   await moveTo(page, 320, 390);
   await interactWith(page, '有裂缝的条纹物件');
   await continueSavedGame(page);
 
-  await moveTo(page, 610, 390);
-  await moveTo(page, 610, 320);
+  await moveTo(page, 693, 430);
   await interactWith(page, '带桂花圆点的物件');
   await continueSavedGame(page);
 
-  await moveTo(page, 870, 320);
+  await moveTo(page, 870, 430);
   await moveTo(page, 870, 570);
   await interactWith(page, '双线圈波纹物件');
   await continueSavedGame(page);
 
-  await moveTo(page, 320, 570);
+  await moveTo(page, 500, 570);
+  await moveTo(page, 500, 430);
+  await moveTo(page, 320, 430);
   await moveTo(page, 320, 385);
   await interactWith(page, '镜台 · 条纹槽');
   await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
   await capture(page, testInfo, 'shared-life-1979-stabilized');
 
-  await moveTo(page, 585, 385);
-  await moveTo(page, 585, 215);
+  await moveTo(page, 528, 385);
   await interactWith(page, '窗台 · 圆点槽');
   await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
   await capture(page, testInfo, 'shared-life-1992-stabilized');
 
-  await moveTo(page, 940, 215);
-  await moveTo(page, 960, 285);
+  await moveTo(page, 700, 390);
+  await moveTo(page, 940, 390);
   const radioPrompt = page.locator('.interaction-prompt');
   await expect(radioPrompt).toContainText('收音机 · 波纹槽');
   await activateWithKeyboard(radioPrompt);
@@ -274,8 +272,7 @@ test('completes photo ordering, all three placements and the corridor exit using
   await expect(page.locator('.objective-chip')).toContainText('走进房间上方延长的走廊');
   await capture(page, testInfo, 'shared-life-all-objects-placed');
 
-  await moveTo(page, 700, 385);
-  await moveTo(page, 700, 70);
+  await moveTo(page, 680, 170);
   await interactWith(page, '延长的走廊');
   await capture(page, testInfo, 'shared-life-exit-dialogue');
   for (let index = 0; index < 2; index += 1)
@@ -292,7 +289,7 @@ test('uses visible photo clues to progress while muted', async ({ page }) => {
     checkpointId: 'checkpoint.life.start',
     degradationStage: 'D2',
     objective: '整理照片，并让三件生活物品回到原处',
-    player: { x: 740, y: 465, facing: 'left', moving: false },
+    player: { x: 581, y: 440, facing: 'left', moving: false },
     inventory: ['item.photo.1979', 'item.photo.1992', 'item.photo.2001'],
     flags: ['degradation.d2.started'],
     puzzles: {

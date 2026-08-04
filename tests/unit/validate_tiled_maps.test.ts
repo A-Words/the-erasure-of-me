@@ -69,7 +69,7 @@ describe('validate_tiled_maps', () => {
     expect(result.exitCode).toBe(0);
   });
 
-  it('keeps the rain waiting shelter collision closed to the top boundary', () => {
+  it('keeps the rain waiting shelter collision split into semantic rotated pieces', () => {
     const rainMap = JSON.parse(
       readFileSync(
         resolve(process.cwd(), 'public', 'assets', 'data', 'map.rain_station.json'),
@@ -84,6 +84,8 @@ describe('validate_tiled_maps', () => {
           y?: number;
           width?: number;
           height?: number;
+          rotation?: number;
+          type?: string;
         }>;
       }>;
     };
@@ -94,10 +96,17 @@ describe('validate_tiled_maps', () => {
     const shelter = collision?.objects?.find(
       (object) => object.name === 'collision.rain.waiting_shelter',
     );
+    const rightSupport = collision?.objects?.find(
+      (object) => object.name === 'collision.rain.waiting_shelter_right_support',
+    );
 
-    expect(roof).toMatchObject({ x: 255, y: 32, width: 390, height: 43 });
-    expect(roof?.x).toBe(shelter?.x);
-    expect(roof?.width).toBe(shelter?.width);
-    expect((roof?.y ?? 0) + (roof?.height ?? 0)).toBe(shelter?.y);
+    expect(roof).toMatchObject({ width: 144, height: 173, rotation: 340, type: 'building' });
+    expect(shelter).toMatchObject({ width: 365, height: 250, rotation: 335, type: 'building' });
+    expect(rightSupport).toMatchObject({
+      width: 106,
+      height: 124,
+      rotation: 330,
+      type: 'building',
+    });
   });
 });

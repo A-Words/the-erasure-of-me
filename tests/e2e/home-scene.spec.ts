@@ -1,7 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
 
-async function setSavedPlayer(page: import('@playwright/test').Page, x: number, y: number) {
+async function setSavedPlayer(
+  page: import('@playwright/test').Page,
+  x: number,
+  y: number,
+  expected = { x, y },
+) {
   await returnToTitle(page);
   await page.evaluate(
     ({ x, y }) => {
@@ -20,8 +25,8 @@ async function setSavedPlayer(page: import('@playwright/test').Page, x: number, 
   await continueLatestGame(page);
   const app = page.locator('#app');
   await expect(app).toHaveAttribute('data-chapter', 'home');
-  await expect(app).toHaveAttribute('data-player-x', String(x));
-  await expect(app).toHaveAttribute('data-player-y', String(y));
+  await expect(app).toHaveAttribute('data-player-x', String(expected.x));
+  await expect(app).toHaveAttribute('data-player-y', String(expected.y));
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(
     () =>
@@ -71,7 +76,8 @@ test('renders the layered home and blocks the player at the bed footprint', asyn
   for (let step = 0; step < 8; step += 1) await canvas.press('ArrowRight');
   expect(Number(await app.getAttribute('data-player-x'))).toBeGreaterThan(410);
 
-  await setSavedPlayer(page, 700, 520);
+  // This is a real pre-collision-edit save position; loading migrates it to the nearest safe point.
+  await setSavedPlayer(page, 700, 520, { x: 700, y: 516 });
   await page.bringToFront();
   const behindTable = await canvas.screenshot({
     path: testInfo.outputPath('home-player-behind-table.png'),

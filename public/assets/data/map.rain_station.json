@@ -433,8 +433,8 @@
           "name": "collision.rain.left_station_building",
           "type": "building",
           "width": 310,
-          "x": 61.26606241341199,
-          "y": 133.58657048910078,
+          "x": 61.27,
+          "y": 133.59,
           "rotation": 30
         },
         {
@@ -443,8 +443,8 @@
           "name": "collision.rain.waiting_shelter_roof",
           "type": "building",
           "width": 144,
-          "x": 134.57376611076165,
-          "y": 357.96502109280596,
+          "x": 134.57,
+          "y": 357.97,
           "rotation": 340
         },
         {
@@ -453,8 +453,8 @@
           "name": "collision.rain.waiting_shelter",
           "type": "building",
           "width": 365,
-          "x": 206.4426988102658,
-          "y": 204.12208765985528,
+          "x": 206.44,
+          "y": 204.12,
           "rotation": 335
         },
         {
@@ -463,46 +463,46 @@
           "name": "collision.rain.clock_shop",
           "type": "building",
           "width": 450,
-          "x": 893.3648329898326,
-          "y": -113.18730117863618,
+          "x": 893.36,
+          "y": -113.19,
           "rotation": 18
         },
         {
           "height": 190,
           "id": 27,
-          "name": "collision.rain.back_left",
+          "name": "collision.rain.platform_left_water_edge",
           "type": "terrain",
           "width": 255,
-          "x": -76.80356783177706,
-          "y": 350.679874476684,
+          "x": -76.8,
+          "y": 350.68,
           "rotation": 338
         },
         {
           "height": 105,
           "id": 28,
-          "name": "collision.rain.back_center",
+          "name": "collision.rain.waiting_shelter_rear_wall",
           "type": "terrain",
           "width": 205,
-          "x": 614.8969367433833,
-          "y": 94.77320591115193,
+          "x": 614.9,
+          "y": 94.77,
           "rotation": 310
         },
         {
           "height": 400,
           "id": 29,
-          "name": "collision.rain.water_step_1",
+          "name": "collision.rain.platform_water_edge",
           "type": "terrain",
           "width": 1000,
-          "x": 386.6986379579067,
-          "y": 716.7939450320999,
+          "x": 386.7,
+          "y": 716.79,
           "rotation": 333
         },
         {
           "id": 35,
-          "name": "collision.rain_station.new_1",
-          "type": "wall",
-          "x": 546.1006535994247,
-          "y": 106.80642496536484,
+          "name": "collision.rain.waiting_shelter_right_support",
+          "type": "building",
+          "x": 546.1,
+          "y": 106.81,
           "width": 106,
           "height": 124,
           "rotation": 330

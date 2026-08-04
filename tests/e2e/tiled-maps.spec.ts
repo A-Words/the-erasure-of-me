@@ -390,21 +390,32 @@ test('solid scenery blocks movement at the visible footprint', async ({ page }, 
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
 
   await bootIntoChapter(page, 'rain', {
-    player: { x: 180, y: 470, facing: 'up', moving: false },
+    player: { x: 180, y: 540, facing: 'up', moving: false },
   });
   await canvas.focus();
-  await canvas.press('ArrowUp');
+  for (let step = 0; step < 4; step += 1) {
+    await canvas.press('ArrowUp');
+    await page.waitForTimeout(50);
+  }
+  await expect.poll(async () => Number(await app.getAttribute('data-player-y'))).toBeLessThan(540);
+  const rainStoppedY = Number(await app.getAttribute('data-player-y'));
+  for (let step = 0; step < 2; step += 1) {
+    await canvas.press('ArrowUp');
+    await page.waitForTimeout(50);
+  }
   await page.waitForTimeout(100);
-  await expect(app).toHaveAttribute('data-player-y', '470');
+  expect(Number(await app.getAttribute('data-player-y'))).toBe(rainStoppedY);
+  expect(rainStoppedY).toBeGreaterThanOrEqual(532);
+  expect(rainStoppedY).toBeLessThan(533);
   await canvas.screenshot({ path: testInfo.outputPath('rain-station-building-collision.png') });
 
   await bootIntoChapter(page, 'ending', {
-    player: { x: 700, y: 510, facing: 'down', moving: false },
+    player: { x: 700, y: 491, facing: 'down', moving: false },
   });
   await canvas.focus();
   await canvas.press('ArrowDown');
   await page.waitForTimeout(100);
-  await expect(app).toHaveAttribute('data-player-y', '510');
+  await expect(app).toHaveAttribute('data-player-y', '491');
   await canvas.screenshot({ path: testInfo.outputPath('ending-table-collision.png') });
   expect(capture.errors).toEqual([]);
 });
