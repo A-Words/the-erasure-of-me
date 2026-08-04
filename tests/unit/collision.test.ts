@@ -87,6 +87,21 @@ describe('moveWithCollisions', () => {
     expect(overlapsCollision(result, clockShop)).toBe(false);
   });
 
+  it('lets the player leave a tight gap while only touching the table edge', () => {
+    const radioCabinet = { x: 994, y: 250, width: 194, height: 108 };
+    const rightWall = { x: 1177.5, y: 0, width: 95, height: 544 };
+    const tableUpperRight = { x: 1031, y: 401, width: 158, height: 60 };
+    const roomBounds = { minX: 32, maxX: 1248, minY: 32, maxY: 688 };
+
+    const result = moveWithCollisions({ x: 1144, y: 391 }, { x: -9, y: 0 }, roomBounds, [
+      radioCabinet,
+      rightWall,
+      tableUpperRight,
+    ]);
+
+    expect(result).toEqual({ x: 1135, y: 391 });
+  });
+
   it('finds the nearest safe grid position when a saved player overlaps furniture', () => {
     const furniture = { x: 994, y: 250, width: 194, height: 108 };
     const roomBounds = { minX: 32, maxX: 1248, minY: 32, maxY: 688 };

@@ -203,7 +203,7 @@ function sweepAgainstRect(
     const radius = playerRadius + obstacleRadius;
 
     if (Math.abs(velocity) <= epsilon) {
-      if (Math.abs(centerDistance) > radius) return null;
+      if (Math.abs(centerDistance) >= radius - epsilon) return null;
       continue;
     }
 

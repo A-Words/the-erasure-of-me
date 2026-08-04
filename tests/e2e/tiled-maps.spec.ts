@@ -420,6 +420,28 @@ test('solid scenery blocks movement at the visible footprint', async ({ page }, 
   expect(capture.errors).toEqual([]);
 });
 
+test('player can leave the shared-life table edge after loading a tight-gap save', async ({
+  page,
+}) => {
+  const capture = setupConsoleCapture(page);
+  const app = page.locator('#app');
+  const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
+
+  await bootIntoChapter(page, 'life', {
+    player: { x: 1144, y: 391, facing: 'left', moving: false },
+  });
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
+  await expect(app).toHaveAttribute('data-chapter', 'life');
+  await canvas.focus();
+  await page.keyboard.down('ArrowLeft');
+  await page.waitForTimeout(100);
+  await page.keyboard.up('ArrowLeft');
+
+  await expect.poll(async () => Number(await app.getAttribute('data-player-x'))).toBeLessThan(1144);
+  await expect(app).toHaveAttribute('data-player-y', '391');
+  expect(capture.errors).toEqual([]);
+});
+
 // ---------------------------------------------------------------------------
 // Sequential chapter jump — verifies save→reload cycle doesn't corrupt state
 // ---------------------------------------------------------------------------
