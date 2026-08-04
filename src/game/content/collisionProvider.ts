@@ -10,7 +10,7 @@
  * code fallback should use CodeCollisionProvider instead.
  */
 
-import type { AxisAlignedRect, MovementBounds } from '../simulation/collision';
+import type { CollisionRect, MovementBounds } from '../simulation/collision';
 import type { ChapterId } from '../state/GameState';
 import { parseTiledMap, extractCollisionObstacles, extractWalkBounds } from './tiledMapLoader';
 import type { WorldEntity } from './maps';
@@ -18,7 +18,7 @@ import { chapterMaps } from './maps';
 import { homeCollisionObstacles, homeWalkBounds } from './homeLayout';
 
 export interface ChapterCollisionData {
-  obstacles: readonly AxisAlignedRect[];
+  obstacles: readonly CollisionRect[];
   walkBounds: MovementBounds;
 }
 

@@ -23,6 +23,7 @@ import type {
   SaveSlotId,
   SaveSlotSummary,
 } from '../save/SaveRepository';
+import { enableDevPanelDrag, type DevPanelPosition } from './devPanelDrag';
 
 const journalText: Record<string, { title: string; body: string }> = {
   'journal.home.key': {
@@ -86,8 +87,12 @@ export class AppShell {
   private modalReturnFocus: HTMLElement | null = null;
   private modalReturnFocusSelector: string | null = null;
   private titleDialogReturnFocusSelector: string | null = null;
+  private debugPanelPosition: DevPanelPosition | null = null;
   private readonly debugEnabled =
-    import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === '1';
+    import.meta.env.DEV &&
+    ['debug', 'editor'].some(
+      (parameter) => new URLSearchParams(window.location.search).get(parameter) === '1',
+    );
 
   constructor(
     private readonly store: GameStore,
@@ -272,7 +277,7 @@ export class AppShell {
 
   private debugPanel(state: Readonly<GameState>): string {
     const chapters: GameState['chapterId'][] = ['home', 'rain', 'life', 'return', 'ending'];
-    return `<aside class="debug-panel" aria-label="开发调试层"><strong>DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button><button data-debug-memory="life.move">memory-move</button><button data-debug-memory="life.osmanthus">memory-osmanthus</button><button data-debug-memory="life.cassette">memory-cassette</button><button data-debug-memory="ending.hand">memory-hand</button></div></aside>`;
+    return `<aside class="debug-panel" aria-label="开发调试层"><div class="debug-panel-handle" data-debug-drag-handle tabindex="0" aria-label="移动开发调试面板，拖动或使用方向键"><strong>⠿ DEBUG</strong><span>${state.chapterId} · ${state.checkpointId}</span><span>${state.degradationStage} · (${Math.round(state.player.x)}, ${Math.round(state.player.y)}) · hint ${state.hintLevel}</span></div><div>${chapters.map((chapter) => `<button data-debug-chapter="${chapter}">${chapter}</button>`).join('')}<button data-debug-memory="rain">memory-rain</button><button data-debug-memory="life.move">memory-move</button><button data-debug-memory="life.osmanthus">memory-osmanthus</button><button data-debug-memory="life.cassette">memory-cassette</button><button data-debug-memory="ending.hand">memory-hand</button></div></aside>`;
   }
 
   private renderPanel(state: Readonly<GameState>, map: MapPresentation): void {
@@ -640,6 +645,16 @@ export class AppShell {
   }
 
   private bindEvents(state: Readonly<GameState>): void {
+    const debugPanel = document.querySelector<HTMLElement>('.debug-panel');
+    const debugDragHandle = debugPanel?.querySelector<HTMLElement>('[data-debug-drag-handle]');
+    if (debugPanel && debugDragHandle) {
+      enableDevPanelDrag(debugPanel, debugDragHandle, {
+        initialPosition: this.debugPanelPosition,
+        onPositionChange: (position) => {
+          this.debugPanelPosition = position;
+        },
+      });
+    }
     document
       .querySelectorAll<HTMLElement>('[data-start-game]')
       .forEach((button) => button.addEventListener('click', () => this.openNewGameFlow()));

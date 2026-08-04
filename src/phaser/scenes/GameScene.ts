@@ -20,6 +20,7 @@ import { getMapMode } from '../../game/presentation/mapPresentation';
 import type { InputAction } from '../../game/input/actions';
 import type { GameState } from '../../game/state/GameState';
 import type { GameStore } from '../../game/state/GameStore';
+import { collisionRectCorners } from '../../game/simulation/collision';
 import { SceneBridge } from '../bridge/SceneBridge';
 import {
   computeBreathSine,
@@ -37,6 +38,7 @@ import {
   type PresentationSnapshot,
 } from '../../game/presentation/presentationEvents';
 import { PresentationDirector, type WorldResponse } from '../presentation/PresentationDirector';
+import type { MapEntityEditor } from '../dev/MapEntityEditor';
 
 interface EntityView {
   definition: WorldEntity;
@@ -99,6 +101,8 @@ export class GameScene extends Phaser.Scene {
   private readonly bridge: SceneBridge;
   private readonly collisionDebugEnabled =
     import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === '1';
+  private readonly mapEditorEnabled =
+    import.meta.env.DEV && new URLSearchParams(window.location.search).get('editor') === '1';
   private player!: Phaser.GameObjects.Container;
   private playerActor: Phaser.GameObjects.Sprite | null = null;
   private xiulanActor: Phaser.GameObjects.Sprite | null = null;
@@ -130,6 +134,7 @@ export class GameScene extends Phaser.Scene {
   private presentationLockUntil = 0;
   private wrongTurnEchoVersion = 0;
   private wrongTurnWallTimer: number | null = null;
+  private mapEditor: MapEntityEditor | null = null;
 
   constructor(store: GameStore) {
     super('GameScene');
@@ -235,6 +240,8 @@ export class GameScene extends Phaser.Scene {
       this.lastReturnRouteLoops = 0;
       this.presentationLockUntil = 0;
       this.tiledContent = null;
+      this.mapEditor?.destroy();
+      this.mapEditor = null;
       this.tickAccumulator = 0;
       this.playerActor = null;
       this.xiulanActor = null;
@@ -489,6 +496,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   private buildChapter(state: Readonly<GameState>): void {
+    this.mapEditor?.destroy();
+    this.mapEditor = null;
     this.invalidateSceneReady();
     this.clearWrongTurnEcho();
     this.game.canvas.dataset.observationActive = 'false';
@@ -563,6 +572,7 @@ export class GameScene extends Phaser.Scene {
     // Home falls back to code constants if Tiled data is missing.
     const decorPlacements = tiledContent?.visualDecor ?? [];
     const furniturePlacements = tiledContent?.visualFurniture ?? [];
+    const furnitureEditorTargets = new Map<string, Phaser.GameObjects.Image>();
     if (state.chapterId === 'home') {
       if (decorPlacements.length > 0) {
         for (const decor of decorPlacements) {
@@ -581,10 +591,11 @@ export class GameScene extends Phaser.Scene {
       }
       if (furniturePlacements.length > 0) {
         for (const furniture of furniturePlacements) {
-          this.add
+          const image = this.add
             .image(furniture.x, furniture.y, furniture.assetKey, furniture.frame)
             .setDisplaySize(furniture.size, furniture.size)
             .setDepth(worldDepth(furniture.sortY));
+          furnitureEditorTargets.set(furniture.id, image);
         }
       } else {
         for (const furniture of homeFurnitureLayout) {
@@ -604,10 +615,11 @@ export class GameScene extends Phaser.Scene {
           .setDepth(worldDepth(decor.sortY));
       }
       for (const furniture of furniturePlacements) {
-        this.add
+        const image = this.add
           .image(furniture.x, furniture.y, furniture.assetKey, furniture.frame)
           .setDisplaySize(furniture.size, furniture.size)
           .setDepth(worldDepth(furniture.sortY));
+        furnitureEditorTargets.set(furniture.id, image);
       }
     }
 
@@ -617,6 +629,39 @@ export class GameScene extends Phaser.Scene {
     const tiledEntities = tiledContent?.interactables ?? map.entities;
     for (const entity of tiledEntities) {
       this.entityViews.push(this.createEntity(entity, visualPropsByEntityId.get(entity.id)));
+    }
+    if (import.meta.env.DEV && this.mapEditorEnabled && tiledRawData && tiledContent) {
+      const interactableTargets = new Map<
+        string,
+        { setPosition: (x: number, y: number) => void }
+      >();
+      for (const view of this.entityViews) {
+        interactableTargets.set(view.definition.id, {
+          setPosition: (x, y) => {
+            const dx = x - view.definition.x;
+            const dy = y - view.definition.y;
+            view.definition.x = x;
+            view.definition.y = y;
+            view.container.setPosition(x, y);
+            view.label.setPosition(view.label.x + dx, view.label.y + dy);
+          },
+        });
+      }
+      const editorChapter = state.chapterId;
+      const editorSceneVersion = this.sceneReadyVersion;
+      void import('../dev/MapEntityEditor').then(({ MapEntityEditor }) => {
+        if (
+          !this.scene.isActive() ||
+          this.renderedChapter !== editorChapter ||
+          this.sceneReadyVersion !== editorSceneVersion ||
+          this.mapEditor
+        )
+          return;
+        this.mapEditor = new MapEntityEditor(this, map.id, tiledRawData, {
+          furniture: furnitureEditorTargets,
+          interactables: interactableTargets,
+        });
+      });
     }
     if (state.chapterId === 'ending') {
       const xiulan = this.entityViews.find((view) => view.definition.id === 'entity.ending.xiulan');
@@ -668,10 +713,11 @@ export class GameScene extends Phaser.Scene {
     graphics.fillStyle(0xff5c70, 0.2);
     graphics.lineStyle(2, 0xff5c70, 0.95);
     for (const obstacle of content.collisionRects) {
-      graphics.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
-      graphics.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      const corners = collisionRectCorners(obstacle);
+      graphics.fillPoints(corners, true, true);
+      graphics.strokePoints(corners, true, true);
       this.add
-        .text(obstacle.x + 4, obstacle.y + 4, obstacle.name.replace(/^collision\./, ''), {
+        .text(corners[0].x + 4, corners[0].y + 4, obstacle.name.replace(/^collision\./, ''), {
           color: '#fff4f5',
           fontFamily: 'monospace',
           fontSize: '10px',

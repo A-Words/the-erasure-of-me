@@ -17,18 +17,18 @@
 
 ## 文档导航
 
-| 文档 | 用途 |
-| --- | --- |
-| [游戏设计文档](docs/GDD.md) | 产品定位、玩法、叙事、退化机制、公益目标与验收标准 |
-| [技术设计](docs/TECHNICAL_DESIGN.md) | Phaser 架构、状态边界、输入、存档、地图和测试策略 |
-| [关卡设计](docs/LEVEL_DESIGN.md) | 房间布局、实体、触发器、谜题、检查点与提示升级 |
-| [叙事脚本](docs/NARRATIVE_SCRIPT.md) | 对白、日记、物件描述、系统文字和触发条件 |
-| [美术规范](docs/ART_BIBLE.md) | 色彩、字体、角色比例、精灵规格、UI 与资产命名 |
-| [资产登记台账](docs/ASSET_REGISTRY.md) | 美术与音频资产的来源、许可证、状态与审核记录 |
-| [制作路线图](docs/ROADMAP.md) | 八周里程碑、任务依赖、优先级和完成条件 |
-| [医学内容审核](docs/MEDICAL_REVIEW.md) | 权威来源、风险措辞、审核记录与发布检查 |
-| [发布就绪台账](docs/RELEASE_READINESS.md) | 自动化、三视口、性能预算与外部发布门槛 |
-| [外部测试证据包](docs/release-evidence/README.md) | 15 人试玩、无障碍、浏览器、专业审核和发布决定模板 |
+| 文档                                              | 用途                                               |
+| ------------------------------------------------- | -------------------------------------------------- |
+| [游戏设计文档](docs/GDD.md)                       | 产品定位、玩法、叙事、退化机制、公益目标与验收标准 |
+| [技术设计](docs/TECHNICAL_DESIGN.md)              | Phaser 架构、状态边界、输入、存档、地图和测试策略  |
+| [关卡设计](docs/LEVEL_DESIGN.md)                  | 房间布局、实体、触发器、谜题、检查点与提示升级     |
+| [叙事脚本](docs/NARRATIVE_SCRIPT.md)              | 对白、日记、物件描述、系统文字和触发条件           |
+| [美术规范](docs/ART_BIBLE.md)                     | 色彩、字体、角色比例、精灵规格、UI 与资产命名      |
+| [资产登记台账](docs/ASSET_REGISTRY.md)            | 美术与音频资产的来源、许可证、状态与审核记录       |
+| [制作路线图](docs/ROADMAP.md)                     | 八周里程碑、任务依赖、优先级和完成条件             |
+| [医学内容审核](docs/MEDICAL_REVIEW.md)            | 权威来源、风险措辞、审核记录与发布检查             |
+| [发布就绪台账](docs/RELEASE_READINESS.md)         | 自动化、三视口、性能预算与外部发布门槛             |
+| [外部测试证据包](docs/release-evidence/README.md) | 15 人试玩、无障碍、浏览器、专业审核和发布决定模板  |
 
 文档冲突时采用以下优先级：
 
@@ -41,7 +41,7 @@
 
 使用 npm 安装依赖并运行：
 
-~~~bash
+```bash
 npm install
 npm run dev
 npm run build
@@ -61,21 +61,23 @@ npm run assets:prepare:life-props
 npm run assets:pack:life-props
 npm run assets:render:home-overlays
 npm run assets:render:environments
-~~~
+```
 
 `assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景；`assets:prepare:return-environment` 与 `assets:prepare:ending-environment` 分别把两张 v02 ImageGen 原稿裁切导出为 1280×720 运行时 WebP。
 
+临时地图实体编辑器只在 Vite 开发服务器中启用。运行 `npm run dev` 后访问 `/?editor=1`，可在画布上拖动家具、交互物和碰撞矩形，或在右侧面板输入精确坐标；碰撞支持新增、删除、语义 ID 与类型编辑、宽高与角度输入、右下角手柄缩放和上方圆点旋转，旋转值按 Tiled 的左上角原点与顺时针角度保存。碰撞 ID 必须使用当前章节的 `collision.<章节>.<英文 snake_case 名称>`，临时名、重复名和错误类型无法保存；重命名会同步家具的 `collisionId`。默认会让家具联动关联碰撞、交互热点联动对应图像。编辑器与 DEBUG 面板都可拖动标题栏移动，标题栏获得焦点后也可用方向键移动。点击“保存到地图文件”会直接覆盖当前章节的 `public/assets/data/map.*.json`，保存后应刷新页面并运行 `npm run validate:maps`。该入口和写文件接口都不会进入生产构建。
+
 首次运行浏览器端到端测试前，需要安装 Playwright 浏览器；Edge 项目还需要系统已安装 Microsoft Edge：
 
-~~~bash
+```bash
 npx playwright install chromium firefox webkit
-~~~
+```
 
 资产处理脚本（如 `assets:prepare:*` 和 `assets:render:*`）需要 Python 3 与 Pillow 库，可通过以下命令安装：
 
-~~~bash
+```bash
 pip install -r requirements.txt
-~~~
+```
 
 ## 开发原则
 
@@ -89,7 +91,7 @@ pip install -r requirements.txt
 
 ## 目录
 
-~~~text
+```text
 docs/
 src/
   game/
@@ -99,7 +101,7 @@ src/
 public/assets/
 assets-source/
 tests/
-~~~
+```
 
 完整目录职责见 [技术设计](docs/TECHNICAL_DESIGN.md)。
 

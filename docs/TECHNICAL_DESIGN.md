@@ -26,18 +26,18 @@
 
 ## 2. 核心技术决策
 
-| 决策 | 采用方案 | 原因 |
-| --- | --- | --- |
+| 决策       | 采用方案                   | 原因                                                                                              |
+| ---------- | -------------------------- | ------------------------------------------------------------------------------------------------- |
 | 渲染与场景 | Phaser 3 + Canvas Renderer | 适合 2D 俯视探索、Tilemap、相机与音频；垂直切片不依赖 WebGL，避免低端设备与无头浏览器的帧缓冲差异 |
-| 语言 | TypeScript 严格模式 | 约束内容数据、存档和阶段配置 |
-| 构建 | Vite | 快速开发、静态构建、按需导入 |
-| UI | 原生 DOM + CSS | 字幕、设置和科普页需要可访问性与响应式 |
-| 地图 | Tiled JSON | 可视化编辑碰撞、触发器和对象属性 |
-| 状态 | 自研轻量 GameStore | 体量小，避免框架状态与 Phaser 生命周期耦合 |
-| 单元测试 | Vitest | 与 Vite/TypeScript 配合直接 |
-| 浏览器测试 | Playwright | 验证启动、键盘、暂停、存档和视觉状态 |
-| 存档 | localStorage | 单机静态部署足够，易于版本迁移 |
-| 部署 | 静态站点 | 无服务端依赖，可部署至常见静态托管 |
+| 语言       | TypeScript 严格模式        | 约束内容数据、存档和阶段配置                                                                      |
+| 构建       | Vite                       | 快速开发、静态构建、按需导入                                                                      |
+| UI         | 原生 DOM + CSS             | 字幕、设置和科普页需要可访问性与响应式                                                            |
+| 地图       | Tiled JSON                 | 可视化编辑碰撞、触发器和对象属性                                                                  |
+| 状态       | 自研轻量 GameStore         | 体量小，避免框架状态与 Phaser 生命周期耦合                                                        |
+| 单元测试   | Vitest                     | 与 Vite/TypeScript 配合直接                                                                       |
+| 浏览器测试 | Playwright                 | 验证启动、键盘、暂停、存档和视觉状态                                                              |
+| 存档       | localStorage               | 单机静态部署足够，易于版本迁移                                                                    |
+| 部署       | 静态站点                   | 无服务端依赖，可部署至常见静态托管                                                                |
 
 依赖版本在工程初始化时选用当时稳定版本，并由 package-lock.json 锁定；文档不硬编码会快速过期的补丁版本。
 
@@ -45,7 +45,7 @@
 
 ### 3.1 目录结构
 
-~~~text
+```text
 src/
   main.ts
   game/
@@ -132,11 +132,11 @@ tests/
   unit/
   integration/
   e2e/
-~~~
+```
 
 ### 3.2 依赖方向
 
-~~~mermaid
+```mermaid
 flowchart LR
     Input["物理输入"] --> Mapper["InputMapper"]
     Mapper --> App["Application / Systems"]
@@ -146,7 +146,7 @@ flowchart LR
     Store --> UI["DOM UI"]
     Bridge --> Phaser["Phaser View"]
     Store --> Save["SaveRepository"]
-~~~
+```
 
 约束：
 
@@ -168,7 +168,7 @@ GameStore 是唯一运行时真值源，提供：
 
 更新采用同步、确定性 reducer 或系统函数。动画完成只负责发送“表现结束”事件，不决定谜题真值。
 
-~~~ts
+```ts
 interface GameState {
   schemaVersion: 1;
   mode: 'standard' | 'low_stimulation';
@@ -184,13 +184,13 @@ interface GameState {
   settings: AccessibilitySettings;
   playTimeSeconds: number;
 }
-~~~
+```
 
 ## 4. 启动与场景
 
 ### 4.1 启动流程
 
-~~~mermaid
+```mermaid
 stateDiagram-v2
     [*] --> Boot
     Boot --> Menu: 核心资源与设置加载完成
@@ -199,7 +199,7 @@ stateDiagram-v2
     Game --> Ending: 第四章完成
     Ending --> Guide: 牵手演出结束
     Guide --> Menu: 重新开始或返回标题
-~~~
+```
 
 ### 4.2 Scene 职责
 
@@ -240,7 +240,7 @@ stateDiagram-v2
 
 SceneBridge 是 Phaser 和领域层之间的唯一桥：
 
-~~~ts
+```ts
 interface SceneBridge {
   getSnapshot(): Readonly<GameState>;
   send(action: InputAction): void;
@@ -248,13 +248,13 @@ interface SceneBridge {
   notifyViewReady(viewId: string): void;
   subscribe(listener: (state: Readonly<GameState>) => void): () => void;
 }
-~~~
+```
 
 ## 5. 输入架构
 
 ### 5.1 语义动作
 
-~~~ts
+```ts
 type InputAction =
   | 'move_up'
   | 'move_down'
@@ -267,7 +267,7 @@ type InputAction =
   | 'open_journal'
   | 'open_map'
   | 'pause';
-~~~
+```
 
 ### 5.2 映射层
 
@@ -287,7 +287,7 @@ type InputAction =
 - 采用八方向动画中的四方向逻辑，不允许斜向移动。
 - 角色速度为每秒 180 逻辑像素，低扰动模式不改变速度。
 - `src/game/content/homeLayout.ts` 保存住宅统一视觉尺寸、家具脚印、墙体障碍、步行边界和排序线；Phaser Scene 引用 `homeVisualSizes`，不再为同一物件维护第二套显示尺寸。Tiled `collision` 对象层保持同一份家具脚印作者数据，后续 Content Loader 可由其生成纯数据 CollisionMap。
-- MovementSystem 使用与 Phaser 无关的 `moveWithCollisions`，根据 CollisionMap、角色脚部碰撞体和当前 InputAction 分轴计算最终位置；阻挡大步长穿透，同时允许沿家具边缘滑动。
+- MovementSystem 使用与 Phaser 无关的 `moveWithCollisions`，根据 CollisionMap、角色脚部碰撞体和当前 InputAction 计算最终位置；轴对齐与旋转矩形统一使用动态 SAT 连续检测，阻挡大步长穿透，并把剩余位移投影到接触面的切线以允许沿家具或斜墙边缘滑动。
 - Phaser Sprite 只跟随最终位置，不参与碰撞判定；本项目不启用 Arcade Physics 作为玩法真值。
 - 住宅表现按脚底/家具底座 Y 值动态排序；交互小物继承承载家具的排序线。`environment.home.sunlight_overlay` 以低深度覆盖背景但位于家具下方；`crosswall_overlay` 与 `frontwall_overlay` 从背景像素机械提取，分别按中墙、前墙与左下竖墙段排序线重绘。背景、光照 overlay、非交互装饰、家具、建筑遮挡 overlay、人物与交互物均是可分别销毁的视图对象，不进入存档状态；住宅人物可使用纯视图缩放，但脚部可见像素必须与领域碰撞体底边对齐，领域坐标和碰撞体本身不随缩放改变。
 - `entity.home.front_door` 是位于右下玄关门内侧 `(1225, 560)` 的纯交互 hotspot，不绑定家具 atlas frame；门洞、门框和门槛属于背景建筑结构。住宅角色不需要走进右墙门洞，右侧外墙和门框由碰撞矩形封闭，玩家在室内侧靠近 hotspot 即可触发开门对白和章节切换。只有未来出现可见开关门演出时才新增独立门板 sprite。
@@ -322,26 +322,26 @@ type InputAction =
 
 每张地图固定包含：
 
-| 图层 | 类型 | 用途 |
-| --- | --- | --- |
-| background | Image Layer | 编辑参照：环境背景图，不参与运行时渲染 |
-| visual_decor | Object Layer | 非交互装饰的 Tiled 可视化位置，已可作为运行时视觉数据 |
+| 图层             | 类型         | 用途                                                               |
+| ---------------- | ------------ | ------------------------------------------------------------------ |
+| background       | Image Layer  | 编辑参照：环境背景图，不参与运行时渲染                             |
+| visual_decor     | Object Layer | 非交互装饰的 Tiled 可视化位置，已可作为运行时视觉数据              |
 | visual_furniture | Object Layer | 家具摆放位置、图集帧、尺寸、排序和碰撞绑定，已可作为运行时视觉数据 |
-| visual_props | Object Layer | 交互道具视觉位置、尺寸、排序和实体绑定，已可作为运行时视觉数据 |
-| ground | Tile Layer | 地面 |
-| floor_detail | Tile Layer | 地毯、水渍、裂纹 |
-| walls_low | Tile Layer | 角色可被遮挡前的低墙 |
-| objects_back | Tile/Object | 角色后方家具 |
-| collision | Object Layer | 碰撞矩形或多边形 |
-| navigation | Object Layer | 合法出生区与存档恢复区 |
-| interactables | Object Layer | 可观察、拾取或使用的物件 |
-| triggers | Object Layer | 退化、对白、检查点和过场触发 |
-| exits | Object Layer | 房间/章节出口 |
-| camera_zones | Object Layer | 房间式相机边界 |
-| audio_zones | Object Layer | 环境声与声源 |
-| objects_front | Tile/Object | 角色前景遮挡 |
+| visual_props     | Object Layer | 交互道具视觉位置、尺寸、排序和实体绑定，已可作为运行时视觉数据     |
+| ground           | Tile Layer   | 地面                                                               |
+| floor_detail     | Tile Layer   | 地毯、水渍、裂纹                                                   |
+| walls_low        | Tile Layer   | 角色可被遮挡前的低墙                                               |
+| objects_back     | Tile/Object  | 角色后方家具                                                       |
+| collision        | Object Layer | 可带 `rotation` 的矩形碰撞；不接受椭圆、多边形或折线               |
+| navigation       | Object Layer | 合法出生区与存档恢复区                                             |
+| interactables    | Object Layer | 可观察、拾取或使用的物件                                           |
+| triggers         | Object Layer | 退化、对白、检查点和过场触发                                       |
+| exits            | Object Layer | 房间/章节出口                                                      |
+| camera_zones     | Object Layer | 房间式相机边界                                                     |
+| audio_zones      | Object Layer | 环境声与声源                                                       |
+| objects_front    | Tile/Object  | 角色前景遮挡                                                       |
 
-#### 6.2.1 编辑参照层（visual_*）
+#### 6.2.1 编辑参照层（visual\_\*）
 
 `background` 是仅供 Tiled 编辑器可视化参照的图层，运行时背景仍由 asset manifest 加载。`visual_furniture`、`visual_decor` 和 `visual_props` 既承担 Tiled 编辑器中的可视化参照，也经 `tiledMapLoader` 转换为纯 `VisualPlacement[]` 供 Phaser View 渲染；这些视觉数据不进入存档，也不决定谜题真值。
 
@@ -362,41 +362,43 @@ Rain Station 的环境表现拆为底图、地面积水反光层和雨线层：T
 - 启动或切章时读取已加载的 Tiled JSON；GameScene 只写入 Phaser JSON cache，不再为未使用的 Tilemap cache 重复请求同一文件；GameStore 的碰撞提供器使用启动时从 `/assets/data/map.home.json` fetch 的纯 JSON；
 - Phaser Loader 的 `maxParallelDownloads` 固定为 6，避免正式章节图片与 Tiled JSON 同时加载时压满旧浏览器连接；DOM 可先于 Canvas 出现，交互与测试必须等待场景就绪；这项限制不替代 macOS Safari 实机门槛；
 - 将 `interactables` 对象层转换为 `WorldEntity[]`（坐标、kind、label）；
-- 将 `collision` 对象层转换为 `NamedCollisionRect[]`（纯 `AxisAlignedRect`）；
+- 将 `collision` 对象层转换为 `NamedCollisionRect[]`（纯 `CollisionRect`，保留 Tiled 顺时针 `rotation`）；
 - 将 `visual_furniture`、`visual_decor`、`visual_props` 对象层转换为 `VisualPlacement[]`（assetKey、frame、x/y、size、sortY、collisionId、entityId）；
 - 将 `navigation` 对象层转换为 `SpawnPoint[]` 和 `MovementBounds`；
 - 检测重复稳定 ID 并抛出明确错误。
 
 **迁移状态（第二阶段）：**
 
-| 数据 | Tiled 驱动 | 代码 fallback |
-| --- | --- | --- |
-| 家具视觉位置/帧/尺寸 | `visual_furniture` 层 | `homeLayout.ts:homeFurnitureLayout` |
-| 装饰视觉位置/帧/尺寸 | `visual_decor` 层 | `homeLayout.ts:homeDecorLayout` |
-| 道具视觉位置/尺寸 | `visual_props` 层（通过 entityId 绑定实体） | `maps.ts:chapterMaps.home.entities` |
-| 交互物坐标/kind | `interactables` 层 | `maps.ts:chapterMaps.home.entities` |
-| 实体深度排序 sortY | `visual_props` 层 sortY 属性 | `homeLayout.ts:homeEntitySortY` |
-| 碰撞矩形 | `collision` 层 → `TiledCollisionProvider` | `homeLayout.ts:homeCollisionObstacles`（`CodeCollisionProvider` 测试 fallback） |
-| 行走边界 | `navigation` 层 → `TiledCollisionProvider` | `homeLayout.ts:homeWalkBounds`（`CodeCollisionProvider` 测试 fallback） |
-| 建筑遮挡 overlay | 代码常量 | `homeLayout.ts:homeArchitectureOverlays` |
-| 角色缩放 | 代码常量 | `homeLayout.ts:homeVisualSizes.characterScale` |
-| 道具视觉映射 | 代码常量 | `GameScene.ts:homePropVisuals` |
+| 数据                 | Tiled 驱动                                  | 代码 fallback                                                                   |
+| -------------------- | ------------------------------------------- | ------------------------------------------------------------------------------- |
+| 家具视觉位置/帧/尺寸 | `visual_furniture` 层                       | `homeLayout.ts:homeFurnitureLayout`                                             |
+| 装饰视觉位置/帧/尺寸 | `visual_decor` 层                           | `homeLayout.ts:homeDecorLayout`                                                 |
+| 道具视觉位置/尺寸    | `visual_props` 层（通过 entityId 绑定实体） | `maps.ts:chapterMaps.home.entities`                                             |
+| 交互物坐标/kind      | `interactables` 层                          | `maps.ts:chapterMaps.home.entities`                                             |
+| 实体深度排序 sortY   | `visual_props` 层 sortY 属性                | `homeLayout.ts:homeEntitySortY`                                                 |
+| 碰撞矩形（可旋转）   | `collision` 层 → `TiledCollisionProvider`   | `homeLayout.ts:homeCollisionObstacles`（`CodeCollisionProvider` 测试 fallback） |
+| 行走边界             | `navigation` 层 → `TiledCollisionProvider`  | `homeLayout.ts:homeWalkBounds`（`CodeCollisionProvider` 测试 fallback）         |
+| 建筑遮挡 overlay     | 代码常量                                    | `homeLayout.ts:homeArchitectureOverlays`                                        |
+| 角色缩放             | 代码常量                                    | `homeLayout.ts:homeVisualSizes.characterScale`                                  |
+| 道具视觉映射         | 代码常量                                    | `GameScene.ts:homePropVisuals`                                                  |
 
-GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 通过纯数据依赖注入接收碰撞数据：`main.ts` 在启动时 fetch 全部 5 张地图 JSON，通过 `TiledCollisionProvider` 解析为 `AxisAlignedRect[]` 和 `MovementBounds`，注入 GameStore 构造函数。GameStore 不再直接导入 `homeLayout.ts` 的碰撞常量；`CodeCollisionProvider` 作为测试 fallback 仍使用代码常量。
+GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual\_\* 层或解析失败，自动回退到 `homeLayout.ts` 代码常量，不会白屏。GameStore 通过纯数据依赖注入接收碰撞数据：`main.ts` 在启动时 fetch 全部 5 张地图 JSON，通过 `TiledCollisionProvider` 解析为 `CollisionRect[]` 和 `MovementBounds`，注入 GameStore 构造函数。`CollisionRect.rotation` 省略时等同于 0°，角度围绕 Tiled 矩形左上角顺时针旋转；GameStore 不直接导入 Phaser 几何。`CodeCollisionProvider` 作为测试 fallback 仍使用轴对齐代码常量。
+
+存档恢复除画布范围校验外，还使用角色 `32×20` 脚部碰撞体检查当前位置与全部轴对齐/旋转碰撞；若地图更新导致旧坐标嵌入实体，`findNearestWalkablePosition` 以 4 像素网格选择最近安全脚点。章节出生点、全部检查点和交互环由五图完整性测试持续验证。
 
 **5 张地图迁移状态：**
 
-| 地图 | background | visual_props | visual_furniture | visual_decor | collision | navigation |
-| --- | --- | --- | --- | --- | --- | --- |
-| map.home | ✓ | ✓ (entityId) | ✓ (collisionId) | ✓ | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
-| map.rain_station | ✓ v02 + overlays | ✓ (entityId, 正式 prop tileset) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
-| map.shared_life | ✓ v02 | ✓ (entityId, v02 props atlas；exit 由背景表现) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
-| map.return_corridor | ✓ v02 | ✓ (entityId, placeholder) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
-| map.home_ending | ✓ v02 | ✓ (entityId, actor-bound) | — | — | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| 地图                | background       | visual_props                                   | visual_furniture | visual_decor | collision    | navigation   |
+| ------------------- | ---------------- | ---------------------------------------------- | ---------------- | ------------ | ------------ | ------------ |
+| map.home            | ✓                | ✓ (entityId)                                   | ✓ (collisionId)  | ✓            | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| map.rain_station    | ✓ v02 + overlays | ✓ (entityId, 正式 prop tileset)                | —                | —            | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| map.shared_life     | ✓ v02            | ✓ (entityId, v02 props atlas；exit 由背景表现) | —                | —            | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| map.return_corridor | ✓ v02            | ✓ (entityId, placeholder)                      | —                | —            | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
+| map.home_ending     | ✓ v02            | ✓ (entityId, actor-bound)                      | —                | —            | ✓ Tiled 驱动 | ✓ Tiled 驱动 |
 
 五张正式地图的运行时碰撞均以 `chapterMaps` 的 1280×720 逻辑画布为准。单屏章节的 `navigation` 不使用 Tiled 文档的格网像素尺寸推导边界；雨站额外阻挡站房、候车亭、钟表铺、后景和临水站台边缘，回家长廊阻挡十字路口四角墙体，尾声阻挡隔墙与家具脚印。交互物可以位于实体物件表面，但其 125 像素交互环必须与可行走区域相交。
 
-开发环境以 `?debug=1` 启动时，GameScene 会把 Tiled `navigation` 画成绿色边框，并把稳定 ID 对应的 `collision` 矩形画成半透明红色调试层。该层只读取已经解析的纯数据，不修改 GameStore、角色位置、碰撞结果或存档，生产构建不会启用。
+开发环境以 `?debug=1` 启动时，GameScene 会把 Tiled `navigation` 画成绿色边框，并按真实角度把稳定 ID 对应的 `collision` 矩形画成半透明红色调试层。该层只读取已经解析的纯数据，不修改 GameStore、角色位置、碰撞结果或存档，生产构建不会启用。
 
 非 home 地图中，rain_station 已为车票、2/4/5 石板、红伞招牌和钟表铺前红伞分配正式 tileset，其中钟表铺前红伞继续使用 `prop_red_umbrella_closed`；Shared Life 的照片、空相册、三件生活物件和三处放置槽使用 v02 `prop_life_shared_life_atlas` tileset。`entity.life.exit` 的正式走廊已经绘入 v02 背景，地图中只保留逻辑 `interactables` hotspot，不再创建无图像 visual_props。return_corridor 与 home_ending 使用 v02 章节背景，路线、出生点、检查点和交互对象数据未随换景改变；碰撞对象则按正式 1280×720 背景补齐实体墙和家具脚印。return_corridor 的无 gid visual_props placeholder 仍按本节规则保留；home_ending 的秀兰对象标记为 `actor-bound`，正式动画由 Scene 在运行时绑定。
 
@@ -406,15 +408,15 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 
 没有 gid 的 visual_props 对象必须携带以下属性：
 
-| 属性 | 值 | 说明 |
-| --- | --- | --- |
-| `placeholder` | `true` | 标记为占位对象 |
-| `status` | `visual-placeholder` | 统一状态标识 |
-| `replacement` | 非空字符串 | 后续应替换的正式视觉资产说明 |
-| `entityId` | 非空字符串 | 必须指向 interactables 层的真实实体 |
-| `size` | 整数 | 显示尺寸 |
-| `sortY` | 整数 | 深度排序线 |
-| `visual_reference` | `true` | 编辑参照层标记 |
+| 属性               | 值                   | 说明                                |
+| ------------------ | -------------------- | ----------------------------------- |
+| `placeholder`      | `true`               | 标记为占位对象                      |
+| `status`           | `visual-placeholder` | 统一状态标识                        |
+| `replacement`      | 非空字符串           | 后续应替换的正式视觉资产说明        |
+| `entityId`         | 非空字符串           | 必须指向 interactables 层的真实实体 |
+| `size`             | 整数                 | 显示尺寸                            |
+| `sortY`            | 整数                 | 深度排序线                          |
+| `visual_reference` | `true`               | 编辑参照层标记                      |
 
 有 gid 的正式 tile object 不得标记 `placeholder=true`。`scripts/validate_tiled_maps.mjs` Check 7 强制校验上述规则。后续替换 placeholder 为正式资产时，只需在 Tiled 中为对象分配 gid 并移除 placeholder/status/replacement 属性即可。
 
@@ -428,7 +430,7 @@ GameScene 优先使用 Tiled 适配层数据；如果 Tiled JSON 缺少 visual_\
 
 可交互物至少包含：
 
-~~~ts
+```ts
 interface TiledInteractableProperties {
   entityId: string;
   interactionType: 'inspect' | 'pickup' | 'place' | 'door' | 'puzzle';
@@ -437,7 +439,7 @@ interface TiledInteractableProperties {
   completedFlag?: string;
   highlightStyle: 'outline' | 'motion' | 'reflection';
 }
-~~~
+```
 
 触发器至少包含 triggerId、triggerType、once、conditionId、commandId。关卡逻辑只认这些稳定 ID。
 
@@ -459,7 +461,7 @@ Shift 触发的 `observe` 在产品文案中称为“静静留意”。`Presenta
 
 ### 7.1 数据驱动
 
-~~~ts
+```ts
 interface PuzzleDefinition {
   id: string;
   chapterId: ChapterId;
@@ -469,7 +471,7 @@ interface PuzzleDefinition {
   resetPolicy: 'local' | 'checkpoint';
   hintScheduleSeconds: [number, number, number];
 }
-~~~
+```
 
 PuzzleSystem 处理输入和状态；Phaser View 根据 puzzle.type 选择表现适配器。不得在 Scene 中以硬编码坐标判断答案。
 
@@ -505,7 +507,7 @@ PuzzleSystem 处理输入和状态；Phaser View 根据 puzzle.type 选择表现
 
 DegradationSystem 只改变信息表现和移动动作映射，不修改谜题答案或安全 UI。
 
-~~~ts
+```ts
 interface DegradationConfig {
   id: 'D0' | 'D1' | 'D2' | 'D3' | 'D4';
   mapMode: 'full' | 'washed' | 'hidden';
@@ -515,7 +517,7 @@ interface DegradationConfig {
   effectPresetId: string;
   fallbackCueIds: string[];
 }
-~~~
+```
 
 约束：
 
@@ -529,7 +531,7 @@ interface DegradationConfig {
 
 ### 9.1 层级
 
-~~~text
+```text
 #app
   #game-canvas
   #hud
@@ -548,7 +550,7 @@ interface DegradationConfig {
     settings-dialog
     content-warning
     guide-page
-~~~
+```
 
 ### 9.2 状态规则
 
@@ -567,17 +569,17 @@ interface DegradationConfig {
 
 颜色和排版只通过语义变量引用：
 
-~~~css
+```css
 :root {
   --color-ink: #2f2b28;
   --color-paper: #eee7d8;
   --color-anchor: #b54949;
   --color-focus: #276a78;
-  --font-ui: "Noto Sans SC", sans-serif;
-  --font-diary: "Noto Serif SC", serif;
+  --font-ui: 'Noto Sans SC', sans-serif;
+  --font-diary: 'Noto Serif SC', serif;
   --text-base: 20px;
 }
-~~~
+```
 
 完整视觉规范见 ART_BIBLE.md。
 
@@ -585,7 +587,7 @@ interface DegradationConfig {
 
 ### 10.1 Manifest
 
-~~~ts
+```ts
 interface AssetManifestEntry {
   key: string;
   type: 'image' | 'spritesheet' | 'tilemap' | 'audio' | 'json' | 'font';
@@ -594,7 +596,7 @@ interface AssetManifestEntry {
   chapter?: ChapterId;
   preload: boolean;
 }
-~~~
+```
 
 玩法代码引用 key，例如 character.xu_old.walk.down，不引用文件路径。精灵条带的帧尺寸由 manifest 的 `frameConfig` 提供，Scene 不散落文件名或裁切参数。`preload: false` 的 DOM 插图不进入 Phaser 启动加载队列，由对应面板首次显示时按需加载，避免重复请求和延长首屏等待。
 
@@ -708,6 +710,8 @@ Canvas 状态不能只做 DOM 断言，代表性阶段必须保存截图并人�
 - 谜题状态、提示计时和一次性 flags；
 - FPS、纹理数量和音频状态。
 
+开发服务器另提供 `?editor=1` 临时地图实体编辑器，并同时显示章节调试入口。编辑器直接读取当前章节的 Tiled JSON，允许修改 `visual_furniture`、`interactables` 与 `collision` 对象的位置，并支持新增、删除、缩放和旋转矩形碰撞：画布拖拽用于快速摆放，碰撞右下角方块用于沿本地坐标缩放，上方圆点用于旋转，DOM 面板用于精确坐标、宽高、角度、网格吸附和方向键微调。旋转与缩放都保持碰撞中心稳定，保存时反算为 Tiled 左上角原点。编辑器与 DEBUG 面板使用各自的标题栏作为鼠标和触摸拖动手柄，标题栏聚焦时也支持方向键移动；位置限制在视口内，并在章节重绘期间保留。新增和重命名碰撞必须填写 `collision.<章节>.<英文 snake_case 语义名>` 并选择 `wall/furniture/building/terrain` 类型；重命名会同步家具的 `collisionId`，临时名、跨章节前缀、重复 ID 或非法类型在浏览器端和 Vite 写盘端都会被拒绝。删除家具引用的碰撞会同时移除对应 `collisionId`，避免悬空引用。家具移动默认同步其 `collisionId` 对应矩形与 `sortY`，交互物移动默认同步 `visual_props.entityId` 对应图像与 `sortY`；两项联动都可在面板中关闭。保存请求只由 Vite `serve` 模式处理，并限制为仓库五个既有地图 ID，生产构建不注册写文件中间件。保存后必须刷新，让 GameStore 重新载入碰撞数据，再运行地图校验与相关浏览器检查；编辑器运行时数据不进入 GameStore 或存档。
+
 发布构建隐藏调试入口。性能预算：
 
 - 推荐设备目标 60 FPS，最低 30 FPS；
@@ -721,7 +725,7 @@ Canvas 状态不能只做 DOM 断言，代表性阶段必须保存截图并人�
 
 ### 15.1 npm scripts
 
-~~~json
+```json
 {
   "dev": "vite",
   "build": "tsc -b && vite build",
@@ -738,7 +742,7 @@ Canvas 状态不能只做 DOM 断言，代表性阶段必须保存截图并人�
   "release:package:internal": "npm run build && node scripts/package_release.mjs --channel internal",
   "release:package": "npm run build && node scripts/package_release.mjs --channel public"
 }
-~~~
+```
 
 ### 15.2 构建要求
 

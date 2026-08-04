@@ -13,7 +13,7 @@
  * - Duplicate stable IDs are rejected.
  */
 
-import type { AxisAlignedRect, MovementBounds } from '../simulation/collision';
+import type { CollisionRect, MovementBounds } from '../simulation/collision';
 import type { WorldEntity } from './maps';
 
 // ---------------------------------------------------------------------------
@@ -34,6 +34,7 @@ interface TiledObject {
   y: number;
   width?: number;
   height?: number;
+  rotation?: number;
   gid?: number;
   properties?: TiledProperty[];
   visible?: boolean;
@@ -88,7 +89,7 @@ export interface VisualPlacement {
 }
 
 /** Collision rectangle with a stable name for debugging. */
-export interface NamedCollisionRect extends AxisAlignedRect {
+export interface NamedCollisionRect extends CollisionRect {
   name: string;
   type: string;
 }
@@ -289,6 +290,7 @@ function parseCollision(layer: TiledLayer | undefined): NamedCollisionRect[] {
       y: obj.y,
       width: obj.width ?? 0,
       height: obj.height ?? 0,
+      rotation: obj.rotation ?? 0,
     });
   }
 
@@ -427,13 +429,13 @@ export function parseTiledMap(
 }
 
 /**
- * Extract collision obstacles from parsed Tiled content as plain AxisAlignedRect[].
+ * Extract collision obstacles from parsed Tiled content as plain CollisionRect[].
  * Filters out zero-area rects that would not block movement.
  */
-export function extractCollisionObstacles(content: TiledMapContent): AxisAlignedRect[] {
+export function extractCollisionObstacles(content: TiledMapContent): CollisionRect[] {
   return content.collisionRects
     .filter((r) => r.width > 0 && r.height > 0)
-    .map(({ x, y, width, height }) => ({ x, y, width, height }));
+    .map(({ x, y, width, height, rotation }) => ({ x, y, width, height, rotation }));
 }
 
 /**

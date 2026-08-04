@@ -357,12 +357,161 @@ html[data-contrast='true'] .hud-memory-faded {
   flex-wrap: wrap;
   gap: 0.25rem;
 }
+.debug-panel .debug-panel-handle {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+.debug-panel .debug-panel-handle span:last-child {
+  grid-column: 1 / -1;
+}
+.debug-panel .debug-panel-handle.is-dragging {
+  cursor: grabbing;
+}
+.debug-panel .debug-panel-handle:focus-visible,
+.map-editor header:focus-visible {
+  outline: 2px solid #55d6be;
+  outline-offset: 3px;
+}
 .debug-panel button {
   padding: 0.18rem 0.35rem;
   color: inherit;
   background: transparent;
   border: 1px solid #276a78;
   border-radius: 0.2rem;
+}
+
+html.map-editor-active .debug-panel {
+  position: fixed;
+  right: 344px;
+  z-index: 9999;
+  width: min(20rem, calc(100vw - 376px));
+  max-width: none;
+}
+
+.map-editor {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 10000;
+  width: min(320px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 14px;
+  border: 1px solid #55d6be;
+  border-radius: 10px;
+  background: rgba(18, 23, 28, 0.96);
+  color: #f7f3e8;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  font:
+    13px/1.45 'Noto Sans SC',
+    'Microsoft YaHei',
+    sans-serif;
+}
+
+.map-editor header,
+.map-editor label,
+.map-editor output {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.map-editor header span,
+.map-editor p,
+.map-editor output {
+  color: #bfc9c6;
+  font-size: 12px;
+}
+
+.map-editor header {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.map-editor header.is-dragging {
+  cursor: grabbing;
+}
+
+.map-editor [hidden] {
+  display: none !important;
+}
+
+.map-editor select,
+.map-editor input,
+.map-editor button {
+  border: 1px solid #59656b;
+  border-radius: 5px;
+  background: #252d33;
+  color: #f7f3e8;
+  font: inherit;
+}
+
+.map-editor fieldset {
+  margin: 10px 0;
+  padding: 8px;
+  border: 1px solid #59656b;
+  border-radius: 6px;
+}
+
+.map-editor legend {
+  padding: 0 4px;
+  color: #dce6e2;
+}
+
+.map-editor input[type='text'] {
+  min-width: 205px;
+  padding: 4px 6px;
+}
+
+.map-editor button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.map-editor select {
+  min-width: 205px;
+  padding: 5px;
+}
+
+.map-editor input[type='number'] {
+  width: 76px;
+  padding: 4px 6px;
+}
+
+.map-editor .map-editor-check {
+  justify-content: flex-start;
+}
+
+.map-editor-coordinates,
+.map-editor-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.map-editor-coordinates label {
+  justify-content: flex-start;
+}
+
+.map-editor-actions {
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+
+.map-editor button {
+  padding: 6px 9px;
+  cursor: pointer;
+}
+
+.map-editor button:first-child {
+  border-color: #55d6be;
+  background: #24483f;
 }
 
 .scrim {
@@ -1405,6 +1554,19 @@ html[data-motion='reduced'] .memory-cutscene::before {
 }
 
 @media (max-width: 720px), (max-height: 620px) {
+  html.map-editor-active .map-editor {
+    bottom: 132px;
+    max-height: calc(100vh - 156px);
+  }
+  html.map-editor-active .debug-panel {
+    top: auto;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    width: auto;
+    max-height: 108px;
+    overflow: auto;
+  }
   .photo_order-panel {
     max-height: 96vh;
     padding: 0.85rem 1.35rem 0.7rem 2.2rem;
