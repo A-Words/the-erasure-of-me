@@ -1896,6 +1896,79 @@ html[data-motion='reduced'] .memory-cutscene::before {
   }
 }
 
+@media (pointer: coarse) and (orientation: landscape) and (min-width: 780px) {
+  .title-screen:not(.title-subpage) {
+    display: grid;
+    grid-template-columns: minmax(16rem, 0.82fr) minmax(25rem, 1.18fr);
+    grid-template-rows: auto auto auto;
+    align-content: center;
+    align-items: center;
+    column-gap: clamp(1.25rem, 4vw, 3.5rem);
+    row-gap: 0.45rem;
+    overflow: hidden;
+    text-align: left;
+  }
+  .title-screen:not(.title-subpage) .title-emblem {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: center;
+    margin: 0 0 -0.35rem;
+  }
+  .title-screen:not(.title-subpage) .title-heading {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .title-screen:not(.title-subpage) .title-heading .eyebrow {
+    font-size: 0.58em;
+    letter-spacing: 0.12em;
+    text-align: center;
+  }
+  .title-screen:not(.title-subpage) h1 {
+    font-size: clamp(2rem, 9vh, 2.65rem);
+  }
+  .title-screen:not(.title-subpage) .english-title {
+    margin-bottom: 0;
+    font-size: 0.58em;
+    letter-spacing: 0.25em;
+  }
+  .title-screen:not(.title-subpage) .content-note {
+    grid-column: 1;
+    grid-row: 3;
+    width: 100%;
+    padding: 0.5rem 0.65rem;
+  }
+  .title-screen:not(.title-subpage) .content-note strong {
+    font-size: 0.65em;
+  }
+  .title-screen:not(.title-subpage) .content-note span {
+    font-size: 0.6em;
+    line-height: 1.45;
+  }
+  .title-screen:not(.title-subpage) .title-menu {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-self: center;
+    width: 100%;
+    gap: 0.55rem;
+  }
+  .title-screen:not(.title-subpage) .title-menu-card {
+    min-height: clamp(4.65rem, 21vh, 5.6rem);
+    padding: 0.65rem 2.25rem 0.65rem 0.85rem;
+  }
+  .title-screen:not(.title-subpage) .title-menu-card span {
+    line-height: 1.35;
+  }
+  .title-screen:not(.title-subpage) .title-save-notice {
+    position: absolute;
+    right: max(0.75rem, env(safe-area-inset-right));
+    bottom: max(0.3rem, env(safe-area-inset-bottom));
+    max-width: 52%;
+    margin: 0;
+    font-size: 0.58em;
+  }
+}
+
 @media (max-width: 560px) {
   .objective-chip {
     grid-template-columns: 1fr;

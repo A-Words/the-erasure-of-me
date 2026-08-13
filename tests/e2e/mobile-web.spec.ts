@@ -14,6 +14,32 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
+test('keeps every title action visible without scrolling on supported landscape phones', async ({
+  page,
+}, testInfo) => {
+  for (const viewport of [
+    { width: 780, height: 360 },
+    { width: 932, height: 430 },
+  ]) {
+    await page.setViewportSize(viewport);
+
+    for (const name of ['继续游戏', '开始游戏', '读取记忆', '设置']) {
+      await expect(page.getByRole('button', { name })).toBeInViewport();
+    }
+
+    const overflow = await page.locator('.title-screen').evaluate((title) => ({
+      page: document.documentElement.scrollHeight - window.innerHeight,
+      title: title.scrollHeight - title.clientHeight,
+    }));
+    expect(overflow.page).toBeLessThanOrEqual(1);
+    expect(overflow.title).toBeLessThanOrEqual(1);
+
+    await page.screenshot({
+      path: testInfo.outputPath(`mobile-landscape-title-${viewport.width}x${viewport.height}.png`),
+    });
+  }
+});
+
 test('plays with touch controls at the minimum supported landscape viewport', async ({
   page,
 }, testInfo) => {
