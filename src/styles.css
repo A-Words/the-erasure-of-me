@@ -1753,10 +1753,11 @@ html[data-motion='reduced'] .memory-cutscene::before {
     min-height: 44px;
     padding: 0;
     color: var(--warm-white);
-    background: color-mix(in srgb, var(--hud-ink) 82%, transparent);
-    border: 1px solid color-mix(in srgb, var(--hud-paper) 55%, transparent);
-    border-radius: 50%;
-    box-shadow: 0 4px 16px rgba(20, 15, 10, 0.28);
+    background: color-mix(in srgb, var(--hud-ink) 76%, transparent);
+    border: 1px solid color-mix(in srgb, var(--hud-paper) 46%, transparent);
+    box-shadow:
+      0 4px 14px rgba(20, 15, 10, 0.24),
+      inset 0 1px rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(6px);
     touch-action: none;
     user-select: none;
@@ -1768,48 +1769,75 @@ html[data-motion='reduced'] .memory-cutscene::before {
     background: color-mix(in srgb, var(--hud-accent) 58%, var(--hud-ink));
     transform: scale(0.94);
   }
+  .touch-dpad {
+    position: absolute;
+    left: max(10px, env(safe-area-inset-left));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    display: grid;
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(2, 44px);
+    gap: 3px;
+  }
   .touch-dpad button {
-    width: 48px;
-    height: 48px;
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+    font-size: 1.05em;
   }
   .touch-up {
-    left: calc(max(12px, env(safe-area-inset-left)) + 52px);
-    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 56px);
+    grid-column: 2;
+    grid-row: 1;
   }
   .touch-left {
-    left: max(12px, env(safe-area-inset-left));
-    bottom: max(10px, env(safe-area-inset-bottom));
+    grid-column: 1;
+    grid-row: 2;
   }
   .touch-down {
-    left: calc(max(12px, env(safe-area-inset-left)) + 52px);
-    bottom: max(10px, env(safe-area-inset-bottom));
+    grid-column: 2;
+    grid-row: 2;
   }
   .touch-right {
-    left: calc(max(12px, env(safe-area-inset-left)) + 104px);
-    bottom: max(10px, env(safe-area-inset-bottom));
+    grid-column: 3;
+    grid-row: 2;
+  }
+  .touch-context-actions {
+    position: absolute;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(8px, env(safe-area-inset-bottom));
+    display: flex;
+    align-items: flex-end;
+    gap: 7px;
   }
   .touch-context-actions button {
-    bottom: max(12px, env(safe-area-inset-bottom));
+    position: relative;
+    right: auto;
+    bottom: auto;
   }
   .touch-context-actions button:first-child {
-    right: calc(max(14px, env(safe-area-inset-right)) + 68px);
-    width: 54px;
-    height: 54px;
-    font-size: 0.8em;
+    width: 52px;
+    height: 44px;
+    border-radius: 14px;
+    font-size: 0.68em;
   }
   .touch-confirm {
-    right: max(14px, env(safe-area-inset-right));
-    width: 60px;
-    height: 60px;
-    font-size: 0.8em;
+    width: 58px;
+    height: 58px;
+    border-color: color-mix(in srgb, var(--hud-accent) 62%, var(--hud-paper)) !important;
+    border-radius: 18px !important;
+    background: color-mix(in srgb, var(--hud-accent) 42%, var(--hud-ink)) !important;
+    font-size: 0.74em;
+    font-weight: 700;
   }
   .touch-pause {
     top: max(8px, env(safe-area-inset-top));
     right: max(12px, env(safe-area-inset-right));
-    width: 50px;
+    width: 52px;
     height: 44px;
-    border-radius: 999px !important;
-    font-size: 0.76em;
+    border-radius: 14px !important;
+    font-size: 0.68em;
   }
   #app[data-phase='playing'][data-modal]:not([data-modal='none']) #touch-layer .touch-dpad,
   #app[data-phase='playing'][data-modal]:not([data-modal='none'])
@@ -1825,7 +1853,18 @@ html[data-motion='reduced'] .memory-cutscene::before {
   .hud-actions {
     left: 50%;
     bottom: max(0.45rem, env(safe-area-inset-bottom));
+    gap: 0.08rem;
+    padding: 0.18rem;
+    border-radius: 0.75rem;
     transform: translateX(-50%);
+  }
+  .hud-actions button {
+    padding: 0.35rem 0.58rem;
+    font-size: 0.82em;
+  }
+  .save-notice {
+    right: calc(max(12px, env(safe-area-inset-right)) + 60px);
+    max-width: min(25rem, calc(100vw - 10rem));
   }
   .hud-actions button,
   .interaction-prompt,

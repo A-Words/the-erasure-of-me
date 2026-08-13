@@ -51,6 +51,25 @@ test('plays with touch controls at the minimum supported landscape viewport', as
   await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-hud.png') });
 
+  const touchTargets = await page.locator('.touch-controls button').evaluateAll((buttons) =>
+    buttons.map((button) => {
+      const rect = button.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    }),
+  );
+  for (const target of touchTargets) {
+    expect(target.width).toBeGreaterThanOrEqual(44);
+    expect(target.height).toBeGreaterThanOrEqual(44);
+  }
+
+  const dpad = await page.locator('.touch-dpad').boundingBox();
+  expect(dpad?.width).toBeLessThanOrEqual(140);
+  expect(dpad?.height).toBeLessThanOrEqual(91);
+
+  const pause = await page.getByRole('button', { name: '暂停游戏' }).boundingBox();
+  const saveNotice = await page.getByRole('status').boundingBox();
+  expect(pause && saveNotice && pause.x < saveNotice.x + saveNotice.width).toBe(false);
+
   const right = page.getByRole('button', { name: '向右移动' });
   const before = Number(await page.locator('#app').getAttribute('data-player-x'));
   await right.dispatchEvent('pointerdown', { pointerId: 11, pointerType: 'touch' });
