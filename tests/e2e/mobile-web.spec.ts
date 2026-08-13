@@ -135,7 +135,7 @@ test('restores fullscreen from title settings and pause without blocking gamepla
   await expect(page.getByRole('button', { name: '退出全屏' })).toBeVisible();
 });
 
-test('retries fullscreen from new game, latest continue, and memory read entry points', async ({
+test('does not retry fullscreen when starting, continuing, or reading a memory', async ({
   page,
 }) => {
   await enterFullscreenExperience(page);
@@ -158,7 +158,7 @@ test('retries fullscreen from new game, latest continue, and memory read entry p
     .poll(() =>
       page.evaluate(() => Number(sessionStorage.getItem('erasure.e2e.fullscreen.requests') ?? 0)),
     )
-    .toBe(4);
+    .toBe(1);
 });
 
 test('keeps every title action visible without scrolling on supported landscape phones', async ({

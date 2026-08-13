@@ -289,12 +289,6 @@ export class AppShell {
     this.renderFullscreenLayer();
   }
 
-  private async ensureMobileFullscreen(): Promise<void> {
-    if (!this.coarsePointer || this.fullscreen.isActive()) return;
-    this.updateFullscreenNotice(await this.fullscreen.request());
-    this.renderFullscreenLayer();
-  }
-
   private async toggleFullscreen(): Promise<void> {
     const result = this.fullscreen.isActive()
       ? await this.fullscreen.exit()
@@ -904,7 +898,6 @@ export class AppShell {
     document.querySelectorAll<HTMLElement>('[data-confirm-start]').forEach((button) =>
       button.addEventListener('click', () => {
         if (!this.pendingNewMode || !this.confirmingStartSlot) return;
-        void this.ensureMobileFullscreen();
         const slotId = this.confirmingStartSlot;
         this.titleDialogReturnFocusSelector = null;
         this.beginNewGame(
@@ -918,14 +911,12 @@ export class AppShell {
       button.addEventListener('click', () => {
         const latest = this.saves.getMostRecentValidSlot();
         if (latest) {
-          void this.ensureMobileFullscreen();
           this.continueFromSlot(latest.slotId, state);
         }
       }),
     );
     document.querySelectorAll<HTMLElement>('[data-continue-slot]').forEach((button) =>
       button.addEventListener('click', () => {
-        void this.ensureMobileFullscreen();
         this.continueFromSlot(Number(button.dataset.continueSlot) as SaveSlotId, state);
       }),
     );
