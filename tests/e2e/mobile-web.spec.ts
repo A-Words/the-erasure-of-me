@@ -34,7 +34,7 @@ async function expectPanelShellFits(page: Page, selector: string): Promise<void>
 }
 
 async function enterFullscreenExperience(page: Page): Promise<void> {
-  const entry = page.getByRole('button', { name: '进入全屏体验' });
+  const entry = page.getByRole('button', { name: '开始体验' });
   await expect(entry).toBeVisible();
   await entry.tap();
   await expect(entry).toBeHidden();
@@ -81,18 +81,34 @@ test.beforeEach(async ({ page }) => {
 
 test('opens through a fullscreen entry gate and degrades gracefully when unavailable', async ({
   page,
-}) => {
+}, testInfo) => {
   for (const availability of ['denied', 'unsupported']) {
-    const entryDialog = page.getByRole('dialog', { name: '记忆的缝隙' });
+    const entryDialog = page.getByRole('dialog', { name: '准备好进入这段记忆了吗？' });
     await expect(entryDialog).toBeVisible();
+    await expect(page.getByRole('heading', { name: '准备好进入这段记忆了吗？' })).toBeVisible();
+    await expect(entryDialog).toContainText('点击任意处开始');
+    await expect(entryDialog).not.toContainText('浏览器不支持全屏时仍可继续');
     await expect(page.getByRole('button', { name: '开始游戏' })).toBeHidden();
-    await expect(page.getByRole('button', { name: '进入全屏体验' })).toBeFocused();
+    await expect(page.getByRole('button', { name: '开始体验' })).toBeFocused();
+    if (availability === 'denied') {
+      await page.screenshot({ path: testInfo.outputPath('mobile-fullscreen-entry.png') });
+    }
 
     await page.evaluate(
       (value) => sessionStorage.setItem('erasure.e2e.fullscreen', value),
       availability,
     );
-    await page.getByRole('button', { name: '进入全屏体验' }).tap();
+    if (availability === 'denied') {
+      await page.getByRole('button', { name: '开始体验' }).press('Enter');
+    } else {
+      const button = page.getByRole('button', { name: '开始体验' });
+      const [dialogBox, buttonBox] = await Promise.all([
+        entryDialog.boundingBox(),
+        button.boundingBox(),
+      ]);
+      expect(buttonBox).toEqual(dialogBox);
+      await button.click({ position: { x: 96, y: 72 } });
+    }
 
     await expect(entryDialog).toBeHidden();
     await expect(page.getByRole('status')).toContainText('无法进入全屏，已继续横屏模式');

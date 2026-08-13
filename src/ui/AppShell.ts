@@ -272,7 +272,7 @@ export class AppShell {
       layer.inert = showGate;
     }
     this.fullscreenLayer.innerHTML = showGate
-      ? `<section class="fullscreen-entry" role="dialog" aria-modal="true" aria-labelledby="fullscreen-entry-title"><p class="eyebrow">手机横屏体验</p><h1 id="fullscreen-entry-title">记忆的缝隙</h1><p>进入全屏可以避开浏览器工具栏，为场景和触控按钮留出完整空间。</p><button class="primary" data-enter-fullscreen>进入全屏体验</button></section>`
+      ? `<section class="fullscreen-entry" role="dialog" aria-modal="true" aria-labelledby="fullscreen-entry-title" aria-describedby="fullscreen-entry-description"><div class="fullscreen-entry-copy"><p class="eyebrow">记忆的缝隙</p><h1 id="fullscreen-entry-title">准备好进入这段记忆了吗？</h1><p id="fullscreen-entry-description">我们会尝试进入全屏，让场景和触控区域更完整。</p></div><button data-enter-fullscreen aria-label="开始体验"><span>点击任意处开始</span></button></section>`
       : this.fullscreenNotice
         ? `<p class="fullscreen-notice" role="status" aria-live="polite">${this.fullscreenNotice}</p>`
         : '';
