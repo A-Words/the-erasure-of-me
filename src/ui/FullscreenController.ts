@@ -18,6 +18,7 @@ interface LockableOrientation {
 
 export class FullscreenController {
   private readonly listeners = new Set<FullscreenListener>();
+  private requestInFlight: Promise<FullscreenResult> | null = null;
 
   constructor(
     private readonly target: FullscreenElement,
@@ -43,14 +44,25 @@ export class FullscreenController {
     return Boolean(this.documentRef.fullscreenElement || this.documentRef.webkitFullscreenElement);
   }
 
-  async request(): Promise<FullscreenResult> {
-    if (this.isActive()) return 'entered';
+  request(): Promise<FullscreenResult> {
+    if (this.requestInFlight) return this.requestInFlight;
+    if (this.isActive()) return Promise.resolve('entered');
     const request = this.target.requestFullscreen
       ? () => this.target.requestFullscreen({ navigationUI: 'hide' })
       : this.target.webkitRequestFullscreen
         ? () => this.target.webkitRequestFullscreen!()
         : null;
-    if (!request) return 'unsupported';
+    if (!request) return Promise.resolve('unsupported');
+
+    const operation = this.performRequest(request);
+    this.requestInFlight = operation;
+    void operation.finally(() => {
+      if (this.requestInFlight === operation) this.requestInFlight = null;
+    });
+    return operation;
+  }
+
+  private async performRequest(request: () => Promise<void> | void): Promise<FullscreenResult> {
     try {
       await request();
       if (!this.isActive()) return 'denied';

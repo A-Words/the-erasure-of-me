@@ -50,6 +50,31 @@ describe('FullscreenController', () => {
     expect(target.requestFullscreen).toHaveBeenCalledTimes(1);
   });
 
+  it('reuses an in-flight fullscreen request', async () => {
+    const { controller, documentRef, target } = createHarness();
+    let finishRequest: (() => void) | undefined;
+    const requestPending = new Promise<void>((resolve) => {
+      finishRequest = resolve;
+    });
+    vi.mocked(target.requestFullscreen).mockImplementationOnce(async () => {
+      await requestPending;
+      documentRef.fullscreenElement = target as unknown as Element;
+      documentRef.dispatchEvent(new Event('fullscreenchange'));
+    });
+
+    const firstRequest = controller.request();
+    const secondRequest = controller.request();
+
+    expect(secondRequest).toBe(firstRequest);
+    expect(target.requestFullscreen).toHaveBeenCalledTimes(1);
+
+    finishRequest?.();
+    await expect(Promise.all([firstRequest, secondRequest])).resolves.toEqual([
+      'entered',
+      'entered',
+    ]);
+  });
+
   it('keeps a successful fullscreen result when orientation locking fails', async () => {
     const { controller, orientation } = createHarness();
     orientation.lock.mockRejectedValueOnce(new Error('lock denied'));

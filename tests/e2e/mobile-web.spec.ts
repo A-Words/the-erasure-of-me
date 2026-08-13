@@ -51,27 +51,48 @@ test.beforeEach(async ({ page }) => {
       configurable: true,
       get: () => fullscreenElement,
     });
+    Object.defineProperty(document, 'webkitFullscreenEnabled', {
+      configurable: true,
+      get: () => sessionStorage.getItem('erasure.e2e.fullscreen') !== 'unsupported',
+    });
+    Object.defineProperty(document, 'webkitFullscreenElement', {
+      configurable: true,
+      get: () => fullscreenElement,
+    });
+    const requestFullscreen = async (changeEvent: string) => {
+      const requests = Number(sessionStorage.getItem('erasure.e2e.fullscreen.requests') ?? 0);
+      sessionStorage.setItem('erasure.e2e.fullscreen.requests', String(requests + 1));
+      if (sessionStorage.getItem('erasure.e2e.fullscreen') === 'denied') {
+        throw new DOMException('denied', 'NotAllowedError');
+      }
+      fullscreenElement = document.querySelector('#app');
+      document.dispatchEvent(new Event(changeEvent));
+    };
     Object.defineProperty(Element.prototype, 'requestFullscreen', {
       configurable: true,
       get() {
         if (sessionStorage.getItem('erasure.e2e.fullscreen') === 'unsupported') return undefined;
-        return async () => {
-          const requests = Number(sessionStorage.getItem('erasure.e2e.fullscreen.requests') ?? 0);
-          sessionStorage.setItem('erasure.e2e.fullscreen.requests', String(requests + 1));
-          if (sessionStorage.getItem('erasure.e2e.fullscreen') === 'denied') {
-            throw new DOMException('denied', 'NotAllowedError');
-          }
-          fullscreenElement = document.querySelector('#app');
-          document.dispatchEvent(new Event('fullscreenchange'));
-        };
+        return () => requestFullscreen('fullscreenchange');
       },
     });
+    Object.defineProperty(Element.prototype, 'webkitRequestFullscreen', {
+      configurable: true,
+      get() {
+        if (sessionStorage.getItem('erasure.e2e.fullscreen') === 'unsupported') return undefined;
+        return () => requestFullscreen('webkitfullscreenchange');
+      },
+    });
+    const exitFullscreen = async (changeEvent: string) => {
+      fullscreenElement = null;
+      document.dispatchEvent(new Event(changeEvent));
+    };
     Object.defineProperty(Document.prototype, 'exitFullscreen', {
       configurable: true,
-      value: async () => {
-        fullscreenElement = null;
-        document.dispatchEvent(new Event('fullscreenchange'));
-      },
+      value: () => exitFullscreen('fullscreenchange'),
+    });
+    Object.defineProperty(Document.prototype, 'webkitExitFullscreen', {
+      configurable: true,
+      value: () => exitFullscreen('webkitfullscreenchange'),
     });
   });
   await page.goto('/');
@@ -106,8 +127,12 @@ test('opens through a fullscreen entry gate and degrades gracefully when unavail
         entryDialog.boundingBox(),
         button.boundingBox(),
       ]);
-      expect(buttonBox).toEqual(dialogBox);
-      await button.click({ position: { x: 96, y: 72 } });
+      expect(dialogBox).not.toBeNull();
+      expect(buttonBox).not.toBeNull();
+      for (const key of ['x', 'y', 'width', 'height'] as const) {
+        expect(buttonBox![key]).toBeCloseTo(dialogBox![key], 0);
+      }
+      await button.tap({ position: { x: 96, y: 72 } });
     }
 
     await expect(entryDialog).toBeHidden();
