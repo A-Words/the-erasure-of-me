@@ -25,6 +25,15 @@ async function expectEveryElementInViewport(page: Page, selector: string): Promi
   }
 }
 
+async function expectPanelShellFits(page: Page, selector: string): Promise<void> {
+  const overflow = await page.locator(selector).evaluate((panel) => ({
+    horizontal: panel.scrollWidth - panel.clientWidth,
+    vertical: panel.scrollHeight - panel.clientHeight,
+  }));
+  expect(overflow.horizontal).toBeLessThanOrEqual(1);
+  expect(overflow.vertical).toBeLessThanOrEqual(1);
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
@@ -183,9 +192,72 @@ test('plays with touch controls at the minimum supported landscape viewport', as
   await observe.dispatchEvent('pointercancel', { pointerId: 12, pointerType: 'touch' });
   await expect(canvas).toHaveAttribute('data-observation-active', 'false');
 
-  await page.getByRole('button', { name: '暂停游戏' }).tap();
+  await page
+    .getByRole('button', { name: '暂停游戏' })
+    .dispatchEvent('pointerdown', { pointerId: 13, pointerType: 'touch' });
   await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-pause.png') });
+});
+
+test('adapts inventory, journal, map, and pause panels to mobile landscape', async ({
+  page,
+}, testInfo) => {
+  await startNewGame(page);
+  await finishOpeningDialogue(page);
+  await page.addInitScript(() => {
+    const key = 'erasure.save.slot.1.v1';
+    const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+    if (!record) return;
+    Object.assign(record.state, {
+      inventory: ['item.life.wood_comb', 'item.life.enamel_cup', 'item.life.cassette'],
+      journalPages: [
+        'journal.home.key',
+        'journal.rain.route',
+        'journal.life.ordinary_days',
+        'journal.return.last_page',
+      ],
+      modal: null,
+      dialogue: [],
+      dialogueIndex: 0,
+    });
+    localStorage.setItem(key, JSON.stringify(record));
+  });
+  await page.reload();
+  await page.getByRole('button', { name: '继续游戏' }).tap();
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
+
+  await page.getByRole('button', { name: /背包/ }).tap();
+  await expect(page.locator('.inventory-list li')).toHaveCount(3);
+  await expectEveryElementInViewport(page, '.inventory-panel h2, .inventory-panel > [data-close]');
+  await expectPanelShellFits(page, '.inventory-panel');
+  await page.screenshot({ path: testInfo.outputPath('mobile-landscape-inventory.png') });
+  await page.locator('.inventory-panel > [data-close]').tap();
+
+  await page.getByRole('button', { name: /日记/ }).tap();
+  await expect(page.locator('.journal-pages article')).toHaveCount(4);
+  await expectEveryElementInViewport(page, '.journal-panel h2, .journal-panel > [data-close]');
+  await expectPanelShellFits(page, '.journal-panel');
+  await page.screenshot({ path: testInfo.outputPath('mobile-landscape-journal.png') });
+  await page.locator('.journal-panel > [data-close]').tap();
+
+  await page.getByRole('button', { name: /地图/ }).tap();
+  await expectEveryElementInViewport(
+    page,
+    '.map-panel h2, .map-panel .map-drawing, .map-panel > [data-close]',
+  );
+  await expectPanelShellFits(page, '.map-panel');
+  await page.screenshot({ path: testInfo.outputPath('mobile-landscape-map.png') });
+  await page.locator('.map-panel > [data-close]').tap();
+
+  await page.locator('canvas').focus();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+  await expectEveryElementInViewport(
+    page,
+    '.pause-panel h2, .pause-panel [data-close], .pause-panel [data-title]',
+  );
+  await expectPanelShellFits(page, '.pause-panel');
+  await page.screenshot({ path: testInfo.outputPath('mobile-landscape-pause-panel.png') });
 });
 
 test('pauses in portrait and requires an explicit resume after rotating back', async ({ page }) => {
