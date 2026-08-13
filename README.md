@@ -65,6 +65,8 @@ npm run assets:render:home-overlays
 npm run assets:render:environments
 ```
 
+GitHub Actions 会自动验证：每次 PR 与推送 main 时运行核心检查（lint、格式检查、单元测试、地图校验与构建），推送 main 时额外运行覆盖全部 6 个浏览器项目的 Playwright e2e。
+
 `assets:prepare:life-environment` 会同时导出第三章初始年代叠影背景与三件物品全部归位后的收束态背景；`assets:prepare:return-environment` 与 `assets:prepare:ending-environment` 分别把两张 v02 ImageGen 原稿裁切导出为 1280×720 运行时 WebP。
 
 临时地图实体编辑器只在 Vite 开发服务器中启用。运行 `npm run dev` 后访问 `/?editor=1`，可在画布上拖动家具、交互物和碰撞矩形，或在右侧面板输入精确坐标；碰撞支持新增、删除、语义 ID 与类型编辑、宽高与角度输入、右下角手柄缩放和上方圆点旋转，旋转值按 Tiled 的左上角原点与顺时针角度保存。碰撞 ID 必须使用当前章节的 `collision.<章节>.<英文 snake_case 名称>`，临时名、重复名和错误类型无法保存；重命名会同步家具的 `collisionId`。默认会让家具联动关联碰撞、交互热点联动对应图像。编辑器与 DEBUG 面板都可拖动标题栏移动，标题栏获得焦点后也可用方向键移动。点击“保存到地图文件”会直接覆盖当前章节的 `public/assets/data/map.*.json`，保存后应刷新页面并运行 `npm run validate:maps`。该入口和写文件接口都不会进入生产构建。

@@ -78,6 +78,15 @@ npm run dev、build、test、test:e2e、lint、format:check、release:evidence �
 - Canvas、HUD、退化效果或响应式变化必须检查代表性截图；
 - 无障碍相关改动至少验证纯键盘、静音和低扰动路径。
 
+### CI 自动验证
+
+GitHub Actions 自动运行项目验证命令：
+
+- 每次 PR 与推送 main 时，`ci` 工作流运行 lint、format:check、单元测试、validate:maps 与 build；
+- 推送 main 时，`e2e` 工作流运行完整 Playwright e2e（全部 6 个浏览器项目）。
+
+CI 结果不能替代外部试玩、审核与发布证据，本地仍需按上文要求实际执行对应命令。
+
 不得通过跳过测试、删除断言或放宽类型来掩盖问题。若受环境限制无法验证，应明确记录未验证项。
 
 ## Git 与提交
