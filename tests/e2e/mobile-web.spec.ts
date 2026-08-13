@@ -254,9 +254,13 @@ test('adapts inventory, journal, map, and pause panels to mobile landscape', asy
   await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
   await expectEveryElementInViewport(
     page,
-    '.pause-panel h2, .pause-panel [data-close], .pause-panel [data-title]',
+    '.pause-panel h2, .pause-panel select, .pause-panel [data-close], .pause-panel [data-title]',
   );
   await expectPanelShellFits(page, '.pause-panel');
+  const settingsBox = await page.locator('.pause-panel > fieldset').boundingBox();
+  const clearDataBox = await page.locator('.pause-panel .clear-data').boundingBox();
+  expect(clearDataBox?.height).toBeLessThan(settingsBox?.height ?? 0);
+  expect(clearDataBox?.width).toBeLessThan(settingsBox?.width ?? 0);
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-pause-panel.png') });
 });
 

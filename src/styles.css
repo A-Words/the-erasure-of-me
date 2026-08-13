@@ -1542,7 +1542,11 @@ html.map-editor-active .debug-panel {
   font-variant-numeric: tabular-nums;
   color: var(--muted-ink);
 }
-.pause-panel > fieldset > label:not(.toggle) {
+.pause-quick-settings {
+  display: grid;
+  gap: 0.7rem;
+}
+.pause-quick-settings > label:not(.toggle) {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -2343,7 +2347,7 @@ html[data-motion='reduced'] .memory-cutscene::before {
     margin: 0;
   }
   #system-layer .pause-panel {
-    grid-template-columns: minmax(0, 1.35fr) minmax(12rem, 0.65fr);
+    grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto minmax(0, 1fr) auto;
     gap: 0.5rem 0.7rem;
   }
@@ -2351,8 +2355,14 @@ html[data-motion='reduced'] .memory-cutscene::before {
     grid-column: 1 / -1;
     grid-row: 1;
   }
+  #system-layer .pause-heading > div {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: baseline;
+    gap: 0.65rem;
+  }
   #system-layer .pause-heading h2 {
-    font-size: clamp(1.4rem, 7vh, 1.8rem);
+    font-size: clamp(1.25rem, 6vh, 1.55rem);
   }
   #system-layer .pause-heading .eyebrow {
     font-size: 0.58em;
@@ -2360,20 +2370,29 @@ html[data-motion='reduced'] .memory-cutscene::before {
   #system-layer .pause-heading [data-close] {
     min-width: 7rem;
     min-height: 44px;
+    height: 44px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.72em;
   }
   #system-layer .pause-panel > fieldset {
-    grid-column: 1;
-    grid-row: 2 / 4;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-content: start;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: stretch;
     min-height: 0;
     margin: 0;
     padding: 0.45rem 0.6rem 0.55rem;
     overflow: auto;
     gap: 0.35rem;
   }
-  #system-layer .pause-panel > fieldset > .toggle,
-  #system-layer .pause-panel > fieldset > label:not(.toggle) {
+  #system-layer .pause-quick-settings {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-content: start;
+    gap: 0.35rem;
+    min-width: 0;
+  }
+  #system-layer .pause-quick-settings > .toggle,
+  #system-layer .pause-quick-settings > label:not(.toggle) {
     min-height: 44px;
     padding: 0.3rem 0.45rem;
     font-size: 0.67em;
@@ -2381,17 +2400,29 @@ html[data-motion='reduced'] .memory-cutscene::before {
     border-radius: 0.4rem;
   }
   #system-layer .pause-panel .audio-mixer {
-    grid-column: 1 / -1;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: stretch;
     padding: 0.4rem;
     gap: 0.25rem 0.65rem;
   }
-  #system-layer .pause-panel > fieldset > .toggle:first-of-type {
+  #system-layer .pause-quick-settings > .toggle:first-of-type {
     grid-column: 1 / -1;
   }
   #system-layer .pause-panel .audio-mixer label {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
     font-size: 0.65em;
   }
-  #system-layer .pause-panel > fieldset > label:not(.toggle) {
+  #system-layer .pause-panel .audio-mixer input {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  #system-layer .pause-panel .audio-mixer output {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  #system-layer .pause-quick-settings > label:not(.toggle) {
     display: grid;
     grid-template-columns: 1fr;
     gap: 0.15rem;
@@ -2402,33 +2433,45 @@ html[data-motion='reduced'] .memory-cutscene::before {
     min-height: 44px;
   }
   #system-layer .pause-panel .clear-data {
-    grid-column: 2;
-    grid-row: 2;
-    min-height: 0;
-    padding: 0.55rem 0.65rem;
-    overflow: auto;
+    grid-column: 1;
+    grid-row: 3;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 0.3rem 0.65rem;
+    align-items: center;
+    min-width: 0;
+    padding: 0.25rem 0.45rem;
     border: 1px solid rgba(47, 43, 40, 0.25);
     border-radius: 0.4rem;
   }
   #system-layer .pause-panel .clear-data h3,
   #system-layer .pause-panel .clear-data p {
-    margin: 0 0 0.35rem;
+    margin: 0;
   }
   #system-layer .pause-panel .clear-data h3 {
-    font-size: 0.82em;
+    font-size: 0.72em;
+    white-space: nowrap;
   }
   #system-layer .pause-panel .clear-data p {
-    font-size: 0.64em;
-    line-height: 1.4;
+    display: none;
   }
-  #system-layer .pause-panel .clear-data button,
+  #system-layer .pause-panel .clear-data > button,
   #system-layer .pause-panel > [data-title] {
     min-height: 44px;
+    height: 44px;
     margin: 0;
+  }
+  #system-layer .pause-panel .clear-data > button {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.65em;
+    white-space: nowrap;
   }
   #system-layer .pause-panel > [data-title] {
     grid-column: 2;
     grid-row: 3;
+    min-width: 9rem;
+    padding: 0.3rem 0.65rem;
+    font-size: 0.72em;
   }
 }
 
