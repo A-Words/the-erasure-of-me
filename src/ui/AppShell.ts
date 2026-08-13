@@ -26,6 +26,7 @@ import type {
 import { enableDevPanelDrag, type DevPanelPosition } from './devPanelDrag';
 import type { SemanticInput } from '../game/input/SemanticInput';
 import type { InputAction } from '../game/input/actions';
+import { FullscreenController, type FullscreenResult } from './FullscreenController';
 
 const journalText: Record<string, { title: string; body: string }> = {
   'journal.home.key': {
@@ -74,10 +75,12 @@ const photoAlt: Record<PhotoId, string> = {
 };
 
 export class AppShell {
+  private readonly root = document.querySelector<HTMLDivElement>('#app')!;
   private readonly hud = document.querySelector<HTMLDivElement>('#hud')!;
   private readonly panel = document.querySelector<HTMLDivElement>('#panel-layer')!;
   private readonly system = document.querySelector<HTMLDivElement>('#system-layer')!;
   private readonly touch = document.querySelector<HTMLDivElement>('#touch-layer')!;
+  private readonly fullscreenLayer = document.querySelector<HTMLDivElement>('#fullscreen-layer')!;
   private readonly orientation = document.querySelector<HTMLDivElement>('#orientation-layer')!;
   private signature = '';
   private photoOrder: string[] = [];
@@ -91,6 +94,10 @@ export class AppShell {
   private modalReturnFocus: HTMLElement | null = null;
   private modalReturnFocusSelector: string | null = null;
   private titleDialogReturnFocusSelector: string | null = null;
+  private readonly coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  private fullscreenEntryAcknowledged = !this.coarsePointer;
+  private fullscreenNotice = '';
+  private fullscreenNoticeTimer: number | null = null;
   private debugPanelPosition: DevPanelPosition | null = null;
   private readonly debugEnabled =
     import.meta.env.DEV &&
@@ -102,9 +109,18 @@ export class AppShell {
     private readonly store: GameStore,
     private readonly saves: SaveRepository,
     private readonly semanticInput: SemanticInput,
+    private readonly fullscreen: FullscreenController,
     private readonly options?: { onSettingsCleared?: () => void },
   ) {
-    if (!this.hud || !this.panel || !this.system || !this.touch || !this.orientation)
+    if (
+      !this.root ||
+      !this.hud ||
+      !this.panel ||
+      !this.system ||
+      !this.touch ||
+      !this.fullscreenLayer ||
+      !this.orientation
+    )
       throw new Error('App shell containers are missing');
     for (const layer of [this.hud, this.panel, this.system]) {
       layer.addEventListener('keydown', this.protectDomKeyboardInput);
@@ -112,9 +128,15 @@ export class AppShell {
     }
     this.renderTouchControls();
     this.bindTouchControls();
+    this.renderFullscreenLayer();
     this.updateOrientationGate();
     window.addEventListener('resize', this.updateOrientationGate);
     window.addEventListener('orientationchange', this.updateOrientationGate);
+    this.fullscreen.subscribe(() => {
+      this.signature = '';
+      this.renderFullscreenLayer();
+      this.render(this.store.getState());
+    });
     store.subscribe((state) => this.render(state));
     window.addEventListener('blur', () => {
       this.semanticInput.clear();
@@ -223,11 +245,11 @@ export class AppShell {
   }
 
   private readonly updateOrientationGate = (): void => {
-    const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
     const portrait = window.innerHeight > window.innerWidth;
-    const blocked = coarsePointer && portrait;
-    document.documentElement.dataset.touch = String(coarsePointer);
+    const blocked = this.coarsePointer && portrait;
+    document.documentElement.dataset.touch = String(this.coarsePointer);
     document.documentElement.dataset.orientationBlocked = String(blocked);
+    this.renderFullscreenLayer();
     this.orientation.innerHTML = blocked
       ? '<section class="orientation-notice" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="orientation-title"><span aria-hidden="true">↻</span><h1 id="orientation-title">请旋转至横屏</h1><p>横屏能保留完整场景和触控区域。旋转后请从暂停菜单继续。</p></section>'
       : '';
@@ -241,6 +263,70 @@ export class AppShell {
       .querySelector<HTMLElement>('.orientation-notice')
       ?.focus({ preventScroll: true });
   };
+
+  private renderFullscreenLayer(): void {
+    const landscape = window.innerWidth >= window.innerHeight;
+    const showGate = this.coarsePointer && landscape && !this.fullscreenEntryAcknowledged;
+    this.root.dataset.fullscreenEntry = String(showGate);
+    for (const layer of [this.hud, this.panel, this.system, this.touch]) {
+      layer.inert = showGate;
+    }
+    this.fullscreenLayer.innerHTML = showGate
+      ? `<section class="fullscreen-entry" role="dialog" aria-modal="true" aria-labelledby="fullscreen-entry-title"><p class="eyebrow">手机横屏体验</p><h1 id="fullscreen-entry-title">记忆的缝隙</h1><p>进入全屏可以避开浏览器工具栏，为场景和触控按钮留出完整空间。</p><button class="primary" data-enter-fullscreen>进入全屏体验</button></section>`
+      : this.fullscreenNotice
+        ? `<p class="fullscreen-notice" role="status" aria-live="polite">${this.fullscreenNotice}</p>`
+        : '';
+    if (!showGate) return;
+    const button = this.fullscreenLayer.querySelector<HTMLButtonElement>('[data-enter-fullscreen]');
+    button?.addEventListener('click', () => void this.acceptFullscreenEntry());
+    requestAnimationFrame(() => button?.focus({ preventScroll: true }));
+  }
+
+  private async acceptFullscreenEntry(): Promise<void> {
+    const result = await this.fullscreen.request();
+    this.fullscreenEntryAcknowledged = true;
+    this.updateFullscreenNotice(result);
+    this.renderFullscreenLayer();
+  }
+
+  private async ensureMobileFullscreen(): Promise<void> {
+    if (!this.coarsePointer || this.fullscreen.isActive()) return;
+    this.updateFullscreenNotice(await this.fullscreen.request());
+    this.renderFullscreenLayer();
+  }
+
+  private async toggleFullscreen(): Promise<void> {
+    const result = this.fullscreen.isActive()
+      ? await this.fullscreen.exit()
+      : await this.fullscreen.request();
+    this.updateFullscreenNotice(result);
+    this.signature = '';
+    this.renderFullscreenLayer();
+    this.render(this.store.getState());
+  }
+
+  private updateFullscreenNotice(result: FullscreenResult): void {
+    if (this.fullscreenNoticeTimer !== null) {
+      window.clearTimeout(this.fullscreenNoticeTimer);
+      this.fullscreenNoticeTimer = null;
+    }
+    this.fullscreenNotice =
+      result === 'unsupported' || result === 'denied'
+        ? '无法进入全屏，已继续横屏模式。你可以在设置中再次尝试。'
+        : '';
+    if (this.fullscreenNotice) {
+      this.fullscreenNoticeTimer = window.setTimeout(() => {
+        this.fullscreenNotice = '';
+        this.fullscreenNoticeTimer = null;
+        this.renderFullscreenLayer();
+      }, 5000);
+    }
+  }
+
+  private fullscreenControl(): string {
+    if (!this.coarsePointer) return '';
+    return `<button class="secondary fullscreen-toggle" data-fullscreen-toggle>${this.fullscreen.isActive() ? '退出全屏' : '进入全屏'}</button>`;
+  }
 
   reportSaveResult(result: SaveResult): void {
     if (!result.ok) {
@@ -645,7 +731,7 @@ export class AppShell {
   }
 
   private titleSettingsScreen(settings: AccessibilitySettings): string {
-    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><header class="title-panel-heading"><p class="eyebrow">设置</p><h1 id="title-settings-title">声音与无障碍</h1></header><div class="settings-grid"><fieldset class="settings-section settings-audio"><legend>声音</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}</fieldset><fieldset class="settings-section settings-accessibility"><legend>显示与操作</legend><div class="settings-toggle-list">${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}</div><div class="settings-select-list"><label><span>文字大小</span><select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label><span>牵手操作</span><select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label></div></fieldset></div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><header class="title-panel-heading"><p class="eyebrow">设置</p><h1 id="title-settings-title">声音与无障碍</h1></header><div class="settings-grid"><fieldset class="settings-section settings-audio"><legend>声音</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}</fieldset><fieldset class="settings-section settings-accessibility"><legend>显示与操作</legend><div class="settings-toggle-list">${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}</div><div class="settings-select-list"><label><span>文字大小</span><select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label><span>牵手操作</span><select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label></div>${this.fullscreenControl()}</fieldset></div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private memoryFragmentSummary(slot: SaveSlotSummary): string {
@@ -695,7 +781,7 @@ export class AppShell {
 
   private pauseScreen(state: Readonly<GameState>): string {
     const settings = state.settings;
-    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><header class="pause-heading"><div><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2></div><button class="primary" data-close>继续</button></header><fieldset><legend>设置与无障碍</legend><div class="pause-quick-settings">${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label><details class="clear-data" ${this.confirmingClearData ? 'open' : ''}><summary>本地数据</summary><p class="muted">清除后将删除本机上的全部记忆片段和设置，且无法恢复。</p>${this.clearDataControl()}</details></div>${this.audioMixer(settings)}</fieldset><button class="secondary" data-title>返回标题</button></section></div>`;
+    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><header class="pause-heading"><div><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2></div><button class="primary" data-close>继续</button></header><fieldset><legend>设置与无障碍</legend><div class="pause-quick-settings">${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label>${this.fullscreenControl()}<details class="clear-data" ${this.confirmingClearData ? 'open' : ''}><summary>本地数据</summary><p class="muted">清除后将删除本机上的全部记忆片段和设置，且无法恢复。</p>${this.clearDataControl()}</details></div>${this.audioMixer(settings)}</fieldset><button class="secondary" data-title>返回标题</button></section></div>`;
   }
 
   private clearDataControl(): string {
@@ -818,6 +904,7 @@ export class AppShell {
     document.querySelectorAll<HTMLElement>('[data-confirm-start]').forEach((button) =>
       button.addEventListener('click', () => {
         if (!this.pendingNewMode || !this.confirmingStartSlot) return;
+        void this.ensureMobileFullscreen();
         const slotId = this.confirmingStartSlot;
         this.titleDialogReturnFocusSelector = null;
         this.beginNewGame(
@@ -830,16 +917,21 @@ export class AppShell {
     document.querySelectorAll<HTMLElement>('[data-continue-latest]').forEach((button) =>
       button.addEventListener('click', () => {
         const latest = this.saves.getMostRecentValidSlot();
-        if (latest) this.continueFromSlot(latest.slotId, state);
+        if (latest) {
+          void this.ensureMobileFullscreen();
+          this.continueFromSlot(latest.slotId, state);
+        }
+      }),
+    );
+    document.querySelectorAll<HTMLElement>('[data-continue-slot]').forEach((button) =>
+      button.addEventListener('click', () => {
+        void this.ensureMobileFullscreen();
+        this.continueFromSlot(Number(button.dataset.continueSlot) as SaveSlotId, state);
       }),
     );
     document
-      .querySelectorAll<HTMLElement>('[data-continue-slot]')
-      .forEach((button) =>
-        button.addEventListener('click', () =>
-          this.continueFromSlot(Number(button.dataset.continueSlot) as SaveSlotId, state),
-        ),
-      );
+      .querySelectorAll<HTMLElement>('[data-fullscreen-toggle]')
+      .forEach((button) => button.addEventListener('click', () => void this.toggleFullscreen()));
     document.querySelectorAll<HTMLElement>('[data-delete-slot]').forEach((button) =>
       button.addEventListener('click', () => {
         this.confirmingDeleteSlot = Number(button.dataset.deleteSlot) as SaveSlotId;

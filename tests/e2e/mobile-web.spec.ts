@@ -33,10 +33,116 @@ async function expectPanelShellFits(page: Page, selector: string): Promise<void>
   expect(overflow.vertical).toBeLessThanOrEqual(1);
 }
 
+async function enterFullscreenExperience(page: Page): Promise<void> {
+  const entry = page.getByRole('button', { name: '进入全屏体验' });
+  await expect(entry).toBeVisible();
+  await entry.tap();
+  await expect(entry).toBeHidden();
+}
+
 test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    let fullscreenElement: Element | null = null;
+    Object.defineProperty(document, 'fullscreenEnabled', {
+      configurable: true,
+      get: () => sessionStorage.getItem('erasure.e2e.fullscreen') !== 'unsupported',
+    });
+    Object.defineProperty(document, 'fullscreenElement', {
+      configurable: true,
+      get: () => fullscreenElement,
+    });
+    Object.defineProperty(Element.prototype, 'requestFullscreen', {
+      configurable: true,
+      get() {
+        if (sessionStorage.getItem('erasure.e2e.fullscreen') === 'unsupported') return undefined;
+        return async () => {
+          const requests = Number(sessionStorage.getItem('erasure.e2e.fullscreen.requests') ?? 0);
+          sessionStorage.setItem('erasure.e2e.fullscreen.requests', String(requests + 1));
+          if (sessionStorage.getItem('erasure.e2e.fullscreen') === 'denied') {
+            throw new DOMException('denied', 'NotAllowedError');
+          }
+          fullscreenElement = document.querySelector('#app');
+          document.dispatchEvent(new Event('fullscreenchange'));
+        };
+      },
+    });
+    Object.defineProperty(Document.prototype, 'exitFullscreen', {
+      configurable: true,
+      value: async () => {
+        fullscreenElement = null;
+        document.dispatchEvent(new Event('fullscreenchange'));
+      },
+    });
+  });
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+});
+
+test('opens through a fullscreen entry gate and degrades gracefully when unavailable', async ({
+  page,
+}) => {
+  for (const availability of ['denied', 'unsupported']) {
+    const entryDialog = page.getByRole('dialog', { name: '记忆的缝隙' });
+    await expect(entryDialog).toBeVisible();
+    await expect(page.getByRole('button', { name: '开始游戏' })).toBeHidden();
+    await expect(page.getByRole('button', { name: '进入全屏体验' })).toBeFocused();
+
+    await page.evaluate(
+      (value) => sessionStorage.setItem('erasure.e2e.fullscreen', value),
+      availability,
+    );
+    await page.getByRole('button', { name: '进入全屏体验' }).tap();
+
+    await expect(entryDialog).toBeHidden();
+    await expect(page.getByRole('status')).toContainText('无法进入全屏，已继续横屏模式');
+    await expect(page.getByRole('button', { name: '开始游戏' })).toBeVisible();
+    if (availability === 'denied') await page.reload();
+  }
+});
+
+test('restores fullscreen from title settings and pause without blocking gameplay', async ({
+  page,
+}) => {
+  await enterFullscreenExperience(page);
+  await page.evaluate(() => document.exitFullscreen());
+  await page.getByRole('button', { name: '设置' }).tap();
+  await page.getByRole('button', { name: '进入全屏' }).tap();
+  await expect(page.getByRole('button', { name: '退出全屏' })).toBeVisible();
+  await page.getByRole('button', { name: '返回' }).tap();
+
+  await startNewGame(page);
+  await finishOpeningDialogue(page);
+  await page.evaluate(() => document.exitFullscreen());
+  await page.getByRole('button', { name: '暂停游戏' }).tap();
+  await page.getByRole('button', { name: '进入全屏' }).tap();
+  await expect(page.getByRole('button', { name: '退出全屏' })).toBeVisible();
+});
+
+test('retries fullscreen from new game, latest continue, and memory read entry points', async ({
+  page,
+}) => {
+  await enterFullscreenExperience(page);
+  await page.evaluate(() => document.exitFullscreen());
+  await startNewGame(page);
+  await finishOpeningDialogue(page);
+  await page.locator('canvas').press('Escape');
+  await page.getByRole('button', { name: '返回标题' }).click();
+
+  await page.evaluate(() => document.exitFullscreen());
+  await page.getByRole('button', { name: '继续游戏' }).tap();
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await page.getByRole('button', { name: '返回标题' }).click();
+
+  await page.evaluate(() => document.exitFullscreen());
+  await page.getByRole('button', { name: '读取记忆' }).tap();
+  await page.getByRole('button', { name: '读取' }).tap();
+
+  await expect
+    .poll(() =>
+      page.evaluate(() => Number(sessionStorage.getItem('erasure.e2e.fullscreen.requests') ?? 0)),
+    )
+    .toBe(4);
 });
 
 test('keeps every title action visible without scrolling on supported landscape phones', async ({
@@ -48,6 +154,7 @@ test('keeps every title action visible without scrolling on supported landscape 
   ]) {
     await page.setViewportSize(viewport);
     await page.reload();
+    await enterFullscreenExperience(page);
 
     for (const name of ['继续游戏', '开始游戏', '读取记忆', '设置']) {
       await expect(page.getByRole('button', { name })).toBeInViewport();
@@ -75,6 +182,7 @@ test('fits start, memory, and settings pages into supported landscape phones', a
   ]) {
     await page.setViewportSize(viewport);
     await page.reload();
+    await enterFullscreenExperience(page);
 
     await page.locator('[data-title-view="mode"]').tap();
     await expectEveryElementInViewport(page, '.title-mode .mode-card, .title-mode > .secondary');
@@ -124,6 +232,7 @@ test('fits start, memory, and settings pages into supported landscape phones', a
 test('plays with touch controls at the minimum supported landscape viewport', async ({
   page,
 }, testInfo) => {
+  await enterFullscreenExperience(page);
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-title.png') });
   await startNewGame(page);
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-dialogue.png') });
@@ -204,6 +313,7 @@ test('plays with touch controls at the minimum supported landscape viewport', as
 test('adapts inventory, journal, map, and pause panels to mobile landscape', async ({
   page,
 }, testInfo) => {
+  await enterFullscreenExperience(page);
   await startNewGame(page);
   await finishOpeningDialogue(page);
   await page.addInitScript(() => {
@@ -225,6 +335,7 @@ test('adapts inventory, journal, map, and pause panels to mobile landscape', asy
     localStorage.setItem(key, JSON.stringify(record));
   });
   await page.reload();
+  await enterFullscreenExperience(page);
   await page.getByRole('button', { name: '继续游戏' }).tap();
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
 
@@ -269,6 +380,7 @@ test('adapts inventory, journal, map, and pause panels to mobile landscape', asy
 });
 
 test('pauses in portrait and requires an explicit resume after rotating back', async ({ page }) => {
+  await enterFullscreenExperience(page);
   await startNewGame(page);
   await finishOpeningDialogue(page);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -288,6 +400,7 @@ test('pauses in portrait and requires an explicit resume after rotating back', a
 test('applies D3 mapping and completes the default hold ending by touch', async ({
   page,
 }, testInfo) => {
+  await enterFullscreenExperience(page);
   await startNewGame(page);
   await finishOpeningDialogue(page);
   await page.addInitScript(() => {
@@ -308,6 +421,7 @@ test('applies D3 mapping and completes the default hold ending by touch', async 
     localStorage.setItem('erasure.save.slot.1.v1', JSON.stringify(record));
   });
   await page.reload();
+  await enterFullscreenExperience(page);
   await page.getByRole('button', { name: '继续游戏' }).tap();
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-d3.png') });
@@ -340,6 +454,7 @@ test('applies D3 mapping and completes the default hold ending by touch', async 
     localStorage.setItem('erasure.save.slot.1.v1', JSON.stringify(record));
   });
   await page.reload();
+  await enterFullscreenExperience(page);
   await page.getByRole('button', { name: '继续游戏' }).tap();
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-d4.png') });
