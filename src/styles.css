@@ -1949,7 +1949,8 @@ html[data-motion='reduced'] .memory-cutscene::before {
     grid-row: 1 / 4;
     grid-template-columns: minmax(0, 1fr);
     align-self: center;
-    width: 100%;
+    justify-self: center;
+    width: min(100%, 25rem);
     gap: 0.35rem;
   }
   .title-screen:not(.title-subpage) .title-menu-card {
