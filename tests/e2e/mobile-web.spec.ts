@@ -192,9 +192,9 @@ test('plays with touch controls at the minimum supported landscape viewport', as
   await observe.dispatchEvent('pointercancel', { pointerId: 12, pointerType: 'touch' });
   await expect(canvas).toHaveAttribute('data-observation-active', 'false');
 
-  await page
-    .getByRole('button', { name: '暂停游戏' })
-    .dispatchEvent('pointerdown', { pointerId: 13, pointerType: 'touch' });
+  await page.getByRole('button', { name: '暂停游戏' }).tap();
+  await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+  await page.waitForTimeout(150);
   await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-pause.png') });
 });
@@ -249,8 +249,7 @@ test('adapts inventory, journal, map, and pause panels to mobile landscape', asy
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-map.png') });
   await page.locator('.map-panel > [data-close]').tap();
 
-  await page.locator('canvas').focus();
-  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: '暂停游戏' }).tap();
   await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
   await expectEveryElementInViewport(
     page,
@@ -261,6 +260,9 @@ test('adapts inventory, journal, map, and pause panels to mobile landscape', asy
   const clearDataBox = await page.locator('.pause-panel .clear-data').boundingBox();
   expect(clearDataBox?.height).toBeLessThan(settingsBox?.height ?? 0);
   expect(clearDataBox?.width).toBeLessThan(settingsBox?.width ?? 0);
+  await expect(page.getByRole('button', { name: '清除本地数据' })).toBeHidden();
+  await page.getByText('本地数据', { exact: true }).click();
+  await expect(page.getByRole('button', { name: '清除本地数据' })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-pause-panel.png') });
 });
 

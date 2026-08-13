@@ -145,6 +145,15 @@ export class AppShell {
   private bindTouchControls(): void {
     this.touch.querySelectorAll<HTMLButtonElement>('[data-touch-action]').forEach((button) => {
       const action = button.dataset.touchAction as InputAction;
+      if (action === 'pause') {
+        button.addEventListener('click', () => {
+          const sourceId = 'touch:pause-click';
+          this.semanticInput.press(action, sourceId);
+          this.semanticInput.release(action, sourceId);
+        });
+        button.addEventListener('contextmenu', (event) => event.preventDefault());
+        return;
+      }
       const activePointers = new Set<number>();
       const release = (event: PointerEvent) => {
         if (!activePointers.delete(event.pointerId)) return;
@@ -683,7 +692,7 @@ export class AppShell {
 
   private pauseScreen(state: Readonly<GameState>): string {
     const settings = state.settings;
-    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><header class="pause-heading"><div><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2></div><button class="primary" data-close>继续</button></header><fieldset><legend>设置与无障碍</legend><div class="pause-quick-settings">${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label></div>${this.audioMixer(settings)}</fieldset><section class="clear-data"><h3>本地数据</h3><p class="muted">清除后将删除本机上的全部记忆片段和设置，且无法恢复。</p>${this.clearDataControl()}</section><button class="secondary" data-title>返回标题</button></section></div>`;
+    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><header class="pause-heading"><div><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2></div><button class="primary" data-close>继续</button></header><fieldset><legend>设置与无障碍</legend><div class="pause-quick-settings">${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label><details class="clear-data" ${this.confirmingClearData ? 'open' : ''}><summary>本地数据</summary><p class="muted">清除后将删除本机上的全部记忆片段和设置，且无法恢复。</p>${this.clearDataControl()}</details></div>${this.audioMixer(settings)}</fieldset><button class="secondary" data-title>返回标题</button></section></div>`;
   }
 
   private clearDataControl(): string {
