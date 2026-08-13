@@ -220,7 +220,7 @@ test('clears all memories, global settings, and the ignored legacy save after co
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem('erasure.settings.v1')))
     .toContain('"highContrast":true');
-  await page.getByText('本地数据', { exact: true }).click();
+  await page.locator('.clear-data > summary').click();
   await page.getByRole('button', { name: '清除本地数据' }).click();
   await page.getByRole('button', { name: '确认清除本地数据' }).click();
 

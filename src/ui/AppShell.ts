@@ -229,7 +229,7 @@ export class AppShell {
     document.documentElement.dataset.touch = String(coarsePointer);
     document.documentElement.dataset.orientationBlocked = String(blocked);
     this.orientation.innerHTML = blocked
-      ? '<section class="orientation-notice" role="dialog" aria-modal="true" aria-labelledby="orientation-title"><span aria-hidden="true">↻</span><h1 id="orientation-title">请旋转至横屏</h1><p>横屏能保留完整场景和触控区域。旋转后请从暂停菜单继续。</p></section>'
+      ? '<section class="orientation-notice" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="orientation-title"><span aria-hidden="true">↻</span><h1 id="orientation-title">请旋转至横屏</h1><p>横屏能保留完整场景和触控区域。旋转后请从暂停菜单继续。</p></section>'
       : '';
     if (!blocked) return;
     this.semanticInput.clear();
@@ -237,6 +237,9 @@ export class AppShell {
     if (state.phase === 'playing' && !state.modal) {
       this.store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
     }
+    this.orientation
+      .querySelector<HTMLElement>('.orientation-notice')
+      ?.focus({ preventScroll: true });
   };
 
   reportSaveResult(result: SaveResult): void {

@@ -3,19 +3,18 @@ import { startNewGame } from './helpers/game-navigation';
 
 async function finishOpeningDialogue(page: Page): Promise<void> {
   const confirm = page.locator('[data-touch-action="interact"]');
-  while (await page.locator('.dialogue-box').isVisible()) {
+  const dialogue = page.locator('.dialogue-box');
+  await expect(dialogue).toBeVisible();
+  for (let step = 0; step < 40; step += 1) {
+    if (!(await dialogue.isVisible())) break;
     await expect(confirm).toHaveText('继续');
     await confirm.tap();
   }
+  await expect(dialogue).toBeHidden();
 }
 
 async function expectTitlePanelFits(page: Page): Promise<void> {
-  const overflow = await page.locator('.title-panel').evaluate((panel) => ({
-    horizontal: panel.scrollWidth - panel.clientWidth,
-    vertical: panel.scrollHeight - panel.clientHeight,
-  }));
-  expect(overflow.horizontal).toBeLessThanOrEqual(1);
-  expect(overflow.vertical).toBeLessThanOrEqual(1);
+  await expectPanelShellFits(page, '.title-panel');
 }
 
 async function expectEveryElementInViewport(page: Page, selector: string): Promise<void> {
@@ -48,6 +47,7 @@ test('keeps every title action visible without scrolling on supported landscape 
     { width: 932, height: 430 },
   ]) {
     await page.setViewportSize(viewport);
+    await page.reload();
 
     for (const name of ['继续游戏', '开始游戏', '读取记忆', '设置']) {
       await expect(page.getByRole('button', { name })).toBeInViewport();
@@ -175,7 +175,9 @@ test('plays with touch controls at the minimum supported landscape viewport', as
 
   const pause = await page.getByRole('button', { name: '暂停游戏' }).boundingBox();
   const saveNotice = await page.getByRole('status').boundingBox();
-  expect(pause && saveNotice && pause.x < saveNotice.x + saveNotice.width).toBe(false);
+  expect(pause).not.toBeNull();
+  expect(saveNotice).not.toBeNull();
+  expect(pause!.x).toBeGreaterThanOrEqual(saveNotice!.x + saveNotice!.width);
 
   const right = page.getByRole('button', { name: '向右移动' });
   const before = Number(await page.locator('#app').getAttribute('data-player-x'));
@@ -261,7 +263,7 @@ test('adapts inventory, journal, map, and pause panels to mobile landscape', asy
   expect(clearDataBox?.height).toBeLessThan(settingsBox?.height ?? 0);
   expect(clearDataBox?.width).toBeLessThan(settingsBox?.width ?? 0);
   await expect(page.getByRole('button', { name: '清除本地数据' })).toBeHidden();
-  await page.getByText('本地数据', { exact: true }).click();
+  await page.locator('.clear-data > summary').click();
   await expect(page.getByRole('button', { name: '清除本地数据' })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-pause-panel.png') });
 });
@@ -271,7 +273,9 @@ test('pauses in portrait and requires an explicit resume after rotating back', a
   await finishOpeningDialogue(page);
   await page.setViewportSize({ width: 390, height: 844 });
 
-  await expect(page.getByRole('heading', { name: '请旋转至横屏' })).toBeVisible();
+  const orientationNotice = page.getByRole('dialog', { name: '请旋转至横屏' });
+  await expect(orientationNotice).toBeVisible();
+  await expect(orientationNotice).toBeFocused();
   await expect(page.locator('#app')).toHaveAttribute('data-modal', 'pause');
 
   await page.setViewportSize({ width: 780, height: 360 });
@@ -288,6 +292,7 @@ test('applies D3 mapping and completes the default hold ending by touch', async 
   await finishOpeningDialogue(page);
   await page.addInitScript(() => {
     const record = JSON.parse(localStorage.getItem('erasure.save.slot.1.v1') ?? 'null');
+    if (!record?.state) throw new Error('missing save record for slot 1');
     Object.assign(record.state, {
       phase: 'playing',
       chapterId: 'return',
@@ -319,6 +324,7 @@ test('applies D3 mapping and completes the default hold ending by touch', async 
 
   await page.addInitScript(() => {
     const record = JSON.parse(localStorage.getItem('erasure.save.slot.1.v1') ?? 'null');
+    if (!record?.state) throw new Error('missing save record for slot 1');
     Object.assign(record.state, {
       chapterId: 'ending',
       checkpointId: 'checkpoint.ending.start',

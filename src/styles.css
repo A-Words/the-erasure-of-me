@@ -2348,7 +2348,7 @@ html[data-motion='reduced'] .memory-cutscene::before {
   }
   #system-layer .pause-panel {
     grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
     gap: 0.5rem 0.7rem;
   }
   #system-layer .pause-heading {
@@ -2465,10 +2465,9 @@ html[data-motion='reduced'] .memory-cutscene::before {
     white-space: nowrap;
   }
   #system-layer .pause-panel > [data-title] {
-    grid-column: 2;
-    grid-row: 1;
-    align-self: center;
-    margin-right: 8rem;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: end;
     min-width: 9rem;
     padding: 0.3rem 0.65rem;
     font-size: 0.72em;

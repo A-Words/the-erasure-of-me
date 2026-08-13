@@ -30,6 +30,18 @@ describe('SemanticInput', () => {
     expect(input.isPressed('observe')).toBe(false);
   });
 
+  it('ignores a release from a source that never pressed the action', () => {
+    const input = new SemanticInput();
+    const listener = vi.fn();
+    input.subscribe(listener);
+    input.press('interact', 'touch:1');
+
+    input.release('interact', 'touch:2');
+
+    expect(input.isPressed('interact')).toBe(true);
+    expect(listener).toHaveBeenCalledTimes(1);
+  });
+
   it('clears all held actions and emits their release transitions', () => {
     const input = new SemanticInput();
     const listener = vi.fn();

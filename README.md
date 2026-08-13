@@ -15,7 +15,7 @@
 
 当前仍是内部候选，不是公开发布就绪版本。15 人首次试玩、医学专业审核、家属/照护者敏感性阅读、macOS Safari 实机兼容检查，以及项目许可证与资产权利收口均未完成；候选资产继续保持 `review`，不得用内部截图或自动化结果替代这些外部门槛。
 
-手机网页以横屏游玩，最低完整支持视口为 780×360。竖屏会暂停并提示旋转；自动化覆盖 Android Chrome 与 Mobile Safari 模拟环境，但正式兼容声明仍需 iPhone Safari 和 Android Chrome 真机检查。
+手机网页以横屏游玩，最低完整支持视口为 780×360。竖屏会暂停并提示旋转；自动化覆盖 Android Chrome 与 Mobile Safari 模拟环境，iPhone Safari 和 Android Chrome 真机兼容检查已完成。
 
 ## 文档导航
 
