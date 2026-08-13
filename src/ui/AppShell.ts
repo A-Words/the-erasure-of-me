@@ -24,6 +24,8 @@ import type {
   SaveSlotSummary,
 } from '../save/SaveRepository';
 import { enableDevPanelDrag, type DevPanelPosition } from './devPanelDrag';
+import type { SemanticInput } from '../game/input/SemanticInput';
+import type { InputAction } from '../game/input/actions';
 
 const journalText: Record<string, { title: string; body: string }> = {
   'journal.home.key': {
@@ -75,6 +77,8 @@ export class AppShell {
   private readonly hud = document.querySelector<HTMLDivElement>('#hud')!;
   private readonly panel = document.querySelector<HTMLDivElement>('#panel-layer')!;
   private readonly system = document.querySelector<HTMLDivElement>('#system-layer')!;
+  private readonly touch = document.querySelector<HTMLDivElement>('#touch-layer')!;
+  private readonly orientation = document.querySelector<HTMLDivElement>('#orientation-layer')!;
   private signature = '';
   private photoOrder: string[] = [];
   private confirmingClearData = false;
@@ -97,22 +101,102 @@ export class AppShell {
   constructor(
     private readonly store: GameStore,
     private readonly saves: SaveRepository,
+    private readonly semanticInput: SemanticInput,
     private readonly options?: { onSettingsCleared?: () => void },
   ) {
-    if (!this.hud || !this.panel || !this.system)
+    if (!this.hud || !this.panel || !this.system || !this.touch || !this.orientation)
       throw new Error('App shell containers are missing');
     for (const layer of [this.hud, this.panel, this.system]) {
       layer.addEventListener('keydown', this.protectDomKeyboardInput);
       layer.addEventListener('keyup', this.protectDomKeyboardInput);
     }
+    this.renderTouchControls();
+    this.bindTouchControls();
+    this.updateOrientationGate();
+    window.addEventListener('resize', this.updateOrientationGate);
+    window.addEventListener('orientationchange', this.updateOrientationGate);
     store.subscribe((state) => this.render(state));
     window.addEventListener('blur', () => {
+      this.semanticInput.clear();
       const state = this.store.getState();
       if (state.phase === 'playing' && !state.modal) {
         this.store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
       }
     });
   }
+
+  private renderTouchControls(): void {
+    this.touch.innerHTML = `
+      <div class="touch-controls" aria-label="触屏游戏控制">
+        <div class="touch-dpad" aria-label="移动方向">
+          <button class="touch-up" data-touch-action="move_up" aria-label="向上移动">↑</button>
+          <button class="touch-left" data-touch-action="move_left" aria-label="向左移动">←</button>
+          <button class="touch-down" data-touch-action="move_down" aria-label="向下移动">↓</button>
+          <button class="touch-right" data-touch-action="move_right" aria-label="向右移动">→</button>
+        </div>
+        <div class="touch-context-actions">
+          <button data-touch-action="observe" aria-label="按住静静留意">留意</button>
+          <button class="touch-confirm" data-touch-action="interact" aria-label="交互或确认">确认</button>
+        </div>
+        <button class="touch-pause" data-touch-action="pause" aria-label="暂停游戏">暂停</button>
+      </div>`;
+  }
+
+  private bindTouchControls(): void {
+    this.touch.querySelectorAll<HTMLButtonElement>('[data-touch-action]').forEach((button) => {
+      const action = button.dataset.touchAction as InputAction;
+      const activePointers = new Set<number>();
+      const release = (event: PointerEvent) => {
+        if (!activePointers.delete(event.pointerId)) return;
+        this.semanticInput.release(action, `touch:${event.pointerId}`);
+        button.removeAttribute('data-pressed');
+      };
+      button.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        activePointers.add(event.pointerId);
+        button.dataset.pressed = 'true';
+        this.semanticInput.press(action, `touch:${event.pointerId}`);
+        try {
+          button.setPointerCapture(event.pointerId);
+        } catch {
+          // Synthetic accessibility tools may not create a capturable native pointer.
+        }
+      });
+      button.addEventListener('pointerup', release);
+      button.addEventListener('pointercancel', release);
+      button.addEventListener('lostpointercapture', release);
+      button.addEventListener('pointermove', (event) => {
+        if (!activePointers.has(event.pointerId)) return;
+        const bounds = button.getBoundingClientRect();
+        if (
+          event.clientX < bounds.left ||
+          event.clientX > bounds.right ||
+          event.clientY < bounds.top ||
+          event.clientY > bounds.bottom
+        ) {
+          release(event);
+        }
+      });
+      button.addEventListener('contextmenu', (event) => event.preventDefault());
+    });
+  }
+
+  private readonly updateOrientationGate = (): void => {
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const portrait = window.innerHeight > window.innerWidth;
+    const blocked = coarsePointer && portrait;
+    document.documentElement.dataset.touch = String(coarsePointer);
+    document.documentElement.dataset.orientationBlocked = String(blocked);
+    this.orientation.innerHTML = blocked
+      ? '<section class="orientation-notice" role="dialog" aria-modal="true" aria-labelledby="orientation-title"><span aria-hidden="true">↻</span><h1 id="orientation-title">请旋转至横屏</h1><p>横屏能保留完整场景和触控区域。旋转后请从暂停菜单继续。</p></section>'
+      : '';
+    if (!blocked) return;
+    this.semanticInput.clear();
+    const state = this.store.getState();
+    if (state.phase === 'playing' && !state.modal) {
+      this.store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
+    }
+  };
 
   reportSaveResult(result: SaveResult): void {
     if (!result.ok) {
@@ -172,6 +256,8 @@ export class AppShell {
       app.dataset.playerX = String(Math.round(state.player.x));
       app.dataset.playerY = String(Math.round(state.player.y));
       app.dataset.holdProgress = String(Math.round(state.holdProgress * 100));
+      app.dataset.modal = state.modal ?? 'none';
+      app.dataset.dialogueActive = String(state.dialogue.length > 0);
       app.dataset.breathingActive = String(isBreathingActive(state));
       app.dataset.mapMode = mapMode;
     }

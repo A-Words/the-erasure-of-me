@@ -16,21 +16,35 @@ export default defineConfig({
     reuseExistingServer: true,
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'chromium',
+      testIgnore: /mobile-web\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
     {
       name: 'edge',
-      testIgnore: /(?:release-visual|accessibility)\.spec\.ts/,
+      testIgnore: /(?:release-visual|accessibility|mobile-web)\.spec\.ts/,
       use: { ...devices['Desktop Edge'], channel: 'msedge' },
     },
     {
       name: 'firefox',
-      testIgnore: /(?:release-visual|accessibility)\.spec\.ts/,
+      testIgnore: /(?:release-visual|accessibility|mobile-web)\.spec\.ts/,
       use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
-      testIgnore: /(?:release-visual|accessibility)\.spec\.ts/,
+      testIgnore: /(?:release-visual|accessibility|mobile-web)\.spec\.ts/,
       use: { ...devices['Desktop Safari'] },
+    },
+    {
+      name: 'android-chrome',
+      testMatch: /mobile-web\.spec\.ts/,
+      use: { ...devices['Pixel 5'], viewport: { width: 780, height: 360 } },
+    },
+    {
+      name: 'mobile-safari',
+      testMatch: /mobile-web\.spec\.ts/,
+      use: { ...devices['iPhone 13'], viewport: { width: 780, height: 360 } },
     },
   ],
 });

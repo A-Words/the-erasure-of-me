@@ -18,6 +18,7 @@ import {
 import { mapMovement } from '../../game/input/InputMapper';
 import { getMapMode } from '../../game/presentation/mapPresentation';
 import type { InputAction } from '../../game/input/actions';
+import type { SemanticInput } from '../../game/input/SemanticInput';
 import type { GameState } from '../../game/state/GameState';
 import type { GameStore } from '../../game/state/GameStore';
 import { collisionRectCorners } from '../../game/simulation/collision';
@@ -118,6 +119,7 @@ export class GameScene extends Phaser.Scene {
   private holdingConfirm = false;
   private tickAccumulator = 0;
   private unsubscribe: (() => void) | null = null;
+  private unsubscribeSemanticInput: (() => void) | null = null;
   private reducedMotion = false;
   private tiledContent: TiledMapContent | null = null;
   private lifeResolvedBackdrop: Phaser.GameObjects.Image | null = null;
@@ -136,7 +138,10 @@ export class GameScene extends Phaser.Scene {
   private wrongTurnWallTimer: number | null = null;
   private mapEditor: MapEntityEditor | null = null;
 
-  constructor(store: GameStore) {
+  constructor(
+    store: GameStore,
+    private readonly semanticInput: SemanticInput,
+  ) {
     super('GameScene');
     this.bridge = new SceneBridge(store);
   }
@@ -198,6 +203,24 @@ export class GameScene extends Phaser.Scene {
     this.keys.cancel.on('down', () => this.bridge.send({ type: 'CLOSE_MODAL' }));
     this.keys.observe.on('down', () => this.beginObservation());
     this.keys.observe.on('up', () => this.endObservation());
+    this.unsubscribeSemanticInput = this.semanticInput.subscribe((action, pressed) => {
+      if (action === 'interact') {
+        if (pressed) this.confirmDown();
+        else this.confirmUp();
+      } else if (action === 'observe') {
+        if (pressed) this.beginObservation();
+        else this.endObservation();
+      } else if (action === 'pause' && pressed) {
+        const state = this.bridge.getSnapshot();
+        if (state.phase !== 'playing') return;
+        this.endObservation();
+        this.bridge.send(
+          state.modal === 'pause'
+            ? { type: 'CLOSE_MODAL' }
+            : { type: 'OPEN_MODAL', modal: 'pause' },
+        );
+      }
+    });
     this.createPlayerAnimations();
     const movementKeys: Array<[string, InputAction]> = [
       ['up', 'move_up'],
@@ -231,6 +254,9 @@ export class GameScene extends Phaser.Scene {
       delete this.game.canvas.dataset.sceneReady;
       delete this.game.canvas.dataset.observationActive;
       this.unsubscribe?.();
+      this.unsubscribeSemanticInput?.();
+      this.unsubscribeSemanticInput = null;
+      this.semanticInput.clear();
       this.clearWrongTurnEcho();
       delete this.game.canvas.dataset.wrongTurnEcho;
       this.presentation.destroyChapter();
@@ -291,8 +317,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   private beginObservation(): void {
-    const state = this.bridge.getSnapshot();
+    let state = this.bridge.getSnapshot();
     if (!this.player || this.isPresentationLocked()) return;
+    if (state.player.moving) {
+      this.bridge.send({ type: 'STOP_MOVING' });
+      state = this.bridge.getSnapshot();
+    }
     this.presentation.beginObservation(
       state,
       { x: this.player.x, y: this.player.y },
@@ -370,10 +400,26 @@ export class GameScene extends Phaser.Scene {
   }
 
   private currentMovementAction(): InputAction | null {
-    if (this.keys.up.isDown || this.keys.upAlt.isDown) return 'move_up';
-    if (this.keys.down.isDown || this.keys.downAlt.isDown) return 'move_down';
-    if (this.keys.left.isDown || this.keys.leftAlt.isDown) return 'move_left';
-    if (this.keys.right.isDown || this.keys.rightAlt.isDown) return 'move_right';
+    if (this.keys.up.isDown || this.keys.upAlt.isDown || this.semanticInput.isPressed('move_up'))
+      return 'move_up';
+    if (
+      this.keys.down.isDown ||
+      this.keys.downAlt.isDown ||
+      this.semanticInput.isPressed('move_down')
+    )
+      return 'move_down';
+    if (
+      this.keys.left.isDown ||
+      this.keys.leftAlt.isDown ||
+      this.semanticInput.isPressed('move_left')
+    )
+      return 'move_left';
+    if (
+      this.keys.right.isDown ||
+      this.keys.rightAlt.isDown ||
+      this.semanticInput.isPressed('move_right')
+    )
+      return 'move_right';
     return null;
   }
 

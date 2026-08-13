@@ -29,6 +29,13 @@ body,
   margin: 0;
   overflow: hidden;
 }
+html,
+body {
+  overscroll-behavior: none;
+}
+body {
+  min-height: 100dvh;
+}
 body {
   font-size: var(--base-size);
 }
@@ -91,6 +98,44 @@ a:focus-visible {
 }
 #system-layer {
   z-index: 30;
+}
+#touch-layer,
+#orientation-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+#touch-layer {
+  z-index: 40;
+  display: none;
+}
+#orientation-layer {
+  z-index: 80;
+}
+
+.touch-controls {
+  display: none;
+}
+
+.orientation-notice {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: 0.6rem;
+  padding: max(1.5rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
+  color: var(--warm-white);
+  text-align: center;
+  background: rgba(28, 25, 23, 0.97);
+  pointer-events: auto;
+}
+.orientation-notice span {
+  font-size: 3rem;
+}
+.orientation-notice h1,
+.orientation-notice p {
+  margin: 0;
 }
 #app[data-chapter='rain'] {
   --hud-accent: #bf5e58;
@@ -1692,6 +1737,162 @@ html[data-motion='reduced'] .memory-cutscene::before {
   }
   .title-emblem {
     margin-top: 1rem;
+  }
+}
+
+@media (pointer: coarse) and (orientation: landscape) {
+  #touch-layer {
+    display: block;
+  }
+  #app[data-phase='playing'] .touch-controls {
+    display: block;
+  }
+  .touch-controls button {
+    position: absolute;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    color: var(--warm-white);
+    background: color-mix(in srgb, var(--hud-ink) 82%, transparent);
+    border: 1px solid color-mix(in srgb, var(--hud-paper) 55%, transparent);
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(20, 15, 10, 0.28);
+    backdrop-filter: blur(6px);
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
+  }
+  .touch-controls button[data-pressed='true'] {
+    background: color-mix(in srgb, var(--hud-accent) 58%, var(--hud-ink));
+    transform: scale(0.94);
+  }
+  .touch-dpad button {
+    width: 48px;
+    height: 48px;
+  }
+  .touch-up {
+    left: calc(max(12px, env(safe-area-inset-left)) + 52px);
+    bottom: calc(max(10px, env(safe-area-inset-bottom)) + 56px);
+  }
+  .touch-left {
+    left: max(12px, env(safe-area-inset-left));
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  .touch-down {
+    left: calc(max(12px, env(safe-area-inset-left)) + 52px);
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  .touch-right {
+    left: calc(max(12px, env(safe-area-inset-left)) + 104px);
+    bottom: max(10px, env(safe-area-inset-bottom));
+  }
+  .touch-context-actions button {
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .touch-context-actions button:first-child {
+    right: calc(max(14px, env(safe-area-inset-right)) + 68px);
+    width: 54px;
+    height: 54px;
+    font-size: 0.8em;
+  }
+  .touch-confirm {
+    right: max(14px, env(safe-area-inset-right));
+    width: 60px;
+    height: 60px;
+    font-size: 0.8em;
+  }
+  .touch-pause {
+    top: max(8px, env(safe-area-inset-top));
+    right: max(12px, env(safe-area-inset-right));
+    width: 50px;
+    height: 44px;
+    border-radius: 999px !important;
+    font-size: 0.76em;
+  }
+  #app[data-phase='playing'][data-modal]:not([data-modal='none']) #touch-layer .touch-dpad,
+  #app[data-phase='playing'][data-modal]:not([data-modal='none'])
+    #touch-layer
+    .touch-context-actions,
+  #app[data-phase='playing'][data-modal]:not([data-modal='none']) #touch-layer .touch-pause {
+    display: none;
+  }
+  #app[data-phase='title'] #touch-layer,
+  #app[data-phase='guide'] #touch-layer {
+    display: none;
+  }
+  .hud-actions {
+    left: 50%;
+    bottom: max(0.45rem, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+  }
+  .hud-actions button,
+  .interaction-prompt,
+  .dialogue-box,
+  .paper-panel button,
+  .title-screen button {
+    min-height: 44px;
+  }
+  .objective-chip {
+    top: max(0.55rem, env(safe-area-inset-top));
+    left: max(0.65rem, env(safe-area-inset-left));
+    max-width: min(30rem, 58vw);
+    padding: 0.48rem 0.7rem 0.45rem 0.85rem;
+    font-size: 0.9em;
+  }
+  .stage-chip {
+    display: none;
+  }
+  .interaction-prompt {
+    bottom: calc(max(0.5rem, env(safe-area-inset-bottom)) + 64px);
+  }
+  .toast {
+    bottom: calc(max(0.5rem, env(safe-area-inset-bottom)) + 68px);
+    font-size: 0.9em;
+  }
+  .dialogue-box {
+    bottom: max(0.5rem, env(safe-area-inset-bottom));
+    width: min(40rem, calc(100vw - 10rem));
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9em;
+  }
+  .scrim,
+  .title-screen,
+  .guide-page {
+    padding-top: max(0.65rem, env(safe-area-inset-top));
+    padding-right: max(0.75rem, env(safe-area-inset-right));
+    padding-bottom: max(0.65rem, env(safe-area-inset-bottom));
+    padding-left: max(0.75rem, env(safe-area-inset-left));
+  }
+  .paper-panel,
+  .title-panel,
+  .guide-page {
+    max-height: calc(100dvh - 1.3rem);
+    overflow: auto;
+  }
+  .title-screen {
+    overflow-y: auto;
+  }
+  .title-emblem {
+    width: 3.2rem;
+    height: 3.2rem;
+  }
+  .title-screen h1 {
+    font-size: clamp(1.8rem, 8vh, 2.7rem);
+  }
+  .title-menu {
+    gap: 0.35rem;
+  }
+  .title-menu-card {
+    min-height: 44px;
+    padding-block: 0.42rem;
+  }
+  .controls {
+    display: none;
+  }
+  kbd {
+    display: none;
   }
 }
 

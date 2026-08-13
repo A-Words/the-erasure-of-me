@@ -18,6 +18,7 @@ import type {
 } from './game/presentation/presentationEvents';
 import type { SemanticAudioCue } from './phaser/audio/AudioManager';
 import type { SaveSlotId } from './save/SaveRepository';
+import { SemanticInput } from './game/input/SemanticInput';
 
 const rainStoneCues: Record<RainStoneStep, SemanticAudioCue> = {
   1: 'rain_stone_1',
@@ -83,12 +84,13 @@ async function bootstrap(): Promise<void> {
   const audio = new AudioManager();
   const savedSettings = saves.loadSettings();
   if (savedSettings) store.dispatch({ type: 'SETTINGS', patch: savedSettings });
-  const game = createGame(store);
+  const semanticInput = new SemanticInput();
+  const game = createGame(store, semanticInput);
   game.canvas.tabIndex = 0;
   game.canvas.setAttribute('aria-label', '可操作游戏画面');
   game.canvas.addEventListener('pointerdown', () => game.canvas.focus());
   let lastSettingsSignature = '';
-  const appShell = new AppShell(store, saves, {
+  const appShell = new AppShell(store, saves, semanticInput, {
     onSettingsCleared: () => {
       // clearAll() 已删除设置键；把基线对齐到默认设置，使随后的 SETTINGS 分派不再写回该键。
       lastSettingsSignature = JSON.stringify(normalizeSettings());
