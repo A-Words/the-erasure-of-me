@@ -550,6 +550,11 @@ interface DegradationConfig {
     settings-dialog
     content-warning
     guide-page
+  #touch-layer
+    direction-controls
+    observe-confirm-pause
+  #orientation-layer
+    rotate-device-notice
 ```
 
 ### 9.2 状态规则
@@ -562,6 +567,10 @@ interface DegradationConfig {
 - objective-chip 默认四秒后收起。
 - HUD 总覆盖面积不超过 20%。
 - 下中情境交互提示只在角色进入交互距离后出现，按钮同时服务纯键盘与指针/触屏点击；标签和实体可用性共用纯选择器，避免 Canvas 与 DOM 状态分叉。
+- `SemanticInput` 以 `press(action, sourceId)` / `release(action, sourceId)` 聚合多指来源；触控 DOM 只发送 InputAction，GameScene 与键盘共用 `mapMovement`。方向、留意和交互使用持续 pointer 输入，暂停只在有效 click 完成后发送一次按下/释放，避免抬起落到新出现的继续按钮；指针取消、失去捕获、滑出、窗口失焦和竖屏门控必须清空持续输入，避免卡键。
+- 粗指针横屏显示固定四向、静静留意、情境交互和暂停控制，点击目标不小于 44×44 CSS px，并使用 `viewport-fit=cover`、动态视口单位和 `safe-area-inset-*`。情境交互键只从现有只读状态派生“交互 / 查看 / 拾取 / 放置 / 前往 / 继续 / 牵手”标签，仍只发送统一的 `interact` InputAction，不自行判断玩法结果。标题子页在受支持横屏中采用模式左右分栏、记忆三列卡和设置双列分区，返回入口统一固定在标题区右上；正常文字大小下页面面板不得滚动，放大文字只允许设置分区内部滚动。最低完整支持视口为 780×360。
+- 游戏内 DOM 面板在受支持横屏中使用固定面板外壳：背包与日记只滚动内容区，地图按主体与图例分栏，暂停将快捷设置与四路混音分栏；低频高危的本地数据操作默认折叠在设置区末尾，返回标题与继续保持在顶部。面板打开期间仍由 GameState 模态状态阻断玩法输入，不把物件、日记、地图或设置状态复制到 DOM 本地状态。
+- 粗指针竖屏显示语义化旋转遮罩并打开暂停；回到横屏只移除遮罩，玩家必须主动继续。
 - D1/D2 的文字变化由 UI 读取退化配置生成，不直接修改原始内容数据。
 - 科普页使用语义化 HTML，来源链接可复制且可通过键盘访问。
 

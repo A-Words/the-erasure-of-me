@@ -61,7 +61,7 @@ test('shows four compact home actions and disables continue without a valid memo
   await expect(page.locator('.settings-section')).toHaveCount(2);
   await expect(page.getByRole('group', { name: '音量混音' })).toBeVisible();
   await expect(page.getByLabel('减少动态效果')).toBeVisible();
-  await page.getByRole('button', { name: '返回首页' }).click();
+  await page.getByRole('button', { name: '返回', exact: true }).click();
   await expect(menu).toBeVisible();
 });
 
@@ -220,6 +220,7 @@ test('clears all memories, global settings, and the ignored legacy save after co
   await expect
     .poll(() => page.evaluate(() => localStorage.getItem('erasure.settings.v1')))
     .toContain('"highContrast":true');
+  await page.locator('.clear-data > summary').click();
   await page.getByRole('button', { name: '清除本地数据' }).click();
   await page.getByRole('button', { name: '确认清除本地数据' }).click();
 

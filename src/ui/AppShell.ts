@@ -24,6 +24,8 @@ import type {
   SaveSlotSummary,
 } from '../save/SaveRepository';
 import { enableDevPanelDrag, type DevPanelPosition } from './devPanelDrag';
+import type { SemanticInput } from '../game/input/SemanticInput';
+import type { InputAction } from '../game/input/actions';
 
 const journalText: Record<string, { title: string; body: string }> = {
   'journal.home.key': {
@@ -75,6 +77,8 @@ export class AppShell {
   private readonly hud = document.querySelector<HTMLDivElement>('#hud')!;
   private readonly panel = document.querySelector<HTMLDivElement>('#panel-layer')!;
   private readonly system = document.querySelector<HTMLDivElement>('#system-layer')!;
+  private readonly touch = document.querySelector<HTMLDivElement>('#touch-layer')!;
+  private readonly orientation = document.querySelector<HTMLDivElement>('#orientation-layer')!;
   private signature = '';
   private photoOrder: string[] = [];
   private confirmingClearData = false;
@@ -97,22 +101,146 @@ export class AppShell {
   constructor(
     private readonly store: GameStore,
     private readonly saves: SaveRepository,
+    private readonly semanticInput: SemanticInput,
     private readonly options?: { onSettingsCleared?: () => void },
   ) {
-    if (!this.hud || !this.panel || !this.system)
+    if (!this.hud || !this.panel || !this.system || !this.touch || !this.orientation)
       throw new Error('App shell containers are missing');
     for (const layer of [this.hud, this.panel, this.system]) {
       layer.addEventListener('keydown', this.protectDomKeyboardInput);
       layer.addEventListener('keyup', this.protectDomKeyboardInput);
     }
+    this.renderTouchControls();
+    this.bindTouchControls();
+    this.updateOrientationGate();
+    window.addEventListener('resize', this.updateOrientationGate);
+    window.addEventListener('orientationchange', this.updateOrientationGate);
     store.subscribe((state) => this.render(state));
     window.addEventListener('blur', () => {
+      this.semanticInput.clear();
       const state = this.store.getState();
       if (state.phase === 'playing' && !state.modal) {
         this.store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
       }
     });
   }
+
+  private renderTouchControls(): void {
+    this.touch.innerHTML = `
+      <div class="touch-controls" aria-label="触屏游戏控制">
+        <div class="touch-dpad" aria-label="移动方向">
+          <button class="touch-up" data-touch-action="move_up" aria-label="向上移动">↑</button>
+          <button class="touch-left" data-touch-action="move_left" aria-label="向左移动">←</button>
+          <button class="touch-down" data-touch-action="move_down" aria-label="向下移动">↓</button>
+          <button class="touch-right" data-touch-action="move_right" aria-label="向右移动">→</button>
+        </div>
+        <div class="touch-context-actions">
+          <button data-touch-action="observe" aria-label="按住静静留意">留意</button>
+          <button class="touch-confirm" data-touch-action="interact" aria-label="与附近物件交互">交互</button>
+        </div>
+        <button class="touch-pause" data-touch-action="pause" aria-label="暂停游戏">暂停</button>
+      </div>`;
+  }
+
+  private bindTouchControls(): void {
+    this.touch.querySelectorAll<HTMLButtonElement>('[data-touch-action]').forEach((button) => {
+      const action = button.dataset.touchAction as InputAction;
+      if (action === 'pause') {
+        button.addEventListener('click', () => {
+          const sourceId = 'touch:pause-click';
+          this.semanticInput.press(action, sourceId);
+          this.semanticInput.release(action, sourceId);
+        });
+        button.addEventListener('contextmenu', (event) => event.preventDefault());
+        return;
+      }
+      const activePointers = new Set<number>();
+      const release = (event: PointerEvent) => {
+        if (!activePointers.delete(event.pointerId)) return;
+        this.semanticInput.release(action, `touch:${event.pointerId}`);
+        button.removeAttribute('data-pressed');
+      };
+      button.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        activePointers.add(event.pointerId);
+        button.dataset.pressed = 'true';
+        this.semanticInput.press(action, `touch:${event.pointerId}`);
+        try {
+          button.setPointerCapture(event.pointerId);
+        } catch {
+          // Synthetic accessibility tools may not create a capturable native pointer.
+        }
+      });
+      button.addEventListener('pointerup', release);
+      button.addEventListener('pointercancel', release);
+      button.addEventListener('lostpointercapture', release);
+      button.addEventListener('pointermove', (event) => {
+        if (!activePointers.has(event.pointerId)) return;
+        const bounds = button.getBoundingClientRect();
+        if (
+          event.clientX < bounds.left ||
+          event.clientX > bounds.right ||
+          event.clientY < bounds.top ||
+          event.clientY > bounds.bottom
+        ) {
+          release(event);
+        }
+      });
+      button.addEventListener('contextmenu', (event) => event.preventDefault());
+    });
+  }
+
+  private updateTouchInteractLabel(
+    state: Readonly<GameState>,
+    nearbyEntity: ReturnType<typeof nearestAvailableEntity>,
+  ): void {
+    const button = this.touch.querySelector<HTMLButtonElement>('[data-touch-action="interact"]');
+    if (!button) return;
+
+    let label = '交互';
+    let accessibleLabel = '与附近物件交互';
+    if (state.dialogue.length > 0) {
+      label = '继续';
+      accessibleLabel = '继续对白';
+    } else if (state.flags.includes('ending.ready_to_hold')) {
+      label = '牵手';
+      accessibleLabel = state.settings.holdMode === 'hold' ? '按住牵手' : '牵手';
+    } else if (nearbyEntity) {
+      const verb = {
+        inspect: '查看',
+        pickup: '拾取',
+        puzzle: '查看',
+        exit: '前往',
+        anchor: '查看',
+        slot: '放置',
+      }[nearbyEntity.kind];
+      label = verb;
+      accessibleLabel = `${verb}${nearbyEntity.label}`;
+    }
+
+    button.textContent = label;
+    button.setAttribute('aria-label', accessibleLabel);
+  }
+
+  private readonly updateOrientationGate = (): void => {
+    const coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const portrait = window.innerHeight > window.innerWidth;
+    const blocked = coarsePointer && portrait;
+    document.documentElement.dataset.touch = String(coarsePointer);
+    document.documentElement.dataset.orientationBlocked = String(blocked);
+    this.orientation.innerHTML = blocked
+      ? '<section class="orientation-notice" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="orientation-title"><span aria-hidden="true">↻</span><h1 id="orientation-title">请旋转至横屏</h1><p>横屏能保留完整场景和触控区域。旋转后请从暂停菜单继续。</p></section>'
+      : '';
+    if (!blocked) return;
+    this.semanticInput.clear();
+    const state = this.store.getState();
+    if (state.phase === 'playing' && !state.modal) {
+      this.store.dispatch({ type: 'OPEN_MODAL', modal: 'pause' });
+    }
+    this.orientation
+      .querySelector<HTMLElement>('.orientation-notice')
+      ?.focus({ preventScroll: true });
+  };
 
   reportSaveResult(result: SaveResult): void {
     if (!result.ok) {
@@ -172,6 +300,8 @@ export class AppShell {
       app.dataset.playerX = String(Math.round(state.player.x));
       app.dataset.playerY = String(Math.round(state.player.y));
       app.dataset.holdProgress = String(Math.round(state.holdProgress * 100));
+      app.dataset.modal = state.modal ?? 'none';
+      app.dataset.dialogueActive = String(state.dialogue.length > 0);
       app.dataset.breathingActive = String(isBreathingActive(state));
       app.dataset.mapMode = mapMode;
     }
@@ -179,6 +309,7 @@ export class AppShell {
     document.documentElement.dataset.contrast = String(state.settings.highContrast);
     document.documentElement.dataset.motion = state.settings.reducedMotion ? 'reduced' : 'full';
     const nearbyEntity = this.nearbyEntity(state);
+    this.updateTouchInteractLabel(state, nearbyEntity);
     const signature = JSON.stringify({
       phase: state.phase,
       chapter: state.chapterId,
@@ -483,7 +614,7 @@ export class AppShell {
   }
 
   private modeScreen(): string {
-    return `<section class="title-screen title-subpage" aria-labelledby="mode-title"><div class="title-panel"><p class="eyebrow">开始游戏</p><h1 id="mode-title">选择体验方式</h1><p>体验方式可以在暂停菜单中随时调整，不会重置进度。</p><div class="mode-grid"><button class="mode-card primary" data-select-mode="standard"><strong>标准模式</strong><span>固定、可学习的方向错位与完整退化表现</span></button><button class="mode-card" data-select-mode="low_stimulation"><strong>低扰动模式</strong><span>保留标准方向，降低模糊、漂移和动态</span></button></div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="mode-title"><div class="title-panel title-mode"><header class="title-panel-heading"><p class="eyebrow">开始游戏</p><h1 id="mode-title">选择体验方式</h1><p>体验方式可以在暂停菜单中随时调整，不会重置进度。</p></header><div class="mode-grid"><button class="mode-card primary" data-select-mode="standard"><strong>标准模式</strong><span>固定、可学习的方向错位与完整退化表现</span></button><button class="mode-card" data-select-mode="low_stimulation"><strong>低扰动模式</strong><span>保留标准方向，降低模糊、漂移和动态</span></button></div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private newGameMemoriesScreen(): string {
@@ -494,7 +625,7 @@ export class AppShell {
           `<button class="memory-fragment selectable" data-select-start-slot="${slot.slotId}">${this.memoryFragmentSummary(slot)}</button>`,
       )
       .join('');
-    return `<section class="title-screen title-subpage" aria-labelledby="new-memory-title"><div class="title-panel"><p class="eyebrow">开始游戏 · ${this.pendingNewMode === 'low_stimulation' ? '低扰动模式' : '标准模式'}</p><h1 id="new-memory-title">选择一个记忆片段</h1><p>故事会自动保存在选中的片段中。</p><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="mode">返回</button></div>${this.titleSaveNotice()}</section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="new-memory-title"><div class="title-panel title-memory-picker"><header class="title-panel-heading"><p class="eyebrow">开始游戏 · ${this.pendingNewMode === 'low_stimulation' ? '低扰动模式' : '标准模式'}</p><h1 id="new-memory-title">选择一个记忆片段</h1><p>故事会自动保存在选中的片段中。</p></header><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="mode">返回</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private memoriesScreen(): string {
@@ -510,11 +641,11 @@ export class AppShell {
         return `<article class="memory-fragment ${slot.status}">${this.memoryFragmentSummary(slot)}${actions}</article>`;
       })
       .join('');
-    return `<section class="title-screen title-subpage" aria-labelledby="memories-title"><div class="title-panel"><p class="eyebrow">读取记忆</p><h1 id="memories-title">记忆片段</h1><p>每个片段保存一段独立的游戏进度。</p><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="home">返回首页</button></div>${this.titleSaveNotice()}</section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="memories-title"><div class="title-panel title-memories"><header class="title-panel-heading"><p class="eyebrow">读取记忆</p><h1 id="memories-title">记忆片段</h1><p>每个片段保存一段独立的游戏进度。</p></header><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private titleSettingsScreen(settings: AccessibilitySettings): string {
-    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><p class="eyebrow">设置</p><h1 id="title-settings-title">声音与无障碍</h1><div class="settings-grid"><fieldset class="settings-section settings-audio"><legend>声音</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}</fieldset><fieldset class="settings-section settings-accessibility"><legend>显示与操作</legend><div class="settings-toggle-list">${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}</div><div class="settings-select-list"><label><span>文字大小</span><select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label><span>牵手操作</span><select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label></div></fieldset></div><button class="secondary" data-title-view="home">返回首页</button></div>${this.titleSaveNotice()}</section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><header class="title-panel-heading"><p class="eyebrow">设置</p><h1 id="title-settings-title">声音与无障碍</h1></header><div class="settings-grid"><fieldset class="settings-section settings-audio"><legend>声音</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}</fieldset><fieldset class="settings-section settings-accessibility"><legend>显示与操作</legend><div class="settings-toggle-list">${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}</div><div class="settings-select-list"><label><span>文字大小</span><select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label><span>牵手操作</span><select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label></div></fieldset></div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private memoryFragmentSummary(slot: SaveSlotSummary): string {
@@ -564,7 +695,7 @@ export class AppShell {
 
   private pauseScreen(state: Readonly<GameState>): string {
     const settings = state.settings;
-    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2><button class="primary" data-close>继续</button><fieldset><legend>设置与无障碍</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label></fieldset><section class="clear-data"><h3>本地数据</h3><p class="muted">清除后将删除本机上的全部记忆片段和设置，且无法恢复。</p>${this.clearDataControl()}</section><button class="secondary" data-title>返回标题</button></section></div>`;
+    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><header class="pause-heading"><div><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2></div><button class="primary" data-close>继续</button></header><fieldset><legend>设置与无障碍</legend><div class="pause-quick-settings">${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label><details class="clear-data" ${this.confirmingClearData ? 'open' : ''}><summary>本地数据</summary><p class="muted">清除后将删除本机上的全部记忆片段和设置，且无法恢复。</p>${this.clearDataControl()}</details></div>${this.audioMixer(settings)}</fieldset><button class="secondary" data-title>返回标题</button></section></div>`;
   }
 
   private clearDataControl(): string {
