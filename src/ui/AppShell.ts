@@ -136,7 +136,7 @@ export class AppShell {
         </div>
         <div class="touch-context-actions">
           <button data-touch-action="observe" aria-label="按住静静留意">留意</button>
-          <button class="touch-confirm" data-touch-action="interact" aria-label="交互或确认">确认</button>
+          <button class="touch-confirm" data-touch-action="interact" aria-label="与附近物件交互">交互</button>
         </div>
         <button class="touch-pause" data-touch-action="pause" aria-label="暂停游戏">暂停</button>
       </div>`;
@@ -179,6 +179,38 @@ export class AppShell {
       });
       button.addEventListener('contextmenu', (event) => event.preventDefault());
     });
+  }
+
+  private updateTouchInteractLabel(
+    state: Readonly<GameState>,
+    nearbyEntity: ReturnType<typeof nearestAvailableEntity>,
+  ): void {
+    const button = this.touch.querySelector<HTMLButtonElement>('[data-touch-action="interact"]');
+    if (!button) return;
+
+    let label = '交互';
+    let accessibleLabel = '与附近物件交互';
+    if (state.dialogue.length > 0) {
+      label = '继续';
+      accessibleLabel = '继续对白';
+    } else if (state.flags.includes('ending.ready_to_hold')) {
+      label = '牵手';
+      accessibleLabel = state.settings.holdMode === 'hold' ? '按住牵手' : '牵手';
+    } else if (nearbyEntity) {
+      const verb = {
+        inspect: '查看',
+        pickup: '拾取',
+        puzzle: '查看',
+        exit: '前往',
+        anchor: '查看',
+        slot: '放置',
+      }[nearbyEntity.kind];
+      label = verb;
+      accessibleLabel = `${verb}${nearbyEntity.label}`;
+    }
+
+    button.textContent = label;
+    button.setAttribute('aria-label', accessibleLabel);
   }
 
   private readonly updateOrientationGate = (): void => {
@@ -265,6 +297,7 @@ export class AppShell {
     document.documentElement.dataset.contrast = String(state.settings.highContrast);
     document.documentElement.dataset.motion = state.settings.reducedMotion ? 'reduced' : 'full';
     const nearbyEntity = this.nearbyEntity(state);
+    this.updateTouchInteractLabel(state, nearbyEntity);
     const signature = JSON.stringify({
       phase: state.phase,
       chapter: state.chapterId,

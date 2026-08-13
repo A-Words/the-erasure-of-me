@@ -568,7 +568,7 @@ interface DegradationConfig {
 - HUD 总覆盖面积不超过 20%。
 - 下中情境交互提示只在角色进入交互距离后出现，按钮同时服务纯键盘与指针/触屏点击；标签和实体可用性共用纯选择器，避免 Canvas 与 DOM 状态分叉。
 - `SemanticInput` 以 `press(action, sourceId)` / `release(action, sourceId)` 聚合多指来源；触控 DOM 只发送 InputAction，GameScene 与键盘共用 `mapMovement`。指针取消、失去捕获、滑出、窗口失焦和竖屏门控必须清空持续输入，避免卡键。
-- 粗指针横屏显示固定四向、静静留意、确认和暂停控制，点击目标不小于 44×44 CSS px，并使用 `viewport-fit=cover`、动态视口单位和 `safe-area-inset-*`。最低完整支持视口为 780×360。
+- 粗指针横屏显示固定四向、静静留意、情境交互和暂停控制，点击目标不小于 44×44 CSS px，并使用 `viewport-fit=cover`、动态视口单位和 `safe-area-inset-*`。情境交互键只从现有只读状态派生“交互 / 查看 / 拾取 / 放置 / 前往 / 继续 / 牵手”标签，仍只发送统一的 `interact` InputAction，不自行判断玩法结果。最低完整支持视口为 780×360。
 - 粗指针竖屏显示语义化旋转遮罩并打开暂停；回到横屏只移除遮罩，玩家必须主动继续。
 - D1/D2 的文字变化由 UI 读取退化配置生成，不直接修改原始内容数据。
 - 科普页使用语义化 HTML，来源链接可复制且可通过键盘访问。

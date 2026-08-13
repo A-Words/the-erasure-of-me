@@ -2,8 +2,9 @@ import { expect, test, type Page } from '@playwright/test';
 import { startNewGame } from './helpers/game-navigation';
 
 async function finishOpeningDialogue(page: Page): Promise<void> {
-  const confirm = page.getByRole('button', { name: '交互或确认' });
-  while (await page.getByRole('button', { name: '继续对白' }).isVisible()) {
+  const confirm = page.locator('[data-touch-action="interact"]');
+  while (await page.locator('.dialogue-box').isVisible()) {
+    await expect(confirm).toHaveText('继续');
     await confirm.tap();
   }
 }
@@ -80,9 +81,17 @@ test('plays with touch controls at the minimum supported landscape viewport', as
   expect(directionBoxes.下?.y).toBeGreaterThan(directionBoxes.左?.y ?? 0);
 
   const observeBox = await page.getByRole('button', { name: '按住静静留意' }).boundingBox();
-  const confirmBox = await page.getByRole('button', { name: '交互或确认' }).boundingBox();
+  const interact = page.locator('[data-touch-action="interact"]');
+  const confirmBox = await interact.boundingBox();
   expect(confirmBox?.width).toBe(observeBox?.width);
   expect(confirmBox?.height).toBe(observeBox?.height);
+  await expect(interact).toHaveText(/^(交互|查看|拾取|放置|前往)$/);
+
+  const up = page.getByRole('button', { name: '向上移动' });
+  await up.dispatchEvent('pointerdown', { pointerId: 10, pointerType: 'touch' });
+  await expect(interact).toHaveText('查看');
+  await expect(interact).toHaveAttribute('aria-label', '查看床边合影');
+  await up.dispatchEvent('pointerup', { pointerId: 10, pointerType: 'touch' });
 
   const pause = await page.getByRole('button', { name: '暂停游戏' }).boundingBox();
   const saveNotice = await page.getByRole('status').boundingBox();
@@ -179,7 +188,9 @@ test('applies D3 mapping and completes the default hold ending by touch', async 
   await page.getByRole('button', { name: '继续游戏' }).tap();
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.screenshot({ path: testInfo.outputPath('mobile-landscape-d4.png') });
-  const confirm = page.getByRole('button', { name: '交互或确认' });
+  const confirm = page.locator('[data-touch-action="interact"]');
+  await expect(confirm).toHaveText('牵手');
+  await expect(confirm).toHaveAttribute('aria-label', '按住牵手');
   await confirm.dispatchEvent('pointerdown', { pointerId: 22, pointerType: 'touch' });
   await expect(page.locator('#app')).toHaveAttribute('data-hold-progress', '100');
   await confirm.dispatchEvent('pointerup', { pointerId: 22, pointerType: 'touch' });
