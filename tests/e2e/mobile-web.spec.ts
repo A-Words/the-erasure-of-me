@@ -9,6 +9,22 @@ async function finishOpeningDialogue(page: Page): Promise<void> {
   }
 }
 
+async function expectTitlePanelFits(page: Page): Promise<void> {
+  const overflow = await page.locator('.title-panel').evaluate((panel) => ({
+    horizontal: panel.scrollWidth - panel.clientWidth,
+    vertical: panel.scrollHeight - panel.clientHeight,
+  }));
+  expect(overflow.horizontal).toBeLessThanOrEqual(1);
+  expect(overflow.vertical).toBeLessThanOrEqual(1);
+}
+
+async function expectEveryElementInViewport(page: Page, selector: string): Promise<void> {
+  const elements = page.locator(selector);
+  for (let index = 0; index < (await elements.count()); index += 1) {
+    await expect(elements.nth(index)).toBeInViewport();
+  }
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => localStorage.clear());
@@ -38,6 +54,61 @@ test('keeps every title action visible without scrolling on supported landscape 
     await page.screenshot({
       path: testInfo.outputPath(`mobile-landscape-title-${viewport.width}x${viewport.height}.png`),
     });
+  }
+});
+
+test('fits start, memory, and settings pages into supported landscape phones', async ({
+  page,
+}, testInfo) => {
+  for (const viewport of [
+    { width: 780, height: 360 },
+    { width: 932, height: 430 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.reload();
+
+    await page.locator('[data-title-view="mode"]').tap();
+    await expectEveryElementInViewport(page, '.title-mode .mode-card, .title-mode > .secondary');
+    await expectTitlePanelFits(page);
+    await page.screenshot({
+      path: testInfo.outputPath(`mobile-start-${viewport.width}x${viewport.height}.png`),
+    });
+
+    await page.locator('[data-select-mode="standard"]').tap();
+    await expectEveryElementInViewport(
+      page,
+      '.title-memory-picker .memory-fragment, .title-memory-picker > .secondary',
+    );
+    await expectTitlePanelFits(page);
+    await page.screenshot({
+      path: testInfo.outputPath(`mobile-new-game-slots-${viewport.width}x${viewport.height}.png`),
+    });
+
+    await page.locator('.title-memory-picker > .secondary').tap();
+    await page.locator('.title-mode > .secondary').tap();
+    await page.locator('[data-title-view="memories"]').tap();
+    await expectEveryElementInViewport(
+      page,
+      '.title-memories .memory-fragment, .title-memories > .secondary',
+    );
+    await expectTitlePanelFits(page);
+    await page.screenshot({
+      path: testInfo.outputPath(`mobile-memories-${viewport.width}x${viewport.height}.png`),
+    });
+
+    await page.locator('.title-memories > .secondary').tap();
+    await page.locator('[data-title-view="settings"]').tap();
+    await expectEveryElementInViewport(
+      page,
+      '.title-settings .settings-section, .title-settings > .secondary',
+    );
+    await expectTitlePanelFits(page);
+    await page.screenshot({
+      path: testInfo.outputPath(`mobile-settings-${viewport.width}x${viewport.height}.png`),
+    });
+    await page.locator('[data-setting="fontSize"]').selectOption('large');
+    await expect(page.locator('.title-settings > .secondary')).toBeInViewport();
+    await expectTitlePanelFits(page);
   }
 });
 

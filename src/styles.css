@@ -1210,7 +1210,15 @@ html.map-editor-active .debug-panel {
   margin: 0;
   font-size: clamp(1.8rem, 5vw, 3rem);
 }
-.title-panel > p:not(.eyebrow) {
+.title-panel-heading {
+  display: grid;
+  gap: 1rem;
+}
+.title-panel-heading > * {
+  margin: 0;
+}
+.title-panel > p:not(.eyebrow),
+.title-panel-heading > p:not(.eyebrow) {
   margin: 0;
   color: #d3c8ba;
   line-height: 1.55;
@@ -2006,6 +2014,174 @@ html[data-motion='reduced'] .memory-cutscene::before {
     max-width: 52%;
     margin: 0;
     font-size: 0.58em;
+  }
+  .title-subpage {
+    overflow: hidden;
+  }
+  .title-subpage .title-panel {
+    width: min(62rem, 100%);
+    height: calc(100dvh - 1.3rem);
+    max-height: calc(100dvh - 1.3rem);
+    padding: clamp(0.65rem, 2.2vh, 0.9rem) clamp(0.75rem, 2vw, 1.15rem);
+    overflow: hidden;
+    gap: 0.5rem 0.8rem;
+  }
+  .title-subpage .title-panel-heading {
+    gap: 0.22rem;
+    min-width: 0;
+  }
+  .title-subpage .title-panel-heading .eyebrow {
+    font-size: 0.62em;
+  }
+  .title-subpage .title-panel-heading h1 {
+    font-size: clamp(1.45rem, 7vh, 1.9rem);
+    line-height: 1.12;
+  }
+  .title-subpage .title-panel-heading > p:not(.eyebrow) {
+    font-size: 0.72em;
+    line-height: 1.4;
+  }
+  .title-subpage .title-panel > .secondary {
+    min-width: 7rem;
+    width: auto;
+    margin: 0;
+    padding: 0.4rem 0.8rem;
+  }
+  .title-mode {
+    grid-template-columns: minmax(13.5rem, 0.72fr) minmax(0, 1.28fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .title-mode .title-panel-heading {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-content: center;
+  }
+  .title-mode .mode-grid {
+    grid-column: 2;
+    grid-row: 2;
+    grid-template-columns: 1fr;
+    align-content: center;
+    gap: 0.5rem;
+  }
+  .title-mode .mode-card {
+    min-height: clamp(4.7rem, 25vh, 6rem);
+    padding: 0.65rem 2.25rem 0.65rem 0.8rem;
+  }
+  .title-mode > .secondary {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+  .title-memory-picker,
+  .title-memories,
+  .title-settings {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .title-memory-picker .title-panel-heading,
+  .title-memories .title-panel-heading,
+  .title-settings .title-panel-heading {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+  }
+  .title-memory-picker > .secondary,
+  .title-memories > .secondary,
+  .title-settings > .secondary {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+  }
+  .title-memory-picker .memory-fragment-list,
+  .title-memories .memory-fragment-list {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    min-height: 0;
+    gap: 0.5rem;
+  }
+  .title-memory-picker .memory-fragment,
+  .title-memories .memory-fragment {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 0.58rem 0.7rem;
+    gap: 0.45rem;
+    align-content: start;
+  }
+  .title-memory-picker .memory-fragment-actions,
+  .title-memories .memory-fragment-actions,
+  .title-memories .memory-fragment-actions.single {
+    align-self: end;
+    width: 100%;
+  }
+  .title-memory-picker .memory-fragment small,
+  .title-memory-picker .memory-fragment time,
+  .title-memories .memory-fragment small,
+  .title-memories .memory-fragment time {
+    font-size: 0.65em;
+    line-height: 1.35;
+  }
+  .title-settings {
+    width: min(62rem, 100%);
+  }
+  .title-settings .settings-grid {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1.04fr) minmax(0, 0.96fr);
+    min-height: 0;
+    gap: 0.6rem;
+  }
+  .title-settings .settings-section {
+    min-height: 0;
+    padding: 0.45rem 0.6rem 0.55rem;
+    overflow: auto;
+  }
+  .title-settings .settings-section legend {
+    font-size: 0.75em;
+  }
+  .title-settings .settings-audio > .toggle {
+    min-height: 44px;
+    margin-bottom: 0.35rem;
+    padding: 0.2rem 0.35rem;
+    font-size: 0.7em;
+  }
+  .title-settings .audio-mixer {
+    gap: 0.35rem;
+    padding: 0.45rem;
+  }
+  .title-settings .audio-mixer label {
+    gap: 0.05rem 0.35rem;
+    font-size: 0.67em;
+  }
+  .title-settings .settings-toggle-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.3rem;
+  }
+  .title-settings .settings-toggle-list .toggle {
+    min-height: 44px;
+    padding: 0.35rem 0.45rem;
+    font-size: 0.68em;
+  }
+  .title-settings .settings-select-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin-top: 0.4rem;
+    padding-top: 0.4rem;
+  }
+  .title-settings .settings-select-list label {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+    min-height: 44px;
+    padding: 0.3rem 0.45rem;
+    font-size: 0.68em;
+  }
+  .title-settings .settings-select-list select {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0.25rem 0.4rem;
   }
 }
 
