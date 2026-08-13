@@ -319,7 +319,8 @@ export class AppShell {
 
   private fullscreenControl(): string {
     if (!this.coarsePointer) return '';
-    return `<button class="secondary fullscreen-toggle" data-fullscreen-toggle>${this.fullscreen.isActive() ? '退出全屏' : '进入全屏'}</button>`;
+    const active = this.fullscreen.isActive();
+    return `<div class="fullscreen-setting"><span><strong>全屏显示</strong><small>${active ? '当前已减少浏览器栏遮挡' : '减少浏览器栏遮挡'}</small></span><button class="secondary fullscreen-toggle" data-fullscreen-toggle>${active ? '退出全屏' : '进入全屏'}</button></div>`;
   }
 
   reportSaveResult(result: SaveResult): void {
