@@ -148,6 +148,7 @@ a:focus-visible {
   justify-items: center;
   gap: 0.75rem;
   max-width: 38rem;
+  transform: translateY(clamp(-2.5rem, -7vh, -1.5rem));
   pointer-events: none;
 }
 .fullscreen-entry h1,
