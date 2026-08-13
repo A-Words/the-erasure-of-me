@@ -1702,6 +1702,69 @@ html.map-editor-active .debug-panel {
   height: 1.15rem;
   accent-color: var(--focus);
 }
+.pause-panel .toggle {
+  position: relative;
+  cursor: pointer;
+}
+.pause-panel .toggle input[type='checkbox'] {
+  position: relative;
+  flex: 0 0 auto;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: 0;
+  appearance: none;
+  color: var(--paper);
+  background: rgba(255, 255, 255, 0.48);
+  border: 1.5px solid rgba(47, 43, 40, 0.55);
+  border-radius: 0.35rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+  cursor: pointer;
+}
+.pause-panel .toggle input[type='checkbox']:checked {
+  background: var(--focus);
+  border-color: var(--focus);
+}
+.pause-panel .toggle input[type='checkbox']:checked::after {
+  position: absolute;
+  top: 0.13rem;
+  left: 0.4rem;
+  width: 0.38rem;
+  height: 0.68rem;
+  content: '';
+  border: solid currentColor;
+  border-width: 0 0.16rem 0.16rem 0;
+  transform: rotate(45deg);
+}
+.pause-panel select {
+  appearance: none;
+  padding: 0.45rem 2.15rem 0.45rem 0.7rem;
+  color: var(--ink);
+  background-color: rgba(255, 255, 255, 0.5);
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position:
+    calc(100% - 1rem) 50%,
+    calc(100% - 0.68rem) 50%;
+  background-size:
+    0.34rem 0.34rem,
+    0.34rem 0.34rem;
+  border: 1px solid rgba(47, 43, 40, 0.4);
+  border-radius: 0.45rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 0.12rem 0.35rem rgba(47, 43, 40, 0.08);
+  cursor: pointer;
+}
+.pause-panel select:hover {
+  background-color: rgba(255, 255, 255, 0.68);
+  border-color: rgba(47, 43, 40, 0.58);
+}
+.pause-panel select:focus-visible,
+.pause-panel .toggle input[type='checkbox']:focus-visible {
+  outline-offset: 2px;
+}
 
 .guide-page {
   position: absolute;
@@ -2597,6 +2660,15 @@ html[data-motion='reduced'] .memory-cutscene::before {
     width: 100%;
     min-width: 0;
     min-height: 44px;
+    padding-right: 1.55rem;
+    padding-left: 0.45rem;
+    font-size: 0.88em;
+    background-position:
+      calc(100% - 0.75rem) 50%,
+      calc(100% - 0.48rem) 50%;
+    background-size:
+      0.28rem 0.28rem,
+      0.28rem 0.28rem;
   }
   #system-layer .pause-panel .clear-data {
     grid-column: 1 / -1;
@@ -2677,5 +2749,13 @@ html[data-motion='reduced'] .memory-cutscene::before {
   }
   .map-water-stains {
     fill: GrayText;
+  }
+  .pause-panel .toggle input[type='checkbox'],
+  .pause-panel select {
+    appearance: auto;
+    color: CanvasText;
+    background: Canvas;
+    border-color: CanvasText;
+    forced-color-adjust: auto;
   }
 }
