@@ -1775,7 +1775,7 @@ html[data-motion='reduced'] .memory-cutscene::before {
     bottom: max(8px, env(safe-area-inset-bottom));
     display: grid;
     grid-template-columns: repeat(3, 44px);
-    grid-template-rows: repeat(2, 44px);
+    grid-template-rows: repeat(3, 44px);
     gap: 3px;
   }
   .touch-dpad button {
@@ -1797,7 +1797,7 @@ html[data-motion='reduced'] .memory-cutscene::before {
   }
   .touch-down {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 3;
   }
   .touch-right {
     grid-column: 3;
@@ -1818,15 +1818,15 @@ html[data-motion='reduced'] .memory-cutscene::before {
   }
   .touch-context-actions button:first-child {
     width: 52px;
-    height: 44px;
+    height: 52px;
     border-radius: 14px;
     font-size: 0.68em;
   }
   .touch-confirm {
-    width: 58px;
-    height: 58px;
+    width: 52px;
+    height: 52px;
     border-color: color-mix(in srgb, var(--hud-accent) 62%, var(--hud-paper)) !important;
-    border-radius: 18px !important;
+    border-radius: 14px !important;
     background: color-mix(in srgb, var(--hud-accent) 42%, var(--hud-ink)) !important;
     font-size: 0.74em;
     font-weight: 700;

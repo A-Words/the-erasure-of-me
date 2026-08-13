@@ -64,7 +64,25 @@ test('plays with touch controls at the minimum supported landscape viewport', as
 
   const dpad = await page.locator('.touch-dpad').boundingBox();
   expect(dpad?.width).toBeLessThanOrEqual(140);
-  expect(dpad?.height).toBeLessThanOrEqual(91);
+  expect(dpad?.height).toBeLessThanOrEqual(140);
+
+  const directionBoxes = Object.fromEntries(
+    await Promise.all(
+      ['上', '下', '左', '右'].map(async (direction) => [
+        direction,
+        await page.getByRole('button', { name: `向${direction}移动` }).boundingBox(),
+      ]),
+    ),
+  );
+  expect(directionBoxes.上?.x).toBe(directionBoxes.下?.x);
+  expect(directionBoxes.左?.y).toBe(directionBoxes.右?.y);
+  expect(directionBoxes.上?.y).toBeLessThan(directionBoxes.左?.y ?? 0);
+  expect(directionBoxes.下?.y).toBeGreaterThan(directionBoxes.左?.y ?? 0);
+
+  const observeBox = await page.getByRole('button', { name: '按住静静留意' }).boundingBox();
+  const confirmBox = await page.getByRole('button', { name: '交互或确认' }).boundingBox();
+  expect(confirmBox?.width).toBe(observeBox?.width);
+  expect(confirmBox?.height).toBe(observeBox?.height);
 
   const pause = await page.getByRole('button', { name: '暂停游戏' }).boundingBox();
   const saveNotice = await page.getByRole('status').boundingBox();
