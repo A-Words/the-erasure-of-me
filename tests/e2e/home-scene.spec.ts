@@ -44,6 +44,9 @@ async function setSavedPlayer(
 test('renders the layered home and blocks the player at the bed footprint', async ({
   page,
 }, testInfo) => {
+  // WebKit needs nearly a minute for this screenshot-heavy multi-save flow
+  // under parallel CI load; keep the assertion budget above the default 60s.
+  test.setTimeout(120_000);
   const browserErrors: string[] = [];
   page.on('console', (message) => {
     if (message.type() === 'error') browserErrors.push(message.text());
