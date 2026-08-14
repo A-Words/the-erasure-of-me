@@ -85,6 +85,12 @@
 
 靠近物件后，按 E、Enter 或空格查看
 
+### system.dialogue.continue
+
+桌面：点击任意位置，或按 E / Enter / 空格继续
+
+手机横屏：点击任意位置继续
+
 ### narration.home.photo_pause
 
 她那天说了什么？

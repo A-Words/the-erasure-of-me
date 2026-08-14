@@ -10,12 +10,14 @@
 - 技术基线：Phaser 3 + TypeScript + Vite
 - 地图：HUD 文字入口与可展开 DOM/SVG 地图；雨站在关闭地图后净向右移动超过两格时触发一次性 D1 褪色
 - 目标平台：PC 与手机网页端
-- 输入方式：键盘完整支持，鼠标可选；手机横屏提供固定四向键、确认、静静留意和暂停控制
+- 输入方式：键盘完整支持，鼠标可选；手机横屏提供固定四向键、情境交互、静静留意和暂停控制
 - 当前语言：简体中文
 
 当前仍是内部候选，不是公开发布就绪版本。15 人首次试玩、医学专业审核、家属/照护者敏感性阅读、macOS Safari 实机兼容检查，以及项目许可证与资产权利收口均未完成；候选资产继续保持 `review`，不得用内部截图或自动化结果替代这些外部门槛。
 
 手机网页以横屏游玩，最低完整支持视口为 780×360。粗指针设备在正式标题页前显示一次“准备好进入这段记忆了吗？”入口，点击任意处或按 Enter/Space 即开始并尝试让整个 `#app` 进入全屏；成功后继续尝试锁定横屏。如果全屏请求遭到拒绝，或浏览器不支持全屏，系统会提示并继续普通横屏模式。标题设置与游戏暂停页可再次进入或退出全屏，竖屏仍会暂停并优先提示旋转。全屏状态不写入设置或存档，刷新后会重新显示入口。
+
+对白出现时可点击或轻触游戏区域任意位置继续，也可使用 E、Enter 或空格；手机横屏在对白期间只保留暂停入口，并将对白卡限制在约 544 CSS px 内，避免触控控件与对白争夺画面。
 
 自动化覆盖 Android Chrome 与 Mobile Safari 模拟环境，iPhone Safari 和 Android Chrome 的横屏触控兼容检查已完成。普通 iPhone Safari 若不支持元素全屏，会保留浏览器工具栏继续游玩；需要加入主屏幕后运行的独立 Web App 不属于当前范围，能力边界参见 [Apple Web App 文档](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/ConfiguringWebApplications/ConfiguringWebApplications.html)。
 

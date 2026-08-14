@@ -24,6 +24,35 @@ test.afterEach(() => {
   expect(browserErrors).toEqual([]);
 });
 
+test('advances dialogue from the playfield without treating holds or drags as clicks', async ({
+  page,
+}) => {
+  await startNewGame(page);
+  const advance = page.getByRole('button', { name: '继续对白' });
+  const line = page.locator('.dialogue-text');
+  const firstLine = await line.textContent();
+
+  await page.mouse.click(24, 240);
+  await expect(line).not.toHaveText(firstLine ?? '');
+  const secondLine = await line.textContent();
+
+  await page.mouse.move(36, 220);
+  await page.mouse.down();
+  await page.waitForTimeout(650);
+  await page.mouse.up();
+  await expect(line).toHaveText(secondLine ?? '');
+
+  await page.mouse.move(36, 220);
+  await page.mouse.down();
+  await page.mouse.move(96, 220, { steps: 3 });
+  await page.mouse.up();
+  await expect(line).toHaveText(secondLine ?? '');
+
+  await advance.focus();
+  await advance.press('Enter');
+  await expect(advance).toBeHidden();
+});
+
 test('boots, starts, moves by keyboard, pauses and keeps accessibility stable', async ({
   page,
 }) => {

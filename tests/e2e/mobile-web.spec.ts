@@ -2,13 +2,12 @@ import { expect, test, type Page } from '@playwright/test';
 import { gotoGame, startNewGame } from './helpers/game-navigation';
 
 async function finishOpeningDialogue(page: Page): Promise<void> {
-  const confirm = page.locator('[data-touch-action="interact"]');
+  const advance = page.getByRole('button', { name: '继续对白' });
   const dialogue = page.locator('.dialogue-box');
   await expect(dialogue).toBeVisible();
   for (let step = 0; step < 40; step += 1) {
     if (!(await dialogue.isVisible())) break;
-    await expect(confirm).toHaveText('继续');
-    await confirm.tap();
+    await advance.tap({ position: { x: 20, y: 180 } });
   }
   await expect(dialogue).toBeHidden();
 }
@@ -282,6 +281,118 @@ test('fits start, memory, and settings pages into supported landscape phones', a
     await expect(page.locator('.title-settings > .secondary')).toBeInViewport();
     await expectTitlePanelFits(page);
   }
+});
+
+test('advances dialogue from the mobile playfield while keeping pause available', async ({
+  page,
+}, testInfo) => {
+  for (const viewport of [
+    { width: 754, height: 361 },
+    { width: 780, height: 360 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.reload();
+    await enterFullscreenExperience(page);
+    await startNewGame(page);
+
+    const advance = page.getByRole('button', { name: '继续对白' });
+    const line = page.locator('.dialogue-text');
+    const dialogueBox = page.locator('.dialogue-box');
+    const firstLine = await line.textContent();
+    const box = await dialogueBox.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.width).toBeLessThanOrEqual(544.5);
+    await expect(dialogueBox).toContainText('点击任意位置继续');
+    await expect(page.locator('.dialogue-hint-keyboard')).toBeHidden();
+
+    await expect(page.locator('.touch-dpad')).toBeHidden();
+    await expect(page.locator('.touch-context-actions')).toBeHidden();
+    await expect(page.locator('.hud-actions')).toBeHidden();
+    const pause = page.getByRole('button', { name: '暂停游戏' });
+    await expect(pause).toBeVisible();
+
+    if (viewport.width === 754) {
+      await page.setViewportSize({ width: 390, height: 844 });
+      const orientationNotice = page.getByRole('dialog', { name: '请旋转至横屏' });
+      await expect(orientationNotice).toBeVisible();
+      await page.touchscreen.tap(195, 422);
+      await page.setViewportSize(viewport);
+      await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+      await page.getByRole('button', { name: '继续', exact: true }).tap();
+      await expect(line).toHaveText(firstLine ?? '');
+    }
+
+    await page.touchscreen.tap(24, Math.floor(viewport.height / 2));
+    await expect(line).not.toHaveText(firstLine ?? '');
+    const pausedLine = await line.textContent();
+
+    await pause.tap();
+    await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+    await expect(advance).toBeHidden();
+    await page.getByRole('button', { name: '继续', exact: true }).tap();
+    await expect(line).toHaveText(pausedLine ?? '');
+
+    await page.screenshot({
+      path: testInfo.outputPath(
+        `mobile-dialogue-anywhere-${viewport.width}x${viewport.height}.png`,
+      ),
+    });
+    await finishOpeningDialogue(page);
+  }
+});
+
+test('keeps the first memory line after the touch that opens it', async ({ page }, testInfo) => {
+  await enterFullscreenExperience(page);
+  await startNewGame(page);
+  await finishOpeningDialogue(page);
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+  await page.getByRole('button', { name: '返回标题' }).tap();
+
+  await page.evaluate(() => {
+    const key = 'erasure.save.slot.1.v1';
+    const record = JSON.parse(localStorage.getItem(key) ?? 'null');
+    if (!record?.state) throw new Error('missing save record for slot 1');
+    Object.assign(record.state, {
+      phase: 'playing',
+      chapterId: 'rain',
+      checkpointId: 'checkpoint.rain.start',
+      degradationStage: 'D1',
+      objective: '走到钟表铺前的红伞旁',
+      player: { x: 1120, y: 180, facing: 'up', moving: false },
+      flags: [],
+      dialogue: [],
+      dialogueIndex: 0,
+      activeMemoryId: null,
+      modal: null,
+      puzzles: {
+        ...record.state.puzzles,
+        stationSequence: [2, 4, 5],
+        rainSigns: ['shape.circle', 'texture.ribbed'],
+      },
+    });
+    localStorage.setItem(key, JSON.stringify(record));
+  });
+  await page.reload();
+  await enterFullscreenExperience(page);
+  await page.getByRole('button', { name: '继续游戏' }).tap();
+
+  const interact = page.locator('[data-touch-action="interact"]');
+  const right = page.getByRole('button', { name: '向右移动' });
+  for (let step = 0; step < 4 && (await interact.textContent()) !== '前往'; step += 1) {
+    const pointerId = 60 + step;
+    await right.dispatchEvent('pointerdown', { pointerId, pointerType: 'touch' });
+    await page.waitForTimeout(300);
+    await right.dispatchEvent('pointerup', { pointerId, pointerType: 'touch' });
+  }
+  await expect(interact).toHaveText('前往');
+  await interact.tap();
+  const line = page.locator('.dialogue-text');
+  await expect(page.locator('.memory-cutscene')).toBeVisible();
+  await expect(line).toHaveText('年轻的林秀兰：“你要去车站吗？”');
+
+  await page.touchscreen.tap(24, 180);
+  await expect(line).toHaveText('“那一起走吧。伞往你那边一点，别淋着。”');
+  await page.screenshot({ path: testInfo.outputPath('mobile-memory-dialogue-anywhere.png') });
 });
 
 test('plays with touch controls at the minimum supported landscape viewport', async ({
