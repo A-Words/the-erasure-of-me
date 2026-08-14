@@ -1128,6 +1128,14 @@ export class AppShell {
     let pointerMoved = false;
     let allowPointerClick = false;
 
+    button.addEventListener('keydown', (event) => {
+      if (event.code !== 'KeyE' || event.repeat || event.altKey || event.ctrlKey || event.metaKey)
+        return;
+      event.preventDefault();
+      const sourceId = 'keyboard:dialogue:KeyE';
+      this.semanticInput.press('interact', sourceId);
+      this.semanticInput.release('interact', sourceId);
+    });
     button.addEventListener('pointerdown', (event) => {
       if (!event.isPrimary || event.button !== 0) return;
       activePointerId = event.pointerId;

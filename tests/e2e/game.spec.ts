@@ -51,7 +51,7 @@ test('advances dialogue from the playfield without treating holds or drags as cl
   await expect(line).toHaveText(secondLine ?? '');
 
   await advance.focus();
-  await advance.press('Enter');
+  await advance.press('e');
   await expect(advance).toBeHidden();
 });
 
