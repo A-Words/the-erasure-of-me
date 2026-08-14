@@ -204,12 +204,20 @@ test('keeps every title action visible without scrolling on supported landscape 
   page,
 }, testInfo) => {
   for (const viewport of [
+    { width: 754, height: 269 },
+    { width: 754, height: 361 },
     { width: 780, height: 360 },
     { width: 932, height: 430 },
   ]) {
     await page.setViewportSize(viewport);
     await page.reload();
     await enterFullscreenExperience(page);
+
+    await expect
+      .poll(() =>
+        page.locator('.title-screen').evaluate((title) => getComputedStyle(title).display),
+      )
+      .toBe('grid');
 
     for (const name of ['继续游戏', '开始游戏', '读取记忆', '设置']) {
       await expect(page.getByRole('button', { name })).toBeInViewport();
@@ -218,9 +226,12 @@ test('keeps every title action visible without scrolling on supported landscape 
     const overflow = await page.locator('.title-screen').evaluate((title) => ({
       page: document.documentElement.scrollHeight - window.innerHeight,
       title: title.scrollHeight - title.clientHeight,
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+      visualHeight: window.visualViewport?.height,
     }));
     expect(overflow.page).toBeLessThanOrEqual(1);
-    expect(overflow.title).toBeLessThanOrEqual(1);
+    expect(overflow.title, JSON.stringify(overflow)).toBeLessThanOrEqual(1);
 
     await page.screenshot({
       path: testInfo.outputPath(`mobile-landscape-title-${viewport.width}x${viewport.height}.png`),
