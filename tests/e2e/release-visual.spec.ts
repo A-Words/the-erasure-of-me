@@ -1,6 +1,11 @@
 import { writeFileSync } from 'node:fs';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
-import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
+import {
+  continueLatestGame,
+  gotoGame,
+  returnToTitle,
+  startNewGame,
+} from './helpers/game-navigation';
 
 type ChapterId = 'home' | 'rain' | 'life' | 'return' | 'ending';
 
@@ -46,7 +51,7 @@ const chapterState: Record<
 };
 
 async function createSave(page: Page): Promise<void> {
-  await page.goto('/');
+  await gotoGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());
@@ -160,7 +165,7 @@ for (const viewport of [
       browserErrors.push(error.stack ?? error.message);
     });
     await page.setViewportSize(viewport);
-    await page.goto('/');
+    await gotoGame(page);
     await expect(page.getByRole('heading', { name: '记忆的缝隙' })).toBeVisible();
     await capture(page, testInfo, 'title');
     await createSave(page);

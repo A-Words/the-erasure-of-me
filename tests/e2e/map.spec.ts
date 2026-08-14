@@ -1,5 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
-import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
+import {
+  continueLatestGame,
+  gotoGame,
+  returnToTitle,
+  startNewGame,
+} from './helpers/game-navigation';
 
 const SAVE_KEY = 'erasure.save.slot.1.v1';
 
@@ -9,7 +14,7 @@ async function activateWithKeyboard(locator: ReturnType<Page['locator']>): Promi
 }
 
 async function startGame(page: Page): Promise<void> {
-  await page.goto('/');
+  await gotoGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());

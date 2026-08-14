@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { continueLatestGame, startNewGame } from './helpers/game-navigation';
+import { continueLatestGame, gotoGame, startNewGame } from './helpers/game-navigation';
 
 const slotKey = (slotId: number) => `erasure.save.slot.${slotId}.v1`;
 
@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }) => {
     localStorage.clear();
     sessionStorage.setItem(initializedKey, 'true');
   });
-  await page.goto('/');
+  await gotoGame(page);
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
 });
 
