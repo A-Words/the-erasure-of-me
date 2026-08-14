@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { continueLatestGame, startNewGame } from './helpers/game-navigation';
+import { continueLatestGame, gotoGame, holdKey, startNewGame } from './helpers/game-navigation';
 
 /**
  * Lightweight runtime smoke tests for all 5 Tiled maps.
@@ -171,7 +171,7 @@ async function canvasBlackOrTransparentRatio(page: Page): Promise<number> {
 /** Boot the game from a fresh state (home chapter). */
 async function bootFreshGame(page: Page): Promise<void> {
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.goto('/');
+  await gotoGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true', {
     timeout: 15_000,
@@ -192,7 +192,7 @@ async function bootIntoChapter(
   patch: Record<string, unknown> = {},
 ): Promise<void> {
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.goto('/');
+  await gotoGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true', {
     timeout: 15_000,
@@ -216,6 +216,7 @@ async function bootIntoChapter(
   );
   await page.reload();
   await continueLatestGame(page);
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
 }
 
 /** Verify the chapter renders correctly: canvas visible, chapterId matches, no errors or fallbacks. */
@@ -393,16 +394,10 @@ test('solid scenery blocks movement at the visible footprint', async ({ page }, 
     player: { x: 180, y: 540, facing: 'up', moving: false },
   });
   await canvas.focus();
-  for (let step = 0; step < 4; step += 1) {
-    await canvas.press('ArrowUp');
-    await page.waitForTimeout(50);
-  }
+  await holdKey(page, 'ArrowUp', 250);
   await expect.poll(async () => Number(await app.getAttribute('data-player-y'))).toBeLessThan(540);
   const rainStoppedY = Number(await app.getAttribute('data-player-y'));
-  for (let step = 0; step < 2; step += 1) {
-    await canvas.press('ArrowUp');
-    await page.waitForTimeout(50);
-  }
+  await holdKey(page, 'ArrowUp', 250);
   await page.waitForTimeout(100);
   expect(Number(await app.getAttribute('data-player-y'))).toBe(rainStoppedY);
   expect(rainStoppedY).toBeGreaterThanOrEqual(532);
@@ -433,9 +428,7 @@ test('player can leave the shared-life table edge after loading a tight-gap save
   await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
   await expect(app).toHaveAttribute('data-chapter', 'life');
   await canvas.focus();
-  await page.keyboard.down('ArrowLeft');
-  await page.waitForTimeout(100);
-  await page.keyboard.up('ArrowLeft');
+  await holdKey(page, 'ArrowLeft', 100);
 
   await expect.poll(async () => Number(await app.getAttribute('data-player-x'))).toBeLessThan(1144);
   await expect(app).toHaveAttribute('data-player-y', '391');
@@ -452,7 +445,7 @@ test('tiled map smoke: sequential chapter saves do not corrupt state', async ({ 
 
   for (const chapterId of CHAPTERS) {
     // Inject save and reload for each chapter
-    await page.goto('/');
+    await gotoGame(page);
     await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
     await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
     await page.waitForLoadState('networkidle');

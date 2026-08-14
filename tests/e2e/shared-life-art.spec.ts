@@ -1,5 +1,10 @@
 import { expect, test, type Locator, type Page, type TestInfo } from '@playwright/test';
-import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
+import {
+  continueLatestGame,
+  gotoGame,
+  returnToTitle,
+  startNewGame,
+} from './helpers/game-navigation';
 
 const SAVE_KEY = 'erasure.save.slot.1.v1';
 
@@ -9,7 +14,7 @@ async function activateWithKeyboard(locator: Locator): Promise<void> {
 }
 
 async function createSave(page: Page): Promise<void> {
-  await page.goto('/');
+  await gotoGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true', {
     timeout: 15_000,

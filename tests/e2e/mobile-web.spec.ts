@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { startNewGame } from './helpers/game-navigation';
+import { gotoGame, startNewGame } from './helpers/game-navigation';
 
 async function finishOpeningDialogue(page: Page): Promise<void> {
   const confirm = page.locator('[data-touch-action="interact"]');
@@ -34,7 +34,7 @@ async function expectPanelShellFits(page: Page, selector: string): Promise<void>
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto('/');
+  await gotoGame(page);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
 });

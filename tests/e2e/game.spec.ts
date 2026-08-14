@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { continueLatestGame, startNewGame } from './helpers/game-navigation';
+import { continueLatestGame, gotoGame, startNewGame } from './helpers/game-navigation';
 
 let browserErrors: string[];
 
@@ -17,7 +17,7 @@ test.beforeEach(async ({ page }, testInfo) => {
     sessionStorage.setItem(initializedKey, 'true');
   });
   const initialPath = testInfo.title.includes('development debug layer') ? '/?debug=1' : '/';
-  await page.goto(initialPath);
+  await gotoGame(page, initialPath);
 });
 
 test.afterEach(() => {
