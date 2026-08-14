@@ -29,6 +29,12 @@ body,
   margin: 0;
   overflow: hidden;
 }
+#app:fullscreen,
+#app:-webkit-full-screen {
+  width: 100%;
+  height: 100%;
+  background: var(--hud-ink);
+}
 html,
 body {
   overscroll-behavior: none;
@@ -100,6 +106,7 @@ a:focus-visible {
   z-index: 30;
 }
 #touch-layer,
+#fullscreen-layer,
 #orientation-layer {
   position: fixed;
   inset: 0;
@@ -109,8 +116,94 @@ a:focus-visible {
   z-index: 40;
   display: none;
 }
+#fullscreen-layer {
+  z-index: 70;
+}
 #orientation-layer {
   z-index: 80;
+}
+
+#app[data-fullscreen-entry='true'] :is(#hud, #panel-layer, #system-layer, #touch-layer) {
+  visibility: hidden;
+}
+
+.fullscreen-entry {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  padding: max(1.5rem, env(safe-area-inset-top)) max(1.5rem, env(safe-area-inset-right))
+    max(1.5rem, env(safe-area-inset-bottom)) max(1.5rem, env(safe-area-inset-left));
+  color: var(--warm-white);
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(200, 106, 93, 0.16), transparent 30%),
+    rgba(28, 25, 23, 0.98);
+  pointer-events: auto;
+}
+.fullscreen-entry-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  max-width: 38rem;
+  transform: translateY(clamp(-2.5rem, -7vh, -1.5rem));
+  pointer-events: none;
+}
+.fullscreen-entry h1,
+.fullscreen-entry p {
+  max-width: 34rem;
+  margin: 0;
+}
+.fullscreen-entry button {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: block;
+  min-width: 0;
+  min-height: 0;
+  padding: 1rem max(1.5rem, env(safe-area-inset-right)) max(1rem, env(safe-area-inset-bottom))
+    max(1.5rem, env(safe-area-inset-left));
+  color: var(--warm-white);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+.fullscreen-entry button:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+.fullscreen-entry button:focus-visible {
+  outline-offset: -5px;
+}
+.fullscreen-entry button span {
+  position: absolute;
+  top: 72%;
+  left: 50%;
+  padding: 0.45rem 1rem;
+  color: rgba(247, 243, 232, 0.84);
+  font-size: clamp(0.88rem, 3.2vh, 1rem);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  background: rgba(41, 35, 31, 0.58);
+  border: 1px solid rgba(247, 237, 220, 0.18);
+  border-radius: 999px;
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.18);
+  transform: translate(-50%, -50%);
+}
+.fullscreen-notice {
+  position: absolute;
+  top: max(0.65rem, env(safe-area-inset-top));
+  left: 50%;
+  max-width: min(36rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.55rem 0.8rem;
+  color: var(--warm-white);
+  text-align: center;
+  background: rgba(41, 35, 31, 0.9);
+  border: 1px solid var(--hud-line);
+  border-radius: 0.65rem;
+  transform: translateX(-50%);
 }
 
 .touch-controls {
@@ -1352,6 +1445,49 @@ html.map-editor-active .debug-panel {
 .title-settings .audio-mixer output {
   color: #d3c8ba;
 }
+.fullscreen-setting {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: center;
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.45rem;
+}
+.fullscreen-setting > span {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+.fullscreen-setting strong,
+.fullscreen-setting small {
+  line-height: 1.3;
+}
+.fullscreen-setting small {
+  color: var(--muted-ink);
+  font-size: 0.72em;
+}
+.fullscreen-setting .fullscreen-toggle {
+  align-self: center;
+  min-width: 7rem;
+  min-height: 2.55rem;
+  height: 2.55rem;
+  margin: 0;
+  padding: 0.35rem 0.7rem;
+}
+.title-settings .fullscreen-setting {
+  margin-top: 0.55rem;
+  color: var(--warm-white);
+  background: rgba(247, 243, 232, 0.055);
+  border: 1px solid rgba(247, 243, 232, 0.2);
+}
+.title-settings .fullscreen-setting small {
+  color: #d3c8ba;
+}
+.title-settings .fullscreen-setting .fullscreen-toggle {
+  color: var(--warm-white);
+  border-color: rgba(247, 243, 232, 0.34);
+}
 .title-panel > .secondary {
   width: 100%;
   margin-top: 0.15rem;
@@ -1546,6 +1682,11 @@ html.map-editor-active .debug-panel {
   display: grid;
   gap: 0.7rem;
 }
+.pause-quick-settings .fullscreen-setting {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(47, 43, 40, 0.14);
+}
 .pause-quick-settings > label:not(.toggle) {
   display: flex;
   justify-content: space-between;
@@ -1560,6 +1701,69 @@ html.map-editor-active .debug-panel {
   width: 1.15rem;
   height: 1.15rem;
   accent-color: var(--focus);
+}
+.pause-panel .toggle {
+  position: relative;
+  cursor: pointer;
+}
+.pause-panel .toggle input[type='checkbox'] {
+  position: relative;
+  flex: 0 0 auto;
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: 0;
+  appearance: none;
+  color: var(--paper);
+  background: rgba(255, 255, 255, 0.48);
+  border: 1.5px solid rgba(47, 43, 40, 0.55);
+  border-radius: 0.35rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+  cursor: pointer;
+}
+.pause-panel .toggle input[type='checkbox']:checked {
+  background: var(--focus);
+  border-color: var(--focus);
+}
+.pause-panel .toggle input[type='checkbox']:checked::after {
+  position: absolute;
+  top: 0.13rem;
+  left: 0.4rem;
+  width: 0.38rem;
+  height: 0.68rem;
+  content: '';
+  border: solid currentColor;
+  border-width: 0 0.16rem 0.16rem 0;
+  transform: rotate(45deg);
+}
+.pause-panel select {
+  appearance: none;
+  padding: 0.45rem 2.15rem 0.45rem 0.7rem;
+  color: var(--ink);
+  background-color: rgba(255, 255, 255, 0.5);
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position:
+    calc(100% - 1rem) 50%,
+    calc(100% - 0.68rem) 50%;
+  background-size:
+    0.34rem 0.34rem,
+    0.34rem 0.34rem;
+  border: 1px solid rgba(47, 43, 40, 0.4);
+  border-radius: 0.45rem;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 0.12rem 0.35rem rgba(47, 43, 40, 0.08);
+  cursor: pointer;
+}
+.pause-panel select:hover {
+  background-color: rgba(255, 255, 255, 0.68);
+  border-color: rgba(47, 43, 40, 0.58);
+}
+.pause-panel select:focus-visible,
+.pause-panel .toggle input[type='checkbox']:focus-visible {
+  outline-offset: 2px;
 }
 
 .guide-page {
@@ -1896,6 +2100,9 @@ html[data-motion='reduced'] .memory-cutscene::before {
   .title-screen button {
     min-height: 44px;
   }
+  .fullscreen-toggle {
+    min-height: 44px;
+  }
   .objective-chip {
     top: max(0.55rem, env(safe-area-inset-top));
     left: max(0.65rem, env(safe-area-inset-left));
@@ -2185,6 +2392,13 @@ html[data-motion='reduced'] .memory-cutscene::before {
     margin-top: 0.4rem;
     padding-top: 0.4rem;
   }
+  .title-settings .fullscreen-setting {
+    grid-column: 1 / -1;
+    min-height: 44px;
+    margin-top: 0.35rem;
+    padding: 0.3rem 0.45rem;
+    font-size: 0.68em;
+  }
   .title-settings .settings-select-list label {
     grid-template-columns: 1fr;
     gap: 0.15rem;
@@ -2410,6 +2624,18 @@ html[data-motion='reduced'] .memory-cutscene::before {
   #system-layer .pause-quick-settings > .toggle:first-of-type {
     grid-column: 1 / -1;
   }
+  #system-layer .pause-panel .fullscreen-toggle {
+    min-height: 44px;
+    height: 44px;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.65em;
+  }
+  #system-layer .pause-panel .fullscreen-setting {
+    grid-column: 1 / -1;
+    min-height: 44px;
+    padding: 0.3rem 0.45rem;
+    font-size: 0.67em;
+  }
   #system-layer .pause-panel .audio-mixer label {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: auto auto;
@@ -2426,12 +2652,23 @@ html[data-motion='reduced'] .memory-cutscene::before {
   #system-layer .pause-quick-settings > label:not(.toggle) {
     display: grid;
     grid-template-columns: 1fr;
+    grid-template-rows: auto 44px;
     gap: 0.15rem;
+    min-height: calc(44px + 1.7em);
   }
   #system-layer .pause-panel select {
     width: 100%;
     min-width: 0;
     min-height: 44px;
+    padding-right: 1.55rem;
+    padding-left: 0.45rem;
+    font-size: 0.88em;
+    background-position:
+      calc(100% - 0.75rem) 50%,
+      calc(100% - 0.48rem) 50%;
+    background-size:
+      0.28rem 0.28rem,
+      0.28rem 0.28rem;
   }
   #system-layer .pause-panel .clear-data {
     grid-column: 1 / -1;
@@ -2512,5 +2749,13 @@ html[data-motion='reduced'] .memory-cutscene::before {
   }
   .map-water-stains {
     fill: GrayText;
+  }
+  .pause-panel .toggle input[type='checkbox'],
+  .pause-panel select {
+    appearance: auto;
+    color: CanvasText;
+    background: Canvas;
+    border-color: CanvasText;
+    forced-color-adjust: auto;
   }
 }
