@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { startNewGame } from './helpers/game-navigation';
+import { gotoGame, startNewGame } from './helpers/game-navigation';
 
 async function finishOpeningDialogue(page: Page): Promise<void> {
   const confirm = page.locator('[data-touch-action="interact"]');
@@ -95,7 +95,7 @@ test.beforeEach(async ({ page }) => {
       value: () => exitFullscreen('webkitfullscreenchange'),
     });
   });
-  await page.goto('/');
+  await gotoGame(page);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
 });

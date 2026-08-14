@@ -1,5 +1,10 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
-import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
+import {
+  continueLatestGame,
+  gotoGame,
+  returnToTitle,
+  startNewGame,
+} from './helpers/game-navigation';
 
 let browserErrors: string[];
 
@@ -9,7 +14,7 @@ test.beforeEach(async ({ page }) => {
     if (message.type() === 'error') browserErrors.push(message.text());
   });
   page.on('pageerror', (error) => browserErrors.push(error.stack ?? error.message));
-  await page.goto('/');
+  await gotoGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());

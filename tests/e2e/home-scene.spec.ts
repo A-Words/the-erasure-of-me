@@ -1,5 +1,10 @@
 import { expect, test } from '@playwright/test';
-import { continueLatestGame, returnToTitle, startNewGame } from './helpers/game-navigation';
+import {
+  continueLatestGame,
+  gotoGame,
+  returnToTitle,
+  startNewGame,
+} from './helpers/game-navigation';
 
 async function setSavedPlayer(
   page: import('@playwright/test').Page,
@@ -39,6 +44,9 @@ async function setSavedPlayer(
 test('renders the layered home and blocks the player at the bed footprint', async ({
   page,
 }, testInfo) => {
+  // WebKit needs nearly a minute for this screenshot-heavy multi-save flow
+  // under parallel CI load; keep the assertion budget above the default 60s.
+  test.setTimeout(120_000);
   const browserErrors: string[] = [];
   page.on('console', (message) => {
     if (message.type() === 'error') browserErrors.push(message.text());
@@ -46,7 +54,7 @@ test('renders the layered home and blocks the player at the bed footprint', asyn
   page.on('pageerror', (error) => browserErrors.push(error.stack ?? error.message));
 
   await page.setViewportSize({ width: 1366, height: 768 });
-  await page.goto('/');
+  await gotoGame(page);
   await expect(page.locator('#app')).toHaveAttribute('data-phase', 'title');
   await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
   await page.evaluate(() => localStorage.clear());

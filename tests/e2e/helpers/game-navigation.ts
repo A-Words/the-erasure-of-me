@@ -9,6 +9,31 @@ async function activate(locator: Locator, keyboard: boolean): Promise<void> {
   }
 }
 
+export async function gotoGame(page: Page, path = '/'): Promise<void> {
+  // Firefox can intermittently abort a local preview transfer while several
+  // browser projects start together. Retry only that known transient error;
+  // all other navigation failures remain visible to the test.
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      await page.goto(path);
+      return;
+    } catch (error) {
+      const message = String(error);
+      if (!message.includes('NS_ERROR_NET_PARTIAL_TRANSFER') || attempt === 3) throw error;
+      await page.waitForTimeout(attempt * 100);
+    }
+  }
+}
+
+export async function holdKey(page: Page, key: string, durationMs: number): Promise<void> {
+  await page.keyboard.down(key);
+  try {
+    await page.waitForTimeout(durationMs);
+  } finally {
+    await page.keyboard.up(key);
+  }
+}
+
 export async function startNewGame(
   page: Page,
   options: { mode?: 'standard' | 'low_stimulation'; slotId?: 1 | 2 | 3; keyboard?: boolean } = {},
