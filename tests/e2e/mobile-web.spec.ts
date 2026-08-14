@@ -203,23 +203,59 @@ test('keeps every title action visible without scrolling on supported landscape 
   page,
 }, testInfo) => {
   for (const viewport of [
-    { width: 780, height: 360 },
-    { width: 932, height: 430 },
+    { width: 754, height: 269, fullscreen: 'unsupported' as const },
+    { width: 754, height: 361, fullscreen: 'supported' as const },
+    { width: 780, height: 360, fullscreen: 'supported' as const },
+    { width: 932, height: 430, fullscreen: 'supported' as const },
   ]) {
-    await page.setViewportSize(viewport);
+    const { fullscreen, ...size } = viewport;
+    await page.setViewportSize(size);
+    await page.evaluate((availability) => {
+      sessionStorage.setItem('erasure.e2e.fullscreen', availability);
+    }, fullscreen);
     await page.reload();
     await enterFullscreenExperience(page);
+
+    const viewportState = await page.evaluate(() => ({
+      fullscreenElement: document.fullscreenElement?.id ?? null,
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+    }));
+    expect(viewportState.innerWidth).toBe(size.width);
+    expect(viewportState.innerHeight).toBe(size.height);
+    if (fullscreen === 'unsupported') {
+      expect(viewportState.fullscreenElement).toBeNull();
+      expect(viewportState.innerHeight).toBeLessThanOrEqual(300);
+    } else {
+      expect(viewportState.fullscreenElement).toBe('app');
+    }
+
+    await expect
+      .poll(() =>
+        page.locator('.title-screen').evaluate((title) => getComputedStyle(title).display),
+      )
+      .toBe('grid');
 
     for (const name of ['继续游戏', '开始游戏', '读取记忆', '设置']) {
       await expect(page.getByRole('button', { name })).toBeInViewport();
     }
 
+    const cards = page.locator('.title-screen:not(.title-subpage) .title-menu-card');
+    await expect(cards).toHaveCount(4);
+    const heights = await cards.evaluateAll((elements) =>
+      elements.map((element) => element.getBoundingClientRect().height),
+    );
+    expect(Math.min(...heights)).toBeGreaterThanOrEqual(44);
+
     const overflow = await page.locator('.title-screen').evaluate((title) => ({
       page: document.documentElement.scrollHeight - window.innerHeight,
       title: title.scrollHeight - title.clientHeight,
+      innerWidth: window.innerWidth,
+      innerHeight: window.innerHeight,
+      visualHeight: window.visualViewport?.height,
     }));
     expect(overflow.page).toBeLessThanOrEqual(1);
-    expect(overflow.title).toBeLessThanOrEqual(1);
+    expect(overflow.title, JSON.stringify(overflow)).toBeLessThanOrEqual(1);
 
     await page.screenshot({
       path: testInfo.outputPath(`mobile-landscape-title-${viewport.width}x${viewport.height}.png`),
