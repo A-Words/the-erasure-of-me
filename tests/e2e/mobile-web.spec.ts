@@ -423,13 +423,13 @@ test('keeps the first memory line after the touch that opens it', async ({ page 
 
   const interact = page.locator('[data-touch-action="interact"]');
   const right = page.getByRole('button', { name: '向右移动' });
-  for (let step = 0; step < 4 && (await interact.textContent()) !== '前往'; step += 1) {
-    const pointerId = 60 + step;
-    await right.dispatchEvent('pointerdown', { pointerId, pointerType: 'touch' });
-    await page.waitForTimeout(300);
+  const pointerId = 60;
+  await right.dispatchEvent('pointerdown', { pointerId, pointerType: 'touch' });
+  try {
+    await expect(interact).toHaveAttribute('aria-label', '前往钟表铺前的红伞');
+  } finally {
     await right.dispatchEvent('pointerup', { pointerId, pointerType: 'touch' });
   }
-  await expect(interact).toHaveText('前往');
   await interact.tap();
   const line = page.locator('.dialogue-text');
   await expect(page.locator('.memory-cutscene')).toBeVisible();
