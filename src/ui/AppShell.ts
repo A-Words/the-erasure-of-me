@@ -336,7 +336,7 @@ export class AppShell {
       if (result.reason === 'no_active_slot') return;
       this.saveNotice = '无法写入本地存档，请检查浏览器存储空间与隐私设置。';
     } else {
-      this.saveNotice = `已自动保存 · 记忆片段 ${this.fragmentNumber(result.summary.slotId)}`;
+      this.saveNotice = '';
     }
     this.signature = '';
     this.render(this.store.getState());
@@ -460,9 +460,6 @@ export class AppShell {
           <small class="objective-chapter">${chapterMaps[state.chapterId].title}</small>
           <span class="objective-text">${state.objective}</span>
         </div>
-        <span class="observation-hint" aria-label="操作提示：按住 Shift 静静留意附近线索">
-          <kbd>Shift</kbd><span>静静留意</span>
-        </span>
       </section>
       <section class="stage-chip hud-memory-layer ${d4 ? 'hud-memory-faded' : ''}" aria-label="当前信息状态">
         <span class="anchor-dot" aria-hidden="true"></span>
@@ -641,7 +638,7 @@ export class AppShell {
       return;
     }
     if (state.dialogue.length > 0) {
-      const dialogue = `<button class="dialogue-box" data-dialogue aria-label="继续对白"><span>${state.dialogue[state.dialogueIndex]}</span><small>按 E / Enter / 空格继续</small></button>`;
+      const dialogue = this.dialogueOverlay(state.dialogue[state.dialogueIndex]);
       this.system.innerHTML = state.activeMemoryId
         ? this.memoryCutscene(state.activeMemoryId, dialogue)
         : dialogue;
@@ -652,6 +649,10 @@ export class AppShell {
       return;
     }
     this.system.innerHTML = '';
+  }
+
+  private dialogueOverlay(line: string): string {
+    return `<button class="dialogue-advance" data-dialogue aria-label="继续对白"><span class="dialogue-box"><span class="dialogue-text">${line}</span><small class="dialogue-hint dialogue-hint-keyboard">点击任意位置，或按 E / Enter / 空格继续</small><small class="dialogue-hint dialogue-hint-touch">点击任意位置继续</small></span></button>`;
   }
 
   private memoryCutscene(memoryId: MemoryIllustrationId, dialogue: string): string {
@@ -1033,10 +1034,8 @@ export class AppShell {
       }),
     );
     document
-      .querySelectorAll<HTMLElement>('[data-dialogue]')
-      .forEach((button) =>
-        button.addEventListener('click', () => this.store.dispatch({ type: 'ADVANCE_DIALOGUE' })),
-      );
+      .querySelectorAll<HTMLButtonElement>('[data-dialogue]')
+      .forEach((button) => this.bindDialogueAdvance(button));
     document
       .querySelectorAll<HTMLElement>('[data-ack-d3]')
       .forEach((button) =>
@@ -1117,6 +1116,57 @@ export class AppShell {
       const focusable = dialog.querySelector<HTMLElement>('button, select, input');
       focusable?.focus({ preventScroll: true });
     }
+  }
+
+  private bindDialogueAdvance(button: HTMLButtonElement): void {
+    const maximumPointerDistanceSquared = 12 * 12;
+    const maximumPointerDurationMs = 600;
+    let activePointerId: number | null = null;
+    let pointerStartedAt = 0;
+    let pointerStartX = 0;
+    let pointerStartY = 0;
+    let pointerMoved = false;
+    let allowPointerClick = false;
+
+    button.addEventListener('keydown', (event) => {
+      if (event.code !== 'KeyE' || event.repeat || event.altKey || event.ctrlKey || event.metaKey)
+        return;
+      event.preventDefault();
+      const sourceId = 'keyboard:dialogue:KeyE';
+      this.semanticInput.press('interact', sourceId);
+      this.semanticInput.release('interact', sourceId);
+    });
+    button.addEventListener('pointerdown', (event) => {
+      if (!event.isPrimary || event.button !== 0) return;
+      activePointerId = event.pointerId;
+      pointerStartedAt = event.timeStamp;
+      pointerStartX = event.clientX;
+      pointerStartY = event.clientY;
+      pointerMoved = false;
+      allowPointerClick = false;
+    });
+    button.addEventListener('pointermove', (event) => {
+      if (event.pointerId !== activePointerId) return;
+      const deltaX = event.clientX - pointerStartX;
+      const deltaY = event.clientY - pointerStartY;
+      if (deltaX * deltaX + deltaY * deltaY > maximumPointerDistanceSquared) pointerMoved = true;
+    });
+    button.addEventListener('pointerup', (event) => {
+      if (event.pointerId !== activePointerId) return;
+      allowPointerClick =
+        !pointerMoved && event.timeStamp - pointerStartedAt <= maximumPointerDurationMs;
+      activePointerId = null;
+    });
+    button.addEventListener('pointercancel', () => {
+      activePointerId = null;
+      allowPointerClick = false;
+    });
+    button.addEventListener('click', (event) => {
+      const keyboardActivation = event.detail === 0;
+      if (!keyboardActivation && !allowPointerClick) return;
+      allowPointerClick = false;
+      this.store.dispatch({ type: 'ADVANCE_DIALOGUE' });
+    });
   }
 
   private movePhoto(index: number, delta: number, state: Readonly<GameState>): void {
