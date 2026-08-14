@@ -98,6 +98,7 @@ export class AppShell {
   private fullscreenEntryAcknowledged = !this.coarsePointer;
   private fullscreenNotice = '';
   private fullscreenNoticeTimer: number | null = null;
+  private fullscreenLayerKey = '';
   private debugPanelPosition: DevPanelPosition | null = null;
   private readonly debugEnabled =
     import.meta.env.DEV &&
@@ -271,6 +272,13 @@ export class AppShell {
     for (const layer of [this.hud, this.panel, this.system, this.touch]) {
       layer.inert = showGate;
     }
+    const layerKey = showGate
+      ? 'entry'
+      : this.fullscreenNotice
+        ? `notice:${this.fullscreenNotice}`
+        : 'empty';
+    if (this.fullscreenLayerKey === layerKey) return;
+    this.fullscreenLayerKey = layerKey;
     this.fullscreenLayer.innerHTML = showGate
       ? `<section class="fullscreen-entry" role="dialog" aria-modal="true" aria-labelledby="fullscreen-entry-title" aria-describedby="fullscreen-entry-description"><div class="fullscreen-entry-copy"><p class="eyebrow">记忆的缝隙</p><h1 id="fullscreen-entry-title">准备好进入这段记忆了吗？</h1><p id="fullscreen-entry-description">我们会尝试进入全屏，让场景和触控区域更完整。</p></div><button data-enter-fullscreen aria-label="开始体验"><span>点击任意处开始</span></button></section>`
       : this.fullscreenNotice

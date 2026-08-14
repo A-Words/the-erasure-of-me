@@ -104,41 +104,55 @@ test('opens through a fullscreen entry gate and degrades gracefully when unavail
   page,
 }, testInfo) => {
   for (const availability of ['denied', 'unsupported']) {
-    const entryDialog = page.getByRole('dialog', { name: '准备好进入这段记忆了吗？' });
-    await expect(entryDialog).toBeVisible();
-    await expect(page.getByRole('heading', { name: '准备好进入这段记忆了吗？' })).toBeVisible();
-    await expect(entryDialog).toContainText('点击任意处开始');
-    await expect(entryDialog).not.toContainText('浏览器不支持全屏时仍可继续');
-    await expect(page.getByRole('button', { name: '开始游戏' })).toBeHidden();
-    await expect(page.getByRole('button', { name: '开始体验' })).toBeFocused();
-    if (availability === 'denied') {
-      await page.screenshot({ path: testInfo.outputPath('mobile-fullscreen-entry.png') });
-    }
-
-    await page.evaluate(
-      (value) => sessionStorage.setItem('erasure.e2e.fullscreen', value),
-      availability,
-    );
-    if (availability === 'denied') {
-      await page.getByRole('button', { name: '开始体验' }).press('Enter');
-    } else {
-      const button = page.getByRole('button', { name: '开始体验' });
-      const [dialogBox, buttonBox] = await Promise.all([
-        entryDialog.boundingBox(),
-        button.boundingBox(),
-      ]);
-      expect(dialogBox).not.toBeNull();
-      expect(buttonBox).not.toBeNull();
-      for (const key of ['x', 'y', 'width', 'height'] as const) {
-        expect(buttonBox![key]).toBeCloseTo(dialogBox![key], 0);
+    await test.step(`degrades when fullscreen is ${availability}`, async () => {
+      const entryDialog = page.getByRole('dialog', { name: '准备好进入这段记忆了吗？' });
+      const entryButton = page.getByRole('button', { name: '开始体验' });
+      await expect(entryDialog).toBeVisible();
+      await expect(page.getByRole('heading', { name: '准备好进入这段记忆了吗？' })).toBeVisible();
+      await expect(entryDialog).toContainText('点击任意处开始');
+      await expect(entryDialog).not.toContainText('浏览器不支持全屏时仍可继续');
+      await expect(page.getByRole('button', { name: '开始游戏' })).toBeHidden();
+      await expect(entryButton).toBeFocused();
+      if (availability === 'denied') {
+        await entryButton.evaluate((button) => {
+          button.dataset.resizeMarker = 'stable';
+          window.dispatchEvent(new Event('resize'));
+        });
+        await expect(entryButton).toHaveAttribute('data-resize-marker', 'stable');
+        await page.screenshot({ path: testInfo.outputPath('mobile-fullscreen-entry.png') });
       }
-      await button.tap({ position: { x: 96, y: 72 } });
-    }
 
-    await expect(entryDialog).toBeHidden();
-    await expect(page.getByRole('status')).toContainText('无法进入全屏，已继续横屏模式');
-    await expect(page.getByRole('button', { name: '开始游戏' })).toBeVisible();
-    if (availability === 'denied') await page.reload();
+      await page.evaluate(
+        (value) => sessionStorage.setItem('erasure.e2e.fullscreen', value),
+        availability,
+      );
+      if (availability === 'denied') {
+        await entryButton.tap();
+        await expect
+          .poll(() =>
+            page.evaluate(() =>
+              Number(sessionStorage.getItem('erasure.e2e.fullscreen.requests') ?? 0),
+            ),
+          )
+          .toBe(1);
+      } else {
+        const [dialogBox, buttonBox] = await Promise.all([
+          entryDialog.boundingBox(),
+          entryButton.boundingBox(),
+        ]);
+        expect(dialogBox).not.toBeNull();
+        expect(buttonBox).not.toBeNull();
+        for (const key of ['x', 'y', 'width', 'height'] as const) {
+          expect(buttonBox![key]).toBeCloseTo(dialogBox![key], 0);
+        }
+        await entryButton.tap({ position: { x: 96, y: 72 } });
+      }
+
+      await expect(entryDialog).toBeHidden();
+      await expect(page.getByRole('status')).toContainText('无法进入全屏，已继续横屏模式');
+      await expect(page.getByRole('button', { name: '开始游戏' })).toBeVisible();
+      if (availability === 'denied') await page.reload();
+    });
   }
 });
 
