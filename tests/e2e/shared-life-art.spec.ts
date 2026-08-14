@@ -141,31 +141,108 @@ async function canvasSampleColorCount(page: Page): Promise<number> {
 }
 
 async function playerPosition(page: Page): Promise<{ x: number; y: number }> {
-  const app = page.locator('#app');
-  return {
-    x: Number(await app.getAttribute('data-player-x')),
-    y: Number(await app.getAttribute('data-player-y')),
-  };
+  return page.locator('#app').evaluate((element) => ({
+    x: Number((element as HTMLElement).dataset.playerX),
+    y: Number((element as HTMLElement).dataset.playerY),
+  }));
+}
+
+// Movement runs at 180 px/s real time (per-frame delta is capped at 50 ms, so
+// it can only be slower under load). Quick keyboard.press() taps converge
+// nicely on a healthy page but can land entirely between game frames when the
+// browser is starved (parallel workers, CI) — keydown and keyup are then
+// consumed in the same event batch and the game never sees the key. So: tap
+// while taps make progress; once progress stalls, recover by holding the key
+// until movement is actually observed, alternating with perpendicular nudges
+// that keep stepping toward the other axis to slip past furniture corners
+// clipped at the edge of the tolerance band.
+const AXIS_KEYS = {
+  x: { negative: 'ArrowLeft', positive: 'ArrowRight' },
+  y: { negative: 'ArrowUp', positive: 'ArrowDown' },
+} as const;
+
+async function holdUntilMovement(
+  page: Page,
+  key: string,
+  start: { x: number; y: number },
+  maxMs: number,
+): Promise<{ x: number; y: number }> {
+  await page.keyboard.down(key);
+  try {
+    let position = start;
+    const holdDeadline = Date.now() + maxMs;
+    while (Date.now() < holdDeadline) {
+      await page.waitForTimeout(20);
+      position = await playerPosition(page);
+      if (position.x !== start.x || position.y !== start.y) return position;
+    }
+    return position;
+  } finally {
+    await page.keyboard.up(key);
+  }
 }
 
 async function moveTo(page: Page, x: number, y: number, tolerance = 9): Promise<void> {
   const canvas = page.locator('canvas');
   await canvas.focus();
-  for (let attempt = 0; attempt < 240; attempt += 1) {
-    const current = await playerPosition(page);
-    const deltaX = x - current.x;
-    const deltaY = y - current.y;
+  const deadline = Date.now() + 45_000;
+  let lastPosition = await playerPosition(page);
+  let lastProgressAt = Date.now();
+  let nudgeCount = 0;
+  let nudgeSign = 1;
+  let lastNudgeFailed = false;
+  for (;;) {
+    const position = await playerPosition(page);
+    const deltaX = x - position.x;
+    const deltaY = y - position.y;
     if (Math.abs(deltaX) <= tolerance && Math.abs(deltaY) <= tolerance) return;
-    if (Math.abs(deltaX) > tolerance) {
-      await page.keyboard.press(deltaX > 0 ? 'ArrowRight' : 'ArrowLeft');
-    } else {
-      await page.keyboard.press(deltaY > 0 ? 'ArrowDown' : 'ArrowUp');
+    if (position.x !== lastPosition.x || position.y !== lastPosition.y) {
+      lastPosition = position;
+      lastProgressAt = Date.now();
     }
+    if (Date.now() > deadline) {
+      throw new Error(
+        `Could not move player to (${x}, ${y}); stopped at ${JSON.stringify(position)}`,
+      );
+    }
+    const axis = Math.abs(deltaX) > tolerance ? 'x' : 'y';
+    const delta = axis === 'x' ? deltaX : deltaY;
+    const key = delta > 0 ? AXIS_KEYS[axis].positive : AXIS_KEYS[axis].negative;
+    if (Date.now() - lastProgressAt > 1_200) {
+      if (nudgeCount % 2 === 0) {
+        // Slip past a corner: step along the other axis, toward its target.
+        // Keep stepping while the nudges land — a wall side may take several
+        // nudges to clear — and reverse only when one goes nowhere.
+        const nudgeAxis = axis === 'x' ? 'y' : 'x';
+        const remaining = nudgeAxis === 'y' ? deltaY : deltaX;
+        const toward = remaining !== 0 ? Math.sign(remaining) : nudgeSign;
+        nudgeSign = lastNudgeFailed ? -toward : toward;
+        const keys = AXIS_KEYS[nudgeAxis];
+        const after = await holdUntilMovement(
+          page,
+          nudgeSign > 0 ? keys.positive : keys.negative,
+          position,
+          1_000,
+        );
+        lastNudgeFailed = after.x === position.x && after.y === position.y;
+      } else if (Math.abs(delta) > 60) {
+        // Far from the target: a long hold spans several frames even on a
+        // starved page, so progress is guaranteed unless geometry blocks it.
+        await page.keyboard.down(key);
+        await page.waitForTimeout(600);
+        await page.keyboard.up(key);
+      } else {
+        // Near the target: release as soon as any movement is observed to
+        // avoid overshooting past the tolerance window.
+        await holdUntilMovement(page, key, position, 1_000);
+      }
+      nudgeCount += 1;
+      lastProgressAt = Date.now();
+      continue;
+    }
+    await page.keyboard.press(key);
     await page.waitForTimeout(16);
   }
-  throw new Error(
-    `Could not move player to (${x}, ${y}); stopped at ${JSON.stringify(await playerPosition(page))}`,
-  );
 }
 
 async function interactWith(page: Page, label: string): Promise<void> {
@@ -201,7 +278,9 @@ for (const viewport of [
 test('completes photo ordering, all three placements and the corridor exit using only the keyboard', async ({
   page,
 }, testInfo) => {
-  test.setTimeout(90_000);
+  // Webkit needs ~55 s under parallel-worker contention; give the slowest
+  // engine generous headroom.
+  test.setTimeout(180_000);
   await page.setViewportSize({ width: 1366, height: 768 });
   await enterLifeFromRain(page);
   for (let index = 0; index < 2; index += 1)
