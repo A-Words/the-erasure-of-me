@@ -2127,7 +2127,8 @@ html[data-motion='reduced'] .memory-cutscene::before {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
     padding-left: max(2rem, env(safe-area-inset-left));
   }
-  .dialogue-box {
+  .dialogue-box,
+  #app[data-chapter='life'] .dialogue-box {
     width: min(34rem, 100%);
     padding: 0.55rem 0.85rem;
     font-size: 0.9em;

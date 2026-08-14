@@ -302,6 +302,15 @@ test('advances dialogue from the mobile playfield while keeping pause available'
     const box = await dialogueBox.boundingBox();
     expect(box).not.toBeNull();
     expect(box!.width).toBeLessThanOrEqual(544.5);
+    await page.locator('#app').evaluate((app) => {
+      app.setAttribute('data-chapter', 'life');
+    });
+    const lifeBox = await dialogueBox.boundingBox();
+    expect(lifeBox).not.toBeNull();
+    expect(lifeBox!.width).toBeLessThanOrEqual(544.5);
+    await page.locator('#app').evaluate((app) => {
+      app.setAttribute('data-chapter', 'home');
+    });
     await expect(dialogueBox).toContainText('点击任意位置继续');
     await expect(page.locator('.dialogue-hint-keyboard')).toBeHidden();
 
