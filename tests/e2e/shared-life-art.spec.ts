@@ -356,6 +356,8 @@ test('completes photo ordering, all three placements and the corridor exit using
   await expect(page.locator('.objective-chip')).toContainText('走进房间上方延长的走廊');
   await capture(page, testInfo, 'shared-life-all-objects-placed');
 
+  await moveTo(page, 900, 390);
+  await moveTo(page, 680, 390);
   await moveTo(page, 680, 170);
   await interactWith(page, '延长的走廊');
   await capture(page, testInfo, 'shared-life-exit-dialogue');
