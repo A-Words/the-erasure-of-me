@@ -466,8 +466,7 @@ test('tiled map smoke: sequential chapter saves do not corrupt state', async ({ 
     await expect(app).toHaveAttribute('data-chapter', chapterId, { timeout: 10_000 });
 
     const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
-    await expect(canvas).toBeVisible({ timeout: 5_000 });
-    await page.waitForLoadState('networkidle');
+    await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
   }
 
   expect(capture.errors).toEqual([]);
