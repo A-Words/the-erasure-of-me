@@ -555,10 +555,6 @@
 
 返回标题
 
-### system.save.auto
-
-已自动保存 · 记忆片段 {fragmentNumber}
-
 ### system.menu.continue
 
 继续游戏

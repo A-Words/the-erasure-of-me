@@ -336,7 +336,7 @@ export class AppShell {
       if (result.reason === 'no_active_slot') return;
       this.saveNotice = '无法写入本地存档，请检查浏览器存储空间与隐私设置。';
     } else {
-      this.saveNotice = `已自动保存 · 记忆片段 ${this.fragmentNumber(result.summary.slotId)}`;
+      this.saveNotice = '';
     }
     this.signature = '';
     this.render(this.store.getState());
@@ -460,9 +460,6 @@ export class AppShell {
           <small class="objective-chapter">${chapterMaps[state.chapterId].title}</small>
           <span class="objective-text">${state.objective}</span>
         </div>
-        <span class="observation-hint" aria-label="操作提示：按住 Shift 静静留意附近线索">
-          <kbd>Shift</kbd><span>静静留意</span>
-        </span>
       </section>
       <section class="stage-chip hud-memory-layer ${d4 ? 'hud-memory-faded' : ''}" aria-label="当前信息状态">
         <span class="anchor-dot" aria-hidden="true"></span>

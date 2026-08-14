@@ -305,7 +305,7 @@ a:focus-visible {
   left: 1.3rem;
   max-width: min(33rem, 68vw);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.75rem 1rem;
   align-items: center;
   padding: 0.75rem 0.9rem 0.72rem 1.1rem;
@@ -350,31 +350,6 @@ a:focus-visible {
   font-size: 0.92em;
   line-height: 1.45;
   text-wrap: balance;
-}
-.observation-hint {
-  display: inline-flex;
-  flex: none;
-  gap: 0.38rem;
-  align-items: center;
-  align-self: end;
-  padding-left: 0.7rem;
-  color: color-mix(in srgb, var(--hud-paper) 70%, transparent);
-  border-left: 1px solid color-mix(in srgb, var(--hud-accent) 52%, transparent);
-  font-size: 0.62em;
-  letter-spacing: 0.06em;
-  white-space: nowrap;
-}
-.observation-hint kbd {
-  color: color-mix(in srgb, var(--hud-paper) 88%, var(--hud-accent));
-  border-color: color-mix(in srgb, var(--hud-accent) 70%, var(--hud-paper));
-}
-#app:has(canvas[data-observation-active='true']) .observation-hint {
-  color: var(--hud-paper);
-}
-#app:has(canvas[data-observation-active='true']) .observation-hint kbd {
-  color: var(--hud-ink);
-  background: color-mix(in srgb, var(--hud-accent) 72%, var(--hud-paper));
-  border-color: transparent;
 }
 .stage-chip {
   top: 1.3rem;
@@ -2753,13 +2728,6 @@ html[data-motion='reduced'] .memory-cutscene::before {
     grid-template-columns: 1fr;
     gap: 0.45rem;
     max-width: calc(100vw - 2rem);
-  }
-  .observation-hint {
-    justify-self: start;
-    padding-top: 0.35rem;
-    padding-left: 0;
-    border-top: 1px solid color-mix(in srgb, var(--hud-accent) 42%, transparent);
-    border-left: 0;
   }
   .stage-chip {
     max-width: calc(100vw - 2rem);

@@ -448,11 +448,8 @@ test('plays with touch controls at the minimum supported landscape viewport', as
   await expect(interact).toHaveAttribute('aria-label', '查看床边合影');
   await up.dispatchEvent('pointerup', { pointerId: 10, pointerType: 'touch' });
 
-  const pause = await page.getByRole('button', { name: '暂停游戏' }).boundingBox();
-  const saveNotice = await page.getByRole('status').boundingBox();
-  expect(pause).not.toBeNull();
-  expect(saveNotice).not.toBeNull();
-  expect(pause!.x).toBeGreaterThanOrEqual(saveNotice!.x + saveNotice!.width);
+  await expect(page.getByText(/已自动保存/)).toHaveCount(0);
+  await expect(page.locator('.observation-hint')).toHaveCount(0);
 
   const right = page.getByRole('button', { name: '向右移动' });
   const before = Number(await page.locator('#app').getAttribute('data-player-x'));

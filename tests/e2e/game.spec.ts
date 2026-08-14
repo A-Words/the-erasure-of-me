@@ -28,6 +28,8 @@ test('advances dialogue from the playfield without treating holds or drags as cl
   page,
 }) => {
   await startNewGame(page);
+  await expect(page.getByText(/已自动保存/)).toHaveCount(0);
+  await expect(page.locator('.observation-hint')).toHaveCount(0);
   const advance = page.getByRole('button', { name: '继续对白' });
   const line = page.locator('.dialogue-text');
   const firstLine = await line.textContent();
