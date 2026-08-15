@@ -3,6 +3,11 @@ import { continueLatestGame, gotoGame, startNewGame } from './helpers/game-navig
 
 let browserErrors: string[];
 
+const OBSERVATION_SAMPLE_RADIUS = 224;
+const OBSERVATION_SAMPLE_STEP = 4;
+const FNV_OFFSET_BASIS = 2166136261;
+const FNV_PRIME = 16777619;
+
 test.beforeEach(async ({ page }, testInfo) => {
   browserErrors = [];
   page.on('console', (message) => {
@@ -120,9 +125,49 @@ test('animates observation while held and uses a static reduced-motion pose', as
   await page.getByRole('button', { name: '继续对白' }).click();
   await page.getByRole('button', { name: '继续对白' }).click();
 
+  const app = page.locator('#app');
   const canvas = page.locator('canvas[aria-label="可操作游戏画面"]');
-  const sampleCanvas = () => canvas.screenshot();
-  const changed = (first: Buffer, second: Buffer) => !first.equals(second);
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
+  await expect(canvas).toHaveAttribute('data-camera-fade-running', 'false');
+  await expect(app).toHaveAttribute('data-player-x', /^\d+$/);
+  await expect(app).toHaveAttribute('data-player-y', /^\d+$/);
+  const player = {
+    x: Number(await app.getAttribute('data-player-x')),
+    y: Number(await app.getAttribute('data-player-y')),
+  };
+  const sampleCanvas = () =>
+    canvas.evaluate(
+      (element, { center, radius, step, offsetBasis, prime }) => {
+        const canvasElement = element as HTMLCanvasElement;
+        const context = canvasElement.getContext('2d');
+        if (!context) throw new Error('Canvas 2D context is unavailable');
+        const left = Math.max(0, Math.floor(center.x - radius));
+        const top = Math.max(0, Math.floor(center.y - radius));
+        const right = Math.min(canvasElement.width, Math.ceil(center.x + radius));
+        const bottom = Math.min(canvasElement.height, Math.ceil(center.y + radius));
+        const image = context.getImageData(left, top, right - left, bottom - top).data;
+        let hash = offsetBasis;
+        for (let index = 0; index < image.length; index += step * 4) {
+          hash ^= image[index];
+          hash = Math.imul(hash, prime);
+          hash ^= image[index + 1];
+          hash = Math.imul(hash, prime);
+          hash ^= image[index + 2];
+          hash = Math.imul(hash, prime);
+          hash ^= image[index + 3];
+          hash = Math.imul(hash, prime);
+        }
+        return hash >>> 0;
+      },
+      {
+        center: player,
+        radius: OBSERVATION_SAMPLE_RADIUS,
+        step: OBSERVATION_SAMPLE_STEP,
+        offsetBasis: FNV_OFFSET_BASIS,
+        prime: FNV_PRIME,
+      },
+    );
+  const changed = (first: number, second: number) => first !== second;
 
   await canvas.focus();
   await page.keyboard.down('Shift');
@@ -140,6 +185,8 @@ test('animates observation while held and uses a static reduced-motion pose', as
   await canvas.press('Escape');
   await page.getByLabel('减少动态效果').check();
   await page.getByRole('button', { name: '继续' }).click();
+  await expect(canvas).toHaveAttribute('data-scene-ready', 'true');
+  await expect(canvas).toHaveAttribute('data-camera-fade-running', 'false');
   await canvas.focus();
   await page.keyboard.down('Shift');
   await expect(canvas).toHaveAttribute('data-observation-active', 'true');
