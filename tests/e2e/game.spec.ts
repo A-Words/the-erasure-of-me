@@ -4,6 +4,7 @@ import { continueLatestGame, gotoGame, startNewGame } from './helpers/game-navig
 let browserErrors: string[];
 
 const OBSERVATION_SAMPLE_RADIUS = 224;
+const PLAYER_POSE_SAMPLE_RADIUS = 112;
 const OBSERVATION_SAMPLE_STEP = 4;
 const FNV_OFFSET_BASIS = 2166136261;
 const FNV_PRIME = 16777619;
@@ -135,16 +136,16 @@ test('animates observation while held and uses a static reduced-motion pose', as
     x: Number(await app.getAttribute('data-player-x')),
     y: Number(await app.getAttribute('data-player-y')),
   };
-  const sampleCanvas = () =>
+  const sampleCanvas = (radius = OBSERVATION_SAMPLE_RADIUS) =>
     canvas.evaluate(
-      (element, { center, radius, step, offsetBasis, prime }) => {
+      (element, { center, sampleRadius, step, offsetBasis, prime }) => {
         const canvasElement = element as HTMLCanvasElement;
         const context = canvasElement.getContext('2d');
         if (!context) throw new Error('Canvas 2D context is unavailable');
-        const left = Math.max(0, Math.floor(center.x - radius));
-        const top = Math.max(0, Math.floor(center.y - radius));
-        const right = Math.min(canvasElement.width, Math.ceil(center.x + radius));
-        const bottom = Math.min(canvasElement.height, Math.ceil(center.y + radius));
+        const left = Math.max(0, Math.floor(center.x - sampleRadius));
+        const top = Math.max(0, Math.floor(center.y - sampleRadius));
+        const right = Math.min(canvasElement.width, Math.ceil(center.x + sampleRadius));
+        const bottom = Math.min(canvasElement.height, Math.ceil(center.y + sampleRadius));
         const image = context.getImageData(left, top, right - left, bottom - top).data;
         let hash = offsetBasis;
         for (let index = 0; index < image.length; index += step * 4) {
@@ -161,7 +162,7 @@ test('animates observation while held and uses a static reduced-motion pose', as
       },
       {
         center: player,
-        radius: OBSERVATION_SAMPLE_RADIUS,
+        sampleRadius: radius,
         step: OBSERVATION_SAMPLE_STEP,
         offsetBasis: FNV_OFFSET_BASIS,
         prime: FNV_PRIME,
@@ -191,13 +192,13 @@ test('animates observation while held and uses a static reduced-motion pose', as
   await page.keyboard.down('Shift');
   await expect(canvas).toHaveAttribute('data-observation-active', 'true');
   await page.waitForTimeout(90);
-  const reducedFirst = await sampleCanvas();
+  const reducedFirst = await sampleCanvas(PLAYER_POSE_SAMPLE_RADIUS);
   await page.waitForTimeout(320);
-  const reducedSecond = await sampleCanvas();
+  const reducedSecond = await sampleCanvas(PLAYER_POSE_SAMPLE_RADIUS);
   await page.keyboard.up('Shift');
   await expect(canvas).toHaveAttribute('data-observation-active', 'false');
   await page.waitForTimeout(90);
-  const reducedIdle = await sampleCanvas();
+  const reducedIdle = await sampleCanvas(PLAYER_POSE_SAMPLE_RADIUS);
 
   expect(changed(reducedFirst, reducedSecond)).toBe(false);
   expect(changed(reducedSecond, reducedIdle)).toBe(true);
