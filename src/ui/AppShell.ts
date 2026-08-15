@@ -27,15 +27,9 @@ import { enableDevPanelDrag, type DevPanelPosition } from './devPanelDrag';
 import type { SemanticInput } from '../game/input/SemanticInput';
 import type { InputAction } from '../game/input/actions';
 import { FullscreenController, type FullscreenResult } from './FullscreenController';
-import {
-  GAME_BRAND_NAME,
-  GAME_BRAND_WORDMARK,
-  renderText,
-  resolveLocale,
-  t,
-  type Locale,
-  type TextRef,
-} from '../i18n';
+import { renderText, resolveLocale, t, type Locale, type TextRef } from '../i18n';
+
+const TITLE_PAGE_NAME = '记忆的缝隙';
 
 const journalText: Record<string, { titleKey: string; bodyKey: string }> = {
   'journal.home.key': {
@@ -305,7 +299,7 @@ export class AppShell {
     if (this.fullscreenLayerKey === layerKey) return;
     this.fullscreenLayerKey = layerKey;
     this.fullscreenLayer.innerHTML = showGate
-      ? `<section class="fullscreen-entry" role="dialog" aria-modal="true" aria-labelledby="fullscreen-entry-title" aria-describedby="fullscreen-entry-description"><div class="fullscreen-entry-copy"><p class="eyebrow">${GAME_BRAND_WORDMARK}</p><h1 id="fullscreen-entry-title">${this.translate('fullscreen.title')}</h1><p id="fullscreen-entry-description">${this.translate('fullscreen.body')}</p></div><button data-enter-fullscreen aria-label="${this.translate('fullscreen.start')}"><span>${this.translate('fullscreen.tap')}</span></button></section>`
+      ? `<section class="fullscreen-entry" role="dialog" aria-modal="true" aria-labelledby="fullscreen-entry-title" aria-describedby="fullscreen-entry-description"><div class="fullscreen-entry-copy"><p class="eyebrow">${this.translate('fullscreen.eyebrow')}</p><h1 id="fullscreen-entry-title">${this.translate('fullscreen.title')}</h1><p id="fullscreen-entry-description">${this.translate('fullscreen.body')}</p></div><button data-enter-fullscreen aria-label="${this.translate('fullscreen.start')}"><span>${this.translate('fullscreen.tap')}</span></button></section>`
       : this.fullscreenNotice
         ? `<p class="fullscreen-notice" role="status" aria-live="polite">${this.fullscreenNotice}</p>`
         : '';
@@ -389,7 +383,7 @@ export class AppShell {
 
   private updateDocumentMetadata(): void {
     document.documentElement.lang = this.locale;
-    document.title = GAME_BRAND_NAME;
+    document.title = this.translate('app.title');
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute('content', this.translate('app.description'));
@@ -740,8 +734,8 @@ export class AppShell {
       <div class="title-emblem" aria-hidden="true"><div class="title-art"><span>☂</span></div><span class="emblem-seam"></span></div>
       <header class="title-heading">
         <p class="eyebrow">${this.translate('title.eyebrow')}</p>
-        <h1 id="game-title">${GAME_BRAND_NAME}</h1>
-        <p class="english-title">${GAME_BRAND_WORDMARK}</p>
+        <h1 id="game-title">${TITLE_PAGE_NAME}</h1>
+        <p class="english-title">THE ERASURE OF ME</p>
       </header>
       <aside class="content-note"><strong>${this.translate('title.content_warning.title')}</strong><span>${this.translate('title.content_warning.body')}</span></aside>
       <nav class="title-menu" aria-label="${this.translate('menu.aria')}">

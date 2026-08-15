@@ -28,7 +28,7 @@ test('uses the system locale by default and applies a persisted manual override 
   page,
 }) => {
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
-  await expect(page.getByRole('heading', { name: 'The Erasure of Me' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '记忆的缝隙' })).toBeVisible();
   await expect(page.getByText('选择语言', { exact: true })).toHaveCount(0);
 
   await page.getByRole('button', { name: '设置' }).click();
@@ -39,16 +39,19 @@ test('uses the system locale by default and applies a persisted manual override 
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   await expect(page.getByRole('heading', { name: 'Sound and accessibility' })).toBeVisible();
   await expect(page).toHaveTitle('The Erasure of Me');
+  await page.getByRole('button', { name: 'Back' }).click();
+  await expect(page.getByRole('heading', { name: '记忆的缝隙' })).toBeVisible();
+  await page.getByRole('button', { name: 'Settings' }).click();
 
   await page.locator('[data-setting="localePreference"]').selectOption('zh-HK');
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-HK');
   await expect(page.getByRole('heading', { name: '聲音與無障礙' })).toBeVisible();
-  await expect(page).toHaveTitle('The Erasure of Me');
+  await expect(page).toHaveTitle('記憶的縫隙');
 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-HK');
   await expect(page.getByRole('heading', { name: '聲音與無障礙' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: 'The Erasure of Me' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '记忆的缝隙' })).toBeVisible();
   await page.getByRole('button', { name: '設定' }).click();
   await page.locator('[data-setting="localePreference"]').selectOption('system');
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
@@ -88,7 +91,7 @@ test('advances dialogue from the playfield without treating holds or drags as cl
 test('boots, starts, moves by keyboard, pauses and keeps accessibility stable', async ({
   page,
 }) => {
-  await expect(page.getByRole('heading', { name: 'The Erasure of Me' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '记忆的缝隙' })).toBeVisible();
   await expect(page.getByText('许志远是虚构人物')).toBeVisible();
 
   await startNewGame(page);

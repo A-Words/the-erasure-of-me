@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { GAME_BRAND_NAME, GAME_BRAND_WORDMARK } from '../../src/i18n';
 import { catalogs, translationKeys } from '../../src/i18n/catalogs';
 import {
   normalizeLocalePreference,
@@ -12,9 +11,11 @@ import { createInitialState } from '../../src/game/state/initialState';
 import { migrateGameState } from '../../src/save/migrations';
 
 describe('i18n', () => {
-  it('keeps the game brand independent from the interface locale', () => {
-    expect(GAME_BRAND_NAME).toBe('The Erasure of Me');
-    expect(GAME_BRAND_WORDMARK).toBe('THE ERASURE OF ME');
+  it('keeps non-title metadata localized', () => {
+    expect(t('zh-HK', 'app.title')).toBe('記憶的縫隙');
+    expect(t('en', 'app.title')).toBe('The Erasure of Me');
+    expect(t('zh-HK', 'fullscreen.eyebrow')).toBe('記憶的縫隙');
+    expect(t('en', 'fullscreen.eyebrow')).toBe('THE ERASURE OF ME');
   });
 
   it('maps browser language tags to the supported locales', () => {

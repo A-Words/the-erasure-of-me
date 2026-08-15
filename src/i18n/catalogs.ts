@@ -7,6 +7,7 @@ type Entry = readonly [string, string, string];
  * with Hong Kong wording, and the third is English.
  */
 export const translationEntries: Readonly<Record<string, Entry>> = {
+  'app.title': ['记忆的缝隙', '記憶的縫隙', 'The Erasure of Me'],
   'app.description': [
     '《记忆的缝隙》——关于记忆、尊严与陪伴的 2D 叙事解谜游戏。',
     '《記憶的縫隙》——關於記憶、尊嚴與陪伴的 2D 敘事解謎遊戲。',
@@ -56,6 +57,7 @@ export const translationEntries: Readonly<Record<string, Entry>> = {
     '橫屏能保留完整場景和觸控區域。旋轉後請點擊進入全螢幕。',
     'Landscape keeps the full scene and touch controls visible. After rotating, tap to enter fullscreen.',
   ],
+  'fullscreen.eyebrow': ['记忆的缝隙', '記憶的縫隙', 'THE ERASURE OF ME'],
   'fullscreen.title': [
     '准备好进入这段记忆了吗？',
     '準備好進入這段記憶了嗎？',
@@ -160,6 +162,7 @@ export const translationEntries: Readonly<Record<string, Entry>> = {
     '一段關於記憶、尊嚴與陪伴的故事',
     'A story about memory, dignity, and companionship',
   ],
+  'title.name': ['记忆的缝隙', '記憶的縫隙', 'The Erasure of Me'],
   'title.content_warning.title': ['内容提示', '內容提示', 'Content note'],
   'title.content_warning.body': [
     '本作涉及认知衰退、迷路与家庭照护。许志远是虚构人物，他的经历不代表所有阿尔茨海默病患者。你可以随时暂停、退出或启用低扰动模式。',
