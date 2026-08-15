@@ -258,6 +258,7 @@ function parseInteractables(
 
     entities.push({
       id,
+      labelKey: fallback?.labelKey ?? id,
       label: getOptionalStringProperty(obj, 'label') ?? fallback?.label ?? id,
       x: obj.x,
       y: obj.y,

@@ -1,7 +1,10 @@
 :root {
   color: #2f2b28;
   background: #2f2b28;
-  font-family: 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-sans: 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --font-serif: 'Noto Serif SC', 'SimSun', serif;
+
+  font-family: var(--font-sans);
   font-synthesis: none;
   --ink: #2f2b28;
   --paper: #eee7d8;
@@ -15,6 +18,16 @@
   --hud-accent: #c86a5d;
   --hud-line: rgba(247, 237, 220, 0.34);
   --base-size: 20px;
+}
+
+html[data-locale='zh-HK'] {
+  --font-sans: 'Noto Sans TC', 'Microsoft JhengHei', 'Noto Sans SC', system-ui, sans-serif;
+  --font-serif: 'Noto Serif TC', 'PMingLiU', 'Noto Serif SC', serif;
+}
+
+html[data-locale='en'] {
+  --font-sans: 'Inter', 'Segoe UI', 'Noto Sans SC', system-ui, sans-serif;
+  --font-serif: 'Georgia', 'Times New Roman', 'Noto Serif SC', serif;
 }
 
 * {
@@ -123,7 +136,8 @@ a:focus-visible {
   z-index: 80;
 }
 
-#app[data-fullscreen-entry='true'] :is(#hud, #panel-layer, #system-layer, #touch-layer) {
+#app:is([data-fullscreen-entry='true'], [data-orientation-blocked='true'])
+  :is(#hud, #panel-layer, #system-layer, #touch-layer) {
   visibility: hidden;
 }
 
@@ -346,7 +360,7 @@ a:focus-visible {
 }
 .objective-chip .objective-text {
   display: block;
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
   font-size: 0.92em;
   line-height: 1.45;
   text-wrap: balance;
@@ -648,7 +662,7 @@ html.map-editor-active .debug-panel {
 }
 .paper-panel h2 {
   margin: 0 0 1rem;
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
   font-size: 1.65em;
   font-weight: 600;
 }
@@ -701,7 +715,7 @@ html.map-editor-active .debug-panel {
   border-bottom: 1px dashed rgba(47, 43, 40, 0.3);
 }
 .journal-pages h3 {
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
 }
 .map-panel {
   width: min(58rem, 94vw);
@@ -760,10 +774,7 @@ html.map-editor-active .debug-panel {
 }
 .map-place-label {
   fill: currentColor;
-  font:
-    34px 'Noto Serif SC',
-    SimSun,
-    serif;
+  font: 34px var(--font-serif);
 }
 .map-water-stains {
   fill: var(--rain);
@@ -924,7 +935,7 @@ html.map-editor-active .debug-panel {
   box-shadow: 0 3px 8px rgba(47, 43, 40, 0.16);
 }
 .photo-position strong {
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
   font-size: 1.1em;
 }
 .photo-position small {
@@ -954,9 +965,7 @@ html.map-editor-active .debug-panel {
   filter: saturate(0.78) sepia(0.08) contrast(0.96);
 }
 .photo-placeholder {
-  font:
-    3rem 'Noto Serif SC',
-    serif;
+  font: 3rem var(--font-serif);
   opacity: 0.35;
 }
 .photo-card figcaption {
@@ -966,7 +975,7 @@ html.map-editor-active .debug-panel {
 }
 .photo-card figcaption strong {
   color: var(--anchor);
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
   font-size: 1.2em;
 }
 .photo-card figcaption > span {
@@ -1012,7 +1021,7 @@ html.map-editor-active .debug-panel {
 .photo-album > footer > span {
   margin-right: auto;
   color: color-mix(in srgb, var(--ink) 55%, transparent);
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
   font-size: 0.72em;
 }
 
@@ -1125,7 +1134,7 @@ html.map-editor-active .debug-panel {
 }
 .title-screen h1 {
   margin: 0;
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
   font-size: clamp(2.5rem, 7vw, 5.3rem);
   font-weight: 500;
   letter-spacing: 0.12em;
@@ -1582,7 +1591,7 @@ html.map-editor-active .debug-panel {
   }
 }
 .dialogue-text {
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
   line-height: 1.6;
 }
 .dialogue-hint {
@@ -1777,14 +1786,14 @@ html.map-editor-active .debug-panel {
 .guide-page h1 {
   max-width: 12em;
   margin: 0.5rem 0 1rem;
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
   font-size: clamp(2.2rem, 7vw, 4.6rem);
   font-weight: 500;
   line-height: 1.18;
 }
 .guide-page h2 {
   margin-top: 2rem;
-  font-family: 'Noto Serif SC', SimSun, serif;
+  font-family: var(--font-serif);
 }
 .guide-page p,
 .guide-page li {
@@ -2180,12 +2189,25 @@ html[data-motion='reduced'] .memory-cutscene::before {
 
 @media (pointer: coarse) and (orientation: landscape) and (min-width: 740px) {
   .title-screen:not(.title-subpage) {
+    --title-home-brand-track: 0.9fr;
+    --title-home-menu-track: 1.1fr;
+    --title-home-column-gap: clamp(1.25rem, 4vw, 3.5rem);
+    --title-home-note-size: 0.64em;
+    --title-home-note-leading: 1.4;
+    --title-home-card-min-height: clamp(3.15rem, 16vh, 3.9rem);
+    --title-home-card-padding-block: 0.42rem;
+    --title-home-card-description-size: 0.66em;
+    --title-home-card-description-leading: 1.28;
+
     display: grid;
-    grid-template-columns: minmax(16rem, 0.82fr) minmax(25rem, 1.18fr);
+    grid-template-columns: minmax(0, var(--title-home-brand-track)) minmax(
+        0,
+        var(--title-home-menu-track)
+      );
     grid-template-rows: auto auto auto;
     align-content: center;
     align-items: center;
-    column-gap: clamp(1.25rem, 4vw, 3.5rem);
+    column-gap: var(--title-home-column-gap);
     row-gap: 0.45rem;
     overflow: hidden;
     text-align: left;
@@ -2223,8 +2245,8 @@ html[data-motion='reduced'] .memory-cutscene::before {
     font-size: 0.65em;
   }
   .title-screen:not(.title-subpage) .content-note span {
-    font-size: 0.6em;
-    line-height: 1.45;
+    font-size: var(--title-home-note-size);
+    line-height: var(--title-home-note-leading);
   }
   .title-screen:not(.title-subpage) .title-menu {
     grid-column: 2;
@@ -2236,11 +2258,13 @@ html[data-motion='reduced'] .memory-cutscene::before {
     gap: 0.35rem;
   }
   .title-screen:not(.title-subpage) .title-menu-card {
-    min-height: clamp(3.2rem, 17vh, 4.1rem);
-    padding: 0.48rem 2.25rem 0.48rem 0.85rem;
+    min-height: var(--title-home-card-min-height);
+    padding: var(--title-home-card-padding-block) 2.25rem var(--title-home-card-padding-block)
+      0.85rem;
   }
   .title-screen:not(.title-subpage) .title-menu-card span {
-    line-height: 1.35;
+    font-size: var(--title-home-card-description-size);
+    line-height: var(--title-home-card-description-leading);
   }
   .title-screen:not(.title-subpage) .title-save-notice {
     position: absolute;
@@ -2613,7 +2637,7 @@ html[data-motion='reduced'] .memory-cutscene::before {
     gap: 0.35rem;
   }
   #system-layer .pause-quick-settings {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     align-content: start;
     gap: 0.35rem;
     min-width: 0;

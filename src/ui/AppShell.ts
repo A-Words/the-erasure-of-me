@@ -1,4 +1,4 @@
-import { chapterMaps, itemLabels } from '../game/content/maps';
+import { chapterMaps, entityLabelKey, itemLabelKeys } from '../game/content/maps';
 import { nearestAvailableEntity } from '../game/content/entitySelectors';
 import { assetUrl } from '../game/assets/manifest';
 import { normalizeSettings } from '../game/state/initialState';
@@ -27,39 +27,40 @@ import { enableDevPanelDrag, type DevPanelPosition } from './devPanelDrag';
 import type { SemanticInput } from '../game/input/SemanticInput';
 import type { InputAction } from '../game/input/actions';
 import { FullscreenController, type FullscreenResult } from './FullscreenController';
+import { renderText, resolveLocale, t, type Locale, type TextRef } from '../i18n';
 
-const journalText: Record<string, { title: string; body: string }> = {
+const journalText: Record<string, { titleKey: string; bodyKey: string }> = {
   'journal.home.key': {
-    title: '六月二十二日',
-    body: '钥匙还在玄关的蓝色小碗里。别急，我去买面，很快回来。——秀兰',
+    titleKey: 'journal.home.key.title',
+    bodyKey: 'journal.home.key.body',
   },
   'journal.rain.route': {
-    title: '旧车站',
-    body: '第一次见到志远是在旧车站。先经过三个站牌，再听钟楼的三声响。',
+    titleKey: 'journal.rain.route.title',
+    bodyKey: 'journal.rain.route.body',
   },
   'journal.life.ordinary_days': {
-    title: '许多普通的日子',
-    body: '记不得年份，也不妨碍我们一起闻过花香。',
+    titleKey: 'journal.life.ordinary_days.title',
+    bodyKey: 'journal.life.ordinary_days.body',
   },
   'journal.return.last_page': {
-    title: '最后一页',
-    body: '如果你一时叫不出我的名字，也没关系。我会再告诉你。你不需要证明自己还记得多少，才值得被好好陪着。——秀兰',
+    titleKey: 'journal.return.last_page.title',
+    bodyKey: 'journal.return.last_page.body',
   },
 };
 
 const photoLabels = {
-  'photo.1979': '1979 · 搬家纸箱',
-  'photo.1992': '1992 · 桂花窗台',
-  'photo.2001': '2001 · 银婚蛋糕',
+  'photo.1979': 'legacy.photo.caption.1979',
+  'photo.1992': 'legacy.photo.caption.1992',
+  'photo.2001': 'legacy.photo.caption.2001',
 } as const;
 
 type PhotoId = keyof typeof photoLabels;
 type TitleView = 'home' | 'mode' | 'new_game_memories' | 'memories' | 'settings';
 
 const photoClues: Record<PhotoId, string> = {
-  'photo.1979': '年份写在尚未拆开的纸箱角落。',
-  'photo.1992': '年份写在孩子的身高刻度旁。',
-  'photo.2001': '年份写在银婚蛋糕的小牌上。',
+  'photo.1979': 'legacy.photo.clue.1979',
+  'photo.1992': 'legacy.photo.clue.1992',
+  'photo.2001': 'legacy.photo.clue.2001',
 };
 
 const photoAssets = {
@@ -69,9 +70,9 @@ const photoAssets = {
 } as const;
 
 const photoAlt: Record<PhotoId, string> = {
-  'photo.1979': '尚未拆完的搬家纸箱、空房和靠在一旁的红伞',
-  'photo.1992': '桂花窗台、孩子的身高刻度和一只旧搪瓷杯',
-  'photo.2001': '银婚蛋糕、银色双环与已经一起生活多年的两个人',
+  'photo.1979': 'legacy.photo.alt.1979',
+  'photo.1992': 'legacy.photo.alt.1992',
+  'photo.2001': 'legacy.photo.alt.2001',
 };
 
 export class AppShell {
@@ -82,6 +83,10 @@ export class AppShell {
   private readonly touch = document.querySelector<HTMLDivElement>('#touch-layer')!;
   private readonly fullscreenLayer = document.querySelector<HTMLDivElement>('#fullscreen-layer')!;
   private readonly orientation = document.querySelector<HTMLDivElement>('#orientation-layer')!;
+  private readonly gameCanvas = document.querySelector<HTMLCanvasElement>(
+    'canvas[data-game-canvas]',
+  );
+  private readonly skipLink = document.querySelector<HTMLAnchorElement>('.skip-link');
   private signature = '';
   private photoOrder: string[] = [];
   private confirmingClearData = false;
@@ -96,15 +101,21 @@ export class AppShell {
   private titleDialogReturnFocusSelector: string | null = null;
   private readonly coarsePointer = window.matchMedia('(pointer: coarse)').matches;
   private fullscreenEntryAcknowledged = !this.coarsePointer;
+  private locale: Locale = resolveLocale('system');
   private fullscreenNotice = '';
   private fullscreenNoticeTimer: number | null = null;
   private fullscreenLayerKey = '';
+  private interactionBlocked = false;
   private debugPanelPosition: DevPanelPosition | null = null;
   private readonly debugEnabled =
     import.meta.env.DEV &&
     ['debug', 'editor'].some(
       (parameter) => new URLSearchParams(window.location.search).get(parameter) === '1',
     );
+
+  private translate(key: string, params: Record<string, string | number> = {}): string {
+    return t(this.locale, key, params);
+  }
 
   constructor(
     private readonly store: GameStore,
@@ -123,16 +134,21 @@ export class AppShell {
       !this.orientation
     )
       throw new Error('App shell containers are missing');
+    this.locale = resolveLocale(store.getState().settings.localePreference);
     for (const layer of [this.hud, this.panel, this.system]) {
       layer.addEventListener('keydown', this.protectDomKeyboardInput);
       layer.addEventListener('keyup', this.protectDomKeyboardInput);
     }
-    this.renderTouchControls();
-    this.bindTouchControls();
+    this.system.addEventListener('keydown', this.focusFirstSystemControl);
+    this.refreshTouchControls();
     this.renderFullscreenLayer();
     this.updateOrientationGate();
+    this.skipLink?.addEventListener('click', this.focusSystemLayerFromSkipLink);
+    this.skipLink?.addEventListener('keydown', this.activateSkipLinkFromKeyboard);
     window.addEventListener('resize', this.updateOrientationGate);
     window.addEventListener('orientationchange', this.updateOrientationGate);
+    window.addEventListener('keydown', this.blockGatedKeyboardInput, true);
+    document.addEventListener('focusin', this.keepFocusInsideGate);
     this.fullscreen.subscribe(() => {
       this.signature = '';
       this.renderFullscreenLayer();
@@ -150,19 +166,24 @@ export class AppShell {
 
   private renderTouchControls(): void {
     this.touch.innerHTML = `
-      <div class="touch-controls" aria-label="触屏游戏控制">
-        <div class="touch-dpad" aria-label="移动方向">
-          <button class="touch-up" data-touch-action="move_up" aria-label="向上移动">↑</button>
-          <button class="touch-left" data-touch-action="move_left" aria-label="向左移动">←</button>
-          <button class="touch-down" data-touch-action="move_down" aria-label="向下移动">↓</button>
-          <button class="touch-right" data-touch-action="move_right" aria-label="向右移动">→</button>
+      <div class="touch-controls" aria-label="${this.translate('app.aria.touch_controls')}">
+        <div class="touch-dpad" aria-label="${this.translate('app.aria.direction')}">
+          <button class="touch-up" data-touch-action="move_up" aria-label="${this.translate('touch.up')}">↑</button>
+          <button class="touch-left" data-touch-action="move_left" aria-label="${this.translate('touch.left')}">←</button>
+          <button class="touch-down" data-touch-action="move_down" aria-label="${this.translate('touch.down')}">↓</button>
+          <button class="touch-right" data-touch-action="move_right" aria-label="${this.translate('touch.right')}">→</button>
         </div>
         <div class="touch-context-actions">
-          <button data-touch-action="observe" aria-label="按住静静留意">留意</button>
-          <button class="touch-confirm" data-touch-action="interact" aria-label="与附近物件交互">交互</button>
+          <button data-touch-action="observe" aria-label="${this.translate('touch.observe')}">${this.translate('touch.observe.short')}</button>
+          <button class="touch-confirm" data-touch-action="interact" aria-label="${this.translate('touch.interact')}">${this.translate('touch.interact.short')}</button>
         </div>
-        <button class="touch-pause" data-touch-action="pause" aria-label="暂停游戏">暂停</button>
+        <button class="touch-pause" data-touch-action="pause" aria-label="${this.translate('touch.pause')}">${this.translate('touch.pause.short')}</button>
       </div>`;
+  }
+
+  private refreshTouchControls(): void {
+    this.renderTouchControls();
+    this.bindTouchControls();
   }
 
   private bindTouchControls(): void {
@@ -220,25 +241,31 @@ export class AppShell {
     const button = this.touch.querySelector<HTMLButtonElement>('[data-touch-action="interact"]');
     if (!button) return;
 
-    let label = '交互';
-    let accessibleLabel = '与附近物件交互';
+    let label = this.translate('touch.interact.short');
+    let accessibleLabel = this.translate('touch.interact');
     if (state.dialogue.length > 0) {
-      label = '继续';
-      accessibleLabel = '继续对白';
+      label = this.translate('common.continue');
+      accessibleLabel = this.translate('dialogue.continue');
     } else if (state.flags.includes('ending.ready_to_hold')) {
-      label = '牵手';
-      accessibleLabel = state.settings.holdMode === 'hold' ? '按住牵手' : '牵手';
+      label = this.translate('common.hold');
+      accessibleLabel =
+        state.settings.holdMode === 'hold'
+          ? this.translate('common.hold.long')
+          : this.translate('common.hold');
     } else if (nearbyEntity) {
       const verb = {
-        inspect: '查看',
-        pickup: '拾取',
-        puzzle: '查看',
-        exit: '前往',
-        anchor: '查看',
-        slot: '放置',
+        inspect: this.translate('common.inspect'),
+        pickup: this.translate('common.pickup'),
+        puzzle: this.translate('common.inspect'),
+        exit: this.translate('common.go'),
+        anchor: this.translate('common.inspect'),
+        slot: this.translate('common.place'),
       }[nearbyEntity.kind];
       label = verb;
-      accessibleLabel = `${verb}${nearbyEntity.label}`;
+      accessibleLabel = this.translate('common.action_with', {
+        verb,
+        label: this.translate(entityLabelKey(nearbyEntity)),
+      });
     }
 
     button.textContent = label;
@@ -252,7 +279,7 @@ export class AppShell {
     document.documentElement.dataset.orientationBlocked = String(blocked);
     this.renderFullscreenLayer();
     this.orientation.innerHTML = blocked
-      ? '<section class="orientation-notice" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="orientation-title"><span aria-hidden="true">↻</span><h1 id="orientation-title">请旋转至横屏</h1><p>横屏能保留完整场景和触控区域。旋转后请从暂停菜单继续。</p></section>'
+      ? `<section class="orientation-notice" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="orientation-title"><span aria-hidden="true">↻</span><h1 id="orientation-title">${this.translate('orientation.title')}</h1><p>${this.translate('orientation.body')}</p></section>`
       : '';
     if (!blocked) return;
     this.semanticInput.clear();
@@ -267,10 +294,17 @@ export class AppShell {
 
   private renderFullscreenLayer(): void {
     const landscape = window.innerWidth >= window.innerHeight;
-    const showGate = this.coarsePointer && landscape && !this.fullscreenEntryAcknowledged;
+    const orientationBlocked = this.coarsePointer && !landscape;
+    const showGate =
+      this.coarsePointer && landscape && !this.fullscreenEntryAcknowledged && !orientationBlocked;
     this.root.dataset.fullscreenEntry = String(showGate);
+    this.root.dataset.orientationBlocked = String(orientationBlocked);
+    const interactionBlocked = showGate || orientationBlocked;
+    this.interactionBlocked = interactionBlocked;
+    if (this.gameCanvas) this.gameCanvas.inert = interactionBlocked;
+    if (this.skipLink) this.skipLink.inert = interactionBlocked;
     for (const layer of [this.hud, this.panel, this.system, this.touch]) {
-      layer.inert = showGate;
+      layer.inert = interactionBlocked;
     }
     const layerKey = showGate
       ? 'entry'
@@ -280,7 +314,7 @@ export class AppShell {
     if (this.fullscreenLayerKey === layerKey) return;
     this.fullscreenLayerKey = layerKey;
     this.fullscreenLayer.innerHTML = showGate
-      ? `<section class="fullscreen-entry" role="dialog" aria-modal="true" aria-labelledby="fullscreen-entry-title" aria-describedby="fullscreen-entry-description"><div class="fullscreen-entry-copy"><p class="eyebrow">记忆的缝隙</p><h1 id="fullscreen-entry-title">准备好进入这段记忆了吗？</h1><p id="fullscreen-entry-description">我们会尝试进入全屏，让场景和触控区域更完整。</p></div><button data-enter-fullscreen aria-label="开始体验"><span>点击任意处开始</span></button></section>`
+      ? `<section class="fullscreen-entry" role="dialog" aria-modal="true" aria-labelledby="fullscreen-entry-title" aria-describedby="fullscreen-entry-description"><div class="fullscreen-entry-copy"><p class="eyebrow">${this.translate('fullscreen.eyebrow')}</p><h1 id="fullscreen-entry-title">${this.translate('fullscreen.title')}</h1><p id="fullscreen-entry-description">${this.translate('fullscreen.body')}</p></div><button data-enter-fullscreen aria-label="${this.translate('fullscreen.start')}"><span>${this.translate('fullscreen.tap')}</span></button></section>`
       : this.fullscreenNotice
         ? `<p class="fullscreen-notice" role="status" aria-live="polite">${this.fullscreenNotice}</p>`
         : '';
@@ -289,6 +323,57 @@ export class AppShell {
     button?.addEventListener('click', () => void this.acceptFullscreenEntry());
     requestAnimationFrame(() => button?.focus({ preventScroll: true }));
   }
+
+  private readonly blockGatedKeyboardInput = (event: KeyboardEvent): void => {
+    if (!this.interactionBlocked || event.type !== 'keydown') return;
+    const target = event.target;
+    const inFullscreenEntry =
+      this.root.dataset.fullscreenEntry === 'true' &&
+      target instanceof Element &&
+      this.fullscreenLayer.contains(target) &&
+      target.closest('[data-enter-fullscreen]');
+    if (inFullscreenEntry && (event.key === 'Enter' || event.key === ' ')) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  };
+
+  private readonly keepFocusInsideGate = (event: FocusEvent): void => {
+    if (!this.interactionBlocked) return;
+    const target = event.target;
+    const gate =
+      this.root.dataset.orientationBlocked === 'true' ? this.orientation : this.fullscreenLayer;
+    if (target instanceof Node && gate.contains(target)) return;
+    requestAnimationFrame(() => {
+      if (!this.interactionBlocked) return;
+      const focusTarget =
+        this.root.dataset.orientationBlocked === 'true'
+          ? this.orientation.querySelector<HTMLElement>('.orientation-notice')
+          : this.fullscreenLayer.querySelector<HTMLElement>('[data-enter-fullscreen]');
+      focusTarget?.focus({ preventScroll: true });
+    });
+  };
+
+  private readonly focusSystemLayerFromSkipLink = (event: MouseEvent): void => {
+    event.preventDefault();
+    this.system.focus({ preventScroll: true });
+  };
+
+  private readonly activateSkipLinkFromKeyboard = (event: KeyboardEvent): void => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.system.focus({ preventScroll: true });
+  };
+
+  private readonly focusFirstSystemControl = (event: KeyboardEvent): void => {
+    if (event.key !== 'Tab' || event.shiftKey || document.activeElement !== this.system) return;
+    const firstFocusable = this.system.querySelector<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    if (!firstFocusable) return;
+    event.preventDefault();
+    firstFocusable.focus({ preventScroll: true });
+  };
 
   private async acceptFullscreenEntry(): Promise<void> {
     const result = await this.fullscreen.request();
@@ -313,9 +398,7 @@ export class AppShell {
       this.fullscreenNoticeTimer = null;
     }
     this.fullscreenNotice =
-      result === 'unsupported' || result === 'denied'
-        ? '无法进入全屏，已继续横屏模式。你可以在设置中再次尝试。'
-        : '';
+      result === 'unsupported' || result === 'denied' ? this.translate('fullscreen.notice') : '';
     if (this.fullscreenNotice) {
       this.fullscreenNoticeTimer = window.setTimeout(() => {
         this.fullscreenNotice = '';
@@ -328,13 +411,13 @@ export class AppShell {
   private fullscreenControl(): string {
     if (!this.coarsePointer) return '';
     const active = this.fullscreen.isActive();
-    return `<div class="fullscreen-setting"><span><strong>全屏显示</strong><small>${active ? '当前已减少浏览器栏遮挡' : '减少浏览器栏遮挡'}</small></span><button class="secondary fullscreen-toggle" data-fullscreen-toggle>${active ? '退出全屏' : '进入全屏'}</button></div>`;
+    return `<div class="fullscreen-setting"><span><strong>${this.translate('fullscreen.setting.title')}</strong><small>${active ? this.translate('fullscreen.setting.active') : this.translate('fullscreen.setting.inactive')}</small></span><button class="secondary fullscreen-toggle" data-fullscreen-toggle>${active ? this.translate('fullscreen.exit') : this.translate('fullscreen.enter')}</button></div>`;
   }
 
   reportSaveResult(result: SaveResult): void {
     if (!result.ok) {
       if (result.reason === 'no_active_slot') return;
-      this.saveNotice = '无法写入本地存档，请检查浏览器存储空间与隐私设置。';
+      this.saveNotice = this.translate('save.failed');
     } else {
       this.saveNotice = '';
     }
@@ -364,7 +447,31 @@ export class AppShell {
     }
   };
 
+  private updateDocumentMetadata(): void {
+    document.documentElement.lang = this.locale;
+    document.title = this.translate('app.title');
+    document
+      .querySelector('meta[name="description"]')
+      ?.setAttribute('content', this.translate('app.description'));
+    this.root.setAttribute('aria-label', this.translate('app.aria.game'));
+    document
+      .querySelector<HTMLElement>('.skip-link')
+      ?.replaceChildren(document.createTextNode(this.translate('app.skip_to_menu')));
+    document
+      .querySelector<HTMLElement>('#game-canvas')
+      ?.setAttribute('aria-label', this.translate('app.aria.scene'));
+    document
+      .querySelector<HTMLCanvasElement>('canvas[data-game-canvas]')
+      ?.setAttribute('aria-label', this.translate('app.aria.canvas'));
+    document.documentElement.dataset.locale = this.locale;
+  }
+
   private render(state: Readonly<GameState>): void {
+    const nextLocale = resolveLocale(state.settings.localePreference);
+    const localeChanged = this.locale !== nextLocale;
+    this.locale = nextLocale;
+    if (localeChanged) this.refreshTouchControls();
+    this.updateDocumentMetadata();
     const previousModal = this.lastModal;
     const openingModal = !previousModal && state.modal;
     const closingModal = previousModal && !state.modal;
@@ -373,11 +480,11 @@ export class AppShell {
       this.modalReturnFocusSelector = document.activeElement.dataset.open
         ? `[data-open="${document.activeElement.dataset.open}"]`
         : document.activeElement instanceof HTMLCanvasElement
-          ? 'canvas[aria-label="可操作游戏画面"]'
+          ? 'canvas[data-game-canvas]'
           : null;
     }
     this.lastModal = state.modal;
-    const map = createMapPresentation(state);
+    const map = createMapPresentation(state, this.locale);
     const mapMode = map.mode;
     const app = document.querySelector<HTMLElement>('#app');
     if (app) {
@@ -455,27 +562,27 @@ export class AppShell {
     const d4 = state.degradationStage === 'D4';
     const nearbyEntity = this.nearbyEntity(state);
     this.hud.innerHTML = `
-      <section class="objective-chip hud-memory-layer ${d4 ? 'hud-memory-faded' : ''}" aria-label="当前目标">
+      <section class="objective-chip hud-memory-layer ${d4 ? 'hud-memory-faded' : ''}" aria-label="${this.translate('hud.objective')}">
         <div class="objective-copy">
-          <small class="objective-chapter">${chapterMaps[state.chapterId].title}</small>
-          <span class="objective-text">${state.objective}</span>
+          <small class="objective-chapter">${this.translate(chapterMaps[state.chapterId].titleKey)}</small>
+          <span class="objective-text">${renderText(this.locale, state.objective)}</span>
         </div>
       </section>
-      <section class="stage-chip hud-memory-layer ${d4 ? 'hud-memory-faded' : ''}" aria-label="当前信息状态">
+      <section class="stage-chip hud-memory-layer ${d4 ? 'hud-memory-faded' : ''}" aria-label="${this.translate('hud.status')}">
         <span class="anchor-dot" aria-hidden="true"></span>
         <span class="stage-code">${state.degradationStage}</span>
         <span aria-hidden="true">·</span>
-        <span>${state.mode === 'standard' ? '标准' : '低扰动'}</span>
+        <span>${this.translate(state.mode === 'standard' ? 'common.standard' : 'mode.low_stimulation')}</span>
       </section>
-      <nav class="hud-actions" aria-label="游戏工具">
-        <button data-open="inventory">背包 <kbd>I</kbd></button>
-        <button data-open="journal">日记 <kbd>J</kbd></button>
-        ${mapMode === 'hidden' ? '' : '<button data-open="map">地图 <kbd>M</kbd></button>'}
+      <nav class="hud-actions" aria-label="${this.translate('hud.tools')}">
+        <button data-open="inventory">${this.translate('hud.inventory')} <kbd>I</kbd></button>
+        <button data-open="journal">${this.translate('hud.journal')} <kbd>J</kbd></button>
+        ${mapMode === 'hidden' ? '' : `<button data-open="map">${this.translate('hud.map')} <kbd>M</kbd></button>`}
       </nav>
-      ${nearbyEntity ? `<button class="interaction-prompt" data-interact="${nearbyEntity.id}" aria-label="与${nearbyEntity.label}交互"><kbd>E</kbd><span>${nearbyEntity.label}</span><span class="touch-action">交互</span></button>` : ''}
-      ${state.message && state.holdProgress === 0 ? `<button class="toast" data-clear-message aria-label="关闭提示">${state.message}</button>` : ''}
+      ${nearbyEntity ? `<button class="interaction-prompt" data-interact="${nearbyEntity.id}" aria-label="${this.translate('common.interact_with', { label: this.translate(entityLabelKey(nearbyEntity)) })}"><kbd>E</kbd><span>${this.translate(entityLabelKey(nearbyEntity))}</span><span class="touch-action">${this.translate('common.interact')}</span></button>` : ''}
+      ${state.message && state.holdProgress === 0 ? `<button class="toast" data-clear-message aria-label="${this.translate('hud.close_message')}">${renderText(this.locale, state.message)}</button>` : ''}
       ${this.saveNotice ? `<div class="save-notice" role="status" aria-live="polite">${this.saveNotice}</div>` : ''}
-      ${state.holdProgress > 0 ? `<div class="hold-progress-a11y" role="progressbar" aria-label="掌心逐渐变暖" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(state.holdProgress * 100)}"></div>` : ''}
+      ${state.holdProgress > 0 ? `<div class="hold-progress-a11y" role="progressbar" aria-label="${this.translate('hud.hold_warmth')}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(state.holdProgress * 100)}"></div>` : ''}
       ${this.debugEnabled ? this.debugPanel(state) : ''}
     `;
   }
@@ -510,29 +617,29 @@ export class AppShell {
           : state.modal === 'map'
             ? this.mapPanel(map)
             : this.photoPanel(state);
-    this.panel.innerHTML = `<div class="scrim"><section class="paper-panel ${state.modal}-panel" role="dialog" aria-modal="true">${content}<button class="secondary" data-close>关闭 <kbd>Q</kbd></button></section></div>`;
+    this.panel.innerHTML = `<div class="scrim"><section class="paper-panel ${state.modal}-panel" role="dialog" aria-modal="true">${content}<button class="secondary" data-close>${this.translate('common.close')} <kbd>Q</kbd></button></section></div>`;
   }
 
   private inventoryPanel(state: Readonly<GameState>): string {
     const items = state.inventory.length
       ? state.inventory
           .map((id) => {
-            const original = itemLabels[id] ?? id;
+            const original = this.translate(itemLabelKeys[id] ?? id);
             const label =
               state.degradationStage === 'D2'
                 ? id === 'item.life.wood_comb'
-                  ? '木＿ · 条纹'
+                  ? this.translate('item.life.wood_comb.d2')
                   : id === 'item.life.enamel_cup'
-                    ? '＿瓷＿ · 圆点'
+                    ? this.translate('item.life.enamel_cup.d2')
                     : id === 'item.life.cassette'
-                      ? '〰 〰 〰 · 波纹'
+                      ? this.translate('item.life.cassette.d2')
                       : original
                 : original;
             return `<li aria-label="${original}"><span class="item-shape" aria-hidden="true">◇</span>${label}</li>`;
           })
           .join('')
-      : '<li>还没有收起任何物件。</li>';
-    return `<h2>背包</h2><p class="muted">名字会变化，物件的形状和纹理不会。</p><ul class="inventory-list">${items}</ul>`;
+      : `<li>${this.translate('panel.inventory.empty')}</li>`;
+    return `<h2>${this.translate('panel.inventory.title')}</h2><p class="muted">${this.translate('panel.inventory.body')}</p><ul class="inventory-list">${items}</ul>`;
   }
 
   private journalPanel(state: Readonly<GameState>): string {
@@ -540,11 +647,13 @@ export class AppShell {
       ? state.journalPages
           .map((id) => {
             const page = journalText[id];
-            return page ? `<article><h3>${page.title}</h3><p>${page.body}</p></article>` : '';
+            return page
+              ? `<article><h3>${this.translate(page.titleKey)}</h3><p>${this.translate(page.bodyKey)}</p></article>`
+              : '';
           })
           .join('')
-      : '<p>红线书签还停在封面。</p>';
-    return `<h2>秀兰的日记</h2><div class="journal-pages">${pages}</div>`;
+      : `<p>${this.translate('panel.journal.empty')}</p>`;
+    return `<h2>${this.translate('panel.journal.title')}</h2><div class="journal-pages">${pages}</div>`;
   }
 
   private mapPanel(map: MapPresentation): string {
@@ -552,14 +661,14 @@ export class AppShell {
       .filter((entity) => entity.visible)
       .map(
         (entity) =>
-          `<li>${this.landmarkSymbol(entity)} <span>${entity.label}</span>${entity.reached ? '<small>已到达</small>' : ''}</li>`,
+          `<li>${this.landmarkSymbol(entity)} <span>${this.translate(entityLabelKey(entity))}</span>${entity.reached ? `<small>${this.translate('panel.map.reached')}</small>` : ''}</li>`,
       )
       .join('');
     const status =
       map.mode === 'washed'
-        ? '水渍遮住了未停留区域。当前位置、已到达的站牌、红伞和钟声方向仍然清楚。'
-        : '道路、房间名称和地标仍然清楚。';
-    return `<div class="map-panel-heading"><div><p class="eyebrow">当前空间</p><h2 class="${map.mode === 'washed' ? 'washed-text' : ''}">${map.title}</h2></div><p class="map-status">${status}</p></div>${this.mapSvg(map)}<ul class="map-legend" aria-label="地图标记">${landmarks}</ul>`;
+        ? this.translate('panel.map.washed_status')
+        : this.translate('panel.map.full_status');
+    return `<div class="map-panel-heading"><div><p class="eyebrow">${this.translate('panel.map.eyebrow')}</p><h2 class="${map.mode === 'washed' ? 'washed-text' : ''}">${map.title}</h2></div><p class="map-status">${status}</p></div>${this.mapSvg(map)}<ul class="map-legend" aria-label="${this.translate('panel.map.legend')}">${landmarks}</ul>`;
   }
 
   private mapSvg(map: MapPresentation): string {
@@ -586,19 +695,19 @@ export class AppShell {
       map.mode === 'washed'
         ? '<g class="map-water-stains" aria-hidden="true"><ellipse cx="410" cy="205" rx="285" ry="135"/><ellipse cx="805" cy="505" rx="360" ry="175"/></g>'
         : '';
-    return `<svg class="map-drawing expanded ${map.mode}" viewBox="0 0 ${map.width} ${map.height}" role="img" aria-label="${map.title}，你在地图上标为蓝色圆点"><title>${map.title}</title><rect class="map-paper" x="10" y="10" width="${map.width - 20}" height="${map.height - 20}" rx="22"/>${paths}${labels}${wash}${landmarks}${soundCue}<g class="map-player" transform="translate(${map.player.x} ${map.player.y})"><circle r="24"/><circle class="map-player-core" r="9"/></g></svg>`;
+    return `<svg class="map-drawing expanded ${map.mode}" viewBox="0 0 ${map.width} ${map.height}" role="img" aria-label="${this.translate('panel.map.player', { title: map.title })}"><title>${map.title}</title><rect class="map-paper" x="10" y="10" width="${map.width - 20}" height="${map.height - 20}" rx="22"/>${paths}${labels}${wash}${landmarks}${soundCue}<g class="map-player" transform="translate(${map.player.x} ${map.player.y})"><circle r="24"/><circle class="map-player-core" r="9"/></g></svg>`;
   }
 
   private mapLandmark(landmark: MapLandmark): string {
     const className = `map-landmark ${landmark.symbol} ${landmark.reached ? 'reached' : ''}`;
     if (landmark.symbol === 'umbrella') {
-      return `<text class="${className}" x="${landmark.x}" y="${landmark.y}" text-anchor="middle" aria-label="${landmark.label}">☂</text>`;
+      return `<text class="${className}" x="${landmark.x}" y="${landmark.y}" text-anchor="middle" aria-label="${this.translate(entityLabelKey(landmark))}">☂</text>`;
     }
     if (landmark.symbol === 'station') {
       const number = landmark.id.match(/stone_(\d+)/)?.[1] ?? '';
-      return `<g class="${className}" transform="translate(${landmark.x} ${landmark.y})" aria-label="${landmark.label}"><circle r="19"/><text y="9" text-anchor="middle">${number}</text></g>`;
+      return `<g class="${className}" transform="translate(${landmark.x} ${landmark.y})" aria-label="${this.translate(entityLabelKey(landmark))}"><circle r="19"/><text y="9" text-anchor="middle">${number}</text></g>`;
     }
-    return `<path class="${className}" aria-label="${landmark.label}" d="M${landmark.x} ${landmark.y - 24}l24 24-24 24-24-24Z"/>`;
+    return `<path class="${className}" aria-label="${this.translate(entityLabelKey(landmark))}" d="M${landmark.x} ${landmark.y - 24}l24 24-24 24-24-24Z"/>`;
   }
 
   private landmarkSymbol(landmark: MapLandmark): string {
@@ -612,16 +721,20 @@ export class AppShell {
     const rows = this.photoOrder
       .map((id, index) => {
         const photoId = id in photoLabels ? (id as PhotoId) : null;
-        const label = photoId ? photoLabels[photoId] : '未识别的照片';
-        const clue = photoId ? photoClues[photoId] : '暂时无法辨认这张照片的线索。';
-        const [year, moment = '未命名片段'] = label.split(' · ');
+        const label = photoId
+          ? this.translate(photoLabels[photoId])
+          : this.translate('legacy.photo.unknown');
+        const clue = photoId
+          ? this.translate(photoClues[photoId])
+          : this.translate('legacy.photo.clue_unknown');
+        const [year, moment = this.translate('legacy.photo.moment_unknown')] = label.split(' · ');
         const image = photoId
-          ? `<img src="${assetUrl(photoAssets[photoId])}" alt="${photoAlt[photoId]}">`
-          : '<span class="photo-placeholder" aria-hidden="true">?</span>';
-        return `<li class="photo-card" data-photo-position="${index + 1}"><span class="photo-position" aria-hidden="true"><small>第</small><strong>${index + 1}</strong><small>张</small></span><figure><span class="photo-mat">${image}</span><figcaption><strong>${year}</strong><span>${moment}</span><small>${clue}</small></figcaption></figure><span class="photo-controls" role="group" aria-label="调整 ${label} 的位置"><button data-photo-up="${index}" aria-label="上移 ${label}" ${index === 0 ? 'disabled' : ''}><span aria-hidden="true">←</span> 早一些</button><button data-photo-down="${index}" aria-label="下移 ${label}" ${index === this.photoOrder.length - 1 ? 'disabled' : ''}>晚一些 <span aria-hidden="true">→</span></button></span></li>`;
+          ? `<img src="${assetUrl(photoAssets[photoId])}" alt="${this.translate(photoAlt[photoId])}">`
+          : `<span class="photo-placeholder" aria-hidden="true">?</span>`;
+        return `<li class="photo-card" data-photo-position="${index + 1}"><span class="photo-position" aria-hidden="true"><small>${this.translate('panel.photo.position.prefix')}</small><strong>${index + 1}</strong><small>${this.translate('panel.photo.position.suffix')}</small></span><figure><span class="photo-mat">${image}</span><figcaption><strong>${year}</strong><span>${moment}</span><small>${clue}</small></figcaption></figure><span class="photo-controls" role="group" aria-label="${this.translate('panel.photo.adjust', { label })}"><button data-photo-up="${index}" aria-label="${this.translate('panel.photo.move_earlier', { label })}" ${index === 0 ? 'disabled' : ''}><span aria-hidden="true">←</span> ${this.translate('panel.photo.earlier')}</button><button data-photo-down="${index}" aria-label="${this.translate('panel.photo.move_later', { label })}" ${index === this.photoOrder.length - 1 ? 'disabled' : ''}>${this.translate('panel.photo.later')} <span aria-hidden="true">→</span></button></span></li>`;
       })
       .join('');
-    return `<section class="photo-album" aria-labelledby="photo-album-title"><header><p class="album-kicker">共同生活 · 相册页 03</p><h2 id="photo-album-title">把照片放回时间里</h2><p>沿着年份、家具的新旧和桂花的高度，把三段普通日子接在一起。</p></header><ol class="photo-order">${rows}</ol><footer><span aria-hidden="true">从最早到最近</span><button class="primary" data-submit-photos aria-label="确认顺序">确认这条时间线</button></footer></section>`;
+    return `<section class="photo-album" aria-labelledby="photo-album-title"><header><p class="album-kicker">${this.translate('panel.photo.kicker')}</p><h2 id="photo-album-title">${this.translate('panel.photo.title')}</h2><p>${this.translate('panel.photo.body')}</p></header><ol class="photo-order">${rows}</ol><footer><span aria-hidden="true">${this.translate('panel.photo.timeline')}</span><button class="primary" data-submit-photos aria-label="${this.translate('panel.photo.confirm_aria')}">${this.translate('panel.photo.confirm')}</button></footer></section>`;
   }
 
   private renderSystem(state: Readonly<GameState>): void {
@@ -651,24 +764,24 @@ export class AppShell {
     this.system.innerHTML = '';
   }
 
-  private dialogueOverlay(line: string): string {
-    return `<button class="dialogue-advance" data-dialogue aria-label="继续对白"><span class="dialogue-box"><span class="dialogue-text">${line}</span><small class="dialogue-hint dialogue-hint-keyboard">点击任意位置，或按 E / Enter / 空格继续</small><small class="dialogue-hint dialogue-hint-touch">点击任意位置继续</small></span></button>`;
+  private dialogueOverlay(line: TextRef | string): string {
+    return `<button class="dialogue-advance" data-dialogue aria-label="${this.translate('dialogue.continue')}"><span class="dialogue-box"><span class="dialogue-text">${renderText(this.locale, line)}</span><small class="dialogue-hint dialogue-hint-keyboard">${this.translate('dialogue.keyboard_hint')}</small><small class="dialogue-hint dialogue-hint-touch">${this.translate('dialogue.touch_hint')}</small></span></button>`;
   }
 
   private memoryCutscene(memoryId: MemoryIllustrationId, dialogue: string): string {
     if (memoryId === 'rain') {
-      return `<section class="memory-cutscene" aria-label="雨中的初遇记忆"><img src="${assetUrl('memory.rain.umbrella.illustration')}" alt="年轻的秀兰在旧车站把修补过的红伞倾向淋雨的志远">${dialogue}</section>`;
+      return `<section class="memory-cutscene" aria-label="${this.translate('memory.rain.label')}"><img src="${assetUrl('memory.rain.umbrella.illustration')}" alt="${this.translate('memory.rain.alt')}">${dialogue}</section>`;
     }
     if (memoryId === 'life.move') {
-      return `<section class="memory-cutscene" aria-label="搬进新家的记忆"><img src="${assetUrl('memory.life.move.illustration')}" alt="年轻的志远和秀兰坐在搬家纸箱上，未装好的床架和旧红伞留在一旁">${dialogue}</section>`;
+      return `<section class="memory-cutscene" aria-label="${this.translate('memory.life.move.label')}"><img src="${assetUrl('memory.life.move.illustration')}" alt="${this.translate('memory.life.move.alt')}">${dialogue}</section>`;
     }
     if (memoryId === 'life.osmanthus') {
-      return `<section class="memory-cutscene" aria-label="桂花第一次开放的记忆"><img src="${assetUrl('memory.life.osmanthus.illustration')}" alt="中年的秀兰擦拭桂花窗台，志远拿着带桂花纹样的搪瓷杯站在一旁">${dialogue}</section>`;
+      return `<section class="memory-cutscene" aria-label="${this.translate('memory.life.osmanthus.label')}"><img src="${assetUrl('memory.life.osmanthus.illustration')}" alt="${this.translate('memory.life.osmanthus.alt')}">${dialogue}</section>`;
     }
     if (memoryId === 'life.cassette') {
-      return `<section class="memory-cutscene" aria-label="停电纪念日的记忆"><img src="${assetUrl('memory.life.cassette.illustration')}" alt="停电的纪念日里，中年的秀兰在录音机旁轻轻哼唱，志远在灯火下安静倾听">${dialogue}</section>`;
+      return `<section class="memory-cutscene" aria-label="${this.translate('memory.life.cassette.label')}"><img src="${assetUrl('memory.life.cassette.illustration')}" alt="${this.translate('memory.life.cassette.alt')}">${dialogue}</section>`;
     }
-    return `<section class="memory-cutscene ending-hand" aria-label="志远主动握住秀兰的手"><img src="${assetUrl('memory.ending.hand.illustration')}" alt="志远从左侧主动把手覆在秀兰停下等待的掌心上，背景里放着仍然温热的面">${dialogue}</section>`;
+    return `<section class="memory-cutscene ending-hand" aria-label="${this.translate('memory.ending.hand.label')}"><img src="${assetUrl('memory.ending.hand.illustration')}" alt="${this.translate('memory.ending.hand.alt')}">${dialogue}</section>`;
   }
 
   private titleSaveNotice(): string {
@@ -683,28 +796,31 @@ export class AppShell {
     if (this.titleView === 'memories') return this.memoriesScreen();
     if (this.titleView === 'settings') return this.titleSettingsScreen(state.settings);
     const latest = this.saves.getMostRecentValidSlot();
-    const latestChapter = latest?.chapterId ? chapterMaps[latest.chapterId].title : null;
+    const latestChapter = latest?.chapterId
+      ? this.translate(chapterMaps[latest.chapterId].titleKey)
+      : null;
+    const titlePageName = this.translate('title.name');
     return `<section class="title-screen" aria-labelledby="game-title">
       <div class="title-emblem" aria-hidden="true"><div class="title-art"><span>☂</span></div><span class="emblem-seam"></span></div>
       <header class="title-heading">
-        <p class="eyebrow">一段关于记忆、尊严与陪伴的故事</p>
-        <h1 id="game-title">记忆的缝隙</h1>
+        <p class="eyebrow">${this.translate('title.eyebrow')}</p>
+        <h1 id="game-title">${titlePageName}</h1>
         <p class="english-title">THE ERASURE OF ME</p>
       </header>
-      <aside class="content-note"><strong>内容提示</strong><span>本作涉及认知衰退、迷路与家庭照护。许志远是虚构人物，他的经历不代表所有阿尔茨海默病患者。你可以随时暂停、退出或启用低扰动模式。</span></aside>
-      <nav class="title-menu" aria-label="主菜单">
-        <button class="title-menu-card primary" data-continue-latest ${latest ? '' : 'disabled'}><strong>继续游戏</strong><span>${latest && latestChapter ? `记忆片段 ${this.fragmentNumber(latest.slotId)} · ${latestChapter}` : '还没有可以继续的记忆'}</span></button>
-        <button class="title-menu-card" data-title-view="mode"><strong>开始游戏</strong><span>选择体验方式，从记忆的起点开始</span></button>
-        <button class="title-menu-card" data-title-view="memories"><strong>读取记忆</strong><span>查看、读取或整理三个记忆片段</span></button>
-        <button class="title-menu-card" data-title-view="settings"><strong>设置</strong><span>声音、字幕与无障碍选项</span></button>
+      <aside class="content-note"><strong>${this.translate('title.content_warning.title')}</strong><span>${this.translate('title.content_warning.body')}</span></aside>
+      <nav class="title-menu" aria-label="${this.translate('menu.aria')}">
+        <button class="title-menu-card primary" data-continue-latest ${latest ? '' : 'disabled'}><strong>${this.translate('menu.continue')}</strong><span>${latest && latestChapter ? this.translate('menu.continue.description', { slot: this.fragmentNumber(latest.slotId), chapter: latestChapter }) : this.translate('menu.continue.empty')}</span></button>
+        <button class="title-menu-card" data-title-view="mode"><strong>${this.translate('menu.start')}</strong><span>${this.translate('menu.start.description')}</span></button>
+        <button class="title-menu-card" data-title-view="memories"><strong>${this.translate('menu.memories')}</strong><span>${this.translate('menu.memories.description')}</span></button>
+        <button class="title-menu-card" data-title-view="settings"><strong>${this.translate('menu.settings')}</strong><span>${this.translate('menu.settings.description')}</span></button>
       </nav>
       ${this.titleSaveNotice()}
-      <p class="controls"><span>纯键盘可完成 · WASD / 方向键移动 · E 交互 · Esc 暂停</span><span class="observe-control"><kbd>Shift</kbd> 静静留意</span></p>
+      <p class="controls"><span>${this.translate('controls')}</span><span class="observe-control"><kbd>Shift</kbd> ${this.translate('controls.observe')}</span></p>
     </section>`;
   }
 
   private modeScreen(): string {
-    return `<section class="title-screen title-subpage" aria-labelledby="mode-title"><div class="title-panel title-mode"><header class="title-panel-heading"><p class="eyebrow">开始游戏</p><h1 id="mode-title">选择体验方式</h1><p>体验方式可以在暂停菜单中随时调整，不会重置进度。</p></header><div class="mode-grid"><button class="mode-card primary" data-select-mode="standard"><strong>标准模式</strong><span>固定、可学习的方向错位与完整退化表现</span></button><button class="mode-card" data-select-mode="low_stimulation"><strong>低扰动模式</strong><span>保留标准方向，降低模糊、漂移和动态</span></button></div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="mode-title"><div class="title-panel title-mode"><header class="title-panel-heading"><p class="eyebrow">${this.translate('start.eyebrow')}</p><h1 id="mode-title">${this.translate('start.mode.title')}</h1><p>${this.translate('start.mode.body')}</p></header><div class="mode-grid"><button class="mode-card primary" data-select-mode="standard"><strong>${this.translate('mode.standard')}</strong><span>${this.translate('mode.standard.description')}</span></button><button class="mode-card" data-select-mode="low_stimulation"><strong>${this.translate('mode.low_stimulation')}</strong><span>${this.translate('mode.low_stimulation.description')}</span></button></div><button class="secondary" data-title-view="home">${this.translate('common.back')}</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private newGameMemoriesScreen(): string {
@@ -715,7 +831,7 @@ export class AppShell {
           `<button class="memory-fragment selectable" data-select-start-slot="${slot.slotId}">${this.memoryFragmentSummary(slot)}</button>`,
       )
       .join('');
-    return `<section class="title-screen title-subpage" aria-labelledby="new-memory-title"><div class="title-panel title-memory-picker"><header class="title-panel-heading"><p class="eyebrow">开始游戏 · ${this.pendingNewMode === 'low_stimulation' ? '低扰动模式' : '标准模式'}</p><h1 id="new-memory-title">选择一个记忆片段</h1><p>故事会自动保存在选中的片段中。</p></header><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="mode">返回</button></div>${this.titleSaveNotice()}</section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="new-memory-title"><div class="title-panel title-memory-picker"><header class="title-panel-heading"><p class="eyebrow">${this.translate('start.memories.eyebrow', { mode: this.translate(this.pendingNewMode === 'low_stimulation' ? 'mode.low_stimulation' : 'mode.standard') })}</p><h1 id="new-memory-title">${this.translate('start.memories.title')}</h1><p>${this.translate('start.memories.body')}</p></header><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="mode">${this.translate('common.back')}</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private memoriesScreen(): string {
@@ -724,27 +840,29 @@ export class AppShell {
       .map((slot) => {
         const actions =
           slot.status === 'valid'
-            ? `<div class="memory-fragment-actions"><button class="continue" data-continue-slot="${slot.slotId}">读取</button><button class="secondary" data-delete-slot="${slot.slotId}">删除</button></div>`
+            ? `<div class="memory-fragment-actions"><button class="continue" data-continue-slot="${slot.slotId}">${this.translate('common.read')}</button><button class="secondary" data-delete-slot="${slot.slotId}">${this.translate('common.delete')}</button></div>`
             : slot.status === 'invalid'
-              ? `<div class="memory-fragment-actions single"><button class="secondary" data-delete-slot="${slot.slotId}">删除</button></div>`
+              ? `<div class="memory-fragment-actions single"><button class="secondary" data-delete-slot="${slot.slotId}">${this.translate('common.delete')}</button></div>`
               : '';
         return `<article class="memory-fragment ${slot.status}">${this.memoryFragmentSummary(slot)}${actions}</article>`;
       })
       .join('');
-    return `<section class="title-screen title-subpage" aria-labelledby="memories-title"><div class="title-panel title-memories"><header class="title-panel-heading"><p class="eyebrow">读取记忆</p><h1 id="memories-title">记忆片段</h1><p>每个片段保存一段独立的游戏进度。</p></header><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="memories-title"><div class="title-panel title-memories"><header class="title-panel-heading"><p class="eyebrow">${this.translate('memories.eyebrow')}</p><h1 id="memories-title">${this.translate('memories.title')}</h1><p>${this.translate('memories.body')}</p></header><div class="memory-fragment-list">${fragments}</div><button class="secondary" data-title-view="home">${this.translate('common.back')}</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private titleSettingsScreen(settings: AccessibilitySettings): string {
-    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><header class="title-panel-heading"><p class="eyebrow">设置</p><h1 id="title-settings-title">声音与无障碍</h1></header><div class="settings-grid"><fieldset class="settings-section settings-audio"><legend>声音</legend>${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.audioMixer(settings)}</fieldset><fieldset class="settings-section settings-accessibility"><legend>显示与操作</legend><div class="settings-toggle-list">${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}</div><div class="settings-select-list"><label><span>文字大小</span><select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label><span>牵手操作</span><select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label></div>${this.fullscreenControl()}</fieldset></div><button class="secondary" data-title-view="home">返回</button></div>${this.titleSaveNotice()}</section>`;
+    return `<section class="title-screen title-subpage" aria-labelledby="title-settings-title"><div class="title-panel title-settings"><header class="title-panel-heading"><p class="eyebrow">${this.translate('settings.eyebrow')}</p><h1 id="title-settings-title">${this.translate('settings.title')}</h1></header><div class="settings-grid"><fieldset class="settings-section settings-audio"><legend>${this.translate('settings.sound')}</legend>${this.toggle('muted', 'settings.muted', settings.muted)}${this.audioMixer(settings)}</fieldset><fieldset class="settings-section settings-accessibility"><legend>${this.translate('settings.accessibility')}</legend><div class="settings-toggle-list">${this.toggle('reducedMotion', 'settings.reduced_motion', settings.reducedMotion)}${this.toggle('highContrast', 'settings.high_contrast', settings.highContrast)}${this.toggle('subtitles', 'settings.subtitles', settings.subtitles)}</div><div class="settings-select-list"><label><span>${this.translate('settings.font_size')}</span><select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>${this.translate('common.standard')}</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>${this.translate('common.large')}</option></select></label><label><span>${this.translate('settings.hold_mode')}</span><select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>${this.translate('settings.hold.long')}</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>${this.translate('settings.hold.short')}</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>${this.translate('settings.hold.single')}</option></select></label><label><span>${this.translate('settings.language')}</span><select data-setting="localePreference"><option value="system" ${settings.localePreference === 'system' ? 'selected' : ''}>${this.translate('settings.language.system')}</option><option value="zh-CN" ${settings.localePreference === 'zh-CN' ? 'selected' : ''}>${this.translate('settings.language.simplified')}</option><option value="zh-HK" ${settings.localePreference === 'zh-HK' ? 'selected' : ''}>${this.translate('settings.language.traditional')}</option><option value="en" ${settings.localePreference === 'en' ? 'selected' : ''}>${this.translate('settings.language.english')}</option></select></label></div>${this.fullscreenControl()}</fieldset></div><button class="secondary" data-title-view="home">${this.translate('common.back')}</button></div>${this.titleSaveNotice()}</section>`;
   }
 
   private memoryFragmentSummary(slot: SaveSlotSummary): string {
-    const label = `记忆片段 ${this.fragmentNumber(slot.slotId)}`;
+    const label = this.translate('save.slot', { slot: this.fragmentNumber(slot.slotId) });
     if (slot.status === 'empty')
-      return `<span><strong>${label}</strong><small>空白的记忆</small></span>`;
+      return `<span><strong>${label}</strong><small>${this.translate('save.slot.empty')}</small></span>`;
     if (slot.status === 'invalid')
-      return `<span><strong>${label}</strong><small>这个片段无法读取。删除后可重新开始，其他片段不受影响。</small></span>`;
-    const chapter = slot.chapterId ? chapterMaps[slot.chapterId].title : '未知章节';
+      return `<span><strong>${label}</strong><small>${this.translate('save.slot.invalid')}</small></span>`;
+    const chapter = slot.chapterId
+      ? this.translate(chapterMaps[slot.chapterId].titleKey)
+      : this.translate('legacy.unknown_chapter');
     return `<span><strong>${label}</strong><small>${chapter}</small><time datetime="${slot.savedAt}">${this.formatSavedAt(slot.savedAt)}</time></span>`;
   }
 
@@ -753,8 +871,8 @@ export class AppShell {
   }
 
   private formatSavedAt(savedAt: string | null): string {
-    if (!savedAt) return '时间未知';
-    return new Intl.DateTimeFormat('zh-CN', {
+    if (!savedAt) return this.translate('save.time_unknown');
+    return new Intl.DateTimeFormat(this.locale, {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
@@ -768,53 +886,65 @@ export class AppShell {
     if (this.confirmingStartSlot && this.pendingNewMode) {
       const slot = this.saves.getSlotSummary(this.confirmingStartSlot);
       const empty = slot.status === 'empty';
-      const label = `记忆片段 ${this.fragmentNumber(slot.slotId)}`;
-      return `<div class="scrim save-management-scrim"><section class="paper-panel save-dialog" role="dialog" aria-modal="true" aria-labelledby="start-memory-title"><h2 id="start-memory-title">${empty ? '要从这个空白的记忆片段开始吗？' : `要覆盖「${label}」并从头开始吗？`}</h2>${empty ? '' : '<p>这个记忆片段中已有的进度将被新的故事替代。</p>'}<div class="confirm-row"><button class="primary" data-confirm-start>${empty ? '开始' : '覆盖并开始'}</button><button data-cancel-title-dialog>返回</button></div></section></div>`;
+      const label = this.translate('save.slot', { slot: this.fragmentNumber(slot.slotId) });
+      return `<div class="scrim save-management-scrim"><section class="paper-panel save-dialog" role="dialog" aria-modal="true" aria-labelledby="start-memory-title"><h2 id="start-memory-title">${empty ? this.translate('save.empty_confirm') : this.translate('save.overwrite_confirm', { label })}</h2>${empty ? '' : `<p>${this.translate('save.overwrite_body')}</p>`}<div class="confirm-row"><button class="primary" data-confirm-start>${empty ? this.translate('common.start') : this.translate('save.overwrite_start')}</button><button data-cancel-title-dialog>${this.translate('common.back')}</button></div></section></div>`;
     }
     if (this.confirmingDeleteSlot) {
-      const label = `记忆片段 ${this.fragmentNumber(this.confirmingDeleteSlot)}`;
-      return `<div class="scrim save-management-scrim"><section class="paper-panel save-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-save-title"><h2 id="delete-save-title">让「${label}」重新留白吗？</h2><p>这段游戏进度将被永久删除，全局无障碍与音量设置会保留。</p><div class="confirm-row"><button class="secondary" data-confirm-delete-slot="${this.confirmingDeleteSlot}">确认删除</button><button data-cancel-title-dialog>返回</button></div></section></div>`;
+      const label = this.translate('save.slot', {
+        slot: this.fragmentNumber(this.confirmingDeleteSlot),
+      });
+      return `<div class="scrim save-management-scrim"><section class="paper-panel save-dialog" role="dialog" aria-modal="true" aria-labelledby="delete-save-title"><h2 id="delete-save-title">${this.translate('save.delete_confirm', { label })}</h2><p>${this.translate('save.delete_body')}</p><div class="confirm-row"><button class="secondary" data-confirm-delete-slot="${this.confirmingDeleteSlot}">${this.translate('save.delete_action')}</button><button data-cancel-title-dialog>${this.translate('common.back')}</button></div></section></div>`;
     }
     return '';
   }
 
   private d3Training(state: Readonly<GameState>): string {
     const standard = state.mode === 'standard';
-    return `<div class="scrim"><section class="paper-panel training" role="dialog" aria-modal="true"><span class="compass ${standard ? 'rotated' : ''}" aria-hidden="true">↑</span><h2>${standard ? '方向与脚步的关系转过了一圈' : '旧按键提示变得不可靠'}</h2><p>${standard ? '接下来，按“上”会向世界的右侧移动。这个映射全章固定，不会随机变化。' : '实际移动仍保持标准方向。地面箭头、伞柄和窗帘会继续告诉你世界方向。'}</p><p>暂停、退出和设置永远保持标准操作。</p><button class="primary" data-ack-d3>我准备好了</button></section></div>`;
+    return `<div class="scrim"><section class="paper-panel training" role="dialog" aria-modal="true"><span class="compass ${standard ? 'rotated' : ''}" aria-hidden="true">↑</span><h2>${this.translate(standard ? 'd3.standard.title' : 'd3.low.title')}</h2><p>${this.translate(standard ? 'd3.standard.body' : 'd3.low.body')}</p><p>${this.translate('d3.common.body')}</p><button class="primary" data-ack-d3>${this.translate('d3.ready')}</button></section></div>`;
   }
 
   private pauseScreen(state: Readonly<GameState>): string {
     const settings = state.settings;
-    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><header class="pause-heading"><div><p class="eyebrow">${chapterMaps[state.chapterId].title}</p><h2>暂停</h2></div><button class="primary" data-close>继续</button></header><fieldset><legend>设置与无障碍</legend><div class="pause-quick-settings">${this.toggle('muted', '静音（所有声音线索都有视觉替代）', settings.muted)}${this.toggle('reducedMotion', '减少动态效果', settings.reducedMotion)}${this.toggle('highContrast', '高对比度', settings.highContrast)}${this.toggle('subtitles', '字幕', settings.subtitles)}<label>文字大小<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>标准</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>大</option></select></label><label>牵手操作<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>长按 1.5 秒</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>短按 0.6 秒</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>单次确认</option></select></label><label>体验模式<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>标准</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>低扰动</option></select></label>${this.fullscreenControl()}<details class="clear-data" ${this.confirmingClearData ? 'open' : ''}><summary>本地数据</summary><p class="muted">清除后将删除本机上的全部记忆片段和设置，且无法恢复。</p>${this.clearDataControl()}</details></div>${this.audioMixer(settings)}</fieldset><button class="secondary" data-title>返回标题</button></section></div>`;
+    return `<div class="scrim"><section class="paper-panel pause-panel" role="dialog" aria-modal="true"><header class="pause-heading"><div><p class="eyebrow">${this.translate(chapterMaps[state.chapterId].titleKey)}</p><h2>${this.translate('pause.title')}</h2></div><button class="primary" data-close>${this.translate('common.continue')}</button></header><fieldset><legend>${this.translate('pause.settings')}</legend><div class="pause-quick-settings">${this.toggle('muted', 'settings.muted', settings.muted)}${this.toggle('reducedMotion', 'settings.reduced_motion', settings.reducedMotion)}${this.toggle('highContrast', 'settings.high_contrast', settings.highContrast)}${this.toggle('subtitles', 'settings.subtitles', settings.subtitles)}<label>${this.translate('settings.font_size')}<select data-setting="fontSize"><option value="normal" ${settings.fontSize === 'normal' ? 'selected' : ''}>${this.translate('common.standard')}</option><option value="large" ${settings.fontSize === 'large' ? 'selected' : ''}>${this.translate('common.large')}</option></select></label><label>${this.translate('settings.hold_mode')}<select data-setting="holdMode"><option value="hold" ${settings.holdMode === 'hold' ? 'selected' : ''}>${this.translate('settings.hold.long')}</option><option value="short" ${settings.holdMode === 'short' ? 'selected' : ''}>${this.translate('settings.hold.short')}</option><option value="single" ${settings.holdMode === 'single' ? 'selected' : ''}>${this.translate('settings.hold.single')}</option></select></label><label>${this.translate('settings.language')}<select data-setting="localePreference"><option value="system" ${settings.localePreference === 'system' ? 'selected' : ''}>${this.translate('settings.language.system')}</option><option value="zh-CN" ${settings.localePreference === 'zh-CN' ? 'selected' : ''}>${this.translate('settings.language.simplified')}</option><option value="zh-HK" ${settings.localePreference === 'zh-HK' ? 'selected' : ''}>${this.translate('settings.language.traditional')}</option><option value="en" ${settings.localePreference === 'en' ? 'selected' : ''}>${this.translate('settings.language.english')}</option></select></label><label>${this.translate('settings.mode')}<select data-mode><option value="standard" ${state.mode === 'standard' ? 'selected' : ''}>${this.translate('mode.standard')}</option><option value="low_stimulation" ${state.mode === 'low_stimulation' ? 'selected' : ''}>${this.translate('mode.low_stimulation')}</option></select></label>${this.fullscreenControl()}<details class="clear-data" ${this.confirmingClearData ? 'open' : ''}><summary>${this.translate('save.clear.title')}</summary><p class="muted">${this.translate('save.clear.body')}</p>${this.clearDataControl()}</details></div>${this.audioMixer(settings)}</fieldset><button class="secondary" data-title>${this.translate('settings.return_title')}</button></section></div>`;
   }
 
   private clearDataControl(): string {
     return this.confirmingClearData
-      ? '<div class="confirm-row" role="group" aria-label="确认清除本地数据"><button class="secondary" data-confirm-clear>确认清除本地数据</button><button data-cancel-clear>取消</button></div>'
-      : '<button class="secondary" data-request-clear>清除本地数据</button>';
+      ? `<div class="confirm-row" role="group" aria-label="${this.translate('save.clear.confirm')}"><button class="secondary" data-confirm-clear>${this.translate('save.clear.confirm')}</button><button data-cancel-clear>${this.translate('common.cancel')}</button></div>`
+      : `<button class="secondary" data-request-clear>${this.translate('save.clear.request')}</button>`;
   }
 
   private audioMixer(settings: AccessibilitySettings): string {
     const labels: Record<keyof AccessibilitySettings['audioVolumes'], string> = {
-      music: '音乐',
-      ambience: '环境声',
-      voice: '对白与哼唱',
-      sfx: '界面与提示音',
+      music: 'settings.audio.music',
+      ambience: 'settings.audio.ambience',
+      voice: 'settings.audio.voice',
+      sfx: 'settings.audio.sfx',
     };
-    return `<div class="audio-mixer" role="group" aria-label="音量混音">${Object.entries(labels)
+    return `<div class="audio-mixer" role="group" aria-label="${this.translate('settings.volume_mixer')}">${Object.entries(
+      labels,
+    )
       .map(([bus, label]) => {
         const value = settings.audioVolumes[bus as keyof typeof settings.audioVolumes];
-        return `<label>${label}<input type="range" min="0" max="1" step="0.05" value="${value}" data-audio-bus="${bus}"><output>${Math.round(value * 100)}%</output></label>`;
+        return `<label>${this.translate(label)}<input type="range" min="0" max="1" step="0.05" value="${value}" data-audio-bus="${bus}"><output>${Math.round(value * 100)}%</output></label>`;
       })
       .join('')}</div>`;
   }
 
   private toggle(key: keyof AccessibilitySettings, label: string, checked: boolean): string {
-    return `<label class="toggle"><input type="checkbox" data-setting="${key}" ${checked ? 'checked' : ''}><span>${label}</span></label>`;
+    return `<label class="toggle"><input type="checkbox" data-setting="${key}" ${checked ? 'checked' : ''}><span>${this.translate(label)}</span></label>`;
   }
 
   private guideScreen(): string {
-    return `<article class="guide-page"><header><p class="eyebrow">故事结束后，留下一点可以带走的东西</p><h1>早期表现与就医陪伴指南</h1><p class="disclaimer">本页用于一般健康科普，不能替代专业筛查、诊断或治疗。如果你发现自己或家人的认知、情绪或日常能力持续发生变化并影响生活，请记录具体情况，并向正规医疗机构的相关专业人员咨询。</p></header><section><h2>值得留意的持续变化</h2><ul><li>比过去更频繁地忘记近期事件，或反复询问同一件事</li><li>经常放错物品，并且难以沿原路寻找</li><li>在熟悉地点迷路，或混淆时间、地点</li><li>完成熟悉任务、解决问题或作出决定变得困难</li><li>跟随对话、理解表达或寻找词语变得困难</li><li>视觉空间判断、情绪、行为或社交状态持续改变</li></ul><p>这些表现可能有多种原因，不能凭单一表现自行判断疾病。</p></section><section><h2>可以怎样行动</h2><ol><li>记录变化出现的时间、频率、场景和对生活的影响。</li><li>与本人平静沟通，避免测试、指责或争辩。</li><li>预约正规医疗机构评估，携带病史、用药信息和观察记录。</li><li>用稳定日程、清晰标记、充足照明改善日常安全。</li><li>鼓励本人继续参与力所能及的熟悉活动与社会交往。</li><li>照护者也需要休息，并可以向家人、社区和专业人员求助。</li></ol></section><aside class="game-notice"><h2>关于游戏中的谜题</h2><p>照片排序、数字连接、颜色和形状辨识只用于叙事体验，不是医学筛查，也不能产生任何认知健康结论。</p></aside><section><h2>资料来源</h2><ul><li><a href="https://www.who.int/news-room/fact-sheets/detail/dementia" target="_blank" rel="noopener noreferrer">世界卫生组织：Dementia</a></li><li><a href="https://www.gov.cn/zhengce/zhengceku/202501/content_6996231.htm" target="_blank" rel="noopener noreferrer">应对老年期痴呆国家行动计划（2024—2030年）</a></li><li><a href="https://www.gov.cn/zhengce/202501/content_6996237.htm" target="_blank" rel="noopener noreferrer">国家行动计划政策解读</a></li></ul><p class="muted">来源最近核验：2026-06-23。正式发布前仍需专业审核。</p></section><section><h2>制作与致谢</h2><p>本作由项目团队原创制作，使用 Phaser、TypeScript、Vite 与 Tiled。生成式图像的来源和处理记录见仓库资产台账。</p><p class="muted">感谢公开权威资料的维护者；上列机构未参与本作制作，也不代表对本作背书。医学与敏感性专业审核完成后，仅在取得同意时补充公开致谢。</p></section><footer><button class="primary" data-title>回到标题</button><button class="secondary" data-start-game>重新开始</button></footer></article>`;
+    const signs = Array.from(
+      { length: 6 },
+      (_, index) => `<li>${this.translate(`guide.signs.${index + 1}`)}</li>`,
+    ).join('');
+    const actions = Array.from(
+      { length: 6 },
+      (_, index) => `<li>${this.translate(`guide.actions.${index + 1}`)}</li>`,
+    ).join('');
+    return `<article class="guide-page"><header><p class="eyebrow">${this.translate('guide.eyebrow')}</p><h1>${this.translate('guide.title')}</h1><p class="disclaimer">${this.translate('guide.disclaimer')}</p></header><section><h2>${this.translate('guide.signs.title')}</h2><ul>${signs}</ul><p>${this.translate('guide.signs.body')}</p></section><section><h2>${this.translate('guide.actions.title')}</h2><ol>${actions}</ol></section><aside class="game-notice"><h2>${this.translate('guide.game.title')}</h2><p>${this.translate('guide.game.body')}</p></aside><section><h2>${this.translate('guide.sources.title')}</h2><ul><li><a href="https://www.who.int/news-room/fact-sheets/detail/dementia" target="_blank" rel="noopener noreferrer">${this.translate('guide.source.who')}</a></li><li><a href="https://www.gov.cn/zhengce/zhengceku/202501/content_6996231.htm" target="_blank" rel="noopener noreferrer">${this.translate('guide.source.cn_action')}</a></li><li><a href="https://www.gov.cn/zhengce/202501/content_6996237.htm" target="_blank" rel="noopener noreferrer">${this.translate('guide.source.cn_explain')}</a></li></ul><p class="muted">${this.translate('guide.sources.checked')}</p></section><section><h2>${this.translate('guide.credits.title')}</h2><p>${this.translate('guide.credits.body')}</p><p class="muted">${this.translate('guide.credits.body2')}</p></section><footer><button class="primary" data-title>${this.translate('common.back')}</button><button class="secondary" data-start-game>${this.translate('common.start')}</button></footer></article>`;
   }
 
   private openNewGameFlow(): void {
@@ -831,7 +961,7 @@ export class AppShell {
 
   private beginNewGame(slotId: SaveSlotId, mode: GameMode, overwrite: boolean): void {
     if (overwrite && !this.saves.deleteSlot(slotId)) {
-      this.saveNotice = `无法覆盖存档 ${slotId}，请检查浏览器存储权限。`;
+      this.saveNotice = this.translate('save.failed');
       this.pendingNewMode = null;
       this.signature = '';
       this.render(this.store.getState());
@@ -855,7 +985,9 @@ export class AppShell {
       this.store.replaceFromSave(loaded);
       return;
     }
-    this.saveNotice = `记忆片段 ${this.fragmentNumber(slotId)} 无法读取。`;
+    this.saveNotice = this.translate('save.slot.read_failed', {
+      slot: this.fragmentNumber(slotId),
+    });
     this.signature = '';
     this.render(state);
   }
@@ -946,8 +1078,8 @@ export class AppShell {
       button.addEventListener('click', () => {
         const slotId = Number(button.dataset.confirmDeleteSlot) as SaveSlotId;
         this.saveNotice = this.saves.deleteSlot(slotId)
-          ? `记忆片段 ${this.fragmentNumber(slotId)} 已重新留白`
-          : `无法删除记忆片段 ${this.fragmentNumber(slotId)}，请检查浏览器存储权限。`;
+          ? this.translate('save.delete_done', { slot: this.fragmentNumber(slotId) })
+          : this.translate('save.delete_failed', { slot: this.fragmentNumber(slotId) });
         this.confirmingDeleteSlot = null;
         this.titleDialogReturnFocusSelector = null;
         this.signature = '';
@@ -1016,7 +1148,7 @@ export class AppShell {
     document.querySelectorAll<HTMLElement>('[data-confirm-clear]').forEach((button) =>
       button.addEventListener('click', () => {
         if (!this.saves.clearAll()) {
-          this.saveNotice = '无法清除全部本地数据，请检查浏览器存储权限。';
+          this.saveNotice = this.translate('save.clear_failed');
           this.signature = '';
           this.render(this.store.getState());
           return;
@@ -1028,7 +1160,7 @@ export class AppShell {
         this.options?.onSettingsCleared?.();
         this.store.dispatch({ type: 'SETTINGS', patch: normalizeSettings() });
         this.store.dispatch({ type: 'RETURN_TITLE' });
-        this.saveNotice = '已清除全部本地数据';
+        this.saveNotice = this.translate('save.cleared');
         this.signature = '';
         this.render(this.store.getState());
       }),

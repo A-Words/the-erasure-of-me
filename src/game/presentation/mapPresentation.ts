@@ -1,5 +1,6 @@
-import { chapterMaps, type WorldEntity } from '../content/maps';
+import { chapterMaps, entityLabelKey, type WorldEntity } from '../content/maps';
 import type { ChapterId, GameState } from '../state/GameState';
+import { t, type Locale } from '../../i18n';
 
 export type MapMode = 'full' | 'washed' | 'hidden';
 
@@ -11,6 +12,7 @@ export interface MapPath {
 
 export interface MapLabel {
   id: string;
+  textKey: string;
   text: string;
   x: number;
   y: number;
@@ -49,10 +51,10 @@ const layouts: Record<ChapterId, MapLayout> = {
       { id: 'entry-wall', d: 'M940 430H1216' },
     ],
     labels: [
-      { id: 'room.bedroom', text: '卧室', x: 270, y: 245 },
-      { id: 'room.living', text: '客厅', x: 650, y: 430 },
-      { id: 'room.kitchen', text: '厨房', x: 990, y: 205 },
-      { id: 'room.entry', text: '玄关', x: 1020, y: 610 },
+      { id: 'room.bedroom', textKey: 'map.room.bedroom', text: '', x: 270, y: 245 },
+      { id: 'room.living', textKey: 'map.room.living', text: '', x: 650, y: 430 },
+      { id: 'room.kitchen', textKey: 'map.room.kitchen', text: '', x: 990, y: 205 },
+      { id: 'room.entry', textKey: 'map.room.entry', text: '', x: 1020, y: 610 },
     ],
   },
   rain: {
@@ -66,9 +68,9 @@ const layouts: Record<ChapterId, MapLayout> = {
       { id: 'clock-lane', d: 'M805 480C960 430 1065 330 1160 205', secondary: true },
     ],
     labels: [
-      { id: 'area.platform', text: '旧站台', x: 185, y: 675 },
-      { id: 'area.market', text: '棚街', x: 640, y: 560 },
-      { id: 'area.clock', text: '钟表铺', x: 1110, y: 165 },
+      { id: 'area.platform', textKey: 'map.area.platform', text: '', x: 185, y: 675 },
+      { id: 'area.market', textKey: 'map.area.market', text: '', x: 640, y: 560 },
+      { id: 'area.clock', textKey: 'map.area.clock', text: '', x: 1110, y: 165 },
     ],
   },
   life: {
@@ -78,9 +80,9 @@ const layouts: Record<ChapterId, MapLayout> = {
       { id: 'corridor', d: 'M560 90V30H760V90' },
     ],
     labels: [
-      { id: 'period.first', text: '纸箱与新木纹', x: 245, y: 150 },
-      { id: 'period.second', text: '桂花与杯印', x: 640, y: 150 },
-      { id: 'period.third', text: '灯火与旧木纹', x: 1040, y: 150 },
+      { id: 'period.first', textKey: 'map.period.first', text: '', x: 245, y: 150 },
+      { id: 'period.second', textKey: 'map.period.second', text: '', x: 640, y: 150 },
+      { id: 'period.third', textKey: 'map.period.third', text: '', x: 1040, y: 150 },
     ],
   },
   return: {
@@ -89,14 +91,14 @@ const layouts: Record<ChapterId, MapLayout> = {
       { id: 'horizontal', d: 'M90 360H1190' },
       { id: 'room', d: 'M455 235H825V485H455Z', secondary: true },
     ],
-    labels: [{ id: 'junction', text: '当前路口', x: 640, y: 335 }],
+    labels: [{ id: 'junction', textKey: 'map.junction', text: '', x: 640, y: 335 }],
   },
   ending: {
     paths: [
       { id: 'outer', d: 'M150 120H1130V620H150Z' },
       { id: 'table', d: 'M490 285H790V470H490Z', secondary: true },
     ],
-    labels: [{ id: 'home', text: '熟悉的家', x: 640, y: 180 }],
+    labels: [{ id: 'home', textKey: 'map.home', text: '', x: 640, y: 180 }],
   },
 };
 
@@ -138,14 +140,18 @@ function shouldInclude(entity: WorldEntity): boolean {
   return Boolean(entity.color) || entity.kind === 'exit' || entity.id.includes('stone_');
 }
 
-export function createMapPresentation(state: Readonly<GameState>): MapPresentation {
+export function createMapPresentation(
+  state: Readonly<GameState>,
+  locale: Locale = 'zh-CN',
+): MapPresentation {
   const map = chapterMaps[state.chapterId];
   const mode = getMapMode(state);
+  const title = t(locale, map.titleKey);
   if (mode === 'hidden') {
     return {
       mode,
       chapterId: state.chapterId,
-      title: map.title,
+      title,
       width: map.width,
       height: map.height,
       player: { x: state.player.x, y: state.player.y },
@@ -160,6 +166,7 @@ export function createMapPresentation(state: Readonly<GameState>): MapPresentati
     const reached = isReached(state, entity);
     return {
       ...entity,
+      label: t(locale, entityLabelKey(entity)),
       symbol,
       reached,
       visible:
@@ -173,16 +180,22 @@ export function createMapPresentation(state: Readonly<GameState>): MapPresentati
   return {
     mode,
     chapterId: state.chapterId,
-    title: map.title,
+    title,
     width: map.width,
     height: map.height,
     player: { x: state.player.x, y: state.player.y },
     paths: layouts[state.chapterId].paths,
-    labels: mode === 'full' ? layouts[state.chapterId].labels : [],
+    labels:
+      mode === 'full'
+        ? layouts[state.chapterId].labels.map((label) => ({
+            ...label,
+            text: t(locale, label.textKey),
+          }))
+        : [],
     landmarks,
     soundCue:
       state.chapterId === 'rain' && mode === 'washed'
-        ? { x: 1150, y: 82, label: '钟声方向' }
+        ? { x: 1150, y: 82, label: t(locale, 'map.sound.bell') }
         : null,
   };
 }

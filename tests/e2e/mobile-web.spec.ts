@@ -32,8 +32,8 @@ async function expectPanelShellFits(page: Page, selector: string): Promise<void>
   expect(overflow.vertical).toBeLessThanOrEqual(1);
 }
 
-async function enterFullscreenExperience(page: Page): Promise<void> {
-  const entry = page.getByRole('button', { name: '开始体验' });
+async function enterFullscreenExperience(page: Page, label = '开始体验'): Promise<void> {
+  const entry = page.getByRole('button', { name: label });
   await expect(entry).toBeVisible();
   await entry.tap();
   await expect(entry).toBeHidden();
@@ -97,6 +97,93 @@ test.beforeEach(async ({ page }) => {
   await gotoGame(page);
   await page.evaluate(() => localStorage.clear());
   await page.reload();
+});
+
+test('shows the portrait gate before fullscreen on every mobile entry', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.reload();
+
+  const orientationDialog = page.getByRole('dialog', { name: '请旋转至横屏' });
+  const fullscreenDialog = page.getByRole('dialog', { name: '准备好进入这段记忆了吗？' });
+  await expect(orientationDialog).toBeVisible();
+  await expect(fullscreenDialog).toBeHidden();
+  await expect(page.getByRole('button', { name: '开始游戏' })).toBeHidden();
+  expect(
+    await page.evaluate(() =>
+      Number(sessionStorage.getItem('erasure.e2e.fullscreen.requests') ?? 0),
+    ),
+  ).toBe(0);
+
+  await page.setViewportSize({ width: 780, height: 360 });
+  await expect(orientationDialog).toBeHidden();
+  await expect(fullscreenDialog).toBeVisible();
+  await expect(page.getByRole('button', { name: '开始体验' })).toBeVisible();
+});
+
+test('keeps mobile entry gates focused and blocks Phaser keyboard input', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.reload();
+
+  const orientationDialog = page.getByRole('dialog', { name: '请旋转至横屏' });
+  const orientationNotice = page.locator('.orientation-notice');
+  const canvas = page.locator('canvas[data-game-canvas]');
+  await expect(orientationDialog).toBeVisible();
+  await expect(orientationNotice).toBeFocused();
+  await expect(canvas).toHaveJSProperty('inert', true);
+  await page.keyboard.press('Tab');
+  await expect(orientationNotice).toBeFocused();
+
+  await page.setViewportSize({ width: 780, height: 360 });
+  const entry = page.getByRole('button', { name: '开始体验' });
+  await expect(entry).toBeFocused();
+  await expect(canvas).toHaveJSProperty('inert', true);
+  await page.keyboard.press('Tab');
+  await expect(entry).toBeFocused();
+
+  await entry.tap();
+  await startNewGame(page);
+  await finishOpeningDialogue(page);
+  const app = page.locator('#app');
+  await expect(app).toHaveAttribute('data-player-x', /\d+/);
+  const beforePortraitX = Number(await app.getAttribute('data-player-x'));
+  expect(Number.isFinite(beforePortraitX)).toBe(true);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(orientationDialog).toBeVisible();
+  await expect(app).toHaveAttribute('data-modal', 'pause');
+  await expect(canvas).toHaveJSProperty('inert', true);
+
+  await page.keyboard.press('q');
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(180);
+  await page.keyboard.up('ArrowRight');
+  await expect(app).toHaveAttribute('data-modal', 'pause');
+  await expect(app).toHaveAttribute('data-player-x', /\d+/);
+  expect(Number(await app.getAttribute('data-player-x'))).toBe(beforePortraitX);
+
+  await page.setViewportSize({ width: 780, height: 360 });
+  await expect(orientationDialog).toBeHidden();
+  await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+});
+
+test('uses the persisted locale for the first mobile entry gates after refresh', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.evaluate(() => {
+    localStorage.setItem('erasure.settings.v1', JSON.stringify({ localePreference: 'en' }));
+  });
+  await page.reload();
+
+  const orientationDialog = page.getByRole('dialog', { name: 'Please rotate to landscape' });
+  const fullscreenDialog = page.getByRole('dialog', { name: 'Ready to enter this memory?' });
+  await expect(orientationDialog).toBeVisible();
+  await expect(fullscreenDialog).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Start game' })).toBeHidden();
+
+  await page.setViewportSize({ width: 780, height: 360 });
+  await expect(orientationDialog).toBeHidden();
+  await expect(fullscreenDialog).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Start experience' })).toBeVisible();
 });
 
 test('opens through a fullscreen entry gate and degrades gracefully when unavailable', async ({
@@ -171,6 +258,37 @@ test('restores fullscreen from title settings and pause without blocking gamepla
   await page.getByRole('button', { name: '暂停游戏' }).tap();
   await page.getByRole('button', { name: '进入全屏' }).tap();
   await expect(page.getByRole('button', { name: '退出全屏' })).toBeVisible();
+});
+
+test('refreshes fixed touch control labels after changing language in pause', async ({ page }) => {
+  await enterFullscreenExperience(page);
+  await startNewGame(page);
+  await finishOpeningDialogue(page);
+  await page.getByRole('button', { name: '暂停游戏' }).tap();
+  await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+
+  await page.getByLabel('语言').selectOption('en');
+  await expect(page.getByRole('heading', { name: 'Pause' })).toBeVisible();
+  await expect(page.locator('.touch-controls')).toHaveAttribute(
+    'aria-label',
+    'Touch game controls',
+  );
+  await expect(page.locator('.touch-up')).toHaveAttribute('aria-label', 'Move up');
+  await expect(page.locator('.touch-dpad')).toHaveAttribute('aria-label', 'Movement direction');
+  await expect(page.locator('[data-touch-action="observe"]')).toHaveAttribute(
+    'aria-label',
+    'Hold to quietly notice',
+  );
+  await expect(page.locator('[data-touch-action="interact"]')).toHaveAttribute(
+    'aria-label',
+    'Interact with nearby object',
+  );
+  await expect(page.locator('.touch-pause')).toHaveAttribute('aria-label', 'Pause game');
+
+  await page.getByRole('button', { name: 'Continue', exact: true }).tap();
+  await expect(page.getByRole('button', { name: 'Pause game' })).toBeVisible();
+  await page.getByRole('button', { name: 'Pause game' }).tap();
+  await expect(page.getByRole('heading', { name: 'Pause' })).toBeVisible();
 });
 
 test('does not retry fullscreen when starting, continuing, or reading a memory', async ({
@@ -259,6 +377,54 @@ test('keeps every title action visible without scrolling on supported landscape 
 
     await page.screenshot({
       path: testInfo.outputPath(`mobile-landscape-title-${viewport.width}x${viewport.height}.png`),
+    });
+  }
+});
+
+test('keeps localized mobile title pages readable without clipping', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 780, height: 360 });
+  for (const scenario of [
+    { locale: 'zh-CN', entry: '开始体验', heading: '记忆的缝隙' },
+    { locale: 'zh-HK', entry: '開始體驗', heading: '記憶的縫隙' },
+    { locale: 'en', entry: 'Start experience', heading: '记忆的缝隙' },
+  ]) {
+    await page.evaluate((locale) => {
+      localStorage.setItem('erasure.settings.v1', JSON.stringify({ localePreference: locale }));
+      sessionStorage.setItem('erasure.e2e.fullscreen', 'supported');
+    }, scenario.locale);
+    await page.reload();
+
+    await enterFullscreenExperience(page, scenario.entry);
+    await expect(page.locator('html')).toHaveAttribute('data-locale', scenario.locale);
+    await expect(page.locator('.title-screen h1')).toHaveText(scenario.heading);
+    await expect(page.locator('.title-menu-card')).toHaveCount(4);
+    await expectEveryElementInViewport(page, '.title-heading, .content-note, .title-menu-card');
+
+    const layout = await page.locator('.title-screen').evaluate((title) => {
+      const boxes = [
+        ...title.querySelectorAll('.title-heading, .content-note, .title-menu-card'),
+      ].map((element) => {
+        const box = element.getBoundingClientRect();
+        return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+      });
+      return {
+        horizontalOverflow: title.scrollWidth - title.clientWidth,
+        verticalOverflow: title.scrollHeight - title.clientHeight,
+        boxes,
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+      };
+    });
+    expect(layout.horizontalOverflow, JSON.stringify(layout)).toBeLessThanOrEqual(1);
+    expect(layout.verticalOverflow, JSON.stringify(layout)).toBeLessThanOrEqual(1);
+    for (const box of layout.boxes) {
+      expect(box.left).toBeGreaterThanOrEqual(-1);
+      expect(box.right).toBeLessThanOrEqual(layout.viewport.width + 1);
+      expect(box.top).toBeGreaterThanOrEqual(-1);
+      expect(box.bottom).toBeLessThanOrEqual(layout.viewport.height + 1);
+    }
+
+    await page.screenshot({
+      path: testInfo.outputPath(`mobile-title-${scenario.locale}-780x360.png`),
     });
   }
 });

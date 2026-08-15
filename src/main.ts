@@ -88,7 +88,8 @@ async function bootstrap(): Promise<void> {
   const semanticInput = new SemanticInput();
   const game = createGame(store, semanticInput);
   game.canvas.tabIndex = 0;
-  game.canvas.setAttribute('aria-label', '可操作游戏画面');
+  game.canvas.dataset.gameCanvas = 'true';
+  game.canvas.setAttribute('aria-label', 'Interactive game canvas');
   game.canvas.addEventListener('pointerdown', () => game.canvas.focus());
   let lastSettingsSignature = '';
   const app = document.querySelector<HTMLElement>('#app');
@@ -121,8 +122,9 @@ async function bootstrap(): Promise<void> {
       audio.play(audioCueForPresentationEvent(event));
     }
 
-    const messageChanged = state.message !== lastAudioMessage;
-    lastAudioMessage = state.message;
+    const messageSignature = state.message ? JSON.stringify(state.message) : null;
+    const messageChanged = messageSignature !== lastAudioMessage;
+    lastAudioMessage = messageSignature;
     const remainsInPlayingChapter =
       previousSnapshot?.phase === 'playing' &&
       state.phase === 'playing' &&

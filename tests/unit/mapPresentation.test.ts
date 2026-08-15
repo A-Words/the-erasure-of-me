@@ -1,8 +1,24 @@
 import { describe, expect, it } from 'vitest';
+import { chapterMaps, entityLabelKey } from '../../src/game/content/maps';
 import { createMapPresentation, getMapMode } from '../../src/game/presentation/mapPresentation';
 import { createInitialState } from '../../src/game/state/initialState';
+import { t } from '../../src/i18n';
 
 describe('map presentation', () => {
+  it('resolves entity labels from stable catalog keys', () => {
+    const photo = chapterMaps.life.entities.find(
+      (entity) => entity.id === 'item.photo.osmanthus_1992',
+    );
+
+    expect(photo).toBeDefined();
+    expect(t('zh-HK', entityLabelKey(photo!))).toBe('桂花窗台相片');
+    expect(t('en', entityLabelKey(photo!))).toBe('Osmanthus windowsill photo');
+
+    const comb = chapterMaps.life.entities.find((entity) => entity.id === 'item.life.wood_comb');
+    expect(comb).toBeDefined();
+    expect(t('zh-CN', entityLabelKey(comb!))).toBe('有裂缝的条纹物件');
+  });
+
   it('uses the live player position on the complete home map', () => {
     const state = createInitialState();
     state.phase = 'playing';

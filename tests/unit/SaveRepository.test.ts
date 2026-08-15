@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { createInitialState } from '../../src/game/state/initialState';
+import { text } from '../../src/i18n';
 import { SAVE_SLOT_IDS, SaveRepository, saveSlotKey } from '../../src/save/SaveRepository';
 
 class MemoryStorage implements Storage {
@@ -88,7 +89,7 @@ describe('SaveRepository', () => {
     const state = createInitialState();
     state.phase = 'playing';
     state.modal = 'pause';
-    state.dialogue = ['临时对白'];
+    state.dialogue = [text('legacy.unknown', { source: '临时对白' })];
     state.dialogueIndex = 0;
     state.activeMemoryId = 'rain';
     state.holdProgress = 0.5;

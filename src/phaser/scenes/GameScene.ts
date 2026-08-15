@@ -8,7 +8,7 @@ import {
   homeFurnitureLayout,
   homeVisualSizes,
 } from '../../game/content/homeLayout';
-import { chapterMaps, type WorldEntity } from '../../game/content/maps';
+import { chapterMaps, entityLabelKey, type WorldEntity } from '../../game/content/maps';
 import {
   extractEntitySortY,
   parseTiledMap,
@@ -21,6 +21,7 @@ import type { InputAction } from '../../game/input/actions';
 import type { SemanticInput } from '../../game/input/SemanticInput';
 import type { GameState } from '../../game/state/GameState';
 import type { GameStore } from '../../game/state/GameStore';
+import { canvasFontFamily, resolveLocale, t, type Locale } from '../../i18n';
 import { collisionRectCorners } from '../../game/simulation/collision';
 import { SceneBridge } from '../bridge/SceneBridge';
 import {
@@ -100,6 +101,7 @@ const lifeSlotPlacedFrames: Record<
 
 export class GameScene extends Phaser.Scene {
   private readonly bridge: SceneBridge;
+  private locale: Locale = 'en';
   private readonly collisionDebugEnabled =
     import.meta.env.DEV && new URLSearchParams(window.location.search).get('debug') === '1';
   private readonly mapEditorEnabled =
@@ -144,6 +146,7 @@ export class GameScene extends Phaser.Scene {
   ) {
     super('GameScene');
     this.bridge = new SceneBridge(store);
+    this.locale = resolveLocale(this.bridge.getSnapshot().settings.localePreference);
   }
 
   preload(): void {
@@ -489,10 +492,14 @@ export class GameScene extends Phaser.Scene {
       state.phase === 'playing' &&
       this.renderedChapter === state.chapterId;
     if (reenteringRenderedChapter) this.invalidateSceneReady();
+    const nextLocale = resolveLocale(state.settings.localePreference);
+    const localeChanged = this.locale !== nextLocale;
+    this.locale = nextLocale;
     const motionPreferenceChanged = this.reducedMotion !== state.settings.reducedMotion;
     this.reducedMotion = state.settings.reducedMotion;
     const chapterChanged = this.renderedChapter !== state.chapterId;
     if (chapterChanged) this.buildChapter(state);
+    if (localeChanged) this.updateEntityLabels();
     if (!this.player || !this.playerActor) return;
     if (
       state.phase !== 'playing' ||
@@ -1190,11 +1197,11 @@ export class GameScene extends Phaser.Scene {
       .text(
         visualPlacement?.x ?? entity.x,
         (visualPlacement?.y ?? entity.y) + labelOffset,
-        entity.label,
+        t(this.locale, entityLabelKey(entity)),
         {
           color: '#f7f3e8',
           backgroundColor: '#2f2b28cc',
-          fontFamily: '"Noto Sans SC", "Microsoft YaHei", sans-serif',
+          fontFamily: canvasFontFamily(this.locale),
           fontSize: '15px',
           padding: { x: 8, y: 4 },
         },
@@ -1239,6 +1246,14 @@ export class GameScene extends Phaser.Scene {
 
     if (isXiulan) this.xiulanActor = actor as Phaser.GameObjects.Sprite;
     return view;
+  }
+
+  private updateEntityLabels(): void {
+    const fontFamily = canvasFontFamily(this.locale);
+    for (const view of this.entityViews) {
+      view.label.setText(t(this.locale, entityLabelKey(view.definition)));
+      view.label.setStyle({ fontFamily });
+    }
   }
 
   private setEntityHover(view: EntityView, active: boolean): void {

@@ -2,6 +2,9 @@ import type { ChapterId, PlayerState } from '../state/GameState';
 
 export interface WorldEntity {
   id: string;
+  /** Stable catalog key used at runtime. Tiled's label remains authoring-only. */
+  labelKey?: string;
+  /** Authoring/editor label retained for compatibility with Tiled data. */
   label: string;
   x: number;
   y: number;
@@ -14,6 +17,8 @@ export interface ChapterMap {
   backgroundKey: string;
   title: string;
   subtitle: string;
+  titleKey: string;
+  subtitleKey: string;
   width: number;
   height: number;
   spawn: { x: number; y: number };
@@ -34,6 +39,8 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
     backgroundKey: 'environment.home.background',
     title: '第一章 · 清晨的家',
     subtitle: '熟悉的东西，都在它们原来的位置。',
+    titleKey: 'chapter.home.title',
+    subtitleKey: 'chapter.home.subtitle',
     width: 1280,
     height: 720,
     spawn: { x: 310, y: 302 },
@@ -65,6 +72,8 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
     backgroundKey: 'environment.rain.background',
     title: '第二章 · 雨中的初遇',
     subtitle: '有些路名看不清了。钟声还在。',
+    titleKey: 'chapter.rain.title',
+    subtitleKey: 'chapter.rain.subtitle',
     width: 1280,
     height: 720,
     spawn: { x: 100, y: 600 },
@@ -105,6 +114,8 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
     backgroundKey: 'environment.life.background',
     title: '第三章 · 共同生活',
     subtitle: '名字有些远。样子和触感还在。',
+    titleKey: 'chapter.life.title',
+    subtitleKey: 'chapter.life.subtitle',
     width: 1280,
     height: 720,
     spawn: { x: 640, y: 590 },
@@ -128,6 +139,8 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
     backgroundKey: 'environment.return.background',
     title: '第四章 · 回家的路',
     subtitle: '方向变了。地上的箭头还在。',
+    titleKey: 'chapter.return.title',
+    subtitleKey: 'chapter.return.subtitle',
     width: 1280,
     height: 720,
     spawn: { x: 640, y: 360 },
@@ -144,6 +157,8 @@ export const chapterMaps: Record<ChapterId, ChapterMap> = {
     backgroundKey: 'environment.ending.background',
     title: '尾声 · 面还是热的',
     subtitle: '',
+    titleKey: 'chapter.ending.title',
+    subtitleKey: 'chapter.ending.subtitle',
     width: 1280,
     height: 720,
     spawn: { x: 920, y: 480 },
@@ -223,3 +238,24 @@ export const itemLabels: Record<string, string> = {
   'item.life.enamel_cup': '搪瓷杯 · 圆点',
   'item.life.cassette': '录音带 · 波纹',
 };
+
+export const itemLabelKeys: Record<string, string> = {
+  'item.home.journal': 'item.home.journal',
+  'item.home.key': 'item.home.key',
+  'item.home.glasses_case': 'item.home.glasses_case',
+  'item.rain.ticket': 'item.rain.ticket',
+  'item.photo.1979': 'item.photo.1979',
+  'item.photo.1992': 'item.photo.1992',
+  'item.photo.2001': 'item.photo.2001',
+  'item.life.wood_comb': 'item.life.wood_comb',
+  'item.life.enamel_cup': 'item.life.enamel_cup',
+  'item.life.cassette': 'item.life.cassette',
+};
+
+export function entityLabelKey(entity: WorldEntity): string {
+  if (entity.labelKey) return entity.labelKey;
+  if (entity.id === 'item.life.wood_comb') return 'entity.life.wood_comb';
+  if (entity.id === 'item.life.enamel_cup') return 'entity.life.enamel_cup';
+  if (entity.id === 'item.life.cassette') return 'entity.life.cassette';
+  return entity.id;
+}
