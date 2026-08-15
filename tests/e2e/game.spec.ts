@@ -4,7 +4,6 @@ import { continueLatestGame, gotoGame, startNewGame } from './helpers/game-navig
 let browserErrors: string[];
 
 const OBSERVATION_SAMPLE_RADIUS = 224;
-const PLAYER_POSE_SAMPLE_RADIUS = 112;
 const OBSERVATION_SAMPLE_STEP = 4;
 const FNV_OFFSET_BASIS = 2166136261;
 const FNV_PRIME = 16777619;
@@ -191,17 +190,18 @@ test('animates observation while held and uses a static reduced-motion pose', as
   await canvas.focus();
   await page.keyboard.down('Shift');
   await expect(canvas).toHaveAttribute('data-observation-active', 'true');
-  await page.waitForTimeout(90);
-  const reducedFirst = await sampleCanvas(PLAYER_POSE_SAMPLE_RADIUS);
+  await expect(canvas).toHaveAttribute('data-player-pose', /^character\.xu_old\.observe\./);
+  await expect(canvas).toHaveAttribute('data-player-pose-frame', '2');
+  const reducedFirst = await canvas.getAttribute('data-player-pose-frame');
   await page.waitForTimeout(320);
-  const reducedSecond = await sampleCanvas(PLAYER_POSE_SAMPLE_RADIUS);
+  const reducedSecond = await canvas.getAttribute('data-player-pose-frame');
   await page.keyboard.up('Shift');
   await expect(canvas).toHaveAttribute('data-observation-active', 'false');
-  await page.waitForTimeout(90);
-  const reducedIdle = await sampleCanvas(PLAYER_POSE_SAMPLE_RADIUS);
+  await expect(canvas).toHaveAttribute('data-player-pose', /^character\.xu_old\.idle\./);
+  await expect(canvas).toHaveAttribute('data-player-pose-frame', '0');
 
-  expect(changed(reducedFirst, reducedSecond)).toBe(false);
-  expect(changed(reducedSecond, reducedIdle)).toBe(true);
+  expect(reducedFirst).toBe('2');
+  expect(reducedSecond).toBe(reducedFirst);
 });
 
 test('shows a restrained nearby interaction prompt and keeps reduced-motion hover static', async ({

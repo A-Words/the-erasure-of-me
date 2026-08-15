@@ -256,6 +256,8 @@ export class GameScene extends Phaser.Scene {
       this.sceneReadyVersion += 1;
       delete this.game.canvas.dataset.sceneReady;
       delete this.game.canvas.dataset.observationActive;
+      delete this.game.canvas.dataset.playerPose;
+      delete this.game.canvas.dataset.playerPoseFrame;
       this.unsubscribe?.();
       this.unsubscribeSemanticInput?.();
       this.unsubscribeSemanticInput = null;
@@ -317,6 +319,7 @@ export class GameScene extends Phaser.Scene {
     }
     const latestState = this.bridge.getSnapshot();
     this.updatePlayerPose(latestState);
+    this.syncPlayerPoseDataset();
   }
 
   private beginObservation(): void {
@@ -513,6 +516,7 @@ export class GameScene extends Phaser.Scene {
     this.player.setDepth(worldDepth(state.player.y));
     this.player.setAlpha(state.phase === 'playing' ? 1 : 0.22);
     this.updatePlayerPose(state);
+    this.syncPlayerPoseDataset();
     this.updateXiulanPose(state);
     this.updateHoldWarmth(state);
     this.updateHoldHand(state);
@@ -741,6 +745,7 @@ export class GameScene extends Phaser.Scene {
     this.player.setScale(state.chapterId === 'home' ? homeVisualSizes.characterScale : 1);
     this.player.setDepth(worldDepth(state.player.y));
     this.updatePlayerPose(state);
+    this.syncPlayerPoseDataset();
     const arrivalDuration = this.presentation.buildChapter(state);
     this.presentation.sync(state, this.time.now);
     this.scheduleSceneReady(arrivalDuration);
@@ -1041,6 +1046,18 @@ export class GameScene extends Phaser.Scene {
       } else {
         this.playPlayerAnimation(idleKey, `${idleKey}.animation`);
       }
+    }
+  }
+
+  private syncPlayerPoseDataset(): void {
+    if (!this.playerActor) return;
+    const pose = this.playerActor.texture.key;
+    const frame = String(this.playerActor.frame.name);
+    if (this.game.canvas.dataset.playerPose !== pose) {
+      this.game.canvas.dataset.playerPose = pose;
+    }
+    if (this.game.canvas.dataset.playerPoseFrame !== frame) {
+      this.game.canvas.dataset.playerPoseFrame = frame;
     }
   }
 
