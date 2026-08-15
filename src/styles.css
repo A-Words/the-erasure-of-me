@@ -2191,12 +2191,24 @@ html[data-motion='reduced'] .memory-cutscene::before {
 
 @media (pointer: coarse) and (orientation: landscape) and (min-width: 740px) {
   .title-screen:not(.title-subpage) {
+    --title-home-brand-track: 0.9fr;
+    --title-home-menu-track: 1.1fr;
+    --title-home-column-gap: clamp(1.25rem, 4vw, 3.5rem);
+    --title-home-note-size: 0.64em;
+    --title-home-note-leading: 1.4;
+    --title-home-card-min-height: clamp(3.15rem, 16vh, 3.9rem);
+    --title-home-card-padding-block: 0.42rem;
+    --title-home-card-description-size: 0.66em;
+    --title-home-card-description-leading: 1.28;
     display: grid;
-    grid-template-columns: minmax(16rem, 0.82fr) minmax(25rem, 1.18fr);
+    grid-template-columns: minmax(0, var(--title-home-brand-track)) minmax(
+        0,
+        var(--title-home-menu-track)
+      );
     grid-template-rows: auto auto auto;
     align-content: center;
     align-items: center;
-    column-gap: clamp(1.25rem, 4vw, 3.5rem);
+    column-gap: var(--title-home-column-gap);
     row-gap: 0.45rem;
     overflow: hidden;
     text-align: left;
@@ -2234,8 +2246,8 @@ html[data-motion='reduced'] .memory-cutscene::before {
     font-size: 0.65em;
   }
   .title-screen:not(.title-subpage) .content-note span {
-    font-size: 0.6em;
-    line-height: 1.45;
+    font-size: var(--title-home-note-size);
+    line-height: var(--title-home-note-leading);
   }
   .title-screen:not(.title-subpage) .title-menu {
     grid-column: 2;
@@ -2247,11 +2259,13 @@ html[data-motion='reduced'] .memory-cutscene::before {
     gap: 0.35rem;
   }
   .title-screen:not(.title-subpage) .title-menu-card {
-    min-height: clamp(3.2rem, 17vh, 4.1rem);
-    padding: 0.48rem 2.25rem 0.48rem 0.85rem;
+    min-height: var(--title-home-card-min-height);
+    padding: var(--title-home-card-padding-block) 2.25rem var(--title-home-card-padding-block)
+      0.85rem;
   }
   .title-screen:not(.title-subpage) .title-menu-card span {
-    line-height: 1.35;
+    font-size: var(--title-home-card-description-size);
+    line-height: var(--title-home-card-description-leading);
   }
   .title-screen:not(.title-subpage) .title-save-notice {
     position: absolute;

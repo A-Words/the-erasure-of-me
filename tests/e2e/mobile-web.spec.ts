@@ -32,8 +32,8 @@ async function expectPanelShellFits(page: Page, selector: string): Promise<void>
   expect(overflow.vertical).toBeLessThanOrEqual(1);
 }
 
-async function enterFullscreenExperience(page: Page): Promise<void> {
-  const entry = page.getByRole('button', { name: '开始体验' });
+async function enterFullscreenExperience(page: Page, label = '开始体验'): Promise<void> {
+  const entry = page.getByRole('button', { name: label });
   await expect(entry).toBeVisible();
   await entry.tap();
   await expect(entry).toBeHidden();
@@ -301,6 +301,54 @@ test('keeps every title action visible without scrolling on supported landscape 
 
     await page.screenshot({
       path: testInfo.outputPath(`mobile-landscape-title-${viewport.width}x${viewport.height}.png`),
+    });
+  }
+});
+
+test('keeps localized mobile title pages readable without clipping', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 780, height: 360 });
+  for (const scenario of [
+    { locale: 'zh-CN', entry: '开始体验', heading: '记忆的缝隙' },
+    { locale: 'zh-HK', entry: '開始體驗', heading: '記憶的縫隙' },
+    { locale: 'en', entry: 'Start experience', heading: '记忆的缝隙' },
+  ]) {
+    await page.evaluate((locale) => {
+      localStorage.setItem('erasure.settings.v1', JSON.stringify({ localePreference: locale }));
+      sessionStorage.setItem('erasure.e2e.fullscreen', 'supported');
+    }, scenario.locale);
+    await page.reload();
+
+    await enterFullscreenExperience(page, scenario.entry);
+    await expect(page.locator('html')).toHaveAttribute('data-locale', scenario.locale);
+    await expect(page.locator('.title-screen h1')).toHaveText(scenario.heading);
+    await expect(page.locator('.title-menu-card')).toHaveCount(4);
+    await expectEveryElementInViewport(page, '.title-heading, .content-note, .title-menu-card');
+
+    const layout = await page.locator('.title-screen').evaluate((title) => {
+      const boxes = [
+        ...title.querySelectorAll('.title-heading, .content-note, .title-menu-card'),
+      ].map((element) => {
+        const box = element.getBoundingClientRect();
+        return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+      });
+      return {
+        horizontalOverflow: title.scrollWidth - title.clientWidth,
+        verticalOverflow: title.scrollHeight - title.clientHeight,
+        boxes,
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+      };
+    });
+    expect(layout.horizontalOverflow, JSON.stringify(layout)).toBeLessThanOrEqual(1);
+    expect(layout.verticalOverflow, JSON.stringify(layout)).toBeLessThanOrEqual(1);
+    for (const box of layout.boxes) {
+      expect(box.left).toBeGreaterThanOrEqual(-1);
+      expect(box.right).toBeLessThanOrEqual(layout.viewport.width + 1);
+      expect(box.top).toBeGreaterThanOrEqual(-1);
+      expect(box.bottom).toBeLessThanOrEqual(layout.viewport.height + 1);
+    }
+
+    await page.screenshot({
+      path: testInfo.outputPath(`mobile-title-${scenario.locale}-780x360.png`),
     });
   }
 });
