@@ -968,7 +968,7 @@ export const translationEntries = {
     '先朝傘柄指向的方向走。按鍵與腳步的關係已經轉過一圈。',
     'Walk toward the direction of the umbrella handle first. The relationship between keys and footsteps has turned around.',
   ],
-  'legacy.unknown': ['{source}', '（未翻译文本）{source}', '[Untranslated text] {source}'],
+  'legacy.unknown': ['{source}', '（未翻譯文本）{source}', '[Untranslated text] {source}'],
   'legacy.unknown_chapter': ['未知章节', '未知章節', 'Unknown chapter'],
   'legacy.photo.unknown': ['未识别的照片', '未識別的相片', 'Unidentified photo'],
   'legacy.photo.clue_unknown': [
