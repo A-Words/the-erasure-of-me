@@ -1,6 +1,8 @@
 import type { AccessibilitySettings, GameMode, GameState, SettingsPatch } from './GameState';
+import { normalizeLocalePreference, text } from '../../i18n';
 
 export const defaultSettings: AccessibilitySettings = {
+  localePreference: 'system',
   fontSize: 'normal',
   reducedMotion: false,
   subtitles: true,
@@ -19,6 +21,7 @@ export function normalizeSettings(settings: SettingsPatch = {}): AccessibilitySe
   return {
     ...defaultSettings,
     ...settings,
+    localePreference: normalizeLocalePreference(settings.localePreference),
     audioVolumes: {
       ...defaultSettings.audioVolumes,
       ...settings.audioVolumes,
@@ -28,7 +31,7 @@ export function normalizeSettings(settings: SettingsPatch = {}): AccessibilitySe
 
 export function createInitialState(mode: GameMode = 'standard'): GameState {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     phase: 'title',
     mode,
     chapterId: 'home',
@@ -50,7 +53,7 @@ export function createInitialState(mode: GameMode = 'standard'): GameState {
     },
     settings: normalizeSettings(),
     modal: null,
-    objective: '找到钥匙和秀兰留下的日记',
+    objective: text('objective.home.start'),
     message: null,
     dialogue: [],
     dialogueIndex: 0,

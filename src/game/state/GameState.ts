@@ -10,7 +10,10 @@ export type MemoryIllustrationId =
   | 'life.cassette'
   | 'ending.hand';
 
+import type { LocalePreference, TextRef } from '../../i18n';
+
 export interface AccessibilitySettings {
+  localePreference: LocalePreference;
   fontSize: 'normal' | 'large';
   reducedMotion: boolean;
   subtitles: boolean;
@@ -42,7 +45,7 @@ export interface PuzzleProgress {
 }
 
 export interface GameState {
-  schemaVersion: 1;
+  schemaVersion: 2;
   phase: 'title' | 'playing' | 'guide';
   mode: GameMode;
   chapterId: ChapterId;
@@ -56,9 +59,9 @@ export interface GameState {
   puzzles: PuzzleProgress;
   settings: AccessibilitySettings;
   modal: ModalId;
-  objective: string;
-  message: string | null;
-  dialogue: string[];
+  objective: TextRef;
+  message: TextRef | null;
+  dialogue: TextRef[];
   dialogueIndex: number;
   activeMemoryId: MemoryIllustrationId | null;
   holdProgress: number;

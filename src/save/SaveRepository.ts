@@ -6,6 +6,7 @@ import type {
 } from '../game/state/GameState';
 import { createInitialState, normalizeSettings } from '../game/state/initialState';
 import { chapterMaps, getCheckpointSpawn } from '../game/content/maps';
+import { migrateGameState } from './migrations';
 
 const LEGACY_SAVE_KEY = 'erasure.save.v1';
 const SETTINGS_KEY = 'erasure.settings.v1';
@@ -226,9 +227,10 @@ export class SaveRepository {
 
   private parseState(candidate: unknown): GameState | null {
     if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) return null;
-    const parsed = candidate as GameState;
+    const parsed = migrateGameState(candidate);
+    if (!parsed) return null;
     if (
-      parsed.schemaVersion !== 1 ||
+      parsed.schemaVersion !== 2 ||
       !Object.hasOwn(chapterMaps, parsed.chapterId) ||
       typeof parsed.checkpointId !== 'string' ||
       !parsed.player ||

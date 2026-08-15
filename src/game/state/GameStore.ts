@@ -12,30 +12,39 @@ import type {
 } from './GameState';
 import { createInitialState, normalizeSettings } from './initialState';
 import { getMapMode } from '../presentation/mapPresentation';
+import { text, type TextRef } from '../../i18n';
 
 type Listener = (state: Readonly<GameState>) => void;
 
 const chapterConfig: Record<
   ChapterId,
-  { stage: GameState['degradationStage']; checkpoint: string; objective: string }
+  { stage: GameState['degradationStage']; checkpoint: string; objective: TextRef }
 > = {
-  home: { stage: 'D0', checkpoint: 'checkpoint.home.start', objective: '找到钥匙和秀兰留下的日记' },
+  home: {
+    stage: 'D0',
+    checkpoint: 'checkpoint.home.start',
+    objective: text('objective.home.start'),
+  },
   rain: {
     stage: 'D1',
     checkpoint: 'checkpoint.rain.start',
-    objective: '按 2 → 4 → 5 踩亮石板，再跟随红伞',
+    objective: text('objective.rain.start'),
   },
   life: {
     stage: 'D2',
     checkpoint: 'checkpoint.life.start',
-    objective: '整理照片，并让三件生活物品回到原处',
+    objective: text('objective.life.start'),
   },
   return: {
     stage: 'D3',
     checkpoint: 'checkpoint.return.training',
-    objective: '理解新的方向，沿着仍可靠的线索回家',
+    objective: text('objective.return.start'),
   },
-  ending: { stage: 'D4', checkpoint: 'checkpoint.ending.start', objective: '走近秀兰' },
+  ending: {
+    stage: 'D4',
+    checkpoint: 'checkpoint.ending.start',
+    objective: text('objective.ending.start'),
+  },
 };
 
 const slotItems: Record<string, string> = {
@@ -91,8 +100,8 @@ export class GameStore {
         this.state.settings = settings;
         this.state.phase = 'playing';
         this.state.dialogue = [
-          '钥匙……今天要出门吗？',
-          '使用 WASD 或方向键移动，靠近物件后按 E 交互。',
+          text('dialogue.opening.question'),
+          text('dialogue.opening.controls'),
         ];
         break;
       }
@@ -146,20 +155,18 @@ export class GameStore {
         if (command.order.join('|') === 'photo.1979|photo.1992|photo.2001') {
           addUnique(this.state.flags, 'puzzle.life.photo_order.completed');
           this.state.checkpointId = 'checkpoint.life.photos';
-          this.state.message = '三个年份安静地排在了一起。';
+          this.state.message = text('message.photo.order.done');
           this.state.modal = null;
           this.resetHintTimer();
           this.updateLifeObjective();
         } else {
-          this.state.message = '这个顺序似乎接不上。其他照片没有移动。';
+          this.state.message = text('message.photo.order.wrong');
         }
         break;
       case 'ACKNOWLEDGE_D3':
         addUnique(this.state.flags, 'flag.return.mapping_learned');
         this.state.message =
-          this.state.mode === 'standard'
-            ? '方向变了。地上的箭头还在。'
-            : '提示变得不可靠。地上的箭头还在。';
+          this.state.mode === 'standard' ? text('message.d3.standard') : text('message.d3.low');
         break;
       case 'HOLD':
         this.updateHold(command.deltaSeconds);
@@ -282,14 +289,14 @@ export class GameStore {
       this.state.player.x - this.state.rainMapClosedAtX > 128
     ) {
       addUnique(this.state.flags, 'degradation.d1.started');
-      this.state.message = '有些路名看不清了。钟声还在。';
+      this.state.message = text('message.d1.started');
       this.state.mapWashSeconds = 1.2;
       this.state.rainMapClosedAtX = null;
       this.state.player.moving = false;
     }
   }
 
-  private setDialogue(lines: string[], activeMemoryId: MemoryIllustrationId | null = null): void {
+  private setDialogue(lines: TextRef[], activeMemoryId: MemoryIllustrationId | null = null): void {
     this.state.dialogue = lines;
     this.state.dialogueIndex = 0;
     this.state.activeMemoryId = activeMemoryId;
@@ -310,8 +317,8 @@ export class GameStore {
         addUnique(this.state.flags, 'ending.ready_to_hold');
         this.state.message =
           this.state.settings.holdMode === 'hold'
-            ? '按住确认键，握住她的手'
-            : '按确认键，握住她的手';
+            ? text('message.hold.long')
+            : text('message.hold.short');
       }
     }
   }
@@ -374,57 +381,32 @@ export class GameStore {
             : 0;
     if (nextLevel <= this.state.hintLevel) return;
     this.state.hintLevel = nextLevel as 1 | 2 | 3;
-    const hints: Record<ChapterId, string[]> = {
-      home: [
-        '玄关的蓝色小碗反射了一点晨光。',
-        '日记里的红线书签轻轻露出桌沿。',
-        '从客厅到玄关，地上浮出一串很淡的脚印。',
-      ],
-      rain: [
-        '旧车票边缘发亮：2 → 4 → 5。',
-        '下一块石板的圆点在积水里映了一下。',
-        '红伞与钟声方向之间，水面连续泛起波纹。',
-      ],
-      life: [
-        '照片空位显出年代轮廓。',
-        '条纹、圆点和波纹在相应位置轻轻回应。',
-        '正确位置出现了物件的剪影。',
-      ],
-      return: [
-        '当前红伞标记更亮了一点。',
-        '正确世界方向出现一对淡脚印。',
-        '先朝伞柄指向的方向走。按键和脚步的关系已经转过一圈。',
-      ],
-      ending: ['', '', ''],
-    };
-    this.state.message = hints[this.state.chapterId][nextLevel - 1];
+    const hintKey = `hint.${this.state.chapterId}.${nextLevel}`;
+    this.state.message = text(hintKey);
   }
 
   private interactHome(entityId: string): void {
     if (entityId === 'entity.home.bedside_photo') {
-      this.setDialogue(['照片里，我们站在一把红伞下面。', '伞面太小，两个人的肩膀都湿了一半。']);
+      this.setDialogue([text('dialogue.home.photo.1'), text('dialogue.home.photo.2')]);
     } else if (entityId === 'entity.home.journal') {
       addUnique(this.state.inventory, 'item.home.journal');
       addUnique(this.state.journalPages, 'journal.home.key');
       this.state.checkpointId = 'checkpoint.home.journal';
-      this.setDialogue([
-        '六月二十二日，晴转雨。',
-        '钥匙还在玄关的蓝色小碗里。别急，我去买面，很快回来。——秀兰',
-      ]);
+      this.setDialogue([text('dialogue.home.journal.1'), text('dialogue.home.journal.2')]);
     } else if (entityId === 'entity.home.key_bowl') {
       addUnique(this.state.inventory, 'item.home.key');
       this.state.checkpointId = 'checkpoint.home.key';
-      this.state.message = '取得：家门钥匙';
+      this.state.message = text('message.home.key_found');
     } else if (entityId === 'entity.home.glasses_case') {
       addUnique(this.state.inventory, 'item.home.glasses_case');
-      this.state.message = '眼镜盒是空的。边角贴着一小块红胶布。';
+      this.state.message = text('message.home.glasses');
     } else if (entityId === 'entity.home.front_door') {
       if (!includes(this.state.inventory, 'item.home.key')) {
-        this.state.message = '钥匙也许还在玄关的小碗里。';
+        this.state.message = text('message.home.key_hint');
       } else if (!includes(this.state.inventory, 'item.home.journal')) {
-        this.state.message = '桌边的日记也许会有帮助。';
+        this.state.message = text('message.home.journal_hint');
       } else {
-        this.setDialogue(['钥匙插入门锁。远处响起雷声。', '这场雨……我见过。']);
+        this.setDialogue([text('dialogue.home.door.1'), text('dialogue.home.door.2')]);
         addUnique(this.state.flags, 'transition.to.rain');
       }
     }
@@ -434,7 +416,7 @@ export class GameStore {
     if (entityId === 'entity.rain.ticket') {
       addUnique(this.state.inventory, 'item.rain.ticket');
       addUnique(this.state.journalPages, 'journal.rain.route');
-      this.state.message = '旧车票背面写着：2 → 4 → 5';
+      this.state.message = text('message.rain.ticket');
       return;
     }
     const stone = Number(entityId.match(/stone_(\d)/)?.[1]);
@@ -442,13 +424,13 @@ export class GameStore {
       const expected = [2, 4, 5][this.state.puzzles.stationSequence.length];
       if (stone === expected) {
         this.state.puzzles.stationSequence.push(stone);
-        this.state.message = '石板在雨里亮了一下。';
+        this.state.message = text('message.rain.stone_progress');
         if (this.state.puzzles.stationSequence.length === 3) {
           this.state.checkpointId = 'checkpoint.rain.sequence';
-          this.state.message = '三块石板亮起。雨幕深处，一把红伞变得清晰。';
+          this.state.message = text('message.rain.stone_done');
         }
       } else {
-        this.state.message = '这块石板没有回应。已经亮起的还在。';
+        this.state.message = text('message.rain.stone_wrong');
       }
       return;
     }
@@ -457,9 +439,11 @@ export class GameStore {
       const expected = order[this.state.puzzles.rainSigns.length];
       if (entityId === expected) {
         this.state.puzzles.rainSigns.push(entityId);
-        this.state.message = entityId.endsWith('_a') ? '伞柄朝向小巷。' : '只有这个颜色没有散开。';
+        this.state.message = entityId.endsWith('_a')
+          ? text('message.rain.sign_a')
+          : text('message.rain.sign_b');
       } else if (!includes(this.state.puzzles.rainSigns, entityId)) {
-        this.state.message = '钟声让积水朝更近的一把红伞发颤。';
+        this.state.message = text('message.rain.sign_wrong');
       }
       return;
     }
@@ -468,17 +452,13 @@ export class GameStore {
         this.state.puzzles.stationSequence.length < 3 ||
         this.state.puzzles.rainSigns.length < 2
       ) {
-        this.state.message = '雨太密了。旧车票、石板和路边的伞会带我过去。';
+        this.state.message = text('message.rain.umbrella_hint');
         return;
       }
       addUnique(this.state.memories, 'memory.rain.umbrella');
       this.state.checkpointId = 'checkpoint.rain.complete';
       this.setDialogue(
-        [
-          '年轻的林秀兰：“你要去车站吗？”',
-          '“那一起走吧。伞往你那边一点，别淋着。”',
-          '我不记得车开去了哪里，只记得她的半边肩膀湿了。',
-        ],
+        [text('dialogue.rain.1'), text('dialogue.rain.2'), text('dialogue.rain.3')],
         'rain',
       );
       addUnique(this.state.flags, 'transition.to.life');
@@ -493,23 +473,25 @@ export class GameStore {
     };
     if (photoMap[entityId]) {
       addUnique(this.state.inventory, photoMap[entityId]);
-      this.state.message = `取得照片：${photoMap[entityId].slice(-4)}`;
+      this.state.message = text('message.life.photo_found', {
+        year: photoMap[entityId].slice(-4),
+      });
       return;
     }
     if (entityId.startsWith('item.life.')) {
       addUnique(this.state.inventory, entityId);
       this.state.message =
         entityId === 'item.life.wood_comb'
-          ? '木＿：齿很密，握柄有一道修过的裂缝。'
+          ? text('message.life.comb')
           : entityId === 'item.life.enamel_cup'
-            ? '＿瓷＿：一圈桂花，底部磨出了银色。'
-            : '〰 〰 〰：双线圈里藏着熟悉的旋律。';
+            ? text('message.life.cup')
+            : text('message.life.cassette');
       return;
     }
     if (entityId === 'entity.life.album') {
       const photos = ['item.photo.1979', 'item.photo.1992', 'item.photo.2001'];
       if (!photos.every((photo) => includes(this.state.inventory, photo))) {
-        this.state.message = '相册空着三格。散落在房间里的照片还没有找齐。';
+        this.state.message = text('message.life.album_missing');
       } else {
         this.state.modal = 'photo_order';
       }
@@ -518,17 +500,17 @@ export class GameStore {
     if (slotItems[entityId]) {
       const item = slotItems[entityId];
       if (!includes(this.state.inventory, item)) {
-        this.state.message = '这个位置留下了熟悉的纹理，但对应的物件还没找到。';
+        this.state.message = text('message.life.slot_missing');
       } else if (!includes(this.state.flags, 'puzzle.life.photo_order.completed')) {
-        this.state.message = '也许先把照片的年份排好，会看得更清楚。';
+        this.state.message = text('message.life.photo_order_first');
       } else {
         addUnique(this.state.puzzles.placedObjects, item);
         const memory =
           item === 'item.life.wood_comb'
-            ? '一起拆纸箱，床还没装好，两个人先坐在箱子上笑。'
+            ? text('dialogue.life.move')
             : item === 'item.life.enamel_cup'
-              ? '桂花第一次开。她说，明年也一起闻。'
-              : '停电的纪念日里，录音带的声音还在。';
+              ? text('dialogue.life.osmanthus')
+              : text('dialogue.life.cassette');
         this.setDialogue(
           [memory],
           item === 'item.life.wood_comb'
@@ -543,15 +525,12 @@ export class GameStore {
     }
     if (entityId === 'entity.life.exit') {
       if (!this.lifeCompleted()) {
-        this.state.message = '房间还没有收束。照片和三件物品都在等自己的位置。';
+        this.state.message = text('message.life.not_complete');
       } else {
         addUnique(this.state.memories, 'memory.life.ordinary_days');
         addUnique(this.state.journalPages, 'journal.life.ordinary_days');
         this.state.checkpointId = 'checkpoint.life.complete';
-        this.setDialogue([
-          '不是照片替我们记住了一生。',
-          '是这些做过很多次、当时并不觉得特别的小事。',
-        ]);
+        this.setDialogue([text('dialogue.life.complete.1'), text('dialogue.life.complete.2')]);
         addUnique(this.state.flags, 'transition.to.return');
       }
     }
@@ -560,10 +539,10 @@ export class GameStore {
   private updateLifeObjective(): void {
     const photosDone = includes(this.state.flags, 'puzzle.life.photo_order.completed');
     this.state.objective = photosDone
-      ? `让生活物品回到原处（${this.state.puzzles.placedObjects.length}/3）`
-      : '找齐三张照片，在相册中按时间排序';
+      ? text('objective.life.objects', { count: this.state.puzzles.placedObjects.length })
+      : text('objective.life.photos');
     if (this.lifeCompleted()) {
-      this.state.objective = '走进房间上方延长的走廊';
+      this.state.objective = text('objective.life.corridor');
       this.state.checkpointId = 'checkpoint.life.complete';
     }
   }
@@ -581,7 +560,7 @@ export class GameStore {
     if (!['up', 'down', 'left', 'right'].includes(direction)) return;
     if (this.state.puzzles.returnJunction >= returnRouteAnswers.length) {
       if (direction === 'up') this.enterChapter('ending');
-      else this.state.message = '门后有人在哼歌。它就在上方。';
+      else this.state.message = text('message.return.humming_above');
       return;
     }
     const answer = returnRouteAnswers[this.state.puzzles.returnJunction];
@@ -596,25 +575,27 @@ export class GameStore {
         this.state.player = { x: 640, y: 360, facing: 'up', moving: false };
         this.state.message =
           this.state.puzzles.returnJunction === 3
-            ? '门后有人在哼歌。向上的家门已经出现。'
-            : `走过路口 ${this.state.puzzles.returnJunction}。熟悉的空间重新落在脚下。`;
+            ? text('message.return.door_appeared')
+            : text('message.return.junction', {
+                junction: this.state.puzzles.returnJunction,
+              });
         if (this.state.puzzles.returnJunction === 3) {
           addUnique(this.state.journalPages, 'journal.return.last_page');
-          this.state.objective = '与上方的家门交互';
+          this.state.objective = text('objective.return.door');
         }
       } else {
         this.state.player = { x: 640, y: 360, facing: direction, moving: false };
-        this.state.message = '这一步和仍留下的线索对上了。';
+        this.state.message = text('message.return.step_right');
       }
     } else {
       this.state.puzzles.routeLoops += 1;
       this.state.player = { x: 640, y: 360, facing: 'up', moving: false };
       this.state.message =
         this.state.puzzles.routeLoops === 1
-          ? '我好像又回来了。红伞还在前面。'
+          ? text('message.return.loop_one')
           : this.state.puzzles.routeLoops === 2
-            ? '地上有一对浅浅的脚印。有人走过，也有人在等我。'
-            : '先朝伞柄指向的方向走。按键和脚步的关系已经转过一圈。';
+            ? text('message.return.loop_two')
+            : text('message.return.loop_three');
     }
   }
 
@@ -626,10 +607,10 @@ export class GameStore {
       return;
     addUnique(this.state.flags, 'ending.dialogue_started');
     this.setDialogue([
-      '林秀兰：“我回来了。”',
-      '许志远：“我……你是……”',
-      '林秀兰：“我是秀兰。别急，我回来了。”',
-      '她把手停在那里，没有催我。',
+      text('dialogue.ending.1'),
+      text('dialogue.ending.2'),
+      text('dialogue.ending.3'),
+      text('dialogue.ending.4'),
     ]);
   }
 
@@ -648,9 +629,9 @@ export class GameStore {
       addUnique(this.state.flags, 'transition.to.guide');
       this.setDialogue(
         [
-          '许志远主动握住她的手：“手是暖的。”',
-          '林秀兰：“面也还是热的。”',
-          '有些名字会远去，爱曾经来过的地方还留着温度。',
+          text('dialogue.ending.hand.1'),
+          text('dialogue.ending.hand.2'),
+          text('dialogue.ending.hand.3'),
         ],
         'ending.hand',
       );
@@ -674,13 +655,13 @@ export class GameStore {
     this.state.hintSeconds = 0;
     this.state.hintLevel = 0;
     if (chapterId === 'rain') {
-      this.setDialogue(['现实的门锁声变成车站广播的底噪。', '这是哪一站？']);
+      this.setDialogue([text('dialogue.chapter.rain.1'), text('dialogue.chapter.rain.2')]);
     } else if (chapterId === 'life') {
-      this.setDialogue(['这个家……怎么有三扇一样的窗？', '名字有些远。样子和触感还在。']);
+      this.setDialogue([text('dialogue.chapter.life.1'), text('dialogue.chapter.life.2')]);
     } else if (chapterId === 'return') {
-      this.setDialogue(['路怎么转了？', '先看看地上的箭头。这里不会催你。']);
+      this.setDialogue([text('dialogue.chapter.return.1'), text('dialogue.chapter.return.2')]);
     } else if (chapterId === 'ending') {
-      this.setDialogue(['门打开了。熟悉的清晨重新落回房间。']);
+      this.setDialogue([text('dialogue.chapter.ending.1')]);
     }
   }
 

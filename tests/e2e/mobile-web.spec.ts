@@ -99,6 +99,27 @@ test.beforeEach(async ({ page }) => {
   await page.reload();
 });
 
+test('shows the portrait gate before fullscreen on every mobile entry', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.reload();
+
+  const orientationDialog = page.getByRole('dialog', { name: '请旋转至横屏' });
+  const fullscreenDialog = page.getByRole('dialog', { name: '准备好进入这段记忆了吗？' });
+  await expect(orientationDialog).toBeVisible();
+  await expect(fullscreenDialog).toBeHidden();
+  await expect(page.getByRole('button', { name: '开始游戏' })).toBeHidden();
+  expect(
+    await page.evaluate(() =>
+      Number(sessionStorage.getItem('erasure.e2e.fullscreen.requests') ?? 0),
+    ),
+  ).toBe(0);
+
+  await page.setViewportSize({ width: 780, height: 360 });
+  await expect(orientationDialog).toBeHidden();
+  await expect(fullscreenDialog).toBeVisible();
+  await expect(page.getByRole('button', { name: '开始体验' })).toBeVisible();
+});
+
 test('opens through a fullscreen entry gate and degrades gracefully when unavailable', async ({
   page,
 }, testInfo) => {

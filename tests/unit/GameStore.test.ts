@@ -3,6 +3,7 @@ import { homeFurnitureLayout } from '../../src/game/content/homeLayout';
 import type { CollisionDataProvider } from '../../src/game/content/collisionProvider';
 import { GameStore } from '../../src/game/state/GameStore';
 import { createInitialState } from '../../src/game/state/initialState';
+import { renderText } from '../../src/i18n';
 
 function clearDialogue(store: GameStore): void {
   while (store.getState().dialogue.length > 0) store.dispatch({ type: 'ADVANCE_DIALOGUE' });
@@ -79,7 +80,7 @@ describe('GameStore', () => {
 
     store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
     expect(store.getState().flags).toContain('degradation.d1.started');
-    expect(store.getState().message).toBe('有些路名看不清了。钟声还在。');
+    expect(renderText('zh-CN', store.getState().message)).toBe('有些路名看不清了。钟声还在。');
     expect(store.getState().rainMapClosedAtX).toBeNull();
     const lockedX = store.getState().player.x;
     store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
@@ -162,7 +163,7 @@ describe('GameStore', () => {
     store.dispatch({ type: 'CLOSE_MODAL' });
     store.dispatch({ type: 'TICK', deltaSeconds: 90 });
     expect(store.getState().hintLevel).toBe(1);
-    expect(store.getState().message).toContain('蓝色小碗');
+    expect(renderText('zh-CN', store.getState().message)).toContain('蓝色小碗');
   });
 
   it('updates one audio bus without resetting the other mix values', () => {

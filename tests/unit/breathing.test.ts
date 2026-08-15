@@ -5,6 +5,7 @@ import {
   isBreathingActive,
 } from '../../src/game/presentation/breathing';
 import { createInitialState } from '../../src/game/state/initialState';
+import { text } from '../../src/i18n';
 
 function playingState() {
   const state = createInitialState();
@@ -35,7 +36,7 @@ describe('isBreathingActive', () => {
 
   it('is inactive during dialogue', () => {
     const state = playingState();
-    state.dialogue = ['一句话'];
+    state.dialogue = [text('legacy.unknown', { source: '一句话' })];
     expect(isBreathingActive(state)).toBe(false);
   });
 

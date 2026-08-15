@@ -32,6 +32,7 @@
 | 语言       | TypeScript 严格模式        | 约束内容数据、存档和阶段配置                                                                      |
 | 构建       | Vite                       | 快速开发、静态构建、按需导入                                                                      |
 | UI         | 原生 DOM + CSS             | 字幕、设置和科普页需要可访问性与响应式                                                            |
+| 本地化     | `src/i18n` + `TextRef`     | 系统语言默认、手动覆盖和三套完整 catalog；不引入第三方 i18n 依赖                                |
 | 地图       | Tiled JSON                 | 可视化编辑碰撞、触发器和对象属性                                                                  |
 | 状态       | 自研轻量 GameStore         | 体量小，避免框架状态与 Phaser 生命周期耦合                                                        |
 | 单元测试   | Vitest                     | 与 Vite/TypeScript 配合直接                                                                       |
@@ -171,7 +172,7 @@ GameStore 是唯一运行时真值源，提供：
 
 ```ts
 interface GameState {
-  schemaVersion: 1;
+  schemaVersion: 2;
   mode: 'standard' | 'low_stimulation';
   chapterId: ChapterId;
   checkpointId: string;
@@ -182,7 +183,7 @@ interface GameState {
   puzzles: Record<string, PuzzleState>;
   hints: Record<string, HintState>;
   narrative: NarrativeState;
-  settings: AccessibilitySettings;
+  settings: AccessibilitySettings; // localePreference: system | zh-CN | zh-HK | en
   playTimeSeconds: number;
 }
 ```
@@ -577,7 +578,8 @@ interface DegradationConfig {
 - 游戏内 DOM 面板在受支持横屏中使用固定面板外壳：背包与日记只滚动内容区，地图按主体与图例分栏，暂停将快捷设置与四路混音分栏；低频高危的本地数据操作默认折叠在设置区末尾，返回标题与继续保持在顶部。面板打开期间仍由 GameState 模态状态阻断玩法输入，不把物件、日记、地图或设置状态复制到 DOM 本地状态。
 - 粗指针竖屏显示语义化旋转遮罩并打开暂停；回到横屏只移除遮罩，玩家必须主动继续。
 - `FullscreenController` 只封装浏览器展示能力：查询支持与激活状态、请求整个 `#app`、退出，以及订阅标准/WebKit 全屏事件。`request()` / `exit()` 返回 `entered`、`exited`、`unsupported` 或 `denied`，不会把拒绝抛入玩法流程；成功进入后可尝试 `screen.orientation.lock('landscape')`，锁定失败不改变已进入全屏的结果。
-- 粗指针横屏首次加载先让 AppShell 渲染全屏进入门，并将标题、HUD、面板和触控层设为不可交互；覆盖整屏的语义按钮接受指针点击或 Enter/Space，并在同一用户手势调用链中请求全屏，成功或失败后都关闭进入门。竖屏旋转遮罩层级更高。玩家主动退出后不重新显示进入门，也不自动暂停；新游戏、继续与读档直接进入玩法，不再次申请权限，只有标题设置与暂停页保留手动进入/退出全屏。全屏与进入门状态不进入 GameState、设置或存档，刷新即重置。
+- `AppShell` 不渲染启动语言门；`navigator.languages` 的系统语言解析为三种 Locale，设置和暂停页的 `localePreference` 可手动覆盖并立即重渲染 DOM、Canvas 实体标签、文档元数据和字体栈。开发 DEBUG 面板不纳入翻译范围。
+- 粗指针每次新建应用入口先让 AppShell 渲染竖屏旋转遮罩；旋转至横屏后才渲染全屏进入门，并将标题、HUD、面板和触控层设为不可交互。覆盖整屏的语义按钮接受指针点击或 Enter/Space，并在同一用户手势调用链中请求全屏，成功或失败后都关闭进入门。玩家主动退出后不重新显示进入门，也不自动暂停；新游戏、继续与读档直接进入玩法，不再次申请权限，只有标题设置与暂停页保留手动进入/退出全屏。全屏与进入门状态不进入 GameState、设置或存档，刷新即重置。
 - 普通 iPhone Safari 缺少元素全屏能力时返回 `unsupported` 并继续普通横屏模式；PWA、加入主屏幕和原生封装不在当前架构范围。
 - D1/D2 的文字变化由 UI 读取退化配置生成，不直接修改原始内容数据。
 - 科普页使用语义化 HTML，来源链接可复制且可通过键盘访问。
@@ -672,6 +674,7 @@ interface AssetManifestEntry {
 - 槽位容器使用显式 formatVersion，领域状态使用 schemaVersion；
 - 解析后检查 chapterId、checkpointId 和 puzzle IDs；
 - 未知字段忽略，缺失必需字段触发迁移或回退；
+- `schemaVersion: 1` 中的简体中文 objective、message 和 dialogue 通过 `src/save/migrations.ts` 映射为稳定 `TextRef`；无法识别的旧文本使用安全 legacy fallback，进度字段保持不变；当前领域状态使用 `schemaVersion: 2`。
 - 坐标无效时通过 `src/game/content/maps.ts` 的 `checkpointSpawns` 恢复到当前章节 checkpoint 的安全出生点；未知或跨章节 checkpoint 才回退到章节默认出生点；
 - 单槽损坏时不覆盖原字符串、不阻塞其他槽，并在对应槽卡显示可理解的恢复说明；
 - 无障碍与音量设置使用独立键保存，并在 Phaser 和 AppShell 初始化前恢复；
