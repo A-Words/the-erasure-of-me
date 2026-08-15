@@ -730,11 +730,12 @@ export class AppShell {
     const latestChapter = latest?.chapterId
       ? this.translate(chapterMaps[latest.chapterId].titleKey)
       : null;
+    const titlePageName = this.locale === 'zh-HK' ? this.translate('title.name') : TITLE_PAGE_NAME;
     return `<section class="title-screen" aria-labelledby="game-title">
       <div class="title-emblem" aria-hidden="true"><div class="title-art"><span>☂</span></div><span class="emblem-seam"></span></div>
       <header class="title-heading">
         <p class="eyebrow">${this.translate('title.eyebrow')}</p>
-        <h1 id="game-title">${TITLE_PAGE_NAME}</h1>
+        <h1 id="game-title">${titlePageName}</h1>
         <p class="english-title">THE ERASURE OF ME</p>
       </header>
       <aside class="content-note"><strong>${this.translate('title.content_warning.title')}</strong><span>${this.translate('title.content_warning.body')}</span></aside>

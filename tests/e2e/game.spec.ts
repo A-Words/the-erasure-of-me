@@ -51,7 +51,7 @@ test('uses the system locale by default and applies a persisted manual override 
   await page.reload();
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-HK');
   await expect(page.getByRole('heading', { name: '聲音與無障礙' })).toHaveCount(0);
-  await expect(page.getByRole('heading', { name: '记忆的缝隙' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '記憶的縫隙' })).toBeVisible();
   await page.getByRole('button', { name: '設定' }).click();
   await page.locator('[data-setting="localePreference"]').selectOption('system');
   await expect(page.locator('html')).toHaveAttribute('lang', 'zh-CN');
