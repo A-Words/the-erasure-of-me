@@ -136,8 +136,7 @@ export class AppShell {
       layer.addEventListener('keydown', this.protectDomKeyboardInput);
       layer.addEventListener('keyup', this.protectDomKeyboardInput);
     }
-    this.renderTouchControls();
-    this.bindTouchControls();
+    this.refreshTouchControls();
     this.renderFullscreenLayer();
     this.updateOrientationGate();
     window.addEventListener('resize', this.updateOrientationGate);
@@ -172,6 +171,11 @@ export class AppShell {
         </div>
         <button class="touch-pause" data-touch-action="pause" aria-label="${this.translate('touch.pause')}">${this.translate('touch.pause.short')}</button>
       </div>`;
+  }
+
+  private refreshTouchControls(): void {
+    this.renderTouchControls();
+    this.bindTouchControls();
   }
 
   private bindTouchControls(): void {
@@ -401,7 +405,10 @@ export class AppShell {
   }
 
   private render(state: Readonly<GameState>): void {
-    this.locale = resolveLocale(state.settings.localePreference);
+    const nextLocale = resolveLocale(state.settings.localePreference);
+    const localeChanged = this.locale !== nextLocale;
+    this.locale = nextLocale;
+    if (localeChanged) this.refreshTouchControls();
     this.updateDocumentMetadata();
     const previousModal = this.lastModal;
     const openingModal = !previousModal && state.modal;

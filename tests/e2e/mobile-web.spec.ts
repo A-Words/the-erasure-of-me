@@ -215,6 +215,37 @@ test('restores fullscreen from title settings and pause without blocking gamepla
   await expect(page.getByRole('button', { name: '退出全屏' })).toBeVisible();
 });
 
+test('refreshes fixed touch control labels after changing language in pause', async ({ page }) => {
+  await enterFullscreenExperience(page);
+  await startNewGame(page);
+  await finishOpeningDialogue(page);
+  await page.getByRole('button', { name: '暂停游戏' }).tap();
+  await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+
+  await page.getByLabel('语言').selectOption('en');
+  await expect(page.getByRole('heading', { name: 'Pause' })).toBeVisible();
+  await expect(page.locator('.touch-controls')).toHaveAttribute(
+    'aria-label',
+    'Touch game controls',
+  );
+  await expect(page.locator('.touch-up')).toHaveAttribute('aria-label', 'Move up');
+  await expect(page.locator('.touch-dpad')).toHaveAttribute('aria-label', 'Movement direction');
+  await expect(page.locator('[data-touch-action="observe"]')).toHaveAttribute(
+    'aria-label',
+    'Hold to quietly notice',
+  );
+  await expect(page.locator('[data-touch-action="interact"]')).toHaveAttribute(
+    'aria-label',
+    'Interact with nearby object',
+  );
+  await expect(page.locator('.touch-pause')).toHaveAttribute('aria-label', 'Pause game');
+
+  await page.getByRole('button', { name: 'Continue', exact: true }).tap();
+  await expect(page.getByRole('button', { name: 'Pause game' })).toBeVisible();
+  await page.getByRole('button', { name: 'Pause game' }).tap();
+  await expect(page.getByRole('heading', { name: 'Pause' })).toBeVisible();
+});
+
 test('does not retry fullscreen when starting, continuing, or reading a memory', async ({
   page,
 }) => {

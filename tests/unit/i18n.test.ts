@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { catalogs, translationKeys } from '../../src/i18n/catalogs';
 import {
+  canvasFontFamily,
   normalizeLocalePreference,
   resolveLocale,
   resolveSystemLocale,
@@ -33,6 +34,14 @@ describe('i18n', () => {
     expect(resolveLocale('en', ['zh-CN'])).toBe('en');
     expect(resolveLocale('system', ['zh-TW'])).toBe('zh-HK');
     expect(normalizeLocalePreference('not-a-locale')).toBe('system');
+  });
+
+  it('uses locale-specific Canvas font stacks', () => {
+    expect(canvasFontFamily('zh-CN')).toBe('"Noto Sans SC", "Microsoft YaHei", sans-serif');
+    expect(canvasFontFamily('zh-HK')).toBe(
+      '"Noto Sans TC", "Microsoft JhengHei", "Noto Sans SC", "Microsoft YaHei", sans-serif',
+    );
+    expect(canvasFontFamily('en')).toBe('Inter, "Segoe UI", Arial, sans-serif');
   });
 
   it('interpolates translated text and preserves unknown legacy text safely', () => {

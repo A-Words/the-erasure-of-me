@@ -13,6 +13,14 @@ export function normalizeLocalePreference(value: unknown): LocalePreference {
   return value === 'system' || isLocale(value) ? value : 'system';
 }
 
+export function canvasFontFamily(locale: Locale): string {
+  if (locale === 'zh-HK') {
+    return '"Noto Sans TC", "Microsoft JhengHei", "Noto Sans SC", "Microsoft YaHei", sans-serif';
+  }
+  if (locale === 'zh-CN') return '"Noto Sans SC", "Microsoft YaHei", sans-serif';
+  return 'Inter, "Segoe UI", Arial, sans-serif';
+}
+
 export function localeFromLanguageTag(languageTag: string): Locale {
   const normalized = languageTag.trim().toLowerCase().replace('_', '-');
   if (!normalized) return 'en';

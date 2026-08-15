@@ -21,7 +21,7 @@ import type { InputAction } from '../../game/input/actions';
 import type { SemanticInput } from '../../game/input/SemanticInput';
 import type { GameState } from '../../game/state/GameState';
 import type { GameStore } from '../../game/state/GameStore';
-import { resolveLocale, t, type Locale } from '../../i18n';
+import { canvasFontFamily, resolveLocale, t, type Locale } from '../../i18n';
 import { collisionRectCorners } from '../../game/simulation/collision';
 import { SceneBridge } from '../bridge/SceneBridge';
 import {
@@ -1201,10 +1201,7 @@ export class GameScene extends Phaser.Scene {
         {
           color: '#f7f3e8',
           backgroundColor: '#2f2b28cc',
-          fontFamily:
-            this.locale === 'en'
-              ? 'Inter, "Segoe UI", Arial, sans-serif'
-              : '"Noto Sans SC", "Microsoft YaHei", sans-serif',
+          fontFamily: canvasFontFamily(this.locale),
           fontSize: '15px',
           padding: { x: 8, y: 4 },
         },
@@ -1252,10 +1249,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private updateEntityLabels(): void {
-    const fontFamily =
-      this.locale === 'en'
-        ? 'Inter, "Segoe UI", Arial, sans-serif'
-        : '"Noto Sans SC", "Microsoft YaHei", sans-serif';
+    const fontFamily = canvasFontFamily(this.locale);
     for (const view of this.entityViews) {
       view.label.setText(t(this.locale, entityLabelKey(view.definition)));
       view.label.setStyle({ fontFamily });
