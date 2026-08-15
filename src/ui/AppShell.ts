@@ -129,6 +129,7 @@ export class AppShell {
       !this.orientation
     )
       throw new Error('App shell containers are missing');
+    this.locale = resolveLocale(store.getState().settings.localePreference);
     for (const layer of [this.hud, this.panel, this.system]) {
       layer.addEventListener('keydown', this.protectDomKeyboardInput);
       layer.addEventListener('keyup', this.protectDomKeyboardInput);

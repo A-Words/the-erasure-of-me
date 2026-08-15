@@ -120,6 +120,27 @@ test('shows the portrait gate before fullscreen on every mobile entry', async ({
   await expect(page.getByRole('button', { name: '开始体验' })).toBeVisible();
 });
 
+test('uses the persisted locale for the first mobile entry gates after refresh', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.evaluate(() => {
+    localStorage.setItem('erasure.settings.v1', JSON.stringify({ localePreference: 'en' }));
+  });
+  await page.reload();
+
+  const orientationDialog = page.getByRole('dialog', { name: 'Please rotate to landscape' });
+  const fullscreenDialog = page.getByRole('dialog', { name: 'Ready to enter this memory?' });
+  await expect(orientationDialog).toBeVisible();
+  await expect(fullscreenDialog).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Start game' })).toBeHidden();
+
+  await page.setViewportSize({ width: 780, height: 360 });
+  await expect(orientationDialog).toBeHidden();
+  await expect(fullscreenDialog).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Start experience' })).toBeVisible();
+});
+
 test('opens through a fullscreen entry gate and degrades gracefully when unavailable', async ({
   page,
 }, testInfo) => {
