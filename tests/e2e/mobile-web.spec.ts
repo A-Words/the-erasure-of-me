@@ -305,6 +305,52 @@ test('keeps every title action visible without scrolling on supported landscape 
   }
 });
 
+test('keeps the English mobile title page readable without clipping', async ({
+  page,
+}, testInfo) => {
+  await page.setViewportSize({ width: 780, height: 360 });
+  await page.evaluate(() => {
+    localStorage.setItem('erasure.settings.v1', JSON.stringify({ localePreference: 'en' }));
+    sessionStorage.setItem('erasure.e2e.fullscreen', 'supported');
+  });
+  await page.reload();
+
+  const entry = page.getByRole('button', { name: 'Start experience' });
+  await expect(entry).toBeVisible();
+  await entry.tap();
+  await expect(entry).toBeHidden();
+  await expect(page.locator('html')).toHaveAttribute('data-locale', 'en');
+  await expect(page.locator('.title-screen h1')).toHaveText('记忆的缝隙');
+  await expect(page.locator('.english-title')).toHaveText('THE ERASURE OF ME');
+  await expect(page.locator('.title-menu-card')).toHaveCount(4);
+  await expectEveryElementInViewport(page, '.title-heading, .content-note, .title-menu-card');
+
+  const layout = await page.locator('.title-screen').evaluate((title) => {
+    const boxes = [
+      ...title.querySelectorAll('.title-heading, .content-note, .title-menu-card'),
+    ].map((element) => {
+      const box = element.getBoundingClientRect();
+      return { left: box.left, right: box.right, top: box.top, bottom: box.bottom };
+    });
+    return {
+      horizontalOverflow: title.scrollWidth - title.clientWidth,
+      verticalOverflow: title.scrollHeight - title.clientHeight,
+      boxes,
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+    };
+  });
+  expect(layout.horizontalOverflow, JSON.stringify(layout)).toBeLessThanOrEqual(1);
+  expect(layout.verticalOverflow, JSON.stringify(layout)).toBeLessThanOrEqual(1);
+  for (const box of layout.boxes) {
+    expect(box.left).toBeGreaterThanOrEqual(-1);
+    expect(box.right).toBeLessThanOrEqual(layout.viewport.width + 1);
+    expect(box.top).toBeGreaterThanOrEqual(-1);
+    expect(box.bottom).toBeLessThanOrEqual(layout.viewport.height + 1);
+  }
+
+  await page.screenshot({ path: testInfo.outputPath('english-mobile-title-780x360.png') });
+});
+
 test('fits start, memory, and settings pages into supported landscape phones', async ({
   page,
 }, testInfo) => {
