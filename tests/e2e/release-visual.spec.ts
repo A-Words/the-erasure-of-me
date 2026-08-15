@@ -166,7 +166,7 @@ for (const viewport of [
     });
     await page.setViewportSize(viewport);
     await gotoGame(page);
-    await expect(page.getByRole('heading', { name: '记忆的缝隙' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'The Erasure of Me' })).toBeVisible();
     await capture(page, testInfo, 'title');
     await createSave(page);
 

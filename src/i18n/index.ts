@@ -1,8 +1,10 @@
 import { catalogs, translationEntries, translationKeys } from './catalogs';
+import { GAME_BRAND_NAME, GAME_BRAND_WORDMARK } from './branding';
 import { text } from './types';
 import type { Locale, LocalePreference, TextRef } from './types';
 
 export { catalogs, text, translationEntries, translationKeys };
+export { GAME_BRAND_NAME, GAME_BRAND_WORDMARK };
 export type { Locale, LocalePreference, TextRef };
 
 export function isLocale(value: unknown): value is Locale {
