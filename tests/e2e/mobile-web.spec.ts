@@ -143,18 +143,22 @@ test('keeps mobile entry gates focused and blocks Phaser keyboard input', async 
   await entry.tap();
   await startNewGame(page);
   await finishOpeningDialogue(page);
-  const beforePortraitX = Number(await page.locator('#app').getAttribute('data-player-x'));
+  const app = page.locator('#app');
+  await expect(app).toHaveAttribute('data-player-x', /\d+/);
+  const beforePortraitX = Number(await app.getAttribute('data-player-x'));
+  expect(Number.isFinite(beforePortraitX)).toBe(true);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(orientationDialog).toBeVisible();
-  await expect(page.locator('#app')).toHaveAttribute('data-modal', 'pause');
+  await expect(app).toHaveAttribute('data-modal', 'pause');
   await expect(canvas).toHaveJSProperty('inert', true);
 
   await page.keyboard.press('q');
   await page.keyboard.down('ArrowRight');
   await page.waitForTimeout(180);
   await page.keyboard.up('ArrowRight');
-  await expect(page.locator('#app')).toHaveAttribute('data-modal', 'pause');
-  expect(Number(await page.locator('#app').getAttribute('data-player-x'))).toBe(beforePortraitX);
+  await expect(app).toHaveAttribute('data-modal', 'pause');
+  await expect(app).toHaveAttribute('data-player-x', /\d+/);
+  expect(Number(await app.getAttribute('data-player-x'))).toBe(beforePortraitX);
 
   await page.setViewportSize({ width: 780, height: 360 });
   await expect(orientationDialog).toBeHidden();
