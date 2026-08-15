@@ -1,9 +1,16 @@
-import { catalogs, translationEntries, translationKeys } from './catalogs';
+import {
+  catalogs,
+  hintKeyFor,
+  isTranslationKey,
+  translationEntries,
+  translationKeys,
+} from './catalogs';
 import { text } from './types';
 import type { Locale, LocalePreference, TextRef } from './types';
+import type { TranslationKey } from './catalogs';
 
-export { catalogs, text, translationEntries, translationKeys };
-export type { Locale, LocalePreference, TextRef };
+export { catalogs, hintKeyFor, isTranslationKey, text, translationEntries, translationKeys };
+export type { Locale, LocalePreference, TextRef, TranslationKey };
 
 export function isLocale(value: unknown): value is Locale {
   return value === 'zh-CN' || value === 'zh-HK' || value === 'en';
@@ -65,15 +72,16 @@ export function renderText(locale: Locale, value: TextRef | string | null | unde
   return t(locale, value.key, value.params);
 }
 
-const legacyTextKey = new Map<string, string>();
-for (const [key, values] of Object.entries(translationEntries)) {
+const legacyTextKey = new Map<string, TranslationKey>();
+for (const key of translationKeys) {
+  const values = translationEntries[key];
   if (!legacyTextKey.has(values[0])) legacyTextKey.set(values[0], key);
 }
 
 export function toTextRef(value: unknown): TextRef {
   if (value && typeof value === 'object' && !Array.isArray(value)) {
     const candidate = value as Partial<TextRef>;
-    if (typeof candidate.key === 'string') {
+    if (isTranslationKey(candidate.key)) {
       return {
         key: candidate.key,
         ...(candidate.params && typeof candidate.params === 'object'

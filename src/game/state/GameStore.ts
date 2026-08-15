@@ -12,7 +12,7 @@ import type {
 } from './GameState';
 import { createInitialState, normalizeSettings } from './initialState';
 import { getMapMode } from '../presentation/mapPresentation';
-import { text, type TextRef } from '../../i18n';
+import { hintKeyFor, text, type TextRef } from '../../i18n';
 
 type Listener = (state: Readonly<GameState>) => void;
 
@@ -381,8 +381,7 @@ export class GameStore {
             : 0;
     if (nextLevel <= this.state.hintLevel) return;
     this.state.hintLevel = nextLevel as 1 | 2 | 3;
-    const hintKey = `hint.${this.state.chapterId}.${nextLevel}`;
-    this.state.message = text(hintKey);
+    this.state.message = text(hintKeyFor(this.state.chapterId, nextLevel as 1 | 2 | 3));
   }
 
   private interactHome(entityId: string): void {

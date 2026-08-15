@@ -39,6 +39,20 @@ async function finishOpeningDialogue(page: Page): Promise<void> {
     await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
 }
 
+test('moves keyboard focus from the skip link into the game menu', async ({ page }) => {
+  const skipLink = page.locator('.skip-link');
+  await expect(page.locator('canvas')).toHaveAttribute('data-scene-ready', 'true');
+  await page.evaluate(() => {
+    (document.activeElement as HTMLElement | null)?.blur();
+  });
+  await page.keyboard.press('Tab');
+  await expect(skipLink).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('#system-layer')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: '开始游戏' })).toBeFocused();
+});
+
 test('keeps dialogue, movement, inventory and 200% zoom settings keyboard-operable', async ({
   page,
 }) => {

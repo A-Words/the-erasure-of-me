@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { catalogs, translationKeys } from '../../src/i18n/catalogs';
+import { catalogs, hintKeyFor, isTranslationKey, translationKeys } from '../../src/i18n/catalogs';
 import {
   canvasFontFamily,
   normalizeLocalePreference,
@@ -15,6 +15,7 @@ describe('i18n', () => {
   it('keeps non-title metadata localized', () => {
     expect(t('zh-HK', 'app.title')).toBe('記憶的縫隙');
     expect(t('en', 'app.title')).toBe('The Erasure of Me');
+    expect(t('en', 'title.name')).toBe('记忆的缝隙');
     expect(t('zh-HK', 'fullscreen.eyebrow')).toBe('記憶的縫隙');
     expect(t('en', 'fullscreen.eyebrow')).toBe('THE ERASURE OF ME');
   });
@@ -42,6 +43,12 @@ describe('i18n', () => {
       '"Noto Sans TC", "Microsoft JhengHei", "Noto Sans SC", "Microsoft YaHei", sans-serif',
     );
     expect(canvasFontFamily('en')).toBe('Inter, "Segoe UI", Arial, sans-serif');
+  });
+
+  it('keeps dynamic hint references within the catalog key type', () => {
+    expect(hintKeyFor('return', 3)).toBe('hint.return.3');
+    expect(isTranslationKey('hint.return.3')).toBe(true);
+    expect(isTranslationKey('hint.return.4')).toBe(false);
   });
 
   it('interpolates translated text and preserves unknown legacy text safely', () => {

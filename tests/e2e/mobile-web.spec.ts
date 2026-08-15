@@ -120,6 +120,47 @@ test('shows the portrait gate before fullscreen on every mobile entry', async ({
   await expect(page.getByRole('button', { name: '开始体验' })).toBeVisible();
 });
 
+test('keeps mobile entry gates focused and blocks Phaser keyboard input', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.reload();
+
+  const orientationDialog = page.getByRole('dialog', { name: '请旋转至横屏' });
+  const orientationNotice = page.locator('.orientation-notice');
+  const canvas = page.locator('canvas[data-game-canvas]');
+  await expect(orientationDialog).toBeVisible();
+  await expect(orientationNotice).toBeFocused();
+  await expect(canvas).toHaveJSProperty('inert', true);
+  await page.keyboard.press('Tab');
+  await expect(orientationNotice).toBeFocused();
+
+  await page.setViewportSize({ width: 780, height: 360 });
+  const entry = page.getByRole('button', { name: '开始体验' });
+  await expect(entry).toBeFocused();
+  await expect(canvas).toHaveJSProperty('inert', true);
+  await page.keyboard.press('Tab');
+  await expect(entry).toBeFocused();
+
+  await entry.tap();
+  await startNewGame(page);
+  await finishOpeningDialogue(page);
+  const beforePortraitX = Number(await page.locator('#app').getAttribute('data-player-x'));
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(orientationDialog).toBeVisible();
+  await expect(page.locator('#app')).toHaveAttribute('data-modal', 'pause');
+  await expect(canvas).toHaveJSProperty('inert', true);
+
+  await page.keyboard.press('q');
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(180);
+  await page.keyboard.up('ArrowRight');
+  await expect(page.locator('#app')).toHaveAttribute('data-modal', 'pause');
+  expect(Number(await page.locator('#app').getAttribute('data-player-x'))).toBe(beforePortraitX);
+
+  await page.setViewportSize({ width: 780, height: 360 });
+  await expect(orientationDialog).toBeHidden();
+  await expect(page.getByRole('heading', { name: '暂停' })).toBeVisible();
+});
+
 test('uses the persisted locale for the first mobile entry gates after refresh', async ({
   page,
 }) => {

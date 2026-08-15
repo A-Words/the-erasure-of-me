@@ -6,7 +6,7 @@ type Entry = readonly [string, string, string];
  * The first value is Simplified Chinese, the second is Traditional Chinese
  * with Hong Kong wording, and the third is English.
  */
-export const translationEntries: Readonly<Record<string, Entry>> = {
+export const translationEntries = {
   'app.title': ['记忆的缝隙', '記憶的縫隙', 'The Erasure of Me'],
   'app.description': [
     '《记忆的缝隙》——关于记忆、尊严与陪伴的 2D 叙事解谜游戏。',
@@ -162,7 +162,7 @@ export const translationEntries: Readonly<Record<string, Entry>> = {
     '一段關於記憶、尊嚴與陪伴的故事',
     'A story about memory, dignity, and companionship',
   ],
-  'title.name': ['记忆的缝隙', '記憶的縫隙', 'The Erasure of Me'],
+  'title.name': ['记忆的缝隙', '記憶的縫隙', '记忆的缝隙'],
   'title.content_warning.title': ['内容提示', '內容提示', 'Content note'],
   'title.content_warning.body': [
     '本作涉及认知衰退、迷路与家庭照护。许志远是虚构人物，他的经历不代表所有阿尔茨海默病患者。你可以随时暂停、退出或启用低扰动模式。',
@@ -1102,7 +1102,29 @@ export const translationEntries: Readonly<Record<string, Entry>> = {
   'map.home': ['熟悉的家', '熟悉的家', 'The familiar home'],
   'map.sound.bell': ['钟声方向', '鐘聲方向', 'Direction of the bell'],
   'map.marker.reached': ['已到达', '已到達', 'Reached'],
-};
+} as const satisfies Record<string, Entry>;
+
+export type TranslationKey = keyof typeof translationEntries;
+
+export function isTranslationKey(value: unknown): value is TranslationKey {
+  return (
+    typeof value === 'string' && Object.prototype.hasOwnProperty.call(translationEntries, value)
+  );
+}
+
+type HintChapter = 'home' | 'rain' | 'life' | 'return';
+type HintLevel = 1 | 2 | 3;
+
+const hintKeys = {
+  home: ['hint.home.1', 'hint.home.2', 'hint.home.3'],
+  rain: ['hint.rain.1', 'hint.rain.2', 'hint.rain.3'],
+  life: ['hint.life.1', 'hint.life.2', 'hint.life.3'],
+  return: ['hint.return.1', 'hint.return.2', 'hint.return.3'],
+} as const satisfies Record<HintChapter, readonly TranslationKey[]>;
+
+export function hintKeyFor(chapter: HintChapter, level: HintLevel): TranslationKey {
+  return hintKeys[chapter][level - 1];
+}
 
 function buildCatalog(index: number): Record<string, string> {
   return Object.fromEntries(
@@ -1116,4 +1138,4 @@ export const catalogs: Record<Locale, Record<string, string>> = {
   en: buildCatalog(2),
 };
 
-export const translationKeys = Object.keys(translationEntries);
+export const translationKeys = Object.keys(translationEntries) as TranslationKey[];

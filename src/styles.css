@@ -2,7 +2,8 @@
   color: #2f2b28;
   background: #2f2b28;
   --font-sans: 'Noto Sans SC', 'Microsoft YaHei', system-ui, sans-serif;
-  --font-serif: 'Noto Serif SC', SimSun, serif;
+  --font-serif: 'Noto Serif SC', 'SimSun', serif;
+
   font-family: var(--font-sans);
   font-synthesis: none;
   --ink: #2f2b28;
@@ -25,8 +26,8 @@ html[data-locale='zh-HK'] {
 }
 
 html[data-locale='en'] {
-  --font-sans: Inter, 'Segoe UI', system-ui, sans-serif;
-  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', 'Segoe UI', 'Noto Sans SC', system-ui, sans-serif;
+  --font-serif: 'Georgia', 'Times New Roman', 'Noto Serif SC', serif;
 }
 
 * {
@@ -135,11 +136,8 @@ a:focus-visible {
   z-index: 80;
 }
 
-#app[data-fullscreen-entry='true'] :is(#hud, #panel-layer, #system-layer, #touch-layer) {
-  visibility: hidden;
-}
-
-#app[data-orientation-blocked='true'] :is(#hud, #panel-layer, #system-layer, #touch-layer) {
+#app:is([data-fullscreen-entry='true'], [data-orientation-blocked='true'])
+  :is(#hud, #panel-layer, #system-layer, #touch-layer) {
   visibility: hidden;
 }
 
@@ -2200,6 +2198,7 @@ html[data-motion='reduced'] .memory-cutscene::before {
     --title-home-card-padding-block: 0.42rem;
     --title-home-card-description-size: 0.66em;
     --title-home-card-description-leading: 1.28;
+
     display: grid;
     grid-template-columns: minmax(0, var(--title-home-brand-track)) minmax(
         0,

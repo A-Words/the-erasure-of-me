@@ -56,8 +56,8 @@
 
 ## 3. 字体与文字
 
-- 简体中文 UI 与字幕：Noto Sans SC / Microsoft YaHei；繁体中文：Noto Sans TC / Microsoft JhengHei；英文：Inter / Segoe UI；
-- 简体中文日记与记忆标题：Noto Serif SC；繁体中文：Noto Serif TC；英文：Georgia / Times New Roman；
+- 简体中文 UI 与字幕：Noto Sans SC / Microsoft YaHei；繁体中文：Noto Sans TC / Microsoft JhengHei；英文：Inter / Segoe UI，并以 Noto Sans SC 作为固定中文标题回退；
+- 简体中文日记与记忆标题：Noto Serif SC；繁体中文：Noto Serif TC；英文：Georgia / Times New Roman，并以 Noto Serif SC 作为固定中文标题回退；
 - 字体以 OFL 许可版本自托管；
 - 正文默认 20 CSS px，最低 18 px；
 - 大字体模式 24 px；

@@ -29,8 +29,6 @@ import type { InputAction } from '../game/input/actions';
 import { FullscreenController, type FullscreenResult } from './FullscreenController';
 import { renderText, resolveLocale, t, type Locale, type TextRef } from '../i18n';
 
-const TITLE_PAGE_NAME = '记忆的缝隙';
-
 const journalText: Record<string, { titleKey: string; bodyKey: string }> = {
   'journal.home.key': {
     titleKey: 'journal.home.key.title',
@@ -85,6 +83,10 @@ export class AppShell {
   private readonly touch = document.querySelector<HTMLDivElement>('#touch-layer')!;
   private readonly fullscreenLayer = document.querySelector<HTMLDivElement>('#fullscreen-layer')!;
   private readonly orientation = document.querySelector<HTMLDivElement>('#orientation-layer')!;
+  private readonly gameCanvas = document.querySelector<HTMLCanvasElement>(
+    'canvas[data-game-canvas]',
+  );
+  private readonly skipLink = document.querySelector<HTMLAnchorElement>('.skip-link');
   private signature = '';
   private photoOrder: string[] = [];
   private confirmingClearData = false;
@@ -103,6 +105,7 @@ export class AppShell {
   private fullscreenNotice = '';
   private fullscreenNoticeTimer: number | null = null;
   private fullscreenLayerKey = '';
+  private interactionBlocked = false;
   private debugPanelPosition: DevPanelPosition | null = null;
   private readonly debugEnabled =
     import.meta.env.DEV &&
@@ -136,11 +139,16 @@ export class AppShell {
       layer.addEventListener('keydown', this.protectDomKeyboardInput);
       layer.addEventListener('keyup', this.protectDomKeyboardInput);
     }
+    this.system.addEventListener('keydown', this.focusFirstSystemControl);
     this.refreshTouchControls();
     this.renderFullscreenLayer();
     this.updateOrientationGate();
+    this.skipLink?.addEventListener('click', this.focusSystemLayerFromSkipLink);
+    this.skipLink?.addEventListener('keydown', this.activateSkipLinkFromKeyboard);
     window.addEventListener('resize', this.updateOrientationGate);
     window.addEventListener('orientationchange', this.updateOrientationGate);
+    window.addEventListener('keydown', this.blockGatedKeyboardInput, true);
+    document.addEventListener('focusin', this.keepFocusInsideGate);
     this.fullscreen.subscribe(() => {
       this.signature = '';
       this.renderFullscreenLayer();
@@ -292,6 +300,9 @@ export class AppShell {
     this.root.dataset.fullscreenEntry = String(showGate);
     this.root.dataset.orientationBlocked = String(orientationBlocked);
     const interactionBlocked = showGate || orientationBlocked;
+    this.interactionBlocked = interactionBlocked;
+    if (this.gameCanvas) this.gameCanvas.inert = interactionBlocked;
+    if (this.skipLink) this.skipLink.inert = interactionBlocked;
     for (const layer of [this.hud, this.panel, this.system, this.touch]) {
       layer.inert = interactionBlocked;
     }
@@ -312,6 +323,57 @@ export class AppShell {
     button?.addEventListener('click', () => void this.acceptFullscreenEntry());
     requestAnimationFrame(() => button?.focus({ preventScroll: true }));
   }
+
+  private readonly blockGatedKeyboardInput = (event: KeyboardEvent): void => {
+    if (!this.interactionBlocked || event.type !== 'keydown') return;
+    const target = event.target;
+    const inFullscreenEntry =
+      this.root.dataset.fullscreenEntry === 'true' &&
+      target instanceof Element &&
+      this.fullscreenLayer.contains(target) &&
+      target.closest('[data-enter-fullscreen]');
+    if (inFullscreenEntry && (event.key === 'Enter' || event.key === ' ')) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  };
+
+  private readonly keepFocusInsideGate = (event: FocusEvent): void => {
+    if (!this.interactionBlocked) return;
+    const target = event.target;
+    const gate =
+      this.root.dataset.orientationBlocked === 'true' ? this.orientation : this.fullscreenLayer;
+    if (target instanceof Node && gate.contains(target)) return;
+    requestAnimationFrame(() => {
+      if (!this.interactionBlocked) return;
+      const focusTarget =
+        this.root.dataset.orientationBlocked === 'true'
+          ? this.orientation.querySelector<HTMLElement>('.orientation-notice')
+          : this.fullscreenLayer.querySelector<HTMLElement>('[data-enter-fullscreen]');
+      focusTarget?.focus({ preventScroll: true });
+    });
+  };
+
+  private readonly focusSystemLayerFromSkipLink = (event: MouseEvent): void => {
+    event.preventDefault();
+    this.system.focus({ preventScroll: true });
+  };
+
+  private readonly activateSkipLinkFromKeyboard = (event: KeyboardEvent): void => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.system.focus({ preventScroll: true });
+  };
+
+  private readonly focusFirstSystemControl = (event: KeyboardEvent): void => {
+    if (event.key !== 'Tab' || event.shiftKey || document.activeElement !== this.system) return;
+    const firstFocusable = this.system.querySelector<HTMLElement>(
+      'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    );
+    if (!firstFocusable) return;
+    event.preventDefault();
+    firstFocusable.focus({ preventScroll: true });
+  };
 
   private async acceptFullscreenEntry(): Promise<void> {
     const result = await this.fullscreen.request();
@@ -737,7 +799,7 @@ export class AppShell {
     const latestChapter = latest?.chapterId
       ? this.translate(chapterMaps[latest.chapterId].titleKey)
       : null;
-    const titlePageName = this.locale === 'zh-HK' ? this.translate('title.name') : TITLE_PAGE_NAME;
+    const titlePageName = this.translate('title.name');
     return `<section class="title-screen" aria-labelledby="game-title">
       <div class="title-emblem" aria-hidden="true"><div class="title-art"><span>☂</span></div><span class="emblem-seam"></span></div>
       <header class="title-heading">
