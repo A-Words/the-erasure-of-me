@@ -1972,6 +1972,20 @@ html[data-motion='reduced'] .memory-cutscene::before {
   }
 }
 
+@media (max-height: 620px) {
+  .memory-cutscene > img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    transform: translate(-50%, -50%);
+    object-fit: contain;
+  }
+}
+
 @media (pointer: coarse) and (orientation: landscape) {
   #touch-layer {
     display: block;
