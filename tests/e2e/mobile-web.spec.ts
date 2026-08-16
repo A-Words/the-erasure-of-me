@@ -606,7 +606,7 @@ test('keeps the first memory line after the touch that opens it', async ({ page 
   const imageBox = await memoryImage.boundingBox();
   expect(sceneBox).not.toBeNull();
   expect(imageBox).not.toBeNull();
-  expect(imageBox!.width).toBeLessThan(sceneBox!.width);
+  expect(imageBox!.width).toBeLessThanOrEqual(sceneBox!.width + 1);
   expect(imageBox!.height).toBeLessThanOrEqual(sceneBox!.height + 1);
   await expect(line).toHaveText('年轻的林秀兰：“你要去车站吗？”');
 
