@@ -598,7 +598,16 @@ test('keeps the first memory line after the touch that opens it', async ({ page 
   }
   await interact.tap();
   const line = page.locator('.dialogue-text');
-  await expect(page.locator('.memory-cutscene')).toBeVisible();
+  const memoryCutscene = page.locator('.memory-cutscene');
+  const memoryImage = memoryCutscene.locator('> img');
+  await expect(memoryCutscene).toBeVisible();
+  await expect(memoryImage).toHaveCSS('object-fit', 'contain');
+  const sceneBox = await memoryCutscene.boundingBox();
+  const imageBox = await memoryImage.boundingBox();
+  expect(sceneBox).not.toBeNull();
+  expect(imageBox).not.toBeNull();
+  expect(imageBox!.width).toBeLessThan(sceneBox!.width);
+  expect(imageBox!.height).toBeLessThanOrEqual(sceneBox!.height + 1);
   await expect(line).toHaveText('年轻的林秀兰：“你要去车站吗？”');
 
   await page.touchscreen.tap(24, 180);
