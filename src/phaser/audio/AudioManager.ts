@@ -330,7 +330,11 @@ export class AudioManager {
       // The authored Chapter 2 route uses a repeating three-ring bell cue.
       // Keep it independent from the musical cycle so the direction remains
       // perceptually stable even when the rest of the soundscape changes.
-      this.rainBellTimer = window.setInterval(() => this.play('rain_bell'), 6000);
+      this.rainBellTimer = window.setInterval(() => {
+        if (this.context?.state === 'running') {
+          this.play('rain_bell');
+        }
+      }, 6000);
     }
     const entryCue: Record<ChapterId, SemanticAudioCue> = {
       home: 'home_clock',
