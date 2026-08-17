@@ -120,6 +120,7 @@ export class GameScene extends Phaser.Scene {
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
   private holdingConfirm = false;
   private tickAccumulator = 0;
+  private lastTemporalUpdateMs: number | null = null;
   private unsubscribe: (() => void) | null = null;
   private unsubscribeSemanticInput: (() => void) | null = null;
   private reducedMotion = false;
@@ -274,6 +275,7 @@ export class GameScene extends Phaser.Scene {
       this.mapEditor?.destroy();
       this.mapEditor = null;
       this.tickAccumulator = 0;
+      this.lastTemporalUpdateMs = null;
       this.playerActor = null;
       this.xiulanActor = null;
       this.holdWarmth = null;
@@ -287,6 +289,12 @@ export class GameScene extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     const state = this.bridge.getSnapshot();
+    const nowMs = performance.now();
+    const temporalDeltaSeconds =
+      this.lastTemporalUpdateMs === null
+        ? delta / 1000
+        : Math.max(0, (nowMs - this.lastTemporalUpdateMs) / 1000);
+    this.lastTemporalUpdateMs = nowMs;
     const cameraFadeRunning = String(this.cameras.main.fadeEffect.isRunning);
     if (this.game.canvas.dataset.cameraFadeRunning !== cameraFadeRunning) {
       this.game.canvas.dataset.cameraFadeRunning = cameraFadeRunning;
@@ -301,7 +309,10 @@ export class GameScene extends Phaser.Scene {
     if (!action && state.player.moving) this.bridge.send({ type: 'STOP_MOVING' });
     this.updateEntityBreathing(state, time);
     if (state.phase !== 'playing') return;
-    this.tickAccumulator += delta / 1000;
+    // WebKit can report a very small Phaser delta while a large canvas is
+    // being repainted. Short real-time effects must still complete in wall
+    // clock time, while movement remains tied to the frame delta below.
+    this.tickAccumulator += state.mapWashSeconds > 0 ? temporalDeltaSeconds : delta / 1000;
     // GameStore.tick early-returns during modal/dialogue; skip the no-op
     // dispatch and discard accumulated time so it is not replayed on resume.
     if (state.modal || state.dialogue.length > 0) {
@@ -1315,6 +1326,18 @@ export class GameScene extends Phaser.Scene {
         this.setEntityHover(view, false);
       }
     }
+    this.updateRainSignVisuals(state);
+  }
+
+  private updateRainSignVisuals(state: Readonly<GameState>): void {
+    if (state.chapterId !== 'rain') return;
+    const signB = this.entityViews.find(
+      (view) => view.definition.id === 'entity.rain.umbrella_sign_b',
+    );
+    if (!signB?.actor) return;
+
+    const signAReached = state.puzzles.rainSigns.includes('entity.rain.umbrella_sign_a');
+    signB.actor.setTint(signAReached ? 0xffd58c : 0x718187).setAlpha(signAReached ? 1 : 0.58);
   }
 
   private updateEntityBreathing(state: Readonly<GameState>, timeMs: number): void {

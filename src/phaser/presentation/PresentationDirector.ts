@@ -43,6 +43,7 @@ const observationColors: Record<GameState['degradationStage'], number> = {
 export class PresentationDirector {
   private chapter: GameState['chapterId'] | null = null;
   private returnGraphics: Phaser.GameObjects.Graphics | null = null;
+  private rainWayfinder: Phaser.GameObjects.Graphics | null = null;
   private observationGraphics: Phaser.GameObjects.Graphics | null = null;
   private observationVeils: Phaser.GameObjects.Rectangle[] = [];
   private observing = false;
@@ -72,9 +73,11 @@ export class PresentationDirector {
     this.transientObjects.clear();
     this.transientTimers.clear();
     this.returnGraphics?.destroy();
+    this.rainWayfinder?.destroy();
     this.observationGraphics?.destroy();
     for (const veil of this.observationVeils) veil.destroy();
     this.returnGraphics = null;
+    this.rainWayfinder = null;
     this.observationGraphics = null;
     this.observationVeils = [];
     this.observing = false;
@@ -102,6 +105,9 @@ export class PresentationDirector {
       this.returnGraphics = this.scene.add.graphics().setDepth(CUE_DEPTH);
       this.createReturnAtmosphere(state.settings.reducedMotion);
       this.renderReturnCues(state, 0);
+    } else if (state.chapterId === 'rain') {
+      this.rainWayfinder = this.scene.add.graphics().setDepth(CUE_DEPTH);
+      this.renderRainWayfinder(state, 0);
     } else if (state.chapterId === 'ending') {
       this.createEndingAtmosphere(state.settings.reducedMotion);
     }
@@ -114,6 +120,7 @@ export class PresentationDirector {
   sync(state: Readonly<GameState>, timeMs: number): void {
     if (state.chapterId !== this.chapter) return;
     if (state.chapterId === 'return') this.renderReturnCues(state, timeMs);
+    if (state.chapterId === 'rain') this.renderRainWayfinder(state, timeMs);
     if (this.observing) {
       this.observationState = state;
       this.renderObservation(timeMs);
@@ -123,6 +130,9 @@ export class PresentationDirector {
   update(timeMs: number, state: Readonly<GameState>): void {
     if (state.chapterId === 'return' && !state.settings.reducedMotion) {
       this.renderReturnCues(state, timeMs);
+    }
+    if (state.chapterId === 'rain' && !state.settings.reducedMotion) {
+      this.renderRainWayfinder(state, timeMs);
     }
     if (this.observing && !state.settings.reducedMotion) this.renderObservation(timeMs);
   }
@@ -276,6 +286,28 @@ export class PresentationDirector {
     this.transientObjects.delete(object);
     this.wrongTurnObjects = this.wrongTurnObjects.filter((candidate) => candidate !== object);
     if (object.active) object.destroy();
+  }
+
+  private renderRainWayfinder(state: Readonly<GameState>, timeMs: number): void {
+    const graphics = this.rainWayfinder;
+    if (!graphics) return;
+    graphics.clear();
+    if (!state.flags.includes('degradation.d1.started')) return;
+
+    const reducedMotion = state.settings.reducedMotion;
+    const elapsed = reducedMotion ? 0 : (Math.max(0, timeMs) % 6000) / 6000;
+    const center = { x: 1150, y: 82 };
+    const color = 0xaac8d0;
+    for (let index = 0; index < 3; index += 1) {
+      const phase = reducedMotion ? 0 : (elapsed + index / 3) % 1;
+      const radius = reducedMotion ? 34 + index * 22 : 24 + phase * 118;
+      const alpha = reducedMotion ? 0.22 - index * 0.045 : 0.36 * (1 - phase);
+      graphics.lineStyle(reducedMotion ? 2 : 3, color, Math.max(0.04, alpha));
+      graphics.strokeCircle(center.x, center.y, radius);
+    }
+    graphics.lineStyle(2, color, reducedMotion ? 0.24 : 0.42);
+    graphics.lineBetween(center.x - 30, center.y + 44, center.x, center.y + 8);
+    graphics.lineBetween(center.x + 30, center.y + 44, center.x, center.y + 8);
   }
 
   private renderObservation(timeMs: number): void {

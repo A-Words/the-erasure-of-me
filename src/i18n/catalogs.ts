@@ -627,6 +627,12 @@ export const translationEntries = {
     '有些路名看不清了。鐘聲還在。',
     'Some street names are hard to read. The bell is still there.',
   ],
+  'system.degradation.d1': [
+    '有些路名看不清了。钟声还在。',
+    '有些路名看不清了。鐘聲還在。',
+    'Some street names are hard to read. The bell is still there.',
+  ],
+  'degraded.map.unknown_place': ['……', '……', '…'],
   'message.d3.standard': [
     '方向变了。地上的箭头还在。',
     '方向變了。地上的箭頭還在。',
@@ -692,15 +698,31 @@ export const translationEntries = {
     '年輕的林秀蘭：「你要去車站嗎？」',
     'Young Xiulan: “Are you going to the station?”',
   ],
-  'dialogue.rain.2': [
-    '“那一起走吧。伞往你那边一点，别淋着。”',
-    '「那一起走吧。傘往你那邊一點，別淋著。」',
-    '“Then let’s go together. I’ll tilt the umbrella your way so you stay dry.”',
-  ],
+  'dialogue.rain.2': ['许志远：“……是。”', '許志遠：「……是。」', 'Zhiyuan: “…Yes.”'],
   'dialogue.rain.3': [
-    '我不记得车开去了哪里，只记得她的半边肩膀湿了。',
-    '我不記得車開去了哪裡，只記得她的半邊肩膀濕了。',
-    'I do not remember where the train went. I only remember that half her shoulder was wet.',
+    '林秀兰：“那一起走吧。”',
+    '林秀蘭：「那一起走吧。」',
+    'Xiulan: “Then let’s go together.”',
+  ],
+  'dialogue.rain.4': [
+    '[她把伞向他那边偏。]',
+    '[她把傘向他那邊偏。]',
+    '[She tilts the umbrella toward him.]',
+  ],
+  'dialogue.rain.5': [
+    '林秀兰：“伞往你那边一点，别淋着。”',
+    '林秀蘭：「傘往你那邊一點，別淋著。」',
+    'Xiulan: “I’ll tilt the umbrella your way. Don’t get wet.”',
+  ],
+  'dialogue.rain.6': [
+    '那天的雨很大。我不记得车开去了哪里，只记得她的半边肩膀湿了。',
+    '那天的雨很大。我不記得車開去了哪裡，只記得她的半邊肩膀濕了。',
+    'The rain was heavy that day. I do not remember where the train went. I only remember that half her shoulder was wet.',
+  ],
+  'narration.rain.memory_end': [
+    '那天的雨很大。我不记得车开去了哪里，只记得她的半边肩膀湿了。',
+    '那天的雨很大。我不記得車開去了哪裡，只記得她的半邊肩膀濕了。',
+    'The rain was heavy that day. I do not remember where the train went. I only remember that half her shoulder was wet.',
   ],
   'dialogue.life.move': [
     '一起拆纸箱，床还没装好，两个人先坐在箱子上笑。',
@@ -760,6 +782,16 @@ export const translationEntries = {
     'The sound of the real door lock becomes the low hum of a station announcement.',
   ],
   'dialogue.chapter.rain.2': ['这是哪一站？', '這是哪一站？', 'Which station is this?'],
+  'dialogue.rain.arrival': [
+    '现实门锁声变为车站广播底噪。',
+    '現實門鎖聲變為車站廣播底噪。',
+    'The real door lock becomes the low hum of a station announcement.',
+  ],
+  'dialogue.rain.arrival.question': [
+    '许志远：“这是哪一站？”',
+    '許志遠：「這是哪一站？」',
+    'Zhiyuan: “Which station is this?”',
+  ],
   'dialogue.chapter.life.1': [
     '这个家……怎么有三扇一样的窗？',
     '這個家……怎麼有三扇一樣的窗？',
@@ -802,7 +834,33 @@ export const translationEntries = {
     '舊車票背面寫著：2 → 4 → 5',
     'The back of the old ticket says: 2 → 4 → 5',
   ],
+  'inspect.rain.ticket': [
+    '一张被雨水泡软的旧车票。背面用铅笔写着：2 → 4 → 5。',
+    '一張被雨水泡軟的舊車票。背面用鉛筆寫著：2 → 4 → 5。',
+    'An old ticket softened by rain. On the back, in pencil: 2 → 4 → 5.',
+  ],
+  'system.item_pickup.old_ticket': ['取得：旧车票', '取得：舊車票', 'Acquired: old ticket'],
+  'inspect.rain.stone_2': [
+    '两个圆点，边缘磨得发亮。',
+    '兩個圓點，邊緣磨得發亮。',
+    'Two dots, their edges polished bright.',
+  ],
+  'inspect.rain.stone_4': [
+    '四个圆点，雨水积在凹槽里。',
+    '四個圓點，雨水積在凹槽裡。',
+    'Four dots, rain pooling in their grooves.',
+  ],
+  'inspect.rain.stone_5': [
+    '五个圆点。最后一个像是后来补刻的。',
+    '五個圓點。最後一個像是後來補刻的。',
+    'Five dots. The last one looks like it was carved later.',
+  ],
   'message.rain.stone_progress': [
+    '石板在雨里亮了一下。',
+    '石板在雨裡亮了一下。',
+    'A stone glows briefly in the rain.',
+  ],
+  'system.rain.sequence_progress': [
     '石板在雨里亮了一下。',
     '石板在雨裡亮了一下。',
     'A stone glows briefly in the rain.',
@@ -817,20 +875,40 @@ export const translationEntries = {
     '這塊石板沒有回應。已經亮起的還在。',
     'This stone does not respond. The ones already lit remain.',
   ],
+  'system.rain.sequence_soft_miss': [
+    '这块石板没有回应。已经亮起的还在。',
+    '這塊石板沒有回應。已經亮起的還在。',
+    'This stone does not respond. The ones already lit remain.',
+  ],
   'message.rain.sign_a': [
-    '伞柄朝向小巷。',
-    '傘柄朝向小巷。',
-    'The umbrella handle points toward the lane.',
+    '褪色的伞铺招牌。伞柄朝向小巷。',
+    '褪色的傘舖招牌。傘柄朝向小巷。',
+    'A faded umbrella-shop sign. The handle points toward the lane.',
   ],
   'message.rain.sign_b': [
-    '只有这个颜色没有散开。',
-    '只有這個顏色沒有散開。',
-    'Only this colour does not scatter.',
+    '又一把红伞。雨太大，只有这个颜色没有散开。',
+    '又一把紅傘。雨太大，只有這個顏色沒有散開。',
+    'Another red umbrella. The rain is so heavy that only this colour stays intact.',
+  ],
+  'inspect.rain.umbrella_sign_a': [
+    '褪色的伞铺招牌。伞柄朝向小巷。',
+    '褪色的傘舖招牌。傘柄朝向小巷。',
+    'A faded umbrella-shop sign. The handle points toward the lane.',
+  ],
+  'inspect.rain.umbrella_sign_b': [
+    '又一把红伞。雨太大，只有这个颜色没有散开。',
+    '又一把紅傘。雨太大，只有這個顏色沒有散開。',
+    'Another red umbrella. The rain is so heavy that only this colour stays intact.',
   ],
   'message.rain.sign_wrong': [
     '钟声让积水朝更近的一把红伞发颤。',
     '鐘聲讓積水朝更近的一把紅傘發顫。',
     'The bell makes the puddle tremble toward a nearer red umbrella.',
+  ],
+  'system.rain.sound_visual': [
+    '钟声让积水向一个方向轻轻发颤。',
+    '鐘聲讓積水向一個方向輕輕發顫。',
+    'The bell makes the puddle tremble in one direction.',
   ],
   'message.rain.umbrella_hint': [
     '雨太密了。旧车票、石板和路边的伞会带我过去。',
@@ -1023,6 +1101,16 @@ export const translationEntries = {
     '年轻的秀兰在旧车站把修补过的红伞倾向淋雨的志远',
     '年輕的秀蘭在舊車站把修補過的紅傘傾向淋雨的志遠',
     'Young Xiulan tilts a repaired red umbrella toward Zhiyuan in the rain at the old station',
+  ],
+  'memory.rain.umbrella.title': [
+    '雨伞下的半边晴天',
+    '雨傘下的半邊晴天',
+    'Half a Clear Sky Beneath the Umbrella',
+  ],
+  'memory.rain.umbrella.body': [
+    '她把伞偏过来，自己淋湿了半边肩膀。',
+    '她把傘偏過來，自己淋濕了半邊肩膀。',
+    'She tilted the umbrella toward him and let half her own shoulder get wet.',
   ],
   'memory.life.move.label': [
     '搬进新家的记忆',

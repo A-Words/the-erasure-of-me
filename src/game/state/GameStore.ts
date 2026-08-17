@@ -1,6 +1,6 @@
-import { chapterMaps } from '../content/maps';
 import type { CollisionDataProvider } from '../content/collisionProvider';
 import { CodeCollisionProvider } from '../content/collisionProvider';
+import { chapterMaps, getCheckpointSpawn } from '../content/maps';
 import { returnRouteAnswers } from '../content/returnRoute';
 import { findNearestWalkablePosition, moveWithCollisions } from '../simulation/collision';
 import type {
@@ -60,6 +60,8 @@ function includes(list: string[], value: string): boolean {
 function addUnique(list: string[], value: string): void {
   if (!list.includes(value)) list.push(value);
 }
+
+const RAIN_STONE_TRIGGER_RADIUS = 48;
 
 export class GameStore {
   private state: GameState;
@@ -262,6 +264,7 @@ export class GameStore {
       return;
     }
     const speed = 180 * Math.min(deltaSeconds, 0.05);
+    const previousPosition = { x: this.state.player.x, y: this.state.player.y };
     const delta: Record<WorldDirection, [number, number]> = {
       up: [0, -speed],
       down: [0, speed],
@@ -289,11 +292,38 @@ export class GameStore {
       this.state.player.x - this.state.rainMapClosedAtX > 128
     ) {
       addUnique(this.state.flags, 'degradation.d1.started');
-      this.state.message = text('message.d1.started');
+      this.state.message = text('system.degradation.d1');
       this.state.mapWashSeconds = 1.2;
       this.state.rainMapClosedAtX = null;
       this.state.player.moving = false;
     }
+    this.triggerRainStoneOnEntry(previousPosition);
+  }
+
+  private triggerRainStoneOnEntry(previousPosition: { x: number; y: number }): void {
+    if (
+      this.state.chapterId !== 'rain' ||
+      this.state.puzzles.stationSequence.length >= 3 ||
+      this.state.mapWashSeconds > 0
+    ) {
+      return;
+    }
+
+    const entered = chapterMaps.rain.entities.find((entity) => {
+      if (entity.kind !== 'puzzle' || !entity.id.includes('stone_')) return false;
+      const wasOutside =
+        Math.hypot(previousPosition.x - entity.x, previousPosition.y - entity.y) >
+        RAIN_STONE_TRIGGER_RADIUS;
+      const isInside =
+        Math.hypot(this.state.player.x - entity.x, this.state.player.y - entity.y) <=
+        RAIN_STONE_TRIGGER_RADIUS;
+      return wasOutside && isInside;
+    });
+    if (!entered) return;
+
+    const sequenceBefore = this.state.puzzles.stationSequence.length;
+    this.interactRain(entered.id);
+    if (this.state.puzzles.stationSequence.length !== sequenceBefore) this.resetHintTimer();
   }
 
   private setDialogue(lines: TextRef[], activeMemoryId: MemoryIllustrationId | null = null): void {
@@ -413,23 +443,25 @@ export class GameStore {
 
   private interactRain(entityId: string): void {
     if (entityId === 'entity.rain.ticket') {
+      if (includes(this.state.inventory, 'item.rain.ticket')) return;
       addUnique(this.state.inventory, 'item.rain.ticket');
       addUnique(this.state.journalPages, 'journal.rain.route');
-      this.state.message = text('message.rain.ticket');
+      this.setDialogue([text('inspect.rain.ticket'), text('system.item_pickup.old_ticket')]);
       return;
     }
     const stone = Number(entityId.match(/stone_(\d)/)?.[1]);
     if (stone) {
+      if (this.state.puzzles.stationSequence.length >= 3) return;
       const expected = [2, 4, 5][this.state.puzzles.stationSequence.length];
       if (stone === expected) {
         this.state.puzzles.stationSequence.push(stone);
-        this.state.message = text('message.rain.stone_progress');
+        this.state.message = text('system.rain.sequence_progress');
         if (this.state.puzzles.stationSequence.length === 3) {
           this.state.checkpointId = 'checkpoint.rain.sequence';
           this.state.message = text('message.rain.stone_done');
         }
       } else {
-        this.state.message = text('message.rain.stone_wrong');
+        this.state.message = text('system.rain.sequence_soft_miss');
       }
       return;
     }
@@ -439,14 +471,15 @@ export class GameStore {
       if (entityId === expected) {
         this.state.puzzles.rainSigns.push(entityId);
         this.state.message = entityId.endsWith('_a')
-          ? text('message.rain.sign_a')
-          : text('message.rain.sign_b');
+          ? text('inspect.rain.umbrella_sign_a')
+          : text('inspect.rain.umbrella_sign_b');
       } else if (!includes(this.state.puzzles.rainSigns, entityId)) {
         this.state.message = text('message.rain.sign_wrong');
       }
       return;
     }
     if (entityId === 'entity.rain.red_umbrella') {
+      if (includes(this.state.memories, 'memory.rain.umbrella')) return;
       if (
         this.state.puzzles.stationSequence.length < 3 ||
         this.state.puzzles.rainSigns.length < 2
@@ -454,14 +487,26 @@ export class GameStore {
         this.state.message = text('message.rain.umbrella_hint');
         return;
       }
-      addUnique(this.state.memories, 'memory.rain.umbrella');
-      this.state.checkpointId = 'checkpoint.rain.complete';
-      this.setDialogue(
-        [text('dialogue.rain.1'), text('dialogue.rain.2'), text('dialogue.rain.3')],
-        'rain',
-      );
-      addUnique(this.state.flags, 'transition.to.life');
+      this.startRainMemory();
     }
+  }
+
+  private startRainMemory(): void {
+    this.state.activeMemoryId = 'rain';
+    addUnique(this.state.memories, 'memory.rain.umbrella');
+    this.state.checkpointId = 'checkpoint.rain.complete';
+    this.setDialogue(
+      [
+        text('dialogue.rain.1'),
+        text('dialogue.rain.2'),
+        text('dialogue.rain.3'),
+        text('dialogue.rain.4'),
+        text('dialogue.rain.5'),
+        text('narration.rain.memory_end'),
+      ],
+      'rain',
+    );
+    addUnique(this.state.flags, 'transition.to.life');
   }
 
   private interactLife(entityId: string): void {
@@ -645,7 +690,9 @@ export class GameStore {
     this.state.degradationStage = config.stage;
     this.state.checkpointId = config.checkpoint;
     this.state.objective = config.objective;
-    this.state.player = { ...map.spawn, facing: 'down', moving: false };
+    this.state.player =
+      getCheckpointSpawn(config.checkpoint, chapterId) ??
+      ({ ...map.spawn, facing: 'down', moving: false } satisfies GameState['player']);
     this.state.modal = null;
     this.state.message = null;
     this.state.activeMemoryId = null;
@@ -654,7 +701,7 @@ export class GameStore {
     this.state.hintSeconds = 0;
     this.state.hintLevel = 0;
     if (chapterId === 'rain') {
-      this.setDialogue([text('dialogue.chapter.rain.1'), text('dialogue.chapter.rain.2')]);
+      this.setDialogue([text('dialogue.rain.arrival'), text('dialogue.rain.arrival.question')]);
     } else if (chapterId === 'life') {
       this.setDialogue([text('dialogue.chapter.life.1'), text('dialogue.chapter.life.2')]);
     } else if (chapterId === 'return') {

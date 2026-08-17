@@ -8,6 +8,7 @@ import type {
 export type SemanticAudioCue =
   | 'home_clock'
   | 'rain_bell'
+  | 'rain_map_wash'
   | 'life_memory'
   | 'return_hum'
   | 'ending_warmth'
@@ -44,6 +45,15 @@ const semanticAudioPatterns: Record<SemanticAudioCue, SemanticAudioPattern> = {
       [659, 0.45, 0, 'sine'],
       [659, 0.45, 0.55, 'sine'],
       [784, 0.7, 1.1, 'sine'],
+    ],
+  },
+  rain_map_wash: {
+    bus: 'sfx',
+    level: 0.045,
+    notes: [
+      [82.41, 0.72, 0, 'sine'],
+      [123.47, 0.48, 0.18, 'triangle'],
+      [246.94, 0.18, 0.82, 'sine'],
     ],
   },
   life_memory: {
@@ -239,6 +249,7 @@ export class AudioManager {
   private playingChapter: ChapterId | null = null;
   private soundscapeSources: AudioScheduledSourceNode[] = [];
   private themeTimer: number | null = null;
+  private rainBellTimer: number | null = null;
   private noiseBuffer: AudioBuffer | null = null;
 
   async unlock(): Promise<void> {
@@ -315,6 +326,12 @@ export class AudioManager {
     this.startAmbience(chapter);
     this.scheduleThemeCycle(chapter);
     this.themeTimer = window.setInterval(() => this.scheduleThemeCycle(chapter), 8000);
+    if (chapter === 'rain') {
+      // The authored Chapter 2 route uses a repeating three-ring bell cue.
+      // Keep it independent from the musical cycle so the direction remains
+      // perceptually stable even when the rest of the soundscape changes.
+      this.rainBellTimer = window.setInterval(() => this.play('rain_bell'), 6000);
+    }
     const entryCue: Record<ChapterId, SemanticAudioCue> = {
       home: 'home_clock',
       rain: 'rain_bell',
@@ -329,6 +346,10 @@ export class AudioManager {
     if (this.themeTimer !== null) {
       window.clearInterval(this.themeTimer);
       this.themeTimer = null;
+    }
+    if (this.rainBellTimer !== null) {
+      window.clearInterval(this.rainBellTimer);
+      this.rainBellTimer = null;
     }
     for (const source of this.soundscapeSources) {
       try {

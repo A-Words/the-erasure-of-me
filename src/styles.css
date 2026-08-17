@@ -779,6 +779,9 @@ html.map-editor-active .debug-panel {
 .map-water-stains {
   fill: var(--rain);
   opacity: 0.4;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: map-water-stains-in 360ms ease-out both;
 }
 .map-landmark {
   fill: var(--ink);
@@ -809,6 +812,10 @@ html.map-editor-active .debug-panel {
   stroke: var(--focus);
   stroke-linecap: round;
   stroke-width: 12;
+}
+.map-sound-cue path {
+  transform-origin: 1150px 82px;
+  animation: map-sound-pulse 6s ease-in-out infinite;
 }
 .map-player circle:first-child {
   fill: var(--focus);
@@ -843,6 +850,25 @@ html.map-editor-active .debug-panel {
 .washed-text {
   color: rgba(47, 43, 40, 0.62);
   text-shadow: 8px 2px 9px rgba(99, 124, 135, 0.45);
+}
+@keyframes map-water-stains-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+@keyframes map-sound-pulse {
+  0%,
+  100% {
+    opacity: 0.42;
+  }
+  50% {
+    opacity: 0.9;
+  }
 }
 .photo_order-panel {
   position: relative;
@@ -1571,6 +1597,26 @@ html.map-editor-active .debug-panel {
   object-fit: cover;
   filter: saturate(0.88) contrast(0.97);
 }
+.memory-caption {
+  position: absolute;
+  z-index: 2;
+  top: 2.25rem;
+  left: 6vw;
+  max-width: min(30rem, 78vw);
+  padding: 0.8rem 1rem;
+  color: var(--warm-white);
+  text-shadow: 0 2px 12px rgba(20, 18, 16, 0.85);
+  background: rgba(29, 37, 41, 0.42);
+  border-left: 3px solid var(--anchor);
+}
+.memory-caption p {
+  margin: 0;
+}
+.memory-caption-title {
+  margin-bottom: 0.25rem !important;
+  font-family: var(--font-serif);
+  font-size: clamp(1.35rem, 3vw, 2.1rem);
+}
 .memory-cutscene.ending-hand > img {
   object-position: center 45%;
 }
@@ -1828,6 +1874,14 @@ html[data-motion='reduced'] .memory-cutscene::before {
   opacity: 0.3;
   transform: scale(0.92);
   animation: none !important;
+}
+html[data-motion='reduced'] .map-water-stains {
+  animation-duration: 200ms;
+  animation-name: map-water-stains-in;
+}
+html[data-motion='reduced'] .map-sound-cue path {
+  animation: none;
+  opacity: 0.66;
 }
 
 @media (max-width: 720px), (max-height: 620px) {

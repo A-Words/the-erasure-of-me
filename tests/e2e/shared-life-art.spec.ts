@@ -81,7 +81,7 @@ async function enterLifeFromRain(page: Page): Promise<void> {
   const rainExitPrompt = page.getByRole('button', { name: '与钟表铺前的红伞交互' });
   await expect(rainExitPrompt).toBeVisible();
   await activateWithKeyboard(rainExitPrompt);
-  for (let index = 0; index < 3; index += 1)
+  for (let index = 0; index < 6; index += 1)
     await activateWithKeyboard(page.getByRole('button', { name: '继续对白' }));
 
   await expect(page.locator('#app')).toHaveAttribute('data-chapter', 'life');

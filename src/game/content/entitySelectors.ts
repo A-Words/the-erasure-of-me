@@ -14,8 +14,10 @@ export function isEntityAvailable(state: Readonly<GameState>, entityId: string):
     (entityId.startsWith('item.life.') && state.inventory.includes(entityId));
   const routeHidden =
     state.chapterId === 'return' && state.puzzles.returnJunction >= 3 && entityId !== 'route.up';
+  const rainClockShopLocked =
+    entityId === 'entity.rain.red_umbrella' && state.puzzles.rainSigns.length < 2;
 
-  return !collected && !routeHidden;
+  return !collected && !routeHidden && !rainClockShopLocked;
 }
 
 export function nearestAvailableEntity(

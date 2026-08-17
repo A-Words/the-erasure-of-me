@@ -20,4 +20,18 @@ describe('entity selectors', () => {
     expect(isEntityAvailable(state, 'entity.home.key_bowl')).toBe(false);
     expect(nearestAvailableEntity(state, 125)).toBeNull();
   });
+
+  it('keeps the clock-shop umbrella locked until both route signs are reached', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'rain';
+
+    expect(isEntityAvailable(state, 'entity.rain.red_umbrella')).toBe(false);
+
+    state.puzzles.rainSigns = ['entity.rain.umbrella_sign_a'];
+    expect(isEntityAvailable(state, 'entity.rain.red_umbrella')).toBe(false);
+
+    state.puzzles.rainSigns.push('entity.rain.umbrella_sign_b');
+    expect(isEntityAvailable(state, 'entity.rain.red_umbrella')).toBe(true);
+  });
 });
