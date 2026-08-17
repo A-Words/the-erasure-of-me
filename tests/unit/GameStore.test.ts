@@ -163,6 +163,10 @@ describe('GameStore', () => {
     });
 
     store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+
+    expect(store.getState().puzzles.stationSequence).toEqual([2]);
+    expect(store.getState().message).toBeNull();
+
     store.dispatch({ type: 'INTERACT', entityId: 'entity.rain.stone_2' });
 
     expect(store.getState().puzzles.stationSequence).toEqual([2]);
@@ -189,7 +193,16 @@ describe('GameStore', () => {
     store.dispatch({ type: 'INTERACT', entityId: 'entity.rain.red_umbrella' });
     expect(store.getState().memories).toContain('memory.rain.umbrella');
     expect(store.getState().checkpointId).toBe('checkpoint.rain.complete');
-    expect(store.getState().dialogue).toHaveLength(5);
+    const dialogue = store.getState().dialogue;
+    expect(dialogue.map((line) => line.key)).toEqual([
+      'dialogue.rain.1',
+      'dialogue.rain.2',
+      'dialogue.rain.3',
+      'dialogue.rain.5',
+      'narration.rain.memory_end',
+    ]);
+    expect(renderText('zh-CN', dialogue[3])).toContain('林秀兰');
+    expect(renderText('zh-CN', dialogue[3])).toContain('伞往你那边一点');
   });
 
   it('accepts the documented photo order', () => {
