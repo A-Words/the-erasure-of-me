@@ -148,6 +148,27 @@ describe('GameStore', () => {
     expect(store.getState().puzzles.stationSequence).toEqual([2]);
   });
 
+  it('ignores a station that was already submitted on re-entry or manual interaction', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'rain';
+    state.degradationStage = 'D1';
+    state.puzzles.stationSequence = [2];
+    state.player = { x: 280, y: 520, facing: 'right', moving: false };
+    const store = new GameStore(state, {
+      getCollisionData: () => ({
+        walkBounds: { minX: 0, maxX: 1280, minY: 0, maxY: 720 },
+        obstacles: [],
+      }),
+    });
+
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+    store.dispatch({ type: 'INTERACT', entityId: 'entity.rain.stone_2' });
+
+    expect(store.getState().puzzles.stationSequence).toEqual([2]);
+    expect(store.getState().message).toBeNull();
+  });
+
   it('enters Chapter 2 facing the documented platform direction', () => {
     const store = new GameStore();
 

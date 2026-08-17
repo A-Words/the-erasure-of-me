@@ -311,6 +311,8 @@ export class GameStore {
 
     const entered = chapterMaps.rain.entities.find((entity) => {
       if (entity.kind !== 'puzzle' || !entity.id.includes('stone_')) return false;
+      const stone = Number(entity.id.match(/stone_(\d+)$/)?.[1]);
+      if (this.state.puzzles.stationSequence.includes(stone)) return false;
       const wasOutside =
         Math.hypot(previousPosition.x - entity.x, previousPosition.y - entity.y) >
         RAIN_STONE_TRIGGER_RADIUS;
@@ -449,9 +451,14 @@ export class GameStore {
       this.setDialogue([text('inspect.rain.ticket'), text('system.item_pickup.old_ticket')]);
       return;
     }
-    const stone = Number(entityId.match(/stone_(\d)/)?.[1]);
+    const stone = Number(entityId.match(/stone_(\d+)$/)?.[1]);
     if (stone) {
-      if (this.state.puzzles.stationSequence.length >= 3) return;
+      if (
+        this.state.puzzles.stationSequence.length >= 3 ||
+        this.state.puzzles.stationSequence.includes(stone)
+      ) {
+        return;
+      }
       const expected = [2, 4, 5][this.state.puzzles.stationSequence.length];
       if (stone === expected) {
         this.state.puzzles.stationSequence.push(stone);

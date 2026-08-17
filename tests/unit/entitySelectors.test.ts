@@ -21,6 +21,16 @@ describe('entity selectors', () => {
     expect(nearestAvailableEntity(state, 125)).toBeNull();
   });
 
+  it('does not expose a reached rain stone as an interaction target', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'rain';
+    state.puzzles.stationSequence = [2];
+
+    expect(isEntityAvailable(state, 'entity.rain.stone_2')).toBe(false);
+    expect(isEntityAvailable(state, 'entity.rain.stone_4')).toBe(true);
+  });
+
   it('keeps the clock-shop umbrella locked until both route signs are reached', () => {
     const state = createInitialState();
     state.phase = 'playing';

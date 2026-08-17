@@ -126,13 +126,13 @@ async function bootstrap(): Promise<void> {
 
     const rainMapWashStarted =
       state.chapterId === 'rain' && state.flags.includes('degradation.d1.started');
-    if (
+    const rainMapWashAudioTriggered =
       state.phase === 'playing' &&
       state.chapterId === 'rain' &&
       lastAudioChapter === 'rain' &&
       rainMapWashStarted &&
-      !lastRainMapWashStarted
-    ) {
+      !lastRainMapWashStarted;
+    if (rainMapWashAudioTriggered) {
       audio.play('rain_map_wash');
     }
     lastAudioChapter = state.phase === 'playing' ? state.chapterId : null;
@@ -149,7 +149,8 @@ async function bootstrap(): Promise<void> {
       state.message &&
       messageChanged &&
       presentationEvents.length === 0 &&
-      remainsInPlayingChapter
+      remainsInPlayingChapter &&
+      !rainMapWashAudioTriggered
     ) {
       audio.play('soft_feedback');
     }

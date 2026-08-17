@@ -1876,7 +1876,7 @@ html[data-motion='reduced'] .memory-cutscene::before {
   animation: none !important;
 }
 html[data-motion='reduced'] .map-water-stains {
-  animation-duration: 200ms;
+  animation-duration: 200ms !important;
   animation-name: map-water-stains-in;
 }
 html[data-motion='reduced'] .map-sound-cue path {
