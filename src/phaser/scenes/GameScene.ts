@@ -240,7 +240,11 @@ export class GameScene extends Phaser.Scene {
         this.endObservation();
         if (this.isPresentationLocked()) return;
         const state = this.bridge.getSnapshot();
-        const direction = mapMovement(action, state.degradationStage, state.mode);
+        const direction = mapMovement(
+          action,
+          state.mode,
+          state.flags.includes('flag.return.mapping_learned'),
+        );
         if (direction) this.bridge.send({ type: 'MOVE', direction, deltaSeconds: 0.1 });
       });
     }
@@ -311,7 +315,11 @@ export class GameScene extends Phaser.Scene {
       this.tickAccumulator = 0;
     }
     if (action) {
-      const direction = mapMovement(action, state.degradationStage, state.mode);
+      const direction = mapMovement(
+        action,
+        state.mode,
+        state.flags.includes('flag.return.mapping_learned'),
+      );
       if (direction) this.bridge.send({ type: 'MOVE', direction, deltaSeconds: delta / 1000 });
     }
     if (this.holdingConfirm && state.flags.includes('ending.ready_to_hold')) {

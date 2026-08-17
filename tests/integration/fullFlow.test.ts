@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { mapMovement } from '../../src/game/input/InputMapper';
 import { GameStore } from '../../src/game/state/GameStore';
 import type { GameMode } from '../../src/game/state/GameState';
 
@@ -52,6 +53,13 @@ describe('complete vertical slice', () => {
       }
       interact(store, 'route.up');
       expect(store.getState().chapterId).toBe('ending');
+      expect(
+        mapMovement(
+          'move_up',
+          mode,
+          store.getState().flags.includes('flag.return.mapping_learned'),
+        ),
+      ).toBe(mode === 'standard' ? 'right' : 'up');
 
       interact(store, 'entity.ending.xiulan');
       expect(store.getState().flags).toContain('ending.ready_to_hold');

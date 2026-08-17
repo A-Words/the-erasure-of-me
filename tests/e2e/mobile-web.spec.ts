@@ -828,7 +828,7 @@ test('applies D3 mapping and completes the default hold ending by touch', async 
       degradationStage: 'D4',
       objective: '握住她的手',
       player: { x: 920, y: 480, facing: 'left', moving: false },
-      flags: ['ending.dialogue_started', 'ending.ready_to_hold'],
+      flags: ['flag.return.mapping_learned', 'ending.dialogue_started', 'ending.ready_to_hold'],
       dialogue: [],
       dialogueIndex: 0,
       modal: null,
@@ -844,6 +844,16 @@ test('applies D3 mapping and completes the default hold ending by touch', async 
   const confirm = page.locator('[data-touch-action="interact"]');
   await expect(confirm).toHaveText('牵手');
   await expect(confirm).toHaveAttribute('aria-label', '按住牵手');
+  const endingBeforeX = Number(await page.locator('#app').getAttribute('data-player-x'));
+  const endingBeforeY = Number(await page.locator('#app').getAttribute('data-player-y'));
+  const endingUp = page.getByRole('button', { name: '向上移动' });
+  await endingUp.dispatchEvent('pointerdown', { pointerId: 23, pointerType: 'touch' });
+  await page.waitForTimeout(250);
+  await endingUp.dispatchEvent('pointerup', { pointerId: 23, pointerType: 'touch' });
+  await expect
+    .poll(async () => Number(await page.locator('#app').getAttribute('data-player-x')))
+    .toBeGreaterThan(endingBeforeX);
+  expect(Number(await page.locator('#app').getAttribute('data-player-y'))).toBe(endingBeforeY);
   await confirm.dispatchEvent('pointerdown', { pointerId: 22, pointerType: 'touch' });
   await expect(page.locator('#app')).toHaveAttribute('data-hold-progress', '100');
   await confirm.dispatchEvent('pointerup', { pointerId: 22, pointerType: 'touch' });
