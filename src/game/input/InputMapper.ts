@@ -17,12 +17,12 @@ const clockwise: Record<WorldDirection, WorldDirection> = {
 
 export function mapMovement(
   action: InputAction,
-  stage: string,
   mode: GameMode,
+  mappingActive: boolean,
 ): WorldDirection | null {
   const direction = movementByAction[action];
   if (!direction) return null;
-  return stage === 'D3' && mode === 'standard' ? clockwise[direction] : direction;
+  return mappingActive && mode === 'standard' ? clockwise[direction] : direction;
 }
 
 export function physicalKeyToAction(code: string): InputAction | null {
