@@ -704,20 +704,10 @@ export const translationEntries = {
     '林秀蘭：「那一起走吧。」',
     'Xiulan: “Then let’s go together.”',
   ],
-  'dialogue.rain.4': [
-    '[她把伞向他那边偏。]',
-    '[她把傘向他那邊偏。]',
-    '[She tilts the umbrella toward him.]',
-  ],
   'dialogue.rain.5': [
     '林秀兰：“伞往你那边一点，别淋着。”',
     '林秀蘭：「傘往你那邊一點，別淋著。」',
     'Xiulan: “I’ll tilt the umbrella your way. Don’t get wet.”',
-  ],
-  'dialogue.rain.6': [
-    '那天的雨很大。我不记得车开去了哪里，只记得她的半边肩膀湿了。',
-    '那天的雨很大。我不記得車開去了哪裡，只記得她的半邊肩膀濕了。',
-    'The rain was heavy that day. I do not remember where the train went. I only remember that half her shoulder was wet.',
   ],
   'narration.rain.memory_end': [
     '那天的雨很大。我不记得车开去了哪里，只记得她的半边肩膀湿了。',

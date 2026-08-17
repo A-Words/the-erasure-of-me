@@ -500,7 +500,6 @@ export class GameStore {
         text('dialogue.rain.1'),
         text('dialogue.rain.2'),
         text('dialogue.rain.3'),
-        text('dialogue.rain.4'),
         text('dialogue.rain.5'),
         text('narration.rain.memory_end'),
       ],

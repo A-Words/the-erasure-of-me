@@ -168,7 +168,7 @@ describe('GameStore', () => {
     store.dispatch({ type: 'INTERACT', entityId: 'entity.rain.red_umbrella' });
     expect(store.getState().memories).toContain('memory.rain.umbrella');
     expect(store.getState().checkpointId).toBe('checkpoint.rain.complete');
-    expect(store.getState().dialogue).toHaveLength(6);
+    expect(store.getState().dialogue).toHaveLength(5);
   });
 
   it('accepts the documented photo order', () => {
