@@ -279,7 +279,7 @@ type InputAction =
 2. ModalGate：DOM 面板打开时阻断角色动作；
    原生按钮、输入框、下拉框和链接的 keydown/keyup 在 DOM 层停止冒泡，避免 Phaser 捕获 Enter、Space 和方向键；
 3. AccessibilityOverride：低扰动模式覆盖 D3；
-4. DegradationTransform：标准模式 D3 旋转移动动作；
+4. DegradationTransform：标准模式在 D3 教学确认后使用存档中的固定顺时针 90° 移动映射，并持续到尾声；
 5. ActionDispatcher：把 InputAction 送入系统。
 
 暂停、取消和 DOM 菜单导航永远绕过 DegradationTransform。
@@ -526,6 +526,7 @@ interface DegradationConfig {
 - 阶段切换只能由一次性 trigger 或章节入口命令触发；
 - 配置不使用随机数；
 - D3 映射变化前必须完成安全演示；
+- `flag.return.mapping_learned` 是标准模式固定映射的持久生效标记，进入 D4 后不因退化阶段变化而恢复标准方向；
 - 低扰动模式强制 movementTransform 为 identity；
 - D4 隐藏游戏 HUD，但保留系统层、焦点与字幕能力。
 
