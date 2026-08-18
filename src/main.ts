@@ -109,6 +109,8 @@ async function bootstrap(): Promise<void> {
   let lastActiveSlot: SaveSlotId | null = null;
   let previousPresentationSnapshot: Readonly<PresentationSnapshot> | null = null;
   let lastAudioMessage: string | null = null;
+  let lastAudioChapter: GameState['chapterId'] | null = null;
+  let lastRainMapWashStarted = false;
   let wasPaused = false;
   store.subscribe((state) => {
     audio.setSettings(state.settings);
@@ -122,6 +124,20 @@ async function bootstrap(): Promise<void> {
       audio.play(audioCueForPresentationEvent(event));
     }
 
+    const rainMapWashStarted =
+      state.chapterId === 'rain' && state.flags.includes('degradation.d1.started');
+    const rainMapWashAudioTriggered =
+      state.phase === 'playing' &&
+      state.chapterId === 'rain' &&
+      lastAudioChapter === 'rain' &&
+      rainMapWashStarted &&
+      !lastRainMapWashStarted;
+    if (rainMapWashAudioTriggered) {
+      audio.play('rain_map_wash');
+    }
+    lastAudioChapter = state.phase === 'playing' ? state.chapterId : null;
+    lastRainMapWashStarted = rainMapWashStarted;
+
     const messageSignature = state.message ? JSON.stringify(state.message) : null;
     const messageChanged = messageSignature !== lastAudioMessage;
     lastAudioMessage = messageSignature;
@@ -133,7 +149,8 @@ async function bootstrap(): Promise<void> {
       state.message &&
       messageChanged &&
       presentationEvents.length === 0 &&
-      remainsInPlayingChapter
+      remainsInPlayingChapter &&
+      !rainMapWashAudioTriggered
     ) {
       audio.play('soft_feedback');
     }

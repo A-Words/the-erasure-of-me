@@ -130,6 +130,81 @@ describe('GameStore', () => {
     expect(store.getState().puzzles.stationSequence).toEqual([2]);
   });
 
+  it('submits a station when walking into its documented area', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'rain';
+    state.degradationStage = 'D1';
+    state.player = { x: 280, y: 520, facing: 'right', moving: false };
+    const store = new GameStore(state, {
+      getCollisionData: () => ({
+        walkBounds: { minX: 0, maxX: 1280, minY: 0, maxY: 720 },
+        obstacles: [],
+      }),
+    });
+
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+
+    expect(store.getState().puzzles.stationSequence).toEqual([2]);
+  });
+
+  it('ignores a station that was already submitted on re-entry or manual interaction', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'rain';
+    state.degradationStage = 'D1';
+    state.puzzles.stationSequence = [2];
+    state.player = { x: 280, y: 520, facing: 'right', moving: false };
+    const store = new GameStore(state, {
+      getCollisionData: () => ({
+        walkBounds: { minX: 0, maxX: 1280, minY: 0, maxY: 720 },
+        obstacles: [],
+      }),
+    });
+
+    store.dispatch({ type: 'MOVE', direction: 'right', deltaSeconds: 0.05 });
+
+    expect(store.getState().puzzles.stationSequence).toEqual([2]);
+    expect(store.getState().message).toBeNull();
+
+    store.dispatch({ type: 'INTERACT', entityId: 'entity.rain.stone_2' });
+
+    expect(store.getState().puzzles.stationSequence).toEqual([2]);
+    expect(store.getState().message).toBeNull();
+  });
+
+  it('enters Chapter 2 facing the documented platform direction', () => {
+    const store = new GameStore();
+
+    store.dispatch({ type: 'DEBUG_JUMP_CHAPTER', chapterId: 'rain' });
+
+    expect(store.getState().player).toMatchObject({ x: 100, y: 600, facing: 'right' });
+  });
+
+  it('opens the rain memory dialogue immediately after the umbrella interaction', () => {
+    const state = createInitialState();
+    state.phase = 'playing';
+    state.chapterId = 'rain';
+    state.degradationStage = 'D1';
+    state.puzzles.stationSequence = [2, 4, 5];
+    state.puzzles.rainSigns = ['entity.rain.umbrella_sign_a', 'entity.rain.umbrella_sign_b'];
+    const store = new GameStore(state);
+
+    store.dispatch({ type: 'INTERACT', entityId: 'entity.rain.red_umbrella' });
+    expect(store.getState().memories).toContain('memory.rain.umbrella');
+    expect(store.getState().checkpointId).toBe('checkpoint.rain.complete');
+    const dialogue = store.getState().dialogue;
+    expect(dialogue.map((line) => line.key)).toEqual([
+      'dialogue.rain.1',
+      'dialogue.rain.2',
+      'dialogue.rain.3',
+      'dialogue.rain.5',
+      'narration.rain.memory_end',
+    ]);
+    expect(renderText('zh-CN', dialogue[3])).toContain('林秀兰');
+    expect(renderText('zh-CN', dialogue[3])).toContain('伞往你那边一点');
+  });
+
   it('accepts the documented photo order', () => {
     const state = createInitialState();
     state.phase = 'playing';

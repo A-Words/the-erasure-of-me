@@ -12,10 +12,15 @@ export function isEntityAvailable(state: Readonly<GameState>, entityId: string):
     (entityId === 'item.photo.osmanthus_1992' && state.inventory.includes('item.photo.1992')) ||
     (entityId === 'item.photo.anniversary_2001' && state.inventory.includes('item.photo.2001')) ||
     (entityId.startsWith('item.life.') && state.inventory.includes(entityId));
+  const rainStoneNumber = Number(entityId.match(/^entity\.rain\.stone_(\d+)$/)?.[1]);
+  const reachedRainStone =
+    Number.isFinite(rainStoneNumber) && state.puzzles.stationSequence.includes(rainStoneNumber);
   const routeHidden =
     state.chapterId === 'return' && state.puzzles.returnJunction >= 3 && entityId !== 'route.up';
+  const rainClockShopLocked =
+    entityId === 'entity.rain.red_umbrella' && state.puzzles.rainSigns.length < 2;
 
-  return !collected && !routeHidden;
+  return !collected && !reachedRainStone && !routeHidden && !rainClockShopLocked;
 }
 
 export function nearestAvailableEntity(

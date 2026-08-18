@@ -11,6 +11,7 @@ const progressCues: readonly SemanticAudioCue[] = [
   'rain_stone_1',
   'rain_stone_2',
   'rain_stone_3',
+  'rain_map_wash',
   'rain_wayfinder',
   'life_object_returned',
   'return_path_step',

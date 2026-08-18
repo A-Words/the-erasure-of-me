@@ -523,6 +523,7 @@ export class AppShell {
       message: state.message,
       dialogue: state.dialogue,
       dialogueIndex: state.dialogueIndex,
+      activeMemoryId: state.activeMemoryId,
       hold: Math.round(state.holdProgress * 20),
       mapPlayer: [Math.round(state.player.x / 16), Math.round(state.player.y / 16)],
       nearbyEntity: nearbyEntity?.id ?? null,
@@ -770,7 +771,7 @@ export class AppShell {
 
   private memoryCutscene(memoryId: MemoryIllustrationId, dialogue: string): string {
     if (memoryId === 'rain') {
-      return `<section class="memory-cutscene" aria-label="${this.translate('memory.rain.label')}"><img src="${assetUrl('memory.rain.umbrella.illustration')}" alt="${this.translate('memory.rain.alt')}">${dialogue}</section>`;
+      return `<section class="memory-cutscene rain-memory" aria-label="${this.translate('memory.rain.label')}"><img src="${assetUrl('memory.rain.umbrella.illustration')}" alt="${this.translate('memory.rain.alt')}"><header class="memory-caption"><p class="memory-caption-title">${this.translate('memory.rain.umbrella.title')}</p><p>${this.translate('memory.rain.umbrella.body')}</p></header>${dialogue}</section>`;
     }
     if (memoryId === 'life.move') {
       return `<section class="memory-cutscene" aria-label="${this.translate('memory.life.move.label')}"><img src="${assetUrl('memory.life.move.illustration')}" alt="${this.translate('memory.life.move.alt')}">${dialogue}</section>`;

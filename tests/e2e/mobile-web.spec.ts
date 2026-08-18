@@ -611,7 +611,7 @@ test('keeps the first memory line after the touch that opens it', async ({ page 
   await expect(line).toHaveText('年轻的林秀兰：“你要去车站吗？”');
 
   await page.touchscreen.tap(24, 180);
-  await expect(line).toHaveText('“那一起走吧。伞往你那边一点，别淋着。”');
+  await expect(line).toHaveText('许志远：“……是。”');
   await page.screenshot({ path: testInfo.outputPath('mobile-memory-dialogue-anywhere.png') });
 });
 
